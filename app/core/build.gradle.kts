@@ -46,19 +46,21 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
         }
 
-        // Shared Kable-backed scanner for every CoreBluetooth/Android target.
-        // Android + Apple (ios*, watchos*) all depend on this single source set
-        // so the BLE glue is written once. The JVM target opts out (fake scanner).
+        // Shared Kable-backed scanner. Kable ships Android + iOS artifacts (but
+        // NOT watchOS), so Android and iOS share this single source set.
         val kableMain by creating {
             dependsOn(commonMain.get())
             dependencies { implementation(libs.kable.core) }
         }
-        appleMain.get().dependsOn(kableMain)
+        iosMain.get().dependsOn(kableMain)
         if (enableAndroid) {
             androidMain.get().dependsOn(kableMain)
         }
-        // jvmMain intentionally has no BLE dependency — it ships a fake scanner
-        // so the domain logic is testable on a plain JVM.
+        // watchosMain provides its own no-op scanner: the watchOS app does
+        // CoreBluetooth in Swift and only uses the pure TrackingSession, so
+        // Kable (unavailable on watchOS) isn't needed there.
+        // jvmMain likewise has no BLE dependency — it ships a fake scanner so
+        // the domain logic is testable on a plain JVM.
     }
 }
 
