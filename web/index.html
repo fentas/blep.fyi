@@ -58,18 +58,45 @@
         </article>
       </section>
 
-      <!-- Donate (target of the app's "Help & donate" button) -->
+      <!-- Donate (target of the app's "Help & donate" button).
+           Provider links below are placeholders — set real URLs (see README). -->
       <section id="donate" class="mb-24 scroll-mt-24 rounded-[28px] bg-cream p-10 text-center shadow-sm">
         <div class="text-4xl">♥</div>
         <h2 class="mt-3 font-display text-3xl font-bold tracking-tight">Help &amp; donate</h2>
         <p class="mx-auto mt-3 max-w-md text-ink/70">
           blep is free and open source. If it reunited you with your keys (or your
-          dignity), a small thank-you keeps the lights on.
+          dignity), a small thank-you keeps the lights on. Pick whatever&rsquo;s easiest:
         </p>
-        <div class="mt-7 flex flex-wrap justify-center gap-3">
-          <a class="btn-primary" href="https://github.com/sponsors/fentas">Sponsor on GitHub</a>
-          <a class="btn-ghost" href="https://github.com/fentas/blep.fyi">Star the repo</a>
+
+        <div class="mx-auto mt-8 grid max-w-lg gap-3 sm:grid-cols-2">
+          <a class="donate-card" href="https://donate.stripe.com/REPLACE_ME">
+            <span class="donate-card-title">Card · Stripe</span>
+            <span class="donate-card-note">Instant emailed &amp; downloadable receipt</span>
+          </a>
+          <a class="donate-card" href="https://opencollective.com/blep">
+            <span class="donate-card-title">Open Collective</span>
+            <span class="donate-card-note">PDF receipt · transparent ledger</span>
+          </a>
+          <a class="donate-card" href="https://www.paypal.com/donate/?hosted_button_id=REPLACE_ME">
+            <span class="donate-card-title">PayPal</span>
+            <span class="donate-card-note">Receipt in your PayPal history</span>
+          </a>
+          <a class="donate-card" href="https://github.com/sponsors/fentas">
+            <span class="donate-card-title">GitHub Sponsors</span>
+            <span class="donate-card-note">Best for recurring support</span>
+          </a>
         </div>
+
+        <details class="mx-auto mt-6 max-w-md text-left text-sm text-ink/60">
+          <summary class="cursor-pointer text-center font-medium text-blue">Need a receipt?</summary>
+          <p class="mt-3">
+            Every method is receipted. <strong>Stripe</strong> emails a printable/PDF
+            receipt instantly. <strong>Open Collective</strong> issues a downloadable
+            PDF invoice on your contribution page. <strong>PayPal</strong> and
+            <strong>GitHub Sponsors</strong> email a receipt you can download from your
+            account history.
+          </p>
+        </details>
       </section>
     </main>
 

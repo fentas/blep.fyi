@@ -47,6 +47,16 @@
   .btn-ghost {
     @apply inline-flex items-center rounded-full border border-ink/15 px-6 py-3 font-medium text-ink transition hover:bg-ink/5 active:scale-[0.98];
   }
+
+  .donate-card {
+    @apply flex flex-col items-start rounded-2xl border border-ink/10 bg-mist px-5 py-4 text-left transition hover:border-blue hover:bg-white active:scale-[0.99];
+  }
+  .donate-card-title {
+    @apply font-semibold text-ink;
+  }
+  .donate-card-note {
+    @apply mt-0.5 text-xs text-ink/55;
+  }
 }
 
 @keyframes float {
