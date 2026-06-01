@@ -66,29 +66,39 @@ fun VectorArrow(
     Canvas(modifier = modifier.size(220.dp)) {
         if (settledScale <= 0.001f) return@Canvas
 
-        val sway = sin(phase) * 3.5f                       // gentle left/right lean
+        val sway = sin(phase) * 3.5f                                  // gentle lean
         val bob = sin(phase + 0.6f) * (size.minDimension * 0.018f)
-        val bend = sin(phase * 1.3f) * (size.minDimension * 0.045f) // body flex
+        val flex = sin(phase * 1.25f) * (size.minDimension * 0.05f)   // hand-drawn body flex
         val breathe = 1f + sin(phase + 1.2f) * 0.03f
 
         val cx = size.width / 2f
         val cy = size.height / 2f
-        val unit = (size.minDimension / 2f) * settledScale * breathe
-        val stroke = (unit * 0.2f).coerceAtLeast(2f)
+        val u = (size.minDimension / 2f) * settledScale * breathe
+        val stroke = (u * 0.16f).coerceAtLeast(2f)
+
+        val tipX = cx
+        val tipY = cy - u * 0.86f
 
         translate(left = 0f, top = bob) {
             rotate(degrees = heading + sway, pivot = Offset(cx, cy)) {
-                // Bowed shaft (quadratic) so the body flexes rather than staying rigid.
+                // Sweeping, slightly off-axis shaft (cubic) — a hand-drawn stroke,
+                // not a ruler-straight line. The flex makes it bow back and forth.
                 val shaft = Path().apply {
-                    moveTo(cx, cy + unit * 0.9f)
-                    quadraticTo(cx + bend, cy + unit * 0.1f, cx, cy - unit * 0.5f)
+                    moveTo(cx + u * 0.05f, cy + u * 0.96f)
+                    cubicTo(
+                        cx + flex, cy + u * 0.30f,
+                        cx - flex * 0.85f, cy - u * 0.28f,
+                        tipX, tipY,
+                    )
                 }
                 drawPath(shaft, tint, style = Stroke(width = stroke, cap = StrokeCap.Round))
 
-                // Curved chevron head (a smooth arc, not two straight lines).
+                // Hand-drawn chevron head: two slightly curved, asymmetric barbs
+                // sweeping out of the tip (like a marker stroke).
                 val head = Path().apply {
-                    moveTo(cx - unit * 0.62f, cy - unit * 0.08f)
-                    quadraticTo(cx + bend * 0.5f, cy - unit * 0.92f, cx + unit * 0.62f, cy - unit * 0.08f)
+                    moveTo(cx - u * 0.50f, tipY + u * 0.44f)
+                    quadraticTo(cx - u * 0.15f, tipY + u * 0.06f, tipX, tipY)
+                    quadraticTo(cx + u * 0.19f, tipY + u * 0.05f, cx + u * 0.47f, tipY + u * 0.40f)
                 }
                 drawPath(
                     head,

@@ -90,15 +90,15 @@
           <g>
             <animateTransform attributeName="transform" type="scale" dur="2.4s" repeatCount="indefinite"
               calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" values="0.95;1.12;0.95"/>
-            <path fill="none" stroke="#27313B" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"
-              d="M0 64 Q 18 12 0 -42 M-36 -8 Q 4 -54 36 -8">
+            <path fill="none" stroke="#27313B" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"
+              d="M2 72 C 16 30 -10 -18 0 -62 M-30 -34 Q -8 -54 0 -62 Q 9 -53 27 -36">
               <animate attributeName="d" dur="3.4s" repeatCount="indefinite"
                 calcMode="spline" keyTimes="0;0.34;0.67;1"
                 keySplines="0.34 1.3 0.5 1;0.34 1.3 0.5 1;0.34 1.3 0.5 1"
-                values="M0 64 Q 18 12 0 -42 M-36 -8 Q 4 -54 36 -8;
-                        M0 64 Q -14 12 0 -42 M-36 -8 Q -4 -54 36 -8;
-                        M0 64 Q 2 12 0 -42 M-36 -8 Q 0 -54 36 -8;
-                        M0 64 Q 18 12 0 -42 M-36 -8 Q 4 -54 36 -8"/>
+                values="M2 72 C 16 30 -10 -18 0 -62 M-30 -34 Q -8 -54 0 -62 Q 9 -53 27 -36;
+                        M-3 72 C -14 30 13 -18 0 -62 M-27 -37 Q -9 -53 0 -62 Q 7 -54 29 -33;
+                        M0 72 C 5 30 -3 -18 0 -62 M-28 -35 Q -8 -53 0 -62 Q 8 -53 28 -35;
+                        M2 72 C 16 30 -10 -18 0 -62 M-30 -34 Q -8 -54 0 -62 Q 9 -53 27 -36"/>
             </path>
           </g>
         </g>
