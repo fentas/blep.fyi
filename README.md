@@ -33,6 +33,12 @@
 
 &nbsp;
 
+<p align="center">
+	<img src="./assets/flow.svg" width="240" alt="blep flow: pick a device, track it warm/cold, found it" />
+</p>
+
+&nbsp;
+
 <p align="left">
 
 **blep** turns your phone — or your watch — into a warm/cold pointer for the
