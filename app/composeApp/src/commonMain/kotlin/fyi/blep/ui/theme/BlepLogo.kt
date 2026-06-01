@@ -4,7 +4,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
-import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 /**
@@ -49,6 +48,6 @@ private fun buildBlepLogo(): ImageVector =
     ).apply {
         logoPaths.forEach { lp ->
             val nodes = PathParser().parsePathString(lp.data).toNodes()
-            path(fill = SolidColor(lp.fill), pathData = nodes)
+            addPath(pathData = nodes, fill = SolidColor(lp.fill))
         }
     }.build()
