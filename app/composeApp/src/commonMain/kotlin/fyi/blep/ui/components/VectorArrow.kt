@@ -1,11 +1,13 @@
 package fyi.blep.ui.components
 
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -18,11 +20,16 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.dp
+import kotlin.math.PI
+import kotlin.math.sin
 
 /**
- * The guidance arrow: a soft, rounded chevron that smoothly rotates and scales
- * toward its target, tinted by proximity, with a subtle "breathing" pulse.
+ * The guidance arrow: a soft, *flexible* chevron that springs toward its target
+ * heading and breathes while it guides. It isn't a rigid rotation — the body
+ * bends, sways and bobs slightly so it feels alive, and the curves ease back
+ * into place with a spring.
  *
  * @param rotationDeg symbolic heading (0 = forward, 180 = turn around).
  * @param scale target scale (0 collapses the arrow on completion).
@@ -35,64 +42,60 @@ fun VectorArrow(
     tint: Color,
     modifier: Modifier = Modifier,
 ) {
-    val animatedRotation by animateFloatAsState(
+    // Springy (not linear) settle toward the target heading/scale.
+    val heading by animateFloatAsState(
         targetValue = rotationDeg,
-        animationSpec = tween(durationMillis = 600),
-        label = "arrowRotation",
+        animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow),
+        label = "arrowHeading",
     )
-    val animatedScale by animateFloatAsState(
+    val settledScale by animateFloatAsState(
         targetValue = scale,
-        animationSpec = tween(durationMillis = 600),
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
         label = "arrowScale",
     )
 
-    // Gentle, continuous pulse so the arrow feels alive while guiding.
-    val pulse = rememberInfiniteTransition(label = "arrowPulse")
-    val pulseScale by pulse.animateFloat(
-        initialValue = 0.97f,
-        targetValue = 1.03f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1400),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "pulseScale",
+    // One continuous phase drives organic sway / bob / bend / breathing.
+    val osc = rememberInfiniteTransition(label = "arrowLife")
+    val phase by osc.animateFloat(
+        initialValue = 0f,
+        targetValue = (2f * PI).toFloat(),
+        animationSpec = infiniteRepeatable(tween(2600), RepeatMode.Restart),
+        label = "phase",
     )
 
     Canvas(modifier = modifier.size(220.dp)) {
-        val effective = animatedScale * pulse(pulseScale, animatedScale)
-        if (effective <= 0.001f) return@Canvas
+        if (settledScale <= 0.001f) return@Canvas
 
-        val w = size.width
-        val h = size.height
-        val cx = w / 2f
-        val cy = h / 2f
-        val unit = (minOf(w, h) / 2f) * effective
-        val stroke = (unit * 0.22f).coerceAtLeast(2f)
+        val sway = sin(phase) * 3.5f                       // gentle left/right lean
+        val bob = sin(phase + 0.6f) * (size.minDimension * 0.018f)
+        val bend = sin(phase * 1.3f) * (size.minDimension * 0.045f) // body flex
+        val breathe = 1f + sin(phase + 1.2f) * 0.03f
 
-        rotate(degrees = animatedRotation, pivot = Offset(cx, cy)) {
-            // Shaft
-            drawLine(
-                color = tint,
-                start = Offset(cx, cy + unit * 0.85f),
-                end = Offset(cx, cy - unit * 0.55f),
-                strokeWidth = stroke,
-                cap = StrokeCap.Round,
-            )
-            // Chevron head
-            val head = Path().apply {
-                moveTo(cx - unit * 0.6f, cy - unit * 0.15f)
-                lineTo(cx, cy - unit * 0.85f)
-                lineTo(cx + unit * 0.6f, cy - unit * 0.15f)
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        val unit = (size.minDimension / 2f) * settledScale * breathe
+        val stroke = (unit * 0.2f).coerceAtLeast(2f)
+
+        translate(left = 0f, top = bob) {
+            rotate(degrees = heading + sway, pivot = Offset(cx, cy)) {
+                // Bowed shaft (quadratic) so the body flexes rather than staying rigid.
+                val shaft = Path().apply {
+                    moveTo(cx, cy + unit * 0.9f)
+                    quadraticTo(cx + bend, cy + unit * 0.1f, cx, cy - unit * 0.5f)
+                }
+                drawPath(shaft, tint, style = Stroke(width = stroke, cap = StrokeCap.Round))
+
+                // Curved chevron head (a smooth arc, not two straight lines).
+                val head = Path().apply {
+                    moveTo(cx - unit * 0.62f, cy - unit * 0.08f)
+                    quadraticTo(cx + bend * 0.5f, cy - unit * 0.92f, cx + unit * 0.62f, cy - unit * 0.08f)
+                }
+                drawPath(
+                    head,
+                    tint,
+                    style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round),
+                )
             }
-            drawPath(
-                path = head,
-                color = tint,
-                style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round),
-            )
         }
     }
 }
-
-/** Pulse only matters once the arrow has materialised; suppress it near zero. */
-private fun pulse(pulseScale: Float, animatedScale: Float): Float =
-    if (animatedScale < 0.05f) 1f else pulseScale

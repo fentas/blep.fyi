@@ -42,6 +42,14 @@ class BlepController(
     var status by mutableStateOf<TrackingStatus?>(null)
         private set
 
+    /** Devices shown in the list, honouring the unnamed toggle. */
+    val visibleDevices: List<BleDevice>
+        get() = if (includeUnnamed) devices else devices.filter { it.isNamed }
+
+    /** How many discovered devices are currently hidden as unnamed. */
+    val unnamedCount: Int
+        get() = devices.count { !it.isNamed }
+
     private val aliases = mutableMapOf<String, String>()
     private var scanJob: Job? = null
     private var trackJob: Job? = null
@@ -59,8 +67,8 @@ class BlepController(
     }
 
     fun toggleUnnamed() {
+        // The scan always collects everything; this only flips what's shown.
         includeUnnamed = !includeUnnamed
-        restartScan()
     }
 
     /** User-assigned rename, overlaid on scan results. */
@@ -92,7 +100,8 @@ class BlepController(
     private fun restartScan() {
         scanJob?.cancel()
         scanJob = scope.launch {
-            scanner.devices(includeUnnamed).collectLatest { list ->
+            // Always collect everything; the UI filters via [visibleDevices].
+            scanner.devices(includeUnnamed = true).collectLatest { list ->
                 devices = list.map { it.copy(alias = aliases[it.id] ?: it.alias) }
             }
         }

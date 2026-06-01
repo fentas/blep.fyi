@@ -33,7 +33,8 @@ fun App() {
         ) { screen ->
             when (screen) {
                 is Screen.Discovery -> DiscoveryScreen(
-                    devices = controller.devices,
+                    devices = controller.visibleDevices,
+                    unnamedCount = controller.unnamedCount,
                     availability = controller.availability,
                     includeUnnamed = controller.includeUnnamed,
                     onToggleUnnamed = controller::toggleUnnamed,
