@@ -52,7 +52,7 @@ struct CurlArrow: Shape {
 
     func path(in rect: CGRect) -> Path {
         let n = 28
-        let len: CGFloat = 1.95, maxAngle: CGFloat = 4.2, head: CGFloat = 0.66, spread: CGFloat = 0.6
+        let len: CGFloat = 1.95, maxAngle: CGFloat = 4.2, head: CGFloat = 0.56, spread: CGFloat = 0.5
         let arc = abs(curl) * maxAngle
         let sign: CGFloat = curl < 0 ? -1 : 1
         let dTheta = arc * sign / CGFloat(n)

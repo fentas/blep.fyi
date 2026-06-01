@@ -83,8 +83,8 @@ fun VectorArrow(
 private const val SEGMENTS = 28
 private const val SPINE_LEN = 1.95f       // arc length in unit space
 private const val MAX_ANGLE = 4.2f        // radians at |curl| = 1
-private const val HEAD = 0.66f
-private const val SPREAD = 0.6f
+private const val HEAD = 0.56f
+private const val SPREAD = 0.5f
 
 /**
  * Builds the arrow as a constant-curvature "spine" (so it bends like a drawn

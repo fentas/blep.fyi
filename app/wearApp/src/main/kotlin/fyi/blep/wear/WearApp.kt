@@ -97,7 +97,7 @@ private fun TrackingView(name: String, status: TrackingStatus, onCancel: () -> U
             )
             Text(
                 name,
-                color = Ink.copy(alpha = 0.6f),
+                color = Ink.copy(alpha = 0.5f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 2.dp),
             )
@@ -122,8 +122,8 @@ private fun WearArrow(curl: Float, scale: Float) {
         var x = 0f; var y = 0.9f; var a = (-PI / 2).toFloat()
         for (k in 1..28) { x += ds * cos(a); y += ds * sin(a); a += dTheta; xs[k] = x; ys[k] = y }
         val back = a + PI.toFloat()
-        xs[29] = xs[28] + 0.66f * cos(back + 0.6f); ys[29] = ys[28] + 0.66f * sin(back + 0.6f)
-        xs[30] = xs[28] + 0.66f * cos(back - 0.6f); ys[30] = ys[28] + 0.66f * sin(back - 0.6f)
+        xs[29] = xs[28] + 0.56f * cos(back + 0.5f); ys[29] = ys[28] + 0.56f * sin(back + 0.5f)
+        xs[30] = xs[28] + 0.56f * cos(back - 0.5f); ys[30] = ys[28] + 0.56f * sin(back - 0.5f)
         var minX = xs[0]; var maxX = xs[0]; var minY = ys[0]; var maxY = ys[0]
         for (i in 0..30) { if (xs[i] < minX) minX = xs[i]; if (xs[i] > maxX) maxX = xs[i]; if (ys[i] < minY) minY = ys[i]; if (ys[i] > maxY) maxY = ys[i] }
         val bx = (minX + maxX) / 2f; val by = (minY + maxY) / 2f
