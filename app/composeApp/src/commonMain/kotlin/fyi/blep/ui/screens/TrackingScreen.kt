@@ -61,7 +61,7 @@ fun TrackingScreen(
 
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
             VectorArrow(
-                rotationDeg = status.arrow.rotationDeg,
+                curl = status.arrow.curl,
                 scale = status.arrow.scale,
                 tint = arrowTint,
             )

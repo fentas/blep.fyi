@@ -40,17 +40,41 @@ private let ink = Color(red: 0.153, green: 0.192, blue: 0.231)
 
 // MARK: - Arrow
 
-struct ChevronArrow: Shape {
+/// A flexible arrow whose body curls to express the instruction. `curl` is the
+/// signed bend from the shared engine (0 = straight, ±large = turn / U-turn).
+/// `animatableData` lets SwiftUI morph the shape smoothly between poses.
+struct CurlArrow: Shape {
+    var curl: CGFloat
+    var animatableData: CGFloat {
+        get { curl }
+        set { curl = newValue }
+    }
+
     func path(in rect: CGRect) -> Path {
-        let cx = rect.midX, cy = rect.midY
-        let unit = min(rect.width, rect.height) / 2
-        var p = Path()
-        p.move(to: CGPoint(x: cx, y: cy + unit * 0.85))
-        p.addLine(to: CGPoint(x: cx, y: cy - unit * 0.55))
-        p.move(to: CGPoint(x: cx - unit * 0.6, y: cy - unit * 0.15))
-        p.addLine(to: CGPoint(x: cx, y: cy - unit * 0.85))
-        p.addLine(to: CGPoint(x: cx + unit * 0.6, y: cy - unit * 0.15))
-        return p
+        let n = 28
+        let len: CGFloat = 1.95, maxAngle: CGFloat = 4.2, head: CGFloat = 0.66, spread: CGFloat = 0.6
+        let arc = abs(curl) * maxAngle
+        let sign: CGFloat = curl < 0 ? -1 : 1
+        let dTheta = arc * sign / CGFloat(n)
+        let ds = len / CGFloat(n)
+        var x: CGFloat = 0, y: CGFloat = 0.9, a: CGFloat = -.pi / 2
+        var xs = [x], ys = [y]
+        for _ in 0..<n { x += ds * cos(a); y += ds * sin(a); a += dTheta; xs.append(x); ys.append(y) }
+        let back = a + .pi
+        xs.append(xs[n] + head * cos(back + spread)); ys.append(ys[n] + head * sin(back + spread))
+        xs.append(xs[n] + head * cos(back - spread)); ys.append(ys[n] + head * sin(back - spread))
+
+        let minX = xs.min()!, maxX = xs.max()!, minY = ys.min()!, maxY = ys.max()!
+        let bx = (minX + maxX) / 2, by = (minY + maxY) / 2
+        let span = min(rect.width, rect.height)
+        let sc = span / max(maxX - minX, maxY - minY, 0.0001)
+        func p(_ i: Int) -> CGPoint { CGPoint(x: (xs[i] - bx) * sc + rect.midX, y: (ys[i] - by) * sc + rect.midY) }
+
+        var path = Path()
+        path.move(to: p(0))
+        for k in 1...n { path.addLine(to: p(k)) }
+        path.move(to: p(n + 1)); path.addLine(to: p(n)); path.addLine(to: p(n + 2))
+        return path
     }
 }
 
@@ -110,12 +134,11 @@ struct TrackingScreen: View {
             proximityColor(status.proximity).ignoresSafeArea()
                 .animation(.easeInOut(duration: 0.8), value: status.proximity)
             VStack(spacing: 6) {
-                ChevronArrow()
-                    .stroke(ink, style: StrokeStyle(lineWidth: 8, lineCap: .round, lineJoin: .round))
-                    .frame(width: 88, height: 88)
+                CurlArrow(curl: CGFloat(status.arrow.curl))
+                    .stroke(ink, style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round))
+                    .frame(width: 92, height: 92)
                     .scaleEffect(CGFloat(status.arrow.scale))
-                    .rotationEffect(.degrees(Double(status.arrow.rotationDeg)))
-                    .animation(.easeInOut(duration: 0.6), value: status.arrow.rotationDeg)
+                    .animation(.spring(response: 0.5, dampingFraction: 0.7), value: status.arrow.curl)
                     .animation(.easeInOut(duration: 0.6), value: status.arrow.scale)
                 Text(status.guidance.title).font(.headline).foregroundColor(ink)
                 Text(name).font(.caption2).foregroundColor(ink.opacity(0.6))

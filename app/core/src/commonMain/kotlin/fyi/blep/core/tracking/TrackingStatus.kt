@@ -25,13 +25,17 @@ enum class TrackingPhase {
 enum class Tone { NEUTRAL, WARMER, COLDER, STOP, DONE }
 
 /**
- * What the arrow should do. Rotation is *symbolic intent* from the signal model
- * (0° = "go / forward", 180° = "turn around", ±90° = "keep turning"); the UI
- * layer may fuse it with the device heading sensors for a world-space arrow.
- * Scale grows as the target gets closer and collapses on completion.
+ * What the arrow should do — expressed as a *shape*, not a rotation.
+ *
+ * @property curl signed bend of the arrow body in [-1f, 1f]:
+ *   `0` = straight (go forward), small magnitude = a gentle bend left/right,
+ *   ~`±0.55` = a curl that reads as "turn / rotate on the spot" (sign picks the
+ *   direction), larger = a tighter U-turn / "come down here". The UI morphs the
+ *   arrow between these poses rather than rotating a rigid arrow.
+ * @property scale grows as the target gets closer; collapses to 0 on completion.
  */
 data class ArrowDirective(
-    val rotationDeg: Float,
+    val curl: Float,
     val scale: Float,
 )
 

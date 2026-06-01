@@ -98,7 +98,7 @@ class TrackingSession(
                     Tone.NEUTRAL,
                 ),
                 proximity = proximity,
-                arrow = arrow(rotationDeg = 90f, proximity = proximity),
+                arrow = arrow(curl = 0.5f, proximity = proximity),
             )
         } else {
             calibrationPrompt(proximity)
@@ -116,11 +116,11 @@ class TrackingSession(
             return statusForLegStart(target, proximity)
         }
         val cue = when (movement) {
-            Trend.RISING -> Cue("Keep turning", "Warmer — you're facing it more.", Tone.WARMER, 30f)
-            Trend.FALLING -> Cue("Turn back", "Colder — go the other way.", Tone.COLDER, 180f)
-            Trend.FLAT -> Cue("Turn slowly", "Keep rotating to find the strongest point.", Tone.NEUTRAL, 90f)
+            Trend.RISING -> Cue("Keep turning", "Warmer — you're facing it more.", Tone.WARMER, 0.55f)
+            Trend.FALLING -> Cue("Turn back", "Colder — go the other way.", Tone.COLDER, -0.55f)
+            Trend.FLAT -> Cue("Turn slowly", "Keep rotating to find the strongest point.", Tone.NEUTRAL, 0.5f)
         }
-        return TrackingStatus(phase, cue.guidance, proximity, arrow(cue.rotationDeg, proximity))
+        return TrackingStatus(phase, cue.guidance, proximity, arrow(cue.curl, proximity))
     }
 
     private fun walk(smoothed: Double, movement: Trend, proximity: Float): TrackingStatus {
@@ -136,15 +136,15 @@ class TrackingSession(
                 TrackingPhase.REORIENT,
                 Guidance("Stop — turn again", "You passed it. Turn slowly to re-aim.", Tone.STOP),
                 proximity,
-                arrow(180f, proximity),
+                arrow(-0.55f, proximity),
             )
         }
         val cue = when (movement) {
             Trend.RISING -> Cue("Keep going", "Warmer — straight ahead.", Tone.WARMER, 0f)
-            Trend.FALLING -> Cue("Stop", "Colder — pause and re-aim.", Tone.COLDER, 180f)
+            Trend.FALLING -> Cue("Stop", "Colder — pause and re-aim.", Tone.COLDER, 0.45f)
             Trend.FLAT -> Cue("Walk forward", "Move slowly straight ahead.", Tone.NEUTRAL, 0f)
         }
-        return TrackingStatus(phase, cue.guidance, proximity, arrow(cue.rotationDeg, proximity))
+        return TrackingStatus(phase, cue.guidance, proximity, arrow(cue.curl, proximity))
     }
 
     private fun pinpoint(smoothed: Double, proximity: Float): TrackingStatus {
@@ -166,7 +166,7 @@ class TrackingSession(
                         TrackingPhase.REORIENT,
                         Guidance("Lost it — turn again", "Signal dropped. Turn slowly to re-aim.", Tone.STOP),
                         proximity,
-                        arrow(90f, proximity),
+                        arrow(0.5f, proximity),
                     )
                 }
             } else {
@@ -177,7 +177,7 @@ class TrackingSession(
             TrackingPhase.PINPOINT,
             Guidance("Almost there", "Kneel down and search low, near the floor.", Tone.WARMER),
             proximity,
-            arrow(rotationDeg = 0f, proximity = proximity),
+            arrow(curl = 0.78f, proximity = proximity),
         )
     }
 
@@ -187,7 +187,7 @@ class TrackingSession(
         TrackingPhase.COMPLETE,
         Guidance("Finished", "Congratulations — you found it!", Tone.DONE),
         proximity = 1f,
-        arrow = ArrowDirective(rotationDeg = 0f, scale = 0f),
+        arrow = ArrowDirective(curl = 0f, scale = 0f),
     )
 
     // ── Helpers ─────────────────────────────────────────────────────────────
@@ -212,12 +212,12 @@ class TrackingSession(
             TrackingPhase.PINPOINT -> TrackingStatus(
                 target,
                 Guidance("Almost there", "Kneel down and search low, near the floor.", Tone.WARMER),
-                proximity, arrow(0f, proximity),
+                proximity, arrow(0.78f, proximity),
             )
             else -> TrackingStatus(
                 target,
                 Guidance("Turn slowly", "Rotate to re-aim.", Tone.NEUTRAL),
-                proximity, arrow(90f, proximity),
+                proximity, arrow(0.5f, proximity),
             )
         }
 
@@ -225,15 +225,15 @@ class TrackingSession(
         TrackingPhase.CALIBRATION,
         Guidance("Hold at your chest", "Keep the phone flat against your chest and stay still.", Tone.NEUTRAL),
         proximity,
-        ArrowDirective(rotationDeg = 0f, scale = 0.8f),
+        ArrowDirective(curl = 0f, scale = 0.8f),
     )
 
     /** Arrow scales from 0.7 (far) to 1.4 (close). */
-    private fun arrow(rotationDeg: Float, proximity: Float) =
-        ArrowDirective(rotationDeg = rotationDeg, scale = 0.7f + proximity * 0.7f)
+    private fun arrow(curl: Float, proximity: Float) =
+        ArrowDirective(curl = curl, scale = 0.7f + proximity * 0.7f)
 
-    /** A guidance line plus the arrow rotation that goes with it. */
-    private data class Cue(val title: String, val detail: String, val tone: Tone, val rotationDeg: Float) {
+    /** A guidance line plus the arrow curl that goes with it. */
+    private data class Cue(val title: String, val detail: String, val tone: Tone, val curl: Float) {
         val guidance get() = Guidance(title, detail, tone)
     }
 }

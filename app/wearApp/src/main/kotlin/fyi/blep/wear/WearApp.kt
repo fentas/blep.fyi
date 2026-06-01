@@ -15,14 +15,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.lerp
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -86,7 +88,7 @@ private fun TrackingView(name: String, status: TrackingStatus, onCancel: () -> U
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            WearArrow(status.arrow.rotationDeg, status.arrow.scale)
+            WearArrow(status.arrow.curl, status.arrow.scale)
             Text(
                 status.guidance.title,
                 color = Ink,
@@ -104,23 +106,37 @@ private fun TrackingView(name: String, status: TrackingStatus, onCancel: () -> U
 }
 
 @Composable
-private fun WearArrow(rotationDeg: Float, scale: Float) {
-    val r by animateFloatAsState(rotationDeg, tween(600), label = "wearArrowRot")
+private fun WearArrow(curl: Float, scale: Float) {
+    val c by animateFloatAsState(curl, tween(600), label = "wearArrowCurl")
     val s by animateFloatAsState(scale, tween(600), label = "wearArrowScale")
     Canvas(modifier = Modifier.size(96.dp)) {
         if (s <= 0.01f) return@Canvas
-        val cx = size.width / 2f
-        val cy = size.height / 2f
-        val unit = (minOf(size.width, size.height) / 2f) * s
-        val stroke = (unit * 0.22f).coerceAtLeast(2f)
-        rotate(r, Offset(cx, cy)) {
-            drawLine(Ink, Offset(cx, cy + unit * 0.85f), Offset(cx, cy - unit * 0.55f), stroke, StrokeCap.Round)
-            val head = Path().apply {
-                moveTo(cx - unit * 0.6f, cy - unit * 0.15f)
-                lineTo(cx, cy - unit * 0.85f)
-                lineTo(cx + unit * 0.6f, cy - unit * 0.15f)
-            }
-            drawPath(head, Ink, style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        val span = minOf(size.width, size.height) * 0.8f * s
+        val stroke = (span * 0.09f).coerceAtLeast(2f)
+
+        val arc = abs(c) * 4.2f
+        val sign = if (c < 0f) -1f else 1f
+        val dTheta = arc * sign / 28
+        val ds = 1.95f / 28
+        val xs = FloatArray(31); val ys = FloatArray(31)
+        var x = 0f; var y = 0.9f; var a = (-PI / 2).toFloat()
+        for (k in 1..28) { x += ds * cos(a); y += ds * sin(a); a += dTheta; xs[k] = x; ys[k] = y }
+        val back = a + PI.toFloat()
+        xs[29] = xs[28] + 0.66f * cos(back + 0.6f); ys[29] = ys[28] + 0.66f * sin(back + 0.6f)
+        xs[30] = xs[28] + 0.66f * cos(back - 0.6f); ys[30] = ys[28] + 0.66f * sin(back - 0.6f)
+        var minX = xs[0]; var maxX = xs[0]; var minY = ys[0]; var maxY = ys[0]
+        for (i in 0..30) { if (xs[i] < minX) minX = xs[i]; if (xs[i] > maxX) maxX = xs[i]; if (ys[i] < minY) minY = ys[i]; if (ys[i] > maxY) maxY = ys[i] }
+        val bx = (minX + maxX) / 2f; val by = (minY + maxY) / 2f
+        val sc = span / maxOf(maxX - minX, maxY - minY, 0.0001f)
+        val ox = size.width / 2f; val oy = size.height / 2f
+        fun px(i: Int) = (xs[i] - bx) * sc + ox
+        fun py(i: Int) = (ys[i] - by) * sc + oy
+
+        val path = Path().apply {
+            moveTo(px(0), py(0))
+            for (k in 1..28) lineTo(px(k), py(k))
+            moveTo(px(29), py(29)); lineTo(px(28), py(28)); lineTo(px(30), py(30))
         }
+        drawPath(path, Ink, style = Stroke(width = stroke, cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }
