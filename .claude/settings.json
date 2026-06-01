@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Task",
+      "TodoWrite",
+      "AskUserQuestion",
+      "Bash",
+      "Write",
+      "Edit",
+      "WebSearch",
+      "Monitor",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:stackoverflow.com)",
+      "WebFetch(domain:developer.mozilla.org)",
+      "WebFetch(domain:registry.npmjs.org)",
+      "WebFetch(domain:crates.io)",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:pkg.go.dev)",
+      "WebFetch(domain:hub.docker.com)",
+      "WebFetch(domain:docs.rs)",
+      "WebFetch(domain:doc.rust-lang.org)",
+      "WebFetch(domain:docs.python.org)",
+      "WebFetch(domain:nodejs.org)",
+      "WebFetch(domain:kubernetes.io)"
+    ]
+  }
+}

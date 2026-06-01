@@ -1,0 +1,27 @@
+package fyi.blep.core.model
+
+/**
+ * A Bluetooth Low Energy device as surfaced to the UI.
+ *
+ * @property id stable platform identifier (Android: MAC/opaque id, Apple: CBPeripheral UUID).
+ * @property name advertised name, or `null` when the device advertises none.
+ * @property rssi most recent raw signal strength in dBm (negative; closer to 0 is stronger).
+ * @property isConnected whether the OS currently reports an active connection to this device.
+ * @property alias user-assigned rename, takes precedence over [name] for display.
+ */
+data class BleDevice(
+    val id: String,
+    val name: String?,
+    val rssi: Int,
+    val isConnected: Boolean = false,
+    val alias: String? = null,
+) {
+    /** True when the device advertises a non-blank name. */
+    val isNamed: Boolean get() = !name.isNullOrBlank()
+
+    /** What the UI should show: alias › advertised name › a neutral placeholder. */
+    val displayName: String
+        get() = alias?.takeIf { it.isNotBlank() }
+            ?: name?.takeIf { it.isNotBlank() }
+            ?: "Unnamed device"
+}

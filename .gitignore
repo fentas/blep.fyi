@@ -1,0 +1,33 @@
+# ───────────────────────── General ─────────────────────────
+.DS_Store
+*.log
+.idea/
+*.iml
+.vscode/
+.fleet/
+
+# ───────────────────────── mise ────────────────────────────
+# Keep mise.toml (pinned toolchain), ignore local installs
+.mise/
+
+# ───────────────────────── Kotlin / Gradle ─────────────────
+app/.gradle/
+app/build/
+app/*/build/
+app/local.properties
+app/.kotlin/
+*.hprof
+captures/
+
+# ───────────────────────── iOS / Xcode ─────────────────────
+app/iosApp/build/
+app/iosApp/Pods/
+app/iosApp/*.xcworkspace/xcuserdata/
+app/iosApp/**/xcuserdata/
+*.xcuserstate
+
+# ───────────────────────── Web (Node) ──────────────────────
+web/node_modules/
+web/dist/
+web/.vite/
+web/dev-dist/
