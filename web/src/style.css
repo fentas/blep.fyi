@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/* Brand tokens (see ../../design/tokens.md) exposed as Tailwind theme values. */
+@theme {
+  --color-mist: #eef2f6;
+  --color-ink: #27313b;
+  --color-cream: #f4f5f0;
+  --color-pink: #fab1b7;
+  --color-blue: #5f90c3;
+  --font-display: "Inter", "SF Pro Display", system-ui, -apple-system, sans-serif;
+}
+
+:root {
+  font-family: var(--font-display);
+}
+
+@layer components {
+  .store-badge {
+    @apply inline-flex select-none items-center rounded-2xl bg-ink/90 px-5 py-2.5 text-left text-[11px] font-medium leading-tight text-cream;
+  }
+  .store-badge strong {
+    @apply text-base font-semibold;
+  }
+
+  .step {
+    @apply relative overflow-hidden rounded-[24px] bg-cream p-7 text-left shadow-sm;
+  }
+  .step::before {
+    content: "";
+    @apply absolute inset-x-0 top-0 h-1.5;
+    background: linear-gradient(90deg, var(--from), var(--to));
+  }
+  .step-no {
+    @apply inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-ink;
+    background: linear-gradient(135deg, var(--from), var(--to));
+  }
+  .step-title {
+    @apply mt-4 font-display text-xl font-semibold tracking-tight;
+  }
+  .step-body {
+    @apply mt-2 text-sm leading-relaxed text-ink/70;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center rounded-full bg-blue px-6 py-3 font-medium text-cream shadow-sm transition hover:brightness-105 active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center rounded-full border border-ink/15 px-6 py-3 font-medium text-ink transition hover:bg-ink/5 active:scale-[0.98];
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
