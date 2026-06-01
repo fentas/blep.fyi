@@ -1,22 +1,54 @@
-<div align="center">
-  <img src="logo.svg" alt="blep mascot" width="140" />
-  <h1>blep — BLE Pointer &amp; Tracker</h1>
-  <p><em>Find your lost Bluetooth things — guided by signal strength.</em></p>
-</div>
+<h3 align="center">
+	<img width="130" alt="blep mascot" src="./logo.svg">
+	<br/>
+	blep
+</h3>
 
-blep turns your phone (or watch) into a warm/cold pointer for nearby Bluetooth
-Low Energy devices. Pick a device, and blep walks you to it: calibrate against
-your chest, sweep to find the bearing, walk in, and pinpoint — with a single
-animated arrow and a background colour that shifts from cool to warm as you
-close in.
+<h6 align="center">
+  <a href="https://blep.fyi">Website</a>
+  ·
+  <a href="#-how-it-works--the-body-shielding-technique">How it works</a>
+  ·
+  <a href="#-building">Build</a>
+  ·
+  <a href="https://blep.fyi/#donate">Donate</a>
+</h6>
 
-It's a minimalist, cross-platform Kotlin Multiplatform app (iOS, Android,
-Apple Watch, Wear OS) plus a small static PWA landing page at
+<p align="center">
+	<a href="https://github.com/fentas/blep.fyi/stargazers">
+		<img alt="Stars" src="https://img.shields.io/github/stars/fentas/blep.fyi?style=for-the-badge&logo=starship&color=C9CBFF&logoColor=D9E0EE&labelColor=302D41"></a>
+	<a href="https://github.com/fentas/blep.fyi/blob/main/LICENSE">
+		<img alt="License" src="https://img.shields.io/github/license/fentas/blep.fyi?style=for-the-badge&color=F2CDCD&logoColor=D9E0EE&labelColor=302D41"></a>
+	<a href="https://github.com/fentas/blep.fyi/actions/workflows/ci.yml">
+		<img alt="CI" src="https://img.shields.io/github/actions/workflow/status/fentas/blep.fyi/ci.yml?branch=main&style=for-the-badge&logo=githubactions&label=CI&color=A6E3A1&logoColor=D9E0EE&labelColor=302D41"></a>
+	<a href="https://blep.fyi">
+		<img alt="Site" src="https://img.shields.io/github/actions/workflow/status/fentas/blep.fyi/deploy.yml?branch=main&style=for-the-badge&logo=githubpages&label=blep.fyi&color=89DCEB&logoColor=D9E0EE&labelColor=302D41"></a>
+	<a href="https://kotlinlang.org/docs/multiplatform.html">
+		<img alt="Kotlin Multiplatform" src="https://img.shields.io/badge/Kotlin-2.1-CBA6F7?style=for-the-badge&logo=kotlin&logoColor=D9E0EE&labelColor=302D41"></a>
+</p>
+
+<p align="center">
+	<img alt="Platforms" src="https://img.shields.io/badge/iOS%20·%20Android%20·%20Wear%20OS%20·%20watchOS-89B4FA?style=for-the-badge&logoColor=D9E0EE&labelColor=302D41">
+</p>
+
+&nbsp;
+
+<p align="left">
+
+**blep** turns your phone — or your watch — into a warm/cold pointer for the
+Bluetooth Low Energy devices already around you. Pick a device and blep walks
+you to it: a single animated arrow and a background colour that shifts from cool
+to warm as you close in. No extra hardware, no maps, no accounts.
+
+It's a minimalist, cross-platform [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html)
+app (iOS, Android, Apple Watch, Wear OS) plus a small static PWA landing page at
 [blep.fyi](https://blep.fyi).
 
----
+</p>
 
-## How it works — the body-shielding technique
+&nbsp;
+
+### 🐾 How it works — the body-shielding technique
 
 A phone's BLE radio is roughly omnidirectional, so raw RSSI tells you *how far*
 but not *which way*. blep makes it directional using your own body:
@@ -26,29 +58,31 @@ but not *which way*. blep makes it directional using your own body:
 
 From there it's a guided loop driven entirely by the change in signal (ΔRSSI):
 
-1. **Calibrate** — hold at the chest; blep logs a baseline.
-2. **Axis sweep** — turn slowly in place. blep says *warmer* / *turn back* and
-   locks the bearing once the signal peaks and dips.
-3. **Vector walk** — walk forward while it keeps improving; *stop* when you
-   overshoot.
-4. **Reorient** — re-sweep as needed.
-5. **Pinpoint** — up close, kneel and search low.
-6. **Done** — celebrate. 🎉
+| Step | Phase | What you do | blep says |
+| ---- | ----- | ----------- | --------- |
+| 1 | **Calibrate** | Hold at your chest, stay still | *Hold at your chest* |
+| 2 | **Axis sweep** | Turn slowly in place | *Warmer · turn back* |
+| 3 | **Vector walk** | Walk forward | *Keep going · stop* |
+| 4 | **Reorient** | Re-sweep as needed | *Turn again* |
+| 5 | **Pinpoint** | Kneel, search low | *Almost there* |
+| 6 | **Done** | 🎉 | *Finished — congratulations!* |
 
 RSSI is noisy and multipath-prone, so this is an **assistive heuristic, not a
-precise locator**. All thresholds live in
+precise locator**. Every threshold lives in
 [`TrackingTuning`](app/core/src/commonMain/kotlin/fyi/blep/core/tracking/TrackingTuning.kt)
-and are unit-tested.
+and is unit-tested.
 
-## Repository layout
+&nbsp;
+
+### 🗂 Repository layout
 
 ```
 .
 ├── app/                      Kotlin Multiplatform project
-│   ├── core/                 Pure tracking logic + BLE scanner (shared)
+│   ├── core/                 Pure tracking logic + BLE scanner (shared, tested)
 │   │   └── src/
-│   │       ├── commonMain/   RssiFilter, SignalTrend, DeviceTable,
-│   │       │                 TrackingSession, BleScanner (expect)
+│   │       ├── commonMain/   RssiFilter · SignalTrend · DeviceTable ·
+│   │       │                 TrackingSession · BleScanner (expect)
 │   │       ├── commonTest/   JVM-runnable unit tests
 │   │       ├── kableMain/    Kable scanner (Android + Apple share this)
 │   │       └── jvmMain/      Fake scanner for tests/preview
@@ -63,11 +97,13 @@ and are unit-tested.
 
 The `core` module is deliberately **free of platform and UI dependencies** so the
 tracking logic is provable on a plain JVM. The Compose phone app and the Wear app
-each provide their own thin state holder (`BlepController` / `WearController`)
-over the same `TrackingSession`; the watchOS app does CoreBluetooth in Swift and
-feeds RSSI into that same Kotlin engine.
+each provide a thin state holder (`BlepController` / `WearController`) over the
+same `TrackingSession`; the watchOS app does CoreBluetooth in Swift and feeds RSSI
+into that same Kotlin engine — no Flow bridging.
 
-## Architecture at a glance
+&nbsp;
+
+### 🏗 Architecture
 
 ```
         ┌─────────────────────── :core (commonMain, pure) ───────────────────────┐
@@ -84,12 +120,14 @@ feeds RSSI into that same Kotlin engine.
                                                                  └──────────────┘
 ```
 
-## Building
+&nbsp;
 
-The toolchain is pinned with [mise](https://mise.jdx.dev) (`mise.toml`): JDK 21
-+ Gradle. Run `mise install` once, or use your own JDK 21.
+### 🔧 Building
 
-### Core unit tests (no Android SDK needed)
+The toolchain is pinned with [mise](https://mise.jdx.dev) (`mise.toml`):
+JDK 21 + Gradle. Run `mise install` once, or bring your own JDK 21.
+
+**Core unit tests** — no Android SDK needed:
 
 ```bash
 cd app
@@ -97,11 +135,10 @@ cd app
 ```
 
 `-Pblep.android=false` skips the Android targets so the pure logic builds and
-tests on any machine. CI runs the full matrix.
+tests anywhere. CI runs the full matrix.
 
-### Android (phone + Wear)
-
-Requires the Android SDK (set `ANDROID_HOME` or `app/local.properties`).
+**Android (phone + Wear)** — needs the Android SDK (`ANDROID_HOME` or
+`app/local.properties`):
 
 ```bash
 cd app
@@ -109,73 +146,65 @@ cd app
 ./gradlew :wearApp:assembleDebug      # Wear OS APK
 ```
 
-Min SDK 26 (phone) / 30 (Wear, Wear OS 3). BLE permissions are requested at
-runtime (`BLUETOOTH_SCAN`/`BLUETOOTH_CONNECT` on 12+, `ACCESS_FINE_LOCATION`
-below).
+Min SDK 26 (phone) / 30 (Wear OS 3). BLE permissions are requested at runtime.
 
-### iOS (iPhone)
-
-Requires macOS + Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
+**iOS / watchOS** — needs macOS + Xcode + [XcodeGen](https://github.com/yonaskolb/XcodeGen):
 
 ```bash
-cd app/iosApp
-xcodegen generate          # creates iosApp.xcodeproj
-open iosApp.xcodeproj       # build/run in Xcode (a device is needed for BLE)
+cd app/iosApp   && xcodegen generate && open iosApp.xcodeproj      # iPhone
+cd app/watchApp && xcodegen generate && open watchApp.xcodeproj    # Apple Watch
 ```
 
-The project's pre-build phase runs
-`./gradlew :composeApp:embedAndSignAppleFrameworkForXcode` to produce the shared
-framework. `Info.plist` declares `NSBluetoothAlwaysUsageDescription`.
+A pre-build phase compiles the shared Kotlin framework via Gradle; the
+`Info.plist`s declare `NSBluetoothAlwaysUsageDescription`.
 
-### watchOS (Apple Watch)
-
-```bash
-cd app/watchApp
-xcodegen generate
-open watchApp.xcodeproj
-```
-
-Links the `BlepCore` Kotlin/Native framework built from `:core`.
-
-### Website
+**Website:**
 
 ```bash
 cd web
 npm install
 npm run dev        # local dev server
 npm run build      # static output in web/dist
-npm run gen:icons  # regenerate PWA PNG icons from logo.svg (only if it changes)
+npm run gen:icons  # regenerate PWA icons from logo.svg (only if it changes)
 ```
 
-Deployed automatically to GitHub Pages by `.github/workflows/deploy.yml` on push
-to `main`. Pages source (GitHub Actions) and the `blep.fyi` custom domain are
-configured in the repository settings, so no `CNAME` file is committed.
+Deployed to GitHub Pages by `.github/workflows/deploy.yml` on push to `main`. The
+Pages source and `blep.fyi` custom domain are set in repo settings, so no `CNAME`
+file is committed.
 
-## Platform support
+&nbsp;
+
+### 📱 Platform support
 
 | Platform        | Status | Notes                                             |
-| --------------- | ------ | ------------------------------------------------- |
-| Android phone   | ✅     | Compose Multiplatform                             |
-| iOS (iPhone)    | ✅     | Compose Multiplatform in a SwiftUI shell          |
-| Wear OS         | ✅     | Wear Compose, standalone                          |
-| Apple Watch     | ✅     | SwiftUI + shared `BlepCore`                       |
-| Zepp OS         | ❌     | Not feasible — Zepp OS mini-apps have no general third-party BLE central/scan API, which the tracking technique requires. |
+| --------------- | :----: | ------------------------------------------------- |
+| Android phone   | ✅ | Compose Multiplatform                                  |
+| iOS (iPhone)    | ✅ | Compose Multiplatform in a SwiftUI shell               |
+| Wear OS         | ✅ | Wear Compose, standalone                               |
+| Apple Watch     | ✅ | SwiftUI + shared `BlepCore`                            |
+| Zepp OS         | ❌ | Zepp OS mini-apps have no general third-party BLE central/scan API, which the tracking technique requires. |
 
-## Donations
+&nbsp;
+
+### ♥ Donations
 
 The website `#donate` section (the target of the app's *Help & donate* button)
 supports **Stripe, Open Collective, PayPal and GitHub Sponsors**, each with a
-downloadable receipt. The provider URLs in
-[`web/index.html`](web/index.html) are placeholders marked `REPLACE_ME` — set
-your real Stripe Payment Link, Open Collective slug, and PayPal hosted button id.
+downloadable receipt. The provider URLs in [`web/index.html`](web/index.html) are
+placeholders marked `REPLACE_ME` — set your Stripe Payment Link, Open Collective
+slug, and PayPal hosted-button id.
 
-## Testing
+&nbsp;
 
-`:core` ships JVM unit tests for the RSSI filter, trend detector, device table
-and the full tracking state machine (calibration → … → completion, plus the
-re-aim and stale-eviction edge cases). CI additionally compiles the Android,
-iOS and watchOS targets to catch platform API regressions.
+### 🧪 Testing & CI
 
-## License
+`:core` ships JVM unit tests for the RSSI filter, trend detector, device table and
+the full tracking state machine (calibration → … → completion, plus re-aim and
+stale-eviction edge cases). [CI](.github/workflows/ci.yml) additionally compiles
+the Android, iOS and watchOS targets to catch platform API regressions.
 
-See [`LICENSE`](LICENSE).
+&nbsp;
+
+### 📄 License
+
+[MIT](LICENSE) © Jan Guth
