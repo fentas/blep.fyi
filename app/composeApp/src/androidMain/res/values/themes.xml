@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="blep_mist">#FFEEF2F6</color>
+
+    <style name="Theme.Blep" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/blep_mist</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

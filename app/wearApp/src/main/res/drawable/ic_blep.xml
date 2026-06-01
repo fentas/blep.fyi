@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Minimal launcher mark: brand-blue rounded tile with a cream belly + pink tongue. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#5F90C3"
+        android:pathData="M24,8h60a16,16 0 0 1 16,16v60a16,16 0 0 1 -16,16h-60a16,16 0 0 1 -16,-16v-60a16,16 0 0 1 16,-16z" />
+    <path
+        android:fillColor="#F4F5F0"
+        android:pathData="M54,34c11,0 20,9 20,24c0,16 -9,26 -20,26c-11,0 -20,-10 -20,-26c0,-15 9,-24 20,-24z" />
+    <path
+        android:fillColor="#FAB1B7"
+        android:pathData="M48,70h12v10a6,6 0 0 1 -12,0z" />
+</vector>

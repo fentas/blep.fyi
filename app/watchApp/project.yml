@@ -1,0 +1,30 @@
+# Generate with: `xcodegen generate` (run in this folder).
+# Single-target watchOS app (watchOS 9+) linking the shared BlepCore framework.
+name: watchApp
+options:
+  bundleIdPrefix: fyi.blep
+  deploymentTarget:
+    watchOS: "9.0"
+  createIntermediateGroups: true
+
+targets:
+  watchApp:
+    type: application
+    platform: watchOS
+    sources:
+      - path: "watchApp Watch App"
+    info:
+      path: "watchApp Watch App/Info.plist"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: fyi.blep.watchkitapp
+        SWIFT_VERSION: "5.0"
+        # Link the Kotlin/Native watchOS framework produced by Gradle from :core.
+        FRAMEWORK_SEARCH_PATHS: "$(SRCROOT)/../core/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
+        OTHER_LDFLAGS: "$(inherited) -framework BlepCore"
+    preBuildScripts:
+      - name: Compile BlepCore Framework
+        basedOnDependencyAnalysis: false
+        script: |
+          cd "$SRCROOT/.."
+          ./gradlew :core:embedAndSignAppleFrameworkForXcode
