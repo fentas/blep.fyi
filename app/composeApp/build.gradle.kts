@@ -52,6 +52,12 @@ kotlin {
     }
 }
 
+// Stable package for the generated Compose resources accessor (Res).
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "fyi.blep.resources"
+}
+
 pluginManager.withPlugin("com.android.application") {
     extensions.configure<com.android.build.gradle.internal.dsl.BaseAppModuleExtension>("android") {
         namespace = "fyi.blep"
