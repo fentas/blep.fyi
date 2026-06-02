@@ -35,15 +35,28 @@ const ROWS = [
 ]
 
 const COLS = 6, GRID_ROWS = 2, FRAMES = 12
-const CELL_INSET = 6        // tiny inset to avoid neighbouring-cell bleed
 const CELL_W = 300, CELL_H = 248, TARGET_H = 172, BASE_PAD = 14
-const AREA_MIN = 700        // drop components smaller than this (caption letters/specks)
+const AREA_MIN = 900        // drop components smaller than this (caption letters/specks)
+const FILL_MIN = 0.12       // drop thin components (borders / divider lines)
 
 // A pixel is "background" if it's light (page cream / soft shadow / divider).
 const isBgPx = (r, g, b) => Math.min(r, g, b) > 185
 
-/** Extract one cell's pup as a tight RGBA cutout, or null. */
-function extractCell(src, W, ch, cx0, cy0, cw, chh) {
+/**
+ * Extract one cell's pup as a tight RGBA cutout, or null.
+ *
+ * The crop is expanded horizontally so the pup's nose/tail (which often cross
+ * the source cell boundary) aren't clipped. Any component that touches the
+ * left/right crop edge is a neighbouring frame's pup bleeding in → dropped, as
+ * are thin full-width divider lines, captions and specks.
+ */
+function extractCell(src, W, H, ch, cellX, cellY, cellW, cellH) {
+  const EX = Math.round(cellW * 0.18)            // horizontal breathing room
+  const cx0 = Math.max(0, cellX - EX), cx1 = Math.min(W, cellX + cellW + EX)
+  const cy0 = Math.max(0, cellY + 2), cy1 = Math.min(H, cellY + cellH - 2)
+  const cw = cx1 - cx0, chh = cy1 - cy0
+  const captionTop = chh - Math.round(cellH * 0.16)
+
   const buf = new Uint8Array(cw * chh * 4)
   for (let y = 0; y < chh; y++) for (let x = 0; x < cw; x++) {
     const si = ((cy0 + y) * W + (cx0 + x)) * ch, di = (y * cw + x) * 4
@@ -85,13 +98,14 @@ function extractCell(src, W, ch, cx0, cy0, cw, chh) {
         label[np] = n; q.push(np)
       }
     }
-    comps.push({ id: n, area, cx: sumx / area, cy: sumy / area, minx, miny, maxx, maxy })
+    const fill = area / ((maxx - minx + 1) * (maxy - miny + 1))
+    const touchesLR = minx === 0 || maxx === cw - 1
+    comps.push({ id: n, area, fill, touchesLR, minx, miny, maxx, maxy })
   }
   if (!comps.length) return null
-  // keep significant components that aren't caption-band-only
-  const captionTop = chh * 0.80
+  // keep the pup (+ bone): solid, sizeable, not a neighbour bleed, not caption.
   const keep = new Set(
-    comps.filter((c) => c.area >= AREA_MIN && c.miny < captionTop).map((c) => c.id),
+    comps.filter((c) => c.area >= AREA_MIN && c.fill >= FILL_MIN && !c.touchesLR && c.miny < captionTop).map((c) => c.id),
   )
   if (!keep.size) return null
   // zero out dropped components; gather bbox + centre-of-mass over kept pixels
@@ -124,9 +138,8 @@ for (let r = 0; r < ROWS.length; r++) {
   const frames = []
   for (let k = 0; k < FRAMES; k++) {
     const gc = k % COLS, gr = (k / COLS) | 0
-    const cx0 = Math.round(gc * cellW) + CELL_INSET, cy0 = Math.round(gr * cellH) + CELL_INSET
-    const cw = Math.round(cellW) - CELL_INSET * 2, chh = Math.round(cellH) - CELL_INSET * 2
-    frames.push(extractCell(data, W, ch, cx0, cy0, cw, chh))
+    const cellX = Math.round(gc * cellW), cellY = Math.round(gr * cellH)
+    frames.push(extractCell(data, W, H, ch, cellX, cellY, Math.round(cellW), Math.round(cellH)))
   }
   // (4) one uniform scale for the whole clip
   const heights = frames.filter(Boolean).map((f) => f.bh)
