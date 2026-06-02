@@ -79,27 +79,17 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Install XcodeGen
         run: brew install xcodegen
-      - name: Generate Xcode projects
-        run: |
-          (cd iosApp && xcodegen generate)
-          (cd watchApp && xcodegen generate)
       - name: Build iOS app (compiles Swift + links the KMP framework)
-        run: >
-          xcodebuild
-          -project iosApp/iosApp.xcodeproj
-          -target iosApp
-          -configuration Debug
-          -sdk iphonesimulator
-          -destination 'generic/platform=iOS Simulator'
-          CODE_SIGNING_ALLOWED=NO
-          build
+        working-directory: app/iosApp
+        run: |
+          xcodegen generate
+          xcodebuild -project iosApp.xcodeproj -target iosApp \
+            -configuration Debug -sdk iphonesimulator -arch arm64 \
+            CODE_SIGNING_ALLOWED=NO build
       - name: Build watchOS app (compiles Swift + links the KMP framework)
-        run: >
-          xcodebuild
-          -project watchApp/watchApp.xcodeproj
-          -target watchApp
-          -configuration Debug
-          -sdk watchsimulator
-          -destination 'generic/platform=watchOS Simulator'
-          CODE_SIGNING_ALLOWED=NO
-          build
+        working-directory: app/watchApp
+        run: |
+          xcodegen generate
+          xcodebuild -project watchApp.xcodeproj -target watchApp \
+            -configuration Debug -sdk watchsimulator -arch arm64 \
+            CODE_SIGNING_ALLOWED=NO build
