@@ -18,7 +18,7 @@
 //
 // Run with `npm run gen:dog`. Source folders (spr24/, sprites/) are gitignored.
 import sharp from 'sharp'
-import { readFileSync, writeFileSync, existsSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 
@@ -231,3 +231,21 @@ for (let r = 0; r < clipList.length; r++) {
 await sharp({ create: { width: 6 * STW + 16, height: clipList.length * STH, channels: 4, background: { r: 174, g: 223, b: 166, alpha: 1 } } })
   .composite(strip).png().toFile('/tmp/dog-seams.png')
 console.log('seam filmstrip → /tmp/dog-seams.png (gap = loop wrap; jump across gap = hard cut)')
+
+// ── interactive browser test (web/dog-test/index.html) ────────────────────────
+// Mirrors the app player's playback so you can watch clip loops + transitions.
+const PLAYBACK = {
+  walk: { fps: 12, loop: true, reverse: true },
+  look: { fps: 12, loop: true, reverse: true },
+  idle: { fps: 12, loop: true, reverse: true },
+  found: { fps: 12, loop: false, reverse: false },
+}
+const anim = {
+  cell: [CELL_W, CELL_H],
+  clips: clipList.map(([n, c], i) => ({ name: n, row: i, frames: c.frames.length, ...(PLAYBACK[n] || { fps: 12, loop: true, reverse: false }) })),
+  transition: trans,
+}
+mkdirSync(resolve(root, 'dog-test'), { recursive: true })
+writeFileSync(resolve(root, 'dog-test/anim.js'), `window.DOG = ${JSON.stringify(anim)}\n`)
+await sharp(resolve(outDir, 'dog_sheet.png')).toFile(resolve(root, 'dog-test/dog_sheet.png'))
+console.log('browser test → open web/dog-test/index.html')

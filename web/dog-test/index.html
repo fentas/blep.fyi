@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>blep — dog animation test</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { margin: 0; display: grid; place-items: center; min-height: 100dvh; background: #1b1f24; color: #e7e7e7; }
+    .stage { display: grid; gap: 14px; justify-items: center; padding: 24px; }
+    canvas { background: #b6e0a0; border-radius: 20px; image-rendering: auto; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    button { font: inherit; padding: 8px 14px; border-radius: 999px; border: 1px solid #444; background: #2b3037; color: #e7e7e7; cursor: pointer; }
+    button.on { background: #5f90c3; border-color: #5f90c3; color: #fff; }
+    .meta { font-size: 13px; opacity: .7; font-variant-numeric: tabular-nums; }
+    label { font-size: 13px; opacity: .8; display: inline-flex; gap: 6px; align-items: center; }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <canvas id="c" width="320" height="212"></canvas>
+    <div class="row" id="clips"></div>
+    <div class="row">
+      <button id="auto">▶ auto-cycle</button>
+      <label>speed <input id="speed" type="range" min="0.25" max="2" step="0.25" value="1" /></label>
+    </div>
+    <div class="meta" id="meta">loading…</div>
+    <div class="meta">Tip: click clips to watch the crossfade/transition; auto-cycle hunts for hard cuts.</div>
+  </div>
+  <script src="anim.js"></script>
+  <script>
+    const D = window.DOG, [CW, CH] = D.cell
+    const cv = document.getElementById('c'), ctx = cv.getContext('2d')
+    const img = new Image(); img.src = 'dog_sheet.png'
+    let speed = 1
+    document.getElementById('speed').oninput = (e) => { speed = +e.target.value }
+
+    // playback state
+    let shown = 2, startFrame = 0, t0 = performance.now()
+    let fromIdx = -1, fromFrame = 0, fadeStart = -1e9
+
+    const clipFrame = (idx, sf, elapsedMs) => {
+      const c = D.clips[idx], step = Math.floor(elapsedMs / 1000 * c.fps * speed)
+      if (c.loop) { const dir = c.reverse ? -1 : 1; return (((sf + dir * step) % c.frames) + c.frames) % c.frames }
+      const s = Math.min(step, c.frames - 1); return c.reverse ? c.frames - 1 - s : s
+    }
+    const draw = (idx, frame, alpha) => {
+      const c = D.clips[idx], dw = cv.width, dh = cv.height
+      ctx.globalAlpha = alpha
+      ctx.drawImage(img, frame * CW, c.row * CH, CW, CH, 0, 0, dw, dh)
+      ctx.globalAlpha = 1
+    }
+    function switchTo(idx) {
+      if (idx === shown) return
+      const now = performance.now()
+      fromIdx = shown; fromFrame = clipFrame(shown, startFrame, now - t0)
+      startFrame = (D.transition[shown]?.[idx]?.[fromFrame] ?? 0)
+      shown = idx; t0 = now; fadeStart = now
+      for (const b of document.querySelectorAll('#clips button')) b.classList.toggle('on', +b.dataset.i === idx)
+    }
+    function frame() {
+      const now = performance.now()
+      ctx.clearRect(0, 0, cv.width, cv.height)
+      const fade = Math.min(1, (now - fadeStart) / 300)
+      if (fade < 1 && fromIdx >= 0) draw(fromIdx, fromFrame, 1 - fade)
+      const cf = clipFrame(shown, startFrame, now - t0)
+      draw(shown, cf, fade)
+      document.getElementById('meta').textContent =
+        `${D.clips[shown].name}  frame ${cf}/${D.clips[shown].frames - 1}  ${D.clips[shown].fps}fps${D.clips[shown].loop ? '' : ' (one-shot)'}${D.clips[shown].reverse ? ' ⟲reverse' : ''}`
+      requestAnimationFrame(frame)
+    }
+    img.onload = () => {
+      const wrap = document.getElementById('clips')
+      D.clips.forEach((c, i) => {
+        const b = document.createElement('button'); b.textContent = c.name; b.dataset.i = i
+        b.classList.toggle('on', i === shown); b.onclick = () => switchTo(i); wrap.appendChild(b)
+      })
+      requestAnimationFrame(frame)
+    }
+    // auto-cycle through clips to expose transitions
+    let auto = null
+    document.getElementById('auto').onclick = (e) => {
+      if (auto) { clearInterval(auto); auto = null; e.target.textContent = '▶ auto-cycle'; return }
+      e.target.textContent = '⏸ stop'
+      auto = setInterval(() => switchTo((shown + 1) % D.clips.length), 2600)
+    }
+  </script>
+</body>
+</html>
