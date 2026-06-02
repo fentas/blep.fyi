@@ -128,15 +128,15 @@ fun TrackingScreen(
 private const val CELL_W = 400
 private const val CELL_H = 264
 
-/** Clip rows in dog_sheet.png: frame count, fps, looping, play direction. */
-private enum class DogClip(val row: Int, val frames: Int, val fps: Int, val moving: Boolean, val loop: Boolean, val reverse: Boolean) {
-    WALK(0, 24, 12, true, true, true),      // trot
-    LOOK(1, 24, 12, false, true, true),     // look around
-    IDLE(2, 24, 12, false, true, true),     // idle
-    FOUND(3, 24, 12, false, false, true);   // dig → bone: play once, then hold the bone
+/** Clip rows in dog_sheet.png: fps, looping, play direction. Frame counts come
+ *  from [DogFrames] (after the stitcher's loop-trim). */
+private enum class DogClip(val row: Int, val fps: Int, val moving: Boolean, val loop: Boolean, val reverse: Boolean) {
+    WALK(0, 12, true, true, true),       // trot
+    LOOK(1, 12, false, true, true),      // sit / look around
+    IDLE(2, 12, false, true, true),      // idle
+    FOUND(3, 12, false, false, false);   // dig → bone: forward, play once, hold the bone
 
-    // All clips share 12 fps (24 frames → ~2 s); found plays once.
-
+    val frames: Int get() = DogFrames.frameCount.getOrElse(ordinal) { 24 }
     val periodMs: Int get() = frames * 1000 / fps
 }
 
@@ -149,11 +149,17 @@ private enum class DogClip(val row: Int, val frames: Int, val fps: Int, val movi
 @Composable
 private fun DogTrack(phase: TrackingPhase, proximity: Float, rssi: Int?, modifier: Modifier = Modifier) {
     val sheet = imageResource(Res.drawable.dog_sheet)
-    val clip = when {
-        proximity >= 0.82f || phase == TrackingPhase.PINPOINT -> DogClip.FOUND
-        phase == TrackingPhase.VECTOR_WALK -> DogClip.WALK
-        phase == TrackingPhase.AXIS_SWEEP || phase == TrackingPhase.REORIENT -> DogClip.LOOK
-        else -> DogClip.IDLE
+    // Hysteresis: enter "found" at a strong signal, leave only when it drops a
+    // lot — so RSSI jitter near the threshold doesn't flip-flop the dig.
+    var clip by remember { mutableStateOf(DogClip.IDLE) }
+    LaunchedEffect(phase, proximity) {
+        val enterFound = if (clip == DogClip.FOUND) 0.72f else 0.85f
+        clip = when {
+            phase == TrackingPhase.PINPOINT || proximity >= enterFound -> DogClip.FOUND
+            phase == TrackingPhase.VECTOR_WALK -> DogClip.WALK
+            phase == TrackingPhase.AXIS_SWEEP || phase == TrackingPhase.REORIENT -> DogClip.LOOK
+            else -> DogClip.IDLE
+        }
     }
 
     var shown by remember { mutableStateOf(clip) }
