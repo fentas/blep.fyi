@@ -101,7 +101,8 @@
         <div class="help">
           <b>Drag</b> a frame from the library into the strip to add it · drag cards to reorder · <b>click</b> a card to
           select then <b>← / →</b> to step frame-by-frame · <b>×</b> or <kbd>Delete</kbd> removes the selected frame ·
-          <kbd>space</kbd> play/pause. Each card shows the <b>gemini id</b>, <b>drift</b>, and <b>Δnext</b> (red = likely jump).
+          <kbd>space</kbd> play/pause. While <b>paused</b>, hover any frame (library or strip) to onion-skin it over the
+          current one. Each card shows the <b>gemini id</b>, <b>drift</b>, and <b>Δnext</b> (red = likely jump).
           <b>export</b> downloads <code>dog-frames.json</code> — replace <code>web/dog-frames.json</code> with it and run <code>npm run gen:dog</code>.
         </div>
       </div>
@@ -119,12 +120,17 @@
     const catColor = (cat) => CATCOLORS[(+cat.slice(1)) % CATCOLORS.length]
 
     const img = new Image(); img.src = 'library.png'
-    const drawFrame = (g, id, dw, dh) => { g.clearRect(0, 0, dw, dh); if (!id) return; const m = meta[id]; g.drawImage(img, m.col * CW, m.row * CH, CW, CH, 0, 0, dw, dh) }
+    const drawFrame = (g, id, dw, dh, alpha = 1, clear = true) => {
+      if (clear) g.clearRect(0, 0, dw, dh)
+      if (!id) return
+      const m = meta[id]; g.globalAlpha = alpha
+      g.drawImage(img, m.col * CW, m.row * CH, CW, CH, 0, 0, dw, dh); g.globalAlpha = 1
+    }
 
     // ── working state (edited copy of the clips) ──────────────────────────────
     const clips = JSON.parse(JSON.stringify(D.clips))
     const names = Object.keys(clips)
-    let cur = names[0], sel = -1, playing = true, speed = 1, t0 = performance.now()
+    let cur = names[0], sel = -1, playing = true, speed = 1, t0 = performance.now(), hoverId = null
 
     // ── preview playback ──────────────────────────────────────────────────────
     const cv = document.getElementById('c'), ctx = cv.getContext('2d')
@@ -139,9 +145,13 @@
       if (playing && sel < 0) f = frameAt(c, performance.now() - t0)
       else f = Math.max(0, Math.min(sel < 0 ? 0 : sel, n - 1))
       drawFrame(ctx, c.frames[f], cv.width, cv.height)
-      document.getElementById('meta').textContent =
-        `${cur}  frame ${f}/${n - 1}  ${c.fps}fps${c.loop ? '' : ' · one-shot'}${c.reverse ? ' · ⟲' : ''}` +
-        (sel >= 0 ? `  · ${c.frames[f]}  drift ${meta[c.frames[f]].drift}` : '')
+      // Paused: onion-skin the hovered frame over the current one for comparison.
+      const overlay = !playing && hoverId && hoverId !== c.frames[f]
+      if (overlay) drawFrame(ctx, hoverId, cv.width, cv.height, 0.55, false)
+      document.getElementById('meta').textContent = overlay
+        ? `over ${c.frames[f]}  ▸ ${hoverId}  Δ${pct(dif(c.frames[f], hoverId))}`
+        : `${cur}  frame ${f}/${n - 1}  ${c.fps}fps${c.loop ? '' : ' · one-shot'}${c.reverse ? ' · ⟲' : ''}` +
+          (sel >= 0 ? `  · ${c.frames[f]}  drift ${meta[c.frames[f]].drift}` : '')
       requestAnimationFrame(loop)
     }
 
@@ -165,6 +175,8 @@
         const lbl = document.createElement('div'); lbl.className = 'pid'
         lbl.innerHTML = `<span class="tag" style="background:${catColor(m.cat)}"></span>${id}`; card.appendChild(lbl)
         card.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', JSON.stringify({ src: 'pal', id })))
+        card.addEventListener('mouseenter', () => hoverId = id)
+        card.addEventListener('mouseleave', () => { if (hoverId === id) hoverId = null })
         host.appendChild(card)
       }
       document.getElementById('libCount').textContent = `${shown} / ${D.ids.length} frames`
@@ -205,6 +217,8 @@
         const x = document.createElement('div'); x.className = 'x'; x.textContent = '×'
         x.addEventListener('click', (e) => { e.stopPropagation(); removeAt(k) }); card.appendChild(x)
         card.addEventListener('click', () => { sel = k; playing = false; syncClipUI(); renderStrip() })
+        card.addEventListener('mouseenter', () => hoverId = id)
+        card.addEventListener('mouseleave', () => { if (hoverId === id) hoverId = null })
         wireDrop(card, k); host.appendChild(card)
       })
       const end = document.createElement('div'); end.className = 'dropend'; end.textContent = '+'
