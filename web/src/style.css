@@ -2,9 +2,10 @@
 
 /* Brand tokens (see ../../design/tokens.md) exposed as Tailwind theme values. */
 @theme {
-  --color-mist: #eef2f6;
-  --color-ink: #27313b;
-  --color-cream: #f4f5f0;
+  --color-mist: #eef2f6;  /* page background — flips dark */
+  --color-ink: #27313b;   /* text & borders — flips light */
+  --color-cream: #f4f5f0; /* light text on coloured fills — stays light */
+  --color-card: #f4f5f0;  /* elevated surface — flips dark */
   --color-pink: #fab1b7;
   --color-blue: #5f90c3;
   --font-display: "Inter", "SF Pro Display", system-ui, -apple-system, sans-serif;
@@ -12,11 +13,30 @@
 
 :root {
   font-family: var(--font-display);
+  color-scheme: light;
+}
+
+/* Dark theme: flip the page / text / surface tokens and every bg-mist · text-ink
+   · bg-card utility follows automatically. Follow the OS by default; the `.light`
+   / `.dark` class on <html> (set by the toggle) overrides it. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+    --color-mist: #14181d;
+    --color-ink: #e7ebef;
+    --color-card: #1e242b;
+  }
+}
+:root.dark {
+  color-scheme: dark;
+  --color-mist: #14181d;
+  --color-ink: #e7ebef;
+  --color-card: #1e242b;
 }
 
 @layer components {
   .step {
-    @apply relative overflow-hidden rounded-[24px] bg-cream p-7 text-left shadow-sm;
+    @apply relative overflow-hidden rounded-[24px] bg-card p-7 text-left shadow-sm;
   }
   .step::before {
     content: "";
@@ -42,7 +62,7 @@
   }
 
   .donate-card {
-    @apply flex flex-col items-start rounded-2xl border border-ink/10 bg-mist px-5 py-4 text-left transition hover:border-blue hover:bg-white active:scale-[0.99];
+    @apply flex flex-col items-start rounded-2xl border border-ink/10 bg-mist px-5 py-4 text-left transition hover:border-blue hover:bg-card active:scale-[0.99];
   }
   .donate-card-title {
     @apply font-semibold text-ink;

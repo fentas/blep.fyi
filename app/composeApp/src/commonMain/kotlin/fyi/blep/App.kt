@@ -16,7 +16,7 @@ import fyi.blep.ui.screens.TrackingScreen
 import fyi.blep.ui.theme.BlepTheme
 
 /** Where the in-app "Help & donate" button sends people (hosted by the website). */
-const val DONATE_URL: String = "https://blep.fyi/#donate"
+const val DONATE_URL: String = "https://blep.fyi/donate.html"
 
 /** Root composable shared by the Android and iOS phone apps. */
 @Composable

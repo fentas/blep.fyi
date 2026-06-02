@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Support blep</title>
+    <meta name="description" content="Support blep — free & open-source BLE pointer & tracker. Card, Open Collective, PayPal or GitHub Sponsors, every method receipted." />
+    <meta name="theme-color" content="#5F90C3" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content="Support blep" />
+    <meta property="og:description" content="Keep blep free & open source — donate in seconds, every method receipted." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://blep.fyi/donate.html" />
+    <!-- Apply the saved theme before paint to avoid a flash. -->
+    <script>
+      try { var t = localStorage.getItem('blep-theme'); if (t) document.documentElement.classList.add(t); } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body class="min-h-dvh bg-mist text-ink antialiased selection:bg-pink/40">
+    <header class="mx-auto flex max-w-3xl items-center justify-between px-6 py-5">
+      <a href="/" class="flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+        <img src="/logo.svg" alt="" class="h-8 w-8" /> blep
+      </a>
+      <div class="flex items-center gap-1">
+        <button id="theme-toggle" type="button" aria-label="Toggle dark mode"
+          class="flex h-9 w-9 items-center justify-center rounded-full text-lg leading-none transition hover:bg-ink/10 active:scale-95">🌙</button>
+        <a href="/" class="rounded-full px-3 py-2 text-sm font-medium text-ink/60 transition hover:text-ink">← blep.fyi</a>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-2xl px-6 pb-24 pt-6">
+      <section class="rounded-[28px] bg-card p-8 text-center shadow-sm sm:p-10">
+        <img src="/logo.svg" alt="blep mascot" class="mx-auto h-24 w-24 drop-shadow-sm" />
+        <h1 class="mt-5 font-display text-3xl font-bold tracking-tight sm:text-4xl">Support blep</h1>
+        <p class="mx-auto mt-3 max-w-md text-ink/70">
+          blep is free and open source — no ads, no accounts, no tracking. If it
+          reunited you with your keys (or your dignity), a small thank-you keeps
+          development going. Pick whatever&rsquo;s easiest:
+        </p>
+
+        <div class="mx-auto mt-8 grid max-w-lg gap-3 sm:grid-cols-2">
+          <a class="donate-card" href="https://donate.stripe.com/REPLACE_ME">
+            <span class="donate-card-title">Card · Stripe</span>
+            <span class="donate-card-note">Instant emailed &amp; downloadable receipt</span>
+          </a>
+          <a class="donate-card" href="https://opencollective.com/blep">
+            <span class="donate-card-title">Open Collective</span>
+            <span class="donate-card-note">PDF receipt · transparent ledger</span>
+          </a>
+          <a class="donate-card" href="https://www.paypal.com/donate/?hosted_button_id=REPLACE_ME">
+            <span class="donate-card-title">PayPal</span>
+            <span class="donate-card-note">Receipt in your PayPal history</span>
+          </a>
+          <a class="donate-card" href="https://github.com/sponsors/fentas">
+            <span class="donate-card-title">GitHub Sponsors</span>
+            <span class="donate-card-note">Best for recurring support</span>
+          </a>
+        </div>
+
+        <details class="mx-auto mt-7 max-w-md text-left text-sm text-ink/60">
+          <summary class="cursor-pointer text-center font-medium text-blue">Need a receipt?</summary>
+          <p class="mt-3">
+            Every method is receipted. <strong>Stripe</strong> emails a printable/PDF
+            receipt instantly. <strong>Open Collective</strong> issues a downloadable
+            PDF invoice on your contribution page. <strong>PayPal</strong> and
+            <strong>GitHub Sponsors</strong> email a receipt you can download from your
+            account history.
+          </p>
+        </details>
+      </section>
+
+      <p class="mt-8 text-center text-sm text-ink/55">
+        Prefer code over cash? A ⭐ or a PR is just as welcome —
+        <a class="font-medium text-blue hover:underline" href="https://github.com/fentas/blep.fyi">github.com/fentas/blep.fyi</a>.
+      </p>
+    </main>
+
+    <footer class="mx-auto max-w-3xl px-6 pb-10 text-center text-sm text-ink/50">
+      Made with care · <a class="underline-offset-2 hover:underline" href="https://github.com/fentas/blep.fyi">github.com/fentas/blep.fyi</a>
+    </footer>
+
+    <script type="module" src="/src/donate.js"></script>
+  </body>
+</html>
