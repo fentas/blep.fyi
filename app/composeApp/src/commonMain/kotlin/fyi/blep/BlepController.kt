@@ -11,8 +11,10 @@ import fyi.blep.core.tracking.TrackingSession
 import fyi.blep.core.tracking.TrackingStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.TimeSource
 
 /** Top-level navigation destinations. */
@@ -55,7 +57,6 @@ class BlepController(
     private var trackJob: Job? = null
 
     init {
-        observeAvailability()
         startDiscovery()
     }
 
@@ -85,14 +86,21 @@ class BlepController(
         status = session.status
         trackJob = scope.launch {
             val clock = TimeSource.Monotonic.markNow()
-            scanner.rssi(device.id).collect { rssi ->
-                val st = session.onSample(rssi, clock.elapsedNow().inWholeMilliseconds)
-                status = st
-                if (st.phase == TrackingPhase.COMPLETE) {
-                    screen = Screen.Done(device)
-                    // Stop ranging — the Done screen doesn't need live RSSI.
-                    trackJob?.cancel()
+            try {
+                scanner.rssi(device.id).collect { rssi ->
+                    val st = session.onSample(rssi, clock.elapsedNow().inWholeMilliseconds)
+                    status = st
+                    if (st.phase == TrackingPhase.COMPLETE) {
+                        screen = Screen.Done(device)
+                        // Stop ranging — the Done screen doesn't need live RSSI.
+                        trackJob?.cancel()
+                    }
                 }
+            } catch (c: CancellationException) {
+                throw c
+            } catch (_: Throwable) {
+                // Lost the radio (permission/adapter) — fall back to discovery.
+                startDiscovery()
             }
         }
     }
@@ -100,14 +108,25 @@ class BlepController(
     private fun restartScan() {
         scanJob?.cancel()
         scanJob = scope.launch {
-            // Always collect everything; the UI filters via [visibleDevices].
-            scanner.devices(includeUnnamed = true).collectLatest { list ->
-                devices = list.map { it.copy(alias = aliases[it.id] ?: it.alias) }
+            // Self-healing scan: scanning can throw if Bluetooth permission isn't
+            // granted yet (it's requested asynchronously at launch) or the adapter
+            // is off. Catch it, surface the reason, and retry so the list starts
+            // populating the moment the user taps "Allow".
+            while (isActive) {
+                try {
+                    scanner.devices(includeUnnamed = true).collect { list ->
+                        availability = ScanAvailability.READY
+                        devices = list.map { it.copy(alias = aliases[it.id] ?: it.alias) }
+                    }
+                } catch (c: CancellationException) {
+                    throw c
+                } catch (e: Throwable) {
+                    availability = if (e.message?.contains("permission", ignoreCase = true) == true)
+                        ScanAvailability.PERMISSION_REQUIRED else ScanAvailability.BLUETOOTH_OFF
+                    devices = emptyList()
+                }
+                delay(2000)
             }
         }
-    }
-
-    private fun observeAvailability() {
-        scope.launch { scanner.availability.collect { availability = it } }
     }
 }

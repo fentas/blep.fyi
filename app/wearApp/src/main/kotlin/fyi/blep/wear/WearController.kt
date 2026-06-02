@@ -10,8 +10,10 @@ import fyi.blep.core.tracking.TrackingSession
 import fyi.blep.core.tracking.TrackingStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.TimeSource
 
 /**
@@ -41,7 +43,17 @@ class WearController(
         tracking = null; status = null
         scanJob?.cancel()
         scanJob = scope.launch {
-            scanner.devices(includeUnnamed = false).collectLatest { devices = it }
+            // Self-healing: scanning throws until the BLE permission is granted.
+            while (isActive) {
+                try {
+                    scanner.devices(includeUnnamed = false).collect { devices = it }
+                } catch (c: CancellationException) {
+                    throw c
+                } catch (_: Throwable) {
+                    devices = emptyList()
+                }
+                delay(2000)
+            }
         }
     }
 
@@ -52,10 +64,16 @@ class WearController(
         status = session.status
         trackJob = scope.launch {
             val clock = TimeSource.Monotonic.markNow()
-            scanner.rssi(device.id).collect { rssi ->
-                val st = session.onSample(rssi, clock.elapsedNow().inWholeMilliseconds)
-                status = st
-                if (st.phase == TrackingPhase.COMPLETE) trackJob?.cancel()
+            try {
+                scanner.rssi(device.id).collect { rssi ->
+                    val st = session.onSample(rssi, clock.elapsedNow().inWholeMilliseconds)
+                    status = st
+                    if (st.phase == TrackingPhase.COMPLETE) trackJob?.cancel()
+                }
+            } catch (c: CancellationException) {
+                throw c
+            } catch (_: Throwable) {
+                startDiscovery()
             }
         }
     }
