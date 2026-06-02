@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import fyi.blep.core.spatial.SpatialGuidance
 import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.tracking.TrackingStatus
 import fyi.blep.ui.components.RadarView
@@ -95,11 +96,13 @@ fun TrackingScreen(
             }
         }
 
-        // Spatial distance estimate, shown only once it's reasonably confident.
-        val estimate = spatial?.target
-        if (estimate != null && estimate.confidence >= 0.35f && estimate.distanceM != null) {
+        // Turn-by-turn when confident + a compass exists; else a plain distance.
+        val line = spatial?.let { SpatialGuidance.instruction(it) }
+            ?: spatial?.target?.takeIf { it.confidence >= 0.35f && it.distanceM != null }
+                ?.let { distanceLabel(it.distanceM!!) }
+        if (line != null) {
             Text(
-                text = distanceLabel(estimate.distanceM!!),
+                text = line,
                 style = MaterialTheme.typography.titleMedium,
                 color = BlepColors.Ink.copy(alpha = 0.78f),
                 textAlign = TextAlign.Center,

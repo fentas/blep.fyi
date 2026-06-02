@@ -130,8 +130,11 @@ struct TrackingScreen: View {
     let spatial: SpatialSnapshot?
     let onCancel: () -> Void
 
-    /// Confident spatial distance estimate, formatted, or nil.
+    /// Turn-by-turn instruction when confident + compass present, else distance.
     private var distanceText: String? {
+        if let snap = spatial, let instruction = SpatialGuidance.shared.instruction(snapshot: snap) {
+            return instruction
+        }
         guard let est = spatial?.target, est.confidence >= 0.35,
               let d = est.distanceM?.doubleValue else { return nil }
         return d < 1.5 ? "almost on it" : "~\(Int(d.rounded())) m away"

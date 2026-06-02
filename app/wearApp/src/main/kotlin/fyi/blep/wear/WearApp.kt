@@ -36,6 +36,7 @@ import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.Text
+import fyi.blep.core.spatial.SpatialGuidance
 import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.spatial.Vec2
 import fyi.blep.core.tracking.TrackingStatus
@@ -107,10 +108,12 @@ private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialS
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
             )
-            val est = spatial?.target
-            if (est != null && est.confidence >= 0.35f && est.distanceM != null) {
+            val line = spatial?.let { SpatialGuidance.instruction(it) }
+                ?: spatial?.target?.takeIf { it.confidence >= 0.35f && it.distanceM != null }
+                    ?.let { wearDistanceLabel(it.distanceM!!) }
+            if (line != null) {
                 Text(
-                    wearDistanceLabel(est.distanceM!!),
+                    line,
                     color = Ink.copy(alpha = 0.75f),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 2.dp),

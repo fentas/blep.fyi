@@ -34,6 +34,8 @@ data class TargetEstimate(
 data class SpatialSnapshot(
     val here: Vec2,
     val headingRad: Double,
+    /** Whether [headingRad] is a real compass heading (else it's a default 0). */
+    val headingKnown: Boolean,
     val velocity: Vec2,
     val path: List<TrackPoint>,
     val target: TargetEstimate,
@@ -144,6 +146,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         return SpatialSnapshot(
             here = here,
             headingRad = reckoner.headingRad,
+            headingKnown = reckoner.hasHeading,
             velocity = reckoner.velocity,
             path = points,
             target = target,

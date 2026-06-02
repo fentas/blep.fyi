@@ -18,8 +18,11 @@ class DeadReckoner {
     var velocity = Vec2.ZERO
         private set
 
+    /** Whether a real compass heading has been seen (else [headingRad] is 0). */
+    var hasHeading = false
+        private set
+
     private var lastTimeMs = -1L
-    private var hasHeading = false
 
     fun reset() {
         position = Vec2.ZERO
