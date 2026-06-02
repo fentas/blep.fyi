@@ -133,7 +133,7 @@ private enum class DogClip(val row: Int, val frames: Int, val fps: Int, val movi
     WALK(0, 24, 24, true),     // trot
     LOOK(1, 24, 24, false),    // look around
     IDLE(2, 24, 24, false),    // idle
-    FOUND(3, 12, 7, false);    // with a bone (only 12 frames → slower fps so it isn't choppy)
+    FOUND(3, 24, 14, false);   // dig → bone (24-frame tgx7wu)
 
     val periodMs: Int get() = frames * 1000 / fps
 }

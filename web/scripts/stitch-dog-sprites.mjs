@@ -26,17 +26,18 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 // Source sheets (id → grid). Add sheets here; reference their frames from clips.
 const SHEETS = {
-  trot:  { dir: 'spr24',   file: 'Gemini_Generated_Image_fbd8sxfbd8sxfbd8.png', cols: 8, rows: 3, frames: 24 },
-  sit:   { dir: 'spr24',   file: 'Gemini_Generated_Image_w1h6y3w1h6y3w1h6.png', cols: 8, rows: 3, frames: 24 },
-  stand: { dir: 'spr24',   file: 'Gemini_Generated_Image_xsgea4xsgea4xsge.png', cols: 8, rows: 3, frames: 24 },
-  bone:  { dir: 'sprites', file: 'Gemini_Generated_Image_6m0nln6m0nln6m0n.png', cols: 6, rows: 2, frames: 12 },
+  walk:    { dir: 'spr24', file: 'Gemini_Generated_Image_u9yhe2u9yhe2u9yh.png', cols: 8, rows: 3, frames: 24 }, // trot loop
+  sit:     { dir: 'spr24', file: 'Gemini_Generated_Image_w1h6y3w1h6y3w1h6.png', cols: 8, rows: 3, frames: 24 }, // sit / look
+  stand:   { dir: 'spr24', file: 'Gemini_Generated_Image_xsgea4xsgea4xsge.png', cols: 8, rows: 3, frames: 24 }, // idle
+  dig:     { dir: 'spr24', file: 'Gemini_Generated_Image_tgx7wutgx7wutgx7.png', cols: 8, rows: 3, frames: 24 }, // dig → bone
+  walkdig: { dir: 'spr24', file: 'Gemini_Generated_Image_fbd8sxfbd8sxfbd8.png', cols: 8, rows: 3, frames: 24 }, // walk → dig → bone (spare)
 }
 // Default clips (rows, in this order) → frame-id lists. The manifest overrides.
 const DEFAULT_CLIPS = {
-  walk:  { fps: 24, frames: range('trot', 24) },
+  walk:  { fps: 24, frames: range('walk', 24) },
   look:  { fps: 24, frames: range('sit', 24) },
   idle:  { fps: 24, frames: range('stand', 24) },
-  found: { fps: 12, frames: range('bone', 12) },
+  found: { fps: 14, frames: range('dig', 24) },
 }
 function range(sheet, n) { return Array.from({ length: n }, (_, i) => `${sheet}#${i}`) }
 

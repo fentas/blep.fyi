@@ -8,27 +8,42 @@
   {
    "id": "c0",
    "frames": [
-    "trot#0",
-    "trot#1",
-    "trot#2",
-    "trot#3",
-    "trot#4",
-    "trot#5",
-    "trot#6",
-    "trot#7",
-    "trot#8",
-    "trot#9",
-    "trot#10",
-    "trot#11",
-    "trot#12",
-    "trot#18",
-    "trot#19",
+    "walk#0",
+    "walk#1",
+    "walk#2",
+    "walk#3",
+    "walk#4",
+    "walk#5",
+    "walk#6",
+    "walk#7",
+    "walk#8",
+    "walk#9",
+    "walk#10",
+    "walk#11",
+    "walk#12",
+    "walk#13",
+    "walk#14",
+    "walk#15",
+    "walk#16",
+    "walk#17",
+    "walk#18",
+    "walk#19",
+    "walk#20",
+    "walk#21",
+    "walk#22",
+    "walk#23",
     "sit#0",
     "sit#1",
     "sit#2",
     "sit#3",
     "sit#4",
     "sit#5",
+    "sit#6",
+    "sit#7",
+    "sit#8",
+    "sit#9",
+    "sit#10",
+    "sit#11",
     "stand#2",
     "stand#3",
     "stand#4",
@@ -50,37 +65,34 @@
     "stand#20",
     "stand#21",
     "stand#22",
-    "stand#23"
+    "stand#23",
+    "dig#2",
+    "dig#3",
+    "dig#4",
+    "dig#5",
+    "dig#6",
+    "dig#9",
+    "dig#18",
+    "dig#19",
+    "dig#20",
+    "walkdig#0",
+    "walkdig#1",
+    "walkdig#2",
+    "walkdig#3",
+    "walkdig#4",
+    "walkdig#5",
+    "walkdig#8",
+    "walkdig#9",
+    "walkdig#10",
+    "walkdig#11",
+    "walkdig#12",
+    "walkdig#18",
+    "walkdig#19"
    ]
   },
   {
    "id": "c1",
    "frames": [
-    "trot#13",
-    "trot#14",
-    "trot#15",
-    "trot#17"
-   ]
-  },
-  {
-   "id": "c2",
-   "frames": [
-    "trot#16",
-    "bone#3"
-   ]
-  },
-  {
-   "id": "c3",
-   "frames": [
-    "trot#20",
-    "trot#21",
-    "trot#22",
-    "sit#6",
-    "sit#7",
-    "sit#8",
-    "sit#9",
-    "sit#10",
-    "sit#11",
     "sit#12",
     "sit#13",
     "sit#14",
@@ -93,686 +105,927 @@
     "sit#21",
     "sit#22",
     "sit#23",
-    "stand#1"
+    "stand#0",
+    "stand#1",
+    "dig#21",
+    "dig#22",
+    "walkdig#6",
+    "walkdig#7",
+    "walkdig#20",
+    "walkdig#21"
+   ]
+  },
+  {
+   "id": "c2",
+   "frames": [
+    "dig#0",
+    "dig#1",
+    "dig#7",
+    "dig#10",
+    "dig#11",
+    "dig#13",
+    "dig#14",
+    "dig#15",
+    "dig#16",
+    "dig#17",
+    "walkdig#13",
+    "walkdig#14",
+    "walkdig#15",
+    "walkdig#16",
+    "walkdig#17"
+   ]
+  },
+  {
+   "id": "c3",
+   "frames": [
+    "dig#8"
    ]
   },
   {
    "id": "c4",
    "frames": [
-    "trot#23",
-    "stand#0"
+    "dig#12"
    ]
   },
   {
    "id": "c5",
    "frames": [
-    "bone#0"
-   ]
-  },
-  {
-   "id": "c6",
-   "frames": [
-    "bone#1",
-    "bone#2"
-   ]
-  },
-  {
-   "id": "c7",
-   "frames": [
-    "bone#4",
-    "bone#5"
-   ]
-  },
-  {
-   "id": "c8",
-   "frames": [
-    "bone#6",
-    "bone#10"
-   ]
-  },
-  {
-   "id": "c9",
-   "frames": [
-    "bone#7"
-   ]
-  },
-  {
-   "id": "c10",
-   "frames": [
-    "bone#8"
-   ]
-  },
-  {
-   "id": "c11",
-   "frames": [
-    "bone#9"
-   ]
-  },
-  {
-   "id": "c12",
-   "frames": [
-    "bone#11"
+    "dig#23",
+    "walkdig#22",
+    "walkdig#23"
    ]
   }
  ],
  "frames": {
-  "trot#0": {
+  "walk#0": {
+   "drift": [
+    101,
+    61
+   ],
+   "category": "c0"
+  },
+  "walk#1": {
    "drift": [
     103,
-    53
-   ],
-   "category": "c0"
-  },
-  "trot#1": {
-   "drift": [
-    103,
-    50
-   ],
-   "category": "c0"
-  },
-  "trot#2": {
-   "drift": [
-    105,
-    52
-   ],
-   "category": "c0"
-  },
-  "trot#3": {
-   "drift": [
-    103,
-    53
-   ],
-   "category": "c0"
-  },
-  "trot#4": {
-   "drift": [
-    94,
-    56
-   ],
-   "category": "c0"
-  },
-  "trot#5": {
-   "drift": [
-    93,
     62
    ],
    "category": "c0"
   },
-  "trot#6": {
-   "drift": [
-    115,
-    47
-   ],
-   "category": "c0"
-  },
-  "trot#7": {
-   "drift": [
-    130,
-    48
-   ],
-   "category": "c0"
-  },
-  "trot#8": {
+  "walk#2": {
    "drift": [
     103,
     63
    ],
    "category": "c0"
   },
-  "trot#9": {
+  "walk#3": {
+   "drift": [
+    101,
+    63
+   ],
+   "category": "c0"
+  },
+  "walk#4": {
+   "drift": [
+    101,
+    59
+   ],
+   "category": "c0"
+  },
+  "walk#5": {
    "drift": [
     101,
     62
    ],
    "category": "c0"
   },
-  "trot#10": {
+  "walk#6": {
    "drift": [
-    102,
-    66
+    101,
+    61
    ],
    "category": "c0"
   },
-  "trot#11": {
+  "walk#7": {
+   "drift": [
+    99,
+    61
+   ],
+   "category": "c0"
+  },
+  "walk#8": {
+   "drift": [
+    102,
+    59
+   ],
+   "category": "c0"
+  },
+  "walk#9": {
+   "drift": [
+    104,
+    61
+   ],
+   "category": "c0"
+  },
+  "walk#10": {
    "drift": [
     103,
+    60
+   ],
+   "category": "c0"
+  },
+  "walk#11": {
+   "drift": [
+    104,
+    62
+   ],
+   "category": "c0"
+  },
+  "walk#12": {
+   "drift": [
+    102,
     57
    ],
    "category": "c0"
   },
-  "trot#12": {
-   "drift": [
-    97,
-    66
-   ],
-   "category": "c0"
-  },
-  "trot#13": {
-   "drift": [
-    98,
-    59
-   ],
-   "category": "c1"
-  },
-  "trot#14": {
+  "walk#13": {
    "drift": [
     102,
-    39
+    61
    ],
-   "category": "c1"
+   "category": "c0"
   },
-  "trot#15": {
+  "walk#14": {
    "drift": [
-    97,
-    32
+    100,
+    57
    ],
-   "category": "c1"
+   "category": "c0"
   },
-  "trot#16": {
+  "walk#15": {
+   "drift": [
+    100,
+    58
+   ],
+   "category": "c0"
+  },
+  "walk#16": {
+   "drift": [
+    94,
+    55
+   ],
+   "category": "c0"
+  },
+  "walk#17": {
    "drift": [
     102,
-    17
-   ],
-   "category": "c2"
-  },
-  "trot#17": {
-   "drift": [
-    105,
-    46
-   ],
-   "category": "c1"
-  },
-  "trot#18": {
-   "drift": [
-    106,
-    48
-   ],
-   "category": "c0"
-  },
-  "trot#19": {
-   "drift": [
-    104,
-    46
-   ],
-   "category": "c0"
-  },
-  "trot#20": {
-   "drift": [
-    89,
     54
    ],
-   "category": "c3"
+   "category": "c0"
   },
-  "trot#21": {
+  "walk#18": {
    "drift": [
-    96,
-    49
+    98,
+    54
    ],
-   "category": "c3"
+   "category": "c0"
   },
-  "trot#22": {
+  "walk#19": {
    "drift": [
-    92,
-    36
+    100,
+    55
    ],
-   "category": "c3"
+   "category": "c0"
   },
-  "trot#23": {
+  "walk#20": {
+   "drift": [
+    103,
+    56
+   ],
+   "category": "c0"
+  },
+  "walk#21": {
    "drift": [
     95,
-    31
+    52
    ],
-   "category": "c4"
+   "category": "c0"
+  },
+  "walk#22": {
+   "drift": [
+    101,
+    53
+   ],
+   "category": "c0"
+  },
+  "walk#23": {
+   "drift": [
+    101,
+    52
+   ],
+   "category": "c0"
   },
   "sit#0": {
    "drift": [
-    96,
-    56
+    94,
+    54
    ],
    "category": "c0"
   },
   "sit#1": {
    "drift": [
-    106,
-    55
+    104,
+    53
    ],
    "category": "c0"
   },
   "sit#2": {
    "drift": [
-    103,
-    56
+    101,
+    54
    ],
    "category": "c0"
   },
   "sit#3": {
    "drift": [
-    103,
-    55
+    101,
+    54
    ],
    "category": "c0"
   },
   "sit#4": {
    "drift": [
-    101,
-    55
+    99,
+    53
    ],
    "category": "c0"
   },
   "sit#5": {
    "drift": [
-    96,
-    56
+    93,
+    54
    ],
    "category": "c0"
   },
   "sit#6": {
    "drift": [
-    93,
-    53
+    91,
+    52
    ],
-   "category": "c3"
+   "category": "c0"
   },
   "sit#7": {
    "drift": [
-    89,
-    52
+    86,
+    50
    ],
-   "category": "c3"
+   "category": "c0"
   },
   "sit#8": {
+   "drift": [
+    88,
+    50
+   ],
+   "category": "c0"
+  },
+  "sit#9": {
+   "drift": [
+    89,
+    53
+   ],
+   "category": "c0"
+  },
+  "sit#10": {
+   "drift": [
+    90,
+    53
+   ],
+   "category": "c0"
+  },
+  "sit#11": {
    "drift": [
     90,
     52
    ],
-   "category": "c3"
-  },
-  "sit#9": {
-   "drift": [
-    91,
-    55
-   ],
-   "category": "c3"
-  },
-  "sit#10": {
-   "drift": [
-    92,
-    54
-   ],
-   "category": "c3"
-  },
-  "sit#11": {
-   "drift": [
-    92,
-    54
-   ],
-   "category": "c3"
+   "category": "c0"
   },
   "sit#12": {
    "drift": [
-    93,
-    50
+    91,
+    48
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "sit#13": {
    "drift": [
-    93,
-    49
+    91,
+    47
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "sit#14": {
    "drift": [
-    95,
-    49
+    93,
+    47
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "sit#15": {
    "drift": [
-    95,
-    49
+    92,
+    47
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "sit#16": {
    "drift": [
-    92,
-    48
+    90,
+    46
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "sit#17": {
    "drift": [
-    95,
-    47
+    92,
+    45
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "sit#18": {
    "drift": [
-    93,
-    48
+    91,
+    46
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "sit#19": {
    "drift": [
-    89,
-    39
+    87,
+    37
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "sit#20": {
    "drift": [
-    94,
-    46
+    92,
+    44
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "sit#21": {
    "drift": [
-    92,
-    47
+    90,
+    45
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "sit#22": {
    "drift": [
-    93,
-    46
+    91,
+    44
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "sit#23": {
    "drift": [
-    94,
-    47
+    92,
+    45
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "stand#0": {
    "drift": [
-    121,
-    46
+    119,
+    44
    ],
-   "category": "c4"
+   "category": "c1"
   },
   "stand#1": {
    "drift": [
-    97,
-    48
+    95,
+    46
    ],
-   "category": "c3"
+   "category": "c1"
   },
   "stand#2": {
    "drift": [
-    97,
-    55
+    95,
+    54
    ],
    "category": "c0"
   },
   "stand#3": {
    "drift": [
-    101,
-    60
+    99,
+    58
    ],
    "category": "c0"
   },
   "stand#4": {
    "drift": [
-    104,
-    54
+    102,
+    52
    ],
    "category": "c0"
   },
   "stand#5": {
    "drift": [
-    100,
-    52
+    98,
+    50
    ],
    "category": "c0"
   },
   "stand#6": {
    "drift": [
-    97,
-    58
+    95,
+    56
    ],
    "category": "c0"
   },
   "stand#7": {
    "drift": [
-    96,
-    59
+    94,
+    57
    ],
    "category": "c0"
   },
   "stand#8": {
    "drift": [
-    102,
-    56
+    100,
+    55
    ],
    "category": "c0"
   },
   "stand#9": {
    "drift": [
-    105,
-    55
+    103,
+    54
    ],
    "category": "c0"
   },
   "stand#10": {
-   "drift": [
-    102,
-    58
-   ],
-   "category": "c0"
-  },
-  "stand#11": {
    "drift": [
     100,
     56
    ],
    "category": "c0"
   },
+  "stand#11": {
+   "drift": [
+    98,
+    55
+   ],
+   "category": "c0"
+  },
   "stand#12": {
    "drift": [
-    102,
-    56
+    100,
+    55
    ],
    "category": "c0"
   },
   "stand#13": {
    "drift": [
-    102,
-    51
+    100,
+    50
    ],
    "category": "c0"
   },
   "stand#14": {
    "drift": [
-    103,
-    56
+    101,
+    55
    ],
    "category": "c0"
   },
   "stand#15": {
    "drift": [
-    104,
-    48
+    102,
+    46
    ],
    "category": "c0"
   },
   "stand#16": {
    "drift": [
-    103,
-    52
+    101,
+    51
    ],
    "category": "c0"
   },
   "stand#17": {
    "drift": [
-    102,
-    49
+    100,
+    47
    ],
    "category": "c0"
   },
   "stand#18": {
    "drift": [
-    105,
-    50
+    103,
+    49
    ],
    "category": "c0"
   },
   "stand#19": {
+   "drift": [
+    101,
+    46
+   ],
+   "category": "c0"
+  },
+  "stand#20": {
    "drift": [
     103,
     47
    ],
    "category": "c0"
   },
-  "stand#20": {
-   "drift": [
-    105,
-    49
-   ],
-   "category": "c0"
-  },
   "stand#21": {
    "drift": [
-    102,
-    49
+    100,
+    48
    ],
    "category": "c0"
   },
   "stand#22": {
    "drift": [
-    105,
-    51
+    103,
+    49
    ],
    "category": "c0"
   },
   "stand#23": {
    "drift": [
-    102,
-    47
+    100,
+    45
    ],
    "category": "c0"
   },
-  "bone#0": {
+  "dig#0": {
    "drift": [
-    64,
-    26
+    103,
+    38
    ],
-   "category": "c5"
+   "category": "c2"
   },
-  "bone#1": {
+  "dig#1": {
    "drift": [
-    60,
-    72
+    98,
+    54
    ],
-   "category": "c6"
+   "category": "c2"
   },
-  "bone#2": {
+  "dig#2": {
    "drift": [
-    60,
+    103,
+    53
+   ],
+   "category": "c0"
+  },
+  "dig#3": {
+   "drift": [
+    44,
+    50
+   ],
+   "category": "c0"
+  },
+  "dig#4": {
+   "drift": [
+    96,
     56
    ],
-   "category": "c6"
+   "category": "c0"
   },
-  "bone#3": {
+  "dig#5": {
    "drift": [
-    81,
+    105,
+    48
+   ],
+   "category": "c0"
+  },
+  "dig#6": {
+   "drift": [
+    98,
+    43
+   ],
+   "category": "c0"
+  },
+  "dig#7": {
+   "drift": [
+    96,
+    39
+   ],
+   "category": "c2"
+  },
+  "dig#8": {
+   "drift": [
+    101,
+    24
+   ],
+   "category": "c3"
+  },
+  "dig#9": {
+   "drift": [
+    92,
+    45
+   ],
+   "category": "c0"
+  },
+  "dig#10": {
+   "drift": [
+    102,
+    29
+   ],
+   "category": "c2"
+  },
+  "dig#11": {
+   "drift": [
+    98,
+    35
+   ],
+   "category": "c2"
+  },
+  "dig#12": {
+   "drift": [
+    108,
+    29
+   ],
+   "category": "c4"
+  },
+  "dig#13": {
+   "drift": [
+    102,
+    27
+   ],
+   "category": "c2"
+  },
+  "dig#14": {
+   "drift": [
+    100,
+    20
+   ],
+   "category": "c2"
+  },
+  "dig#15": {
+   "drift": [
+    97,
+    19
+   ],
+   "category": "c2"
+  },
+  "dig#16": {
+   "drift": [
+    102,
     8
    ],
    "category": "c2"
   },
-  "bone#4": {
+  "dig#17": {
    "drift": [
-    63,
-    30
+    100,
+    13
    ],
-   "category": "c7"
+   "category": "c2"
   },
-  "bone#5": {
+  "dig#18": {
    "drift": [
-    60,
-    31
+    98,
+    47
    ],
-   "category": "c7"
+   "category": "c0"
   },
-  "bone#6": {
+  "dig#19": {
    "drift": [
-    58,
-    5
+    102,
+    43
    ],
-   "category": "c8"
+   "category": "c0"
   },
-  "bone#7": {
+  "dig#20": {
    "drift": [
-    53,
-    19
+    96,
+    49
    ],
-   "category": "c9"
+   "category": "c0"
   },
-  "bone#8": {
+  "dig#21": {
    "drift": [
-    71,
-    20
+    84,
+    48
    ],
-   "category": "c10"
+   "category": "c1"
   },
-  "bone#9": {
+  "dig#22": {
    "drift": [
-    53,
-    18
+    91,
+    33
    ],
-   "category": "c11"
+   "category": "c1"
   },
-  "bone#10": {
+  "dig#23": {
    "drift": [
-    67,
-    5
+    95,
+    28
    ],
-   "category": "c8"
+   "category": "c5"
   },
-  "bone#11": {
+  "walkdig#0": {
    "drift": [
-    41,
-    -64
+    101,
+    51
    ],
-   "category": "c12"
+   "category": "c0"
+  },
+  "walkdig#1": {
+   "drift": [
+    101,
+    48
+   ],
+   "category": "c0"
+  },
+  "walkdig#2": {
+   "drift": [
+    103,
+    50
+   ],
+   "category": "c0"
+  },
+  "walkdig#3": {
+   "drift": [
+    101,
+    51
+   ],
+   "category": "c0"
+  },
+  "walkdig#4": {
+   "drift": [
+    92,
+    55
+   ],
+   "category": "c0"
+  },
+  "walkdig#5": {
+   "drift": [
+    91,
+    60
+   ],
+   "category": "c0"
+  },
+  "walkdig#6": {
+   "drift": [
+    113,
+    45
+   ],
+   "category": "c1"
+  },
+  "walkdig#7": {
+   "drift": [
+    129,
+    46
+   ],
+   "category": "c1"
+  },
+  "walkdig#8": {
+   "drift": [
+    101,
+    62
+   ],
+   "category": "c0"
+  },
+  "walkdig#9": {
+   "drift": [
+    99,
+    61
+   ],
+   "category": "c0"
+  },
+  "walkdig#10": {
+   "drift": [
+    100,
+    64
+   ],
+   "category": "c0"
+  },
+  "walkdig#11": {
+   "drift": [
+    101,
+    55
+   ],
+   "category": "c0"
+  },
+  "walkdig#12": {
+   "drift": [
+    95,
+    65
+   ],
+   "category": "c0"
+  },
+  "walkdig#13": {
+   "drift": [
+    96,
+    57
+   ],
+   "category": "c2"
+  },
+  "walkdig#14": {
+   "drift": [
+    100,
+    37
+   ],
+   "category": "c2"
+  },
+  "walkdig#15": {
+   "drift": [
+    95,
+    29
+   ],
+   "category": "c2"
+  },
+  "walkdig#16": {
+   "drift": [
+    100,
+    14
+   ],
+   "category": "c2"
+  },
+  "walkdig#17": {
+   "drift": [
+    103,
+    44
+   ],
+   "category": "c2"
+  },
+  "walkdig#18": {
+   "drift": [
+    104,
+    46
+   ],
+   "category": "c0"
+  },
+  "walkdig#19": {
+   "drift": [
+    102,
+    44
+   ],
+   "category": "c0"
+  },
+  "walkdig#20": {
+   "drift": [
+    87,
+    52
+   ],
+   "category": "c1"
+  },
+  "walkdig#21": {
+   "drift": [
+    94,
+    47
+   ],
+   "category": "c1"
+  },
+  "walkdig#22": {
+   "drift": [
+    90,
+    34
+   ],
+   "category": "c5"
+  },
+  "walkdig#23": {
+   "drift": [
+    93,
+    28
+   ],
+   "category": "c5"
   }
  },
  "clips": {
   "walk": {
    "fps": 24,
    "frames": [
-    "trot#0",
-    "trot#1",
-    "trot#2",
-    "trot#3",
-    "trot#4",
-    "trot#5",
-    "trot#6",
-    "trot#7",
-    "trot#8",
-    "trot#9",
-    "trot#10",
-    "trot#11",
-    "trot#12",
-    "trot#13",
-    "trot#14",
-    "trot#15",
-    "trot#16",
-    "trot#17",
-    "trot#18",
-    "trot#19",
-    "trot#20",
-    "trot#21",
-    "trot#22",
-    "trot#23"
+    "walk#0",
+    "walk#1",
+    "walk#2",
+    "walk#3",
+    "walk#4",
+    "walk#5",
+    "walk#6",
+    "walk#7",
+    "walk#8",
+    "walk#9",
+    "walk#10",
+    "walk#11",
+    "walk#12",
+    "walk#13",
+    "walk#14",
+    "walk#15",
+    "walk#16",
+    "walk#17",
+    "walk#18",
+    "walk#19",
+    "walk#20",
+    "walk#21",
+    "walk#22",
+    "walk#23"
    ]
   },
   "look": {
@@ -834,20 +1087,32 @@
    ]
   },
   "found": {
-   "fps": 12,
+   "fps": 14,
    "frames": [
-    "bone#0",
-    "bone#1",
-    "bone#2",
-    "bone#3",
-    "bone#4",
-    "bone#5",
-    "bone#6",
-    "bone#7",
-    "bone#8",
-    "bone#9",
-    "bone#10",
-    "bone#11"
+    "dig#0",
+    "dig#1",
+    "dig#2",
+    "dig#3",
+    "dig#4",
+    "dig#5",
+    "dig#6",
+    "dig#7",
+    "dig#8",
+    "dig#9",
+    "dig#10",
+    "dig#11",
+    "dig#12",
+    "dig#13",
+    "dig#14",
+    "dig#15",
+    "dig#16",
+    "dig#17",
+    "dig#18",
+    "dig#19",
+    "dig#20",
+    "dig#21",
+    "dig#22",
+    "dig#23"
    ]
   }
  }
