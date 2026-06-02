@@ -128,12 +128,12 @@ fun TrackingScreen(
 private const val CELL_W = 400
 private const val CELL_H = 264
 
-/** Clip rows in dog_sheet.png, with frame count + playback rate. */
-private enum class DogClip(val row: Int, val frames: Int, val fps: Int, val moving: Boolean) {
-    WALK(0, 24, 24, true),     // trot
-    LOOK(1, 24, 24, false),    // look around
-    IDLE(2, 24, 24, false),    // idle
-    FOUND(3, 24, 14, false);   // dig → bone (24-frame tgx7wu)
+/** Clip rows in dog_sheet.png, with frame count, playback rate, and looping. */
+private enum class DogClip(val row: Int, val frames: Int, val fps: Int, val moving: Boolean, val loop: Boolean) {
+    WALK(0, 24, 24, true, true),      // trot
+    LOOK(1, 24, 24, false, true),     // look around
+    IDLE(2, 24, 24, false, true),     // idle
+    FOUND(3, 24, 12, false, false);   // dig → bone: play once, then hold the bone
 
     val periodMs: Int get() = frames * 1000 / fps
 }
@@ -167,7 +167,16 @@ private fun DogTrack(phase: TrackingPhase, proximity: Float, rssi: Int?, modifie
     val walkP by anim.animateFloat(
         0f, 1f, infiniteRepeatable(tween(3600, easing = LinearEasing), RepeatMode.Restart), label = "walkX",
     )
-    val curFrame = (startFrame + freeF.toInt()) % shown.frames
+    // One-shot driver for non-looping clips (e.g. dig → bone: play once, hold last).
+    val oneShot = remember { Animatable(0f) }
+    LaunchedEffect(shown) {
+        if (!shown.loop) {
+            oneShot.snapTo(0f)
+            oneShot.animateTo((shown.frames - 1).toFloat(), tween(shown.periodMs, easing = LinearEasing))
+        }
+    }
+    val curFrame = if (shown.loop) (startFrame + freeF.toInt()) % shown.frames
+    else oneShot.value.toInt().coerceIn(0, shown.frames - 1)
 
     LaunchedEffect(clip) {
         if (clip != shown) {
