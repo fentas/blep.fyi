@@ -115,18 +115,17 @@ fun TrackingScreen(
     }
 }
 
-// Sprite sheet layout: 12 frames per clip, 4 clip rows; each cell is 300x248 px.
-// Frames are stitched from hand-/AI-drawn sources (web/scripts/stitch-dog-sprites.mjs).
-private const val CELL_W = 300
-private const val CELL_H = 248
-private const val FRAMES = 12
+// Sprite sheet layout: up to 24 frames per clip, 4 clip rows; cell 400x264 px.
+// Stitched + aligned from AI sources (web/scripts/stitch-dog-sprites.mjs).
+private const val CELL_W = 400
+private const val CELL_H = 264
 
-/** Clip rows in dog_sheet.png. */
-private enum class DogClip(val row: Int, val periodMs: Int, val moving: Boolean) {
-    WALK(0, 1080, true),   // trot
-    LOOK(1, 1700, false),  // sit + look around
-    IDLE(2, 1900, false),  // idle
-    FOUND(3, 1300, false), // sits with a bone (close / found)
+/** Clip rows in dog_sheet.png, with their frame count + loop duration. */
+private enum class DogClip(val row: Int, val frames: Int, val periodMs: Int, val moving: Boolean) {
+    WALK(0, 24, 1050, true),    // trot (~23 fps)
+    LOOK(1, 24, 2000, false),   // look around
+    IDLE(2, 24, 2200, false),   // idle
+    FOUND(3, 12, 1000, false),  // with a bone (close / found)
 }
 
 /**
@@ -146,7 +145,7 @@ private fun DogTrack(phase: TrackingPhase, proximity: Float, rssi: Int?, modifie
 
     val anim = rememberInfiniteTransition(label = "dog")
     val frameF by anim.animateFloat(
-        0f, FRAMES.toFloat(), infiniteRepeatable(tween(clip.periodMs, easing = LinearEasing), RepeatMode.Restart), label = "frame",
+        0f, clip.frames.toFloat(), infiniteRepeatable(tween(clip.periodMs, easing = LinearEasing), RepeatMode.Restart), label = "frame",
     )
     val walkP by anim.animateFloat(
         0f, 1f, infiniteRepeatable(tween(3600, easing = LinearEasing), RepeatMode.Restart), label = "walkX",
@@ -158,8 +157,8 @@ private fun DogTrack(phase: TrackingPhase, proximity: Float, rssi: Int?, modifie
             style = MaterialTheme.typography.labelLarge,
             color = BlepColors.Ink.copy(alpha = 0.55f),
         )
-        Canvas(modifier = Modifier.fillMaxWidth().height(104.dp).clipToBounds()) {
-            val frame = frameF.toInt().coerceIn(0, FRAMES - 1)
+        Canvas(modifier = Modifier.fillMaxWidth().height(108.dp).clipToBounds()) {
+            val frame = frameF.toInt().coerceIn(0, clip.frames - 1)
             val scale = size.height / CELL_H
             val dstW = CELL_W * scale
             val dstH = size.height
