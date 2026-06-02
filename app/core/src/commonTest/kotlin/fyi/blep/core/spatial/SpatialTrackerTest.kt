@@ -112,6 +112,40 @@ class SpatialTrackerTest {
     }
 
     @Test
+    fun filter_finds_the_target_one_floor_up_after_you_climb() {
+        val tracker = SpatialTracker(tuning)
+        val tgt = Vec2(8.0, 8.0); val tgtZ = 3.0
+        var truth = Vec2.ZERO; var lastT = -1L; var i = 0
+        var last: SpatialSnapshot? = null
+
+        fun step(timeMs: Long, headingRad: Double, stepDist: Double, altitude: Double) {
+            val dt = if (lastT < 0) 0.0 else (timeMs - lastT) / 1000.0
+            lastT = timeMs
+            if (dt > 0.0 && stepDist > 0.0) truth += Vec2.heading(headingRad) * stepDist
+            val horiz = (truth - tgt).length
+            val d = kotlin.math.sqrt(horiz * horiz + (altitude - tgtZ) * (altitude - tgtZ)).coerceAtLeast(0.5)
+            val rssi = -59.0 - 25.0 * kotlin.math.log10(d) + 0.4 * sin(i++.toDouble())
+            last = tracker.update(
+                rssi,
+                MotionSample(timeMs = timeMs, headingRad = headingRad, stepDistanceM = stepDist, relativeAltitudeM = altitude, moving = stepDist > 0),
+            )
+        }
+
+        var t = 0L
+        // Ground floor L-walk to (6,6) for horizontal lock.
+        repeat(13) { step(t, 0.0, if (t == 0L) 0.0 else 0.5, 0.0); t += 500 }
+        repeat(12) { step(t, PI / 2, 0.5, 0.0); t += 500 }
+        // Climb diagonally to (8,8) while rising to +3 m (one floor up).
+        repeat(6) { k -> step(t, PI / 4, 0.5, ((k + 1) * 0.5).coerceAtMost(3.0)); t += 500 }
+        // Stand by the target up here for a moment.
+        repeat(4) { step(t, PI / 4, 0.0, 3.0); t += 500 }
+        // Walk back down to the ground floor.
+        repeat(3) { k -> step(t, PI / 4, 0.0, (3.0 - (k + 1)).coerceAtLeast(0.0)); t += 500 }
+
+        assertTrue(last!!.floorDelta >= 1, "expected target ≥1 floor up, got ${last!!.floorDelta}")
+    }
+
+    @Test
     fun no_sensors_degrades_to_a_single_point_without_crashing() {
         val tracker = SpatialTracker(tuning)
         var snap: SpatialSnapshot? = null

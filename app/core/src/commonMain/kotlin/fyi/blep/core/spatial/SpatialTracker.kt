@@ -1,5 +1,8 @@
 package fyi.blep.core.spatial
 
+import kotlin.math.abs
+import kotlin.math.roundToInt
+
 /** One point of the walked path with the signal sampled there. */
 data class TrackPoint(
     val pos: Vec2,
@@ -58,7 +61,6 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private val reckoner = DeadReckoner()
     private val pathLoss = PathLossModel.from(tuning)
     private val particles = ParticleTargetEstimator(tuning, pathLoss)
-    private val floors = FloorEstimator()
     private val points = ArrayList<TrackPoint>()
     private var frame: LocalFrame? = null
     private var samplesSinceCalibration = 0
@@ -68,7 +70,6 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     fun reset() {
         reckoner.reset()
         particles.reset()
-        floors.reset()
         pathLoss.rssiAt1m = tuning.rssiAt1m
         pathLoss.exponent = tuning.pathLossExponent
         points.clear()
@@ -120,11 +121,11 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     fun update(rssi: Double, motion: MotionSample): SpatialSnapshot {
         val here = reckoner.update(motion)
         recordSample(here, rssi, motion.timeMs)
-        floors.update(motion.relativeAltitudeM, tuning.strength01(rssi))
+        val altitude = motion.relativeAltitudeM
 
         // Always fold the sample into the filter so evidence accumulates; only
         // *report* a position once we've moved enough to triangulate.
-        val est = particles.update(here, rssi)
+        val est = particles.update(here, altitude, rssi)
         val spread = pathSpread()
         val target = when {
             spread < MIN_SPREAD_M -> TargetEstimate(null, null, null, 0f)
@@ -158,8 +159,22 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             path = points,
             target = target,
             onCourse = onCourse,
-            floorDelta = floors.floorDelta,
+            floorDelta = floorDelta(est, altitude),
         )
+    }
+
+    /**
+     * Floors to the target relative to here, from the filter's vertical estimate —
+     * but only once altitude is well resolved (which needs you to have actually
+     * changed floors; otherwise up/down is ambiguous and this stays 0).
+     */
+    private fun floorDelta(est: ParticleTargetEstimator.Estimate, currentAltitude: Double): Int {
+        val dz = est.meanZ - currentAltitude
+        return if (est.semiVerticalM < FLOOR_HEIGHT_M && abs(dz) >= FLOOR_HEIGHT_M * 0.5) {
+            (dz / FLOOR_HEIGHT_M).roundToInt()
+        } else {
+            0
+        }
     }
 
     /**
@@ -212,5 +227,6 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         const val CALIBRATE_CONFIDENCE = 0.5f // only learn path-loss when well localised
         const val CALIBRATE_EVERY = 15      // samples between refits
         const val CALIBRATE_EASE = 0.25     // fraction of each new fit eased in
+        const val FLOOR_HEIGHT_M = 3.0
     }
 }
