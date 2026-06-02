@@ -31,7 +31,3 @@ web/node_modules/
 web/dist/
 web/.vite/
 web/dev-dist/
-sprites/
-spr24/
-web/dog-test/anim.js
-web/dog-test/library.png
