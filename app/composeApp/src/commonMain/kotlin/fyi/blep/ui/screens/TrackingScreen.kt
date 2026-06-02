@@ -120,12 +120,14 @@ fun TrackingScreen(
 private const val CELL_W = 400
 private const val CELL_H = 264
 
-/** Clip rows in dog_sheet.png, with their frame count + loop duration. */
-private enum class DogClip(val row: Int, val frames: Int, val periodMs: Int, val moving: Boolean) {
-    WALK(0, 24, 1050, true),    // trot (~23 fps)
-    LOOK(1, 24, 2000, false),   // look around
-    IDLE(2, 24, 2200, false),   // idle
-    FOUND(3, 12, 1000, false),  // with a bone (close / found)
+/** Clip rows in dog_sheet.png, with frame count + playback rate. */
+private enum class DogClip(val row: Int, val frames: Int, val fps: Int, val moving: Boolean) {
+    WALK(0, 24, 12, true),     // trot
+    LOOK(1, 24, 12, false),    // look around
+    IDLE(2, 24, 8, false),     // idle (calmer)
+    FOUND(3, 12, 12, false);   // with a bone (close / found)
+
+    val periodMs: Int get() = frames * 1000 / fps
 }
 
 /**

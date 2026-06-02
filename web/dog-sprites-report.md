@@ -7,8 +7,8 @@ isolated-frames list to spot frames worth redrawing/replacing.
 
 ## walk — Gemini_Generated_Image_fbd8sxfbd8sxfbd8.png (24 frames)
 applied order: source order (1..N)
-transition roughness — source: 2206, suggested: 1852
-suggested smoothest order: 24, 23, 22, 21, 18, 17, 16, 15, 14, 11, 6, 5, 13, 12, 9, 10, 2, 4, 1, 3, 19, 20, 7, 8
+transition roughness — source: 2076, suggested: 1668
+suggested smoothest order: 18, 21, 22, 23, 24, 8, 7, 20, 19, 2, 4, 1, 3, 5, 6, 13, 11, 9, 10, 12, 14, 15, 16, 17
 no isolated frames
 
 ## look — Gemini_Generated_Image_w1h6y3w1h6y3w1h6.png (24 frames)
@@ -19,8 +19,8 @@ no isolated frames
 
 ## idle — Gemini_Generated_Image_xsgea4xsgea4xsge.png (24 frames)
 applied order: source order (1..N)
-transition roughness — source: 1682, suggested: 1404
-suggested smoothest order: 1, 2, 3, 12, 15, 10, 13, 17, 23, 21, 20, 24, 22, 16, 9, 14, 6, 5, 11, 7, 8, 4, 18, 19
+transition roughness — source: 1344, suggested: 1070
+suggested smoothest order: 9, 16, 22, 18, 24, 20, 19, 21, 23, 17, 1, 2, 3, 12, 15, 10, 13, 11, 8, 7, 5, 6, 14, 4
 no isolated frames
 
 ## found — Gemini_Generated_Image_6m0nln6m0nln6m0n.png (12 frames)

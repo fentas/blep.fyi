@@ -75,10 +75,16 @@ function extractCell(src, W, H, ch, cellX, cellY, cellW, cellH) {
         label[np] = n; q.push(np)
       }
     }
-    const fill = area / ((maxx - minx + 1) * (maxy - miny + 1))
-    comps.push({ id: n, area, fill, touchesLR: minx === 0 || maxx === cw - 1, miny })
+    const w = maxx - minx + 1, h = maxy - miny + 1
+    const fill = area / (w * h)
+    const aspect = Math.max(w, h) / Math.min(w, h)
+    comps.push({ id: n, area, fill, aspect, touchesLR: minx === 0 || maxx === cw - 1, miny })
   }
-  const keep = new Set(comps.filter((c) => c.area >= AREA_MIN && c.fill >= FILL_MIN && !c.touchesLR && c.miny < captionTop).map((c) => c.id))
+  // keep the pup (+bone): sizeable, solid, not a long thin line (border/divider),
+  // not a neighbour bleed (touches L/R), not the caption band.
+  const keep = new Set(comps.filter((c) =>
+    c.area >= AREA_MIN && c.fill >= FILL_MIN && c.aspect <= 7 && !c.touchesLR && c.miny < captionTop,
+  ).map((c) => c.id))
   if (!keep.size) return null
   let kminx = cw, kminy = chh, kmaxx = 0, kmaxy = 0, ksx = 0, ksy = 0, ka = 0
   for (let y = 0; y < chh; y++) for (let x = 0; x < cw; x++) {
