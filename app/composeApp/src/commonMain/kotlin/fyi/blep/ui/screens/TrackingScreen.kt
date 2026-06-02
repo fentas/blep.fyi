@@ -128,15 +128,20 @@ fun TrackingScreen(
 private const val CELL_W = 400
 private const val CELL_H = 264
 
-/** Clip rows in dog_sheet.png: fps, looping, play direction. Frame counts come
- *  from [DogFrames] (after the stitcher's loop-trim). */
-private enum class DogClip(val row: Int, val fps: Int, val moving: Boolean, val loop: Boolean, val reverse: Boolean) {
-    WALK(0, 12, true, true, true),       // trot
-    LOOK(1, 12, false, true, true),      // sit / look around
-    IDLE(2, 12, false, true, true),      // idle
-    FOUND(3, 12, false, false, false);   // dig → bone: forward, play once, hold the bone
+/** Clip rows in dog_sheet.png. `moving` (whether the dog translates across the
+ *  canvas) is app-only; frame count, fps, looping and play direction are all
+ *  generated into [DogFrames] from web/dog-frames.json (the browser editor's
+ *  export), so re-running the stitcher updates them here without code changes. */
+private enum class DogClip(val row: Int, val moving: Boolean) {
+    WALK(0, true),    // trot
+    LOOK(1, false),   // sit / look around
+    IDLE(2, false),   // idle
+    FOUND(3, false);  // dig → bone
 
     val frames: Int get() = DogFrames.frameCount.getOrElse(ordinal) { 24 }
+    val fps: Int get() = DogFrames.fps.getOrElse(ordinal) { 12 }
+    val loop: Boolean get() = DogFrames.loop.getOrElse(ordinal) { true }
+    val reverse: Boolean get() = DogFrames.reverse.getOrElse(ordinal) { false }
     val periodMs: Int get() = frames * 1000 / fps
 }
 

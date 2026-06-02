@@ -3,161 +3,291 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>blep — dog animation test &amp; frame editor</title>
+  <title>blep — dog clip editor</title>
   <style>
     :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+    * { box-sizing: border-box; }
     body { margin: 0; background: #1b1f24; color: #e7e7e7; }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 20px; display: grid; gap: 18px; }
-    .stage { display: grid; gap: 12px; justify-items: center; }
-    canvas#c { background: #b6e0a0; border-radius: 20px; }
-    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: center; }
-    button { font: inherit; padding: 7px 13px; border-radius: 999px; border: 1px solid #444; background: #2b3037; color: #e7e7e7; cursor: pointer; }
+    .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+
+    /* ── library palette (left) ── */
+    .lib { border-right: 1px solid #2c323a; padding: 14px; display: flex; flex-direction: column; gap: 10px; max-height: 100vh; position: sticky; top: 0; }
+    .lib h2 { font-size: 14px; margin: 0; opacity: .85; }
+    .filters { display: grid; gap: 6px; }
+    .filters label { font-size: 12px; opacity: .7; display: flex; align-items: center; gap: 6px; }
+    .filters select, .filters input { flex: 1; font: inherit; font-size: 13px; background: #2b3037; color: #e7e7e7; border: 1px solid #3a414a; border-radius: 7px; padding: 5px 7px; }
+    .palette { overflow-y: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; align-content: start; padding-right: 4px; }
+    .pcard { background: #23272e; border: 1px solid #333; border-radius: 8px; padding: 4px; cursor: grab; text-align: center; }
+    .pcard:hover { border-color: #5f90c3; }
+    .pcard canvas { width: 100%; height: 44px; background: #b6e0a0; border-radius: 4px; display: block; }
+    .pcard .pid { font-size: 10px; opacity: .7; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tag { display: inline-block; width: 8px; height: 8px; border-radius: 2px; vertical-align: middle; margin-right: 3px; }
+
+    /* ── editor (right) ── */
+    .main { padding: 18px 22px; display: grid; gap: 16px; align-content: start; }
+    .stage { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+    canvas#c { background: #b6e0a0; border-radius: 18px; }
+    .ctrls { display: grid; gap: 10px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    button { font: inherit; padding: 6px 12px; border-radius: 999px; border: 1px solid #444; background: #2b3037; color: #e7e7e7; cursor: pointer; }
     button.on { background: #5f90c3; border-color: #5f90c3; color: #fff; }
-    .meta { font-size: 13px; opacity: .75; font-variant-numeric: tabular-nums; text-align: center; }
-    h2 { font-size: 15px; margin: 6px 0; opacity: .85; }
-    .frames { display: flex; gap: 8px; flex-wrap: wrap; }
-    .card { width: 104px; background: #23272e; border: 2px solid #333; border-radius: 12px; padding: 6px; cursor: grab; user-select: none; }
+    button.ghost { border-style: dashed; opacity: .8; }
+    .num { width: 56px; font: inherit; background: #2b3037; color: #e7e7e7; border: 1px solid #3a414a; border-radius: 7px; padding: 4px 6px; }
+    label.chk { font-size: 13px; opacity: .8; display: inline-flex; gap: 4px; align-items: center; }
+    .meta { font-size: 13px; opacity: .75; font-variant-numeric: tabular-nums; }
+    h2.edit { font-size: 15px; margin: 0; }
+    .strip { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
+    .card { width: 108px; background: #23272e; border: 2px solid #333; border-radius: 12px; padding: 6px; cursor: grab; user-select: none; position: relative; }
     .card.bad { border-color: #d98a8a; }
-    .card canvas { width: 92px; height: 61px; background: #b6e0a0; border-radius: 6px; display: block; }
+    .card.sel { border-color: #f0c674; box-shadow: 0 0 0 2px #f0c67455; }
+    .card.drag { opacity: .35; }
+    .card.over { border-color: #5f90c3; }
+    .card canvas { width: 94px; height: 62px; background: #b6e0a0; border-radius: 6px; display: block; }
     .card .id { font-weight: 600; font-size: 12px; margin-top: 4px; }
     .card .sub { font-size: 11px; opacity: .65; font-variant-numeric: tabular-nums; }
-    .card.drag { opacity: .4; }
-    .card.over { border-color: #5f90c3; }
-    .seam { font-size: 13px; }
+    .card .x { position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; line-height: 16px; text-align: center; border-radius: 50%; background: #00000066; font-size: 13px; cursor: pointer; }
+    .card .x:hover { background: #d98a8a; color: #1b1f24; }
+    .dropend { width: 40px; border: 2px dashed #3a414a; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #5a626c; font-size: 22px; }
+    .dropend.over { border-color: #5f90c3; color: #5f90c3; }
+    .help { font-size: 12px; opacity: .6; line-height: 1.5; }
+    code { background: #00000033; padding: 1px 5px; border-radius: 4px; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="stage">
-      <canvas id="c" width="320" height="212"></canvas>
-      <div class="row" id="clips"></div>
-      <div class="row">
-        <button id="auto">▶ auto-cycle</button>
-        <label style="font-size:13px;opacity:.8">speed <input id="speed" type="range" min="0.25" max="2" step="0.25" value="1" /></label>
+  <div class="app">
+    <!-- ── frame library ── -->
+    <aside class="lib">
+      <h2>frame library</h2>
+      <div class="filters">
+        <label>category <select id="fCat"></select></label>
+        <label>sheet <select id="fSheet"></select></label>
+        <label>search <input id="fSearch" type="text" placeholder="id…" /></label>
       </div>
-      <div class="meta" id="meta">loading…</div>
-    </div>
+      <div class="meta" id="libCount"></div>
+      <div class="palette" id="palette"></div>
+    </aside>
 
-    <div>
-      <div class="row" style="justify-content:space-between">
-        <h2 id="editTitle">frames</h2>
-        <div class="row">
-          <span class="seam" id="seam"></span>
-          <button id="resetOrder">reset</button>
-          <button id="copyOrder">copy frames JSON</button>
+    <!-- ── editor ── -->
+    <main class="main">
+      <div class="stage">
+        <canvas id="c" width="320" height="212"></canvas>
+        <div class="ctrls">
+          <div class="row" id="clips"></div>
+          <div class="row">
+            <button id="play">⏸ pause</button>
+            <button id="auto">▶ auto-cycle</button>
+            <label class="chk">speed <input id="speed" type="range" min="0.25" max="2" step="0.25" value="1" /></label>
+          </div>
+          <div class="row">
+            <label class="chk">fps <input id="fps" class="num" type="number" min="1" max="60" step="1" /></label>
+            <label class="chk"><input id="loop" type="checkbox" /> loop</label>
+            <label class="chk"><input id="reverse" type="checkbox" /> reverse</label>
+          </div>
+          <div class="meta" id="meta">loading…</div>
         </div>
       </div>
-      <div class="frames" id="frames"></div>
-      <div class="meta" style="text-align:left;margin-top:8px">
-        Drag cards to reorder. Each shows the source <b>gemini id</b>, <b>drift</b> (px the centre-of-mass was shifted),
-        and <b>Δnext</b> (pose change to the next frame — red = likely jump). “copy frames JSON” → paste into
-        <code>web/dog-frames.json</code> → <code>clips.&lt;name&gt;.frames</code>, then re-run <code>npm run gen:dog</code>.
+
+      <div>
+        <div class="row" style="justify-content:space-between">
+          <h2 class="edit" id="editTitle">clip</h2>
+          <div class="row">
+            <span class="meta" id="seam"></span>
+            <button id="reset">reset clip</button>
+            <button id="copy">copy frames</button>
+            <button id="export" class="on">⬇ export dog-frames.json</button>
+          </div>
+        </div>
+        <div class="strip" id="strip"></div>
+        <div class="help">
+          <b>Drag</b> a frame from the library into the strip to add it · drag cards to reorder · <b>click</b> a card to
+          select then <b>← / →</b> to step frame-by-frame · <b>×</b> or <kbd>Delete</kbd> removes the selected frame ·
+          <kbd>space</kbd> play/pause. Each card shows the <b>gemini id</b>, <b>drift</b>, and <b>Δnext</b> (red = likely jump).
+          <b>export</b> downloads <code>dog-frames.json</code> — replace <code>web/dog-frames.json</code> with it and run <code>npm run gen:dog</code>.
+        </div>
       </div>
-    </div>
+    </main>
   </div>
 
   <script src="anim.js"></script>
   <script>
     const D = window.DOG, [CW, CH] = D.cell, AREA = D.maskArea
-    const img = new Image(); img.src = 'dog_sheet.png'
-    const cv = document.getElementById('c'), ctx = cv.getContext('2d')
-    let speed = 1; document.getElementById('speed').oninput = (e) => speed = +e.target.value
+    const meta = D.frames
+    const ord = (id) => meta[id].ord
+    const dif = (a, b) => D.diff[ord(a)][ord(b)]
+    const pct = (d) => (100 * d / AREA).toFixed(1) + '%'
+    const CATCOLORS = ['#e0a3a3', '#a3c4e0', '#a3e0b8', '#e0d6a3', '#c9a3e0', '#a3e0db', '#e0b0d0', '#b8e0a3']
+    const catColor = (cat) => CATCOLORS[(+cat.slice(1)) % CATCOLORS.length]
 
-    // ── playback (mirrors the app) ──────────────────────────────────────────
-    let shown = 2, startFrame = 0, t0 = performance.now(), fromIdx = -1, fromFrame = 0, fadeStart = -1e9
-    const clipFrame = (idx, sf, ms) => {
-      const c = D.clips[idx], step = Math.floor(ms / 1000 * c.fps * speed)
-      if (c.loop) { const d = c.reverse ? -1 : 1; return (((sf + d * step) % c.frames) + c.frames) % c.frames }
-      const s = Math.min(step, c.frames - 1); return c.reverse ? c.frames - 1 - s : s
-    }
-    const drawCell = (g, col, row, dw, dh) => g.drawImage(img, col * CW, row * CH, CW, CH, 0, 0, dw, dh)
-    function switchTo(idx) {
-      if (idx === shown) { renderEditor(); return }
-      const now = performance.now()
-      fromIdx = shown; fromFrame = clipFrame(shown, startFrame, now - t0)
-      startFrame = (D.transition[shown]?.[idx]?.[fromFrame] ?? 0)
-      shown = idx; t0 = now; fadeStart = now
-      for (const b of document.querySelectorAll('#clips button')) b.classList.toggle('on', +b.dataset.i === idx)
-      renderEditor()
+    const img = new Image(); img.src = 'library.png'
+    const drawFrame = (g, id, dw, dh) => { g.clearRect(0, 0, dw, dh); if (!id) return; const m = meta[id]; g.drawImage(img, m.col * CW, m.row * CH, CW, CH, 0, 0, dw, dh) }
+
+    // ── working state (edited copy of the clips) ──────────────────────────────
+    const clips = JSON.parse(JSON.stringify(D.clips))
+    const names = Object.keys(clips)
+    let cur = names[0], sel = -1, playing = true, speed = 1, t0 = performance.now()
+
+    // ── preview playback ──────────────────────────────────────────────────────
+    const cv = document.getElementById('c'), ctx = cv.getContext('2d')
+    const frameAt = (c, ms) => {
+      const n = c.frames.length, step = Math.floor(ms / 1000 * c.fps * speed)
+      if (c.loop) { const d = c.reverse ? -1 : 1; return (((d * step) % n) + n) % n }
+      const s = Math.min(step, n - 1); return c.reverse ? n - 1 - s : s
     }
     function loop() {
-      const now = performance.now()
-      ctx.clearRect(0, 0, cv.width, cv.height)
-      const fade = Math.min(1, (now - fadeStart) / 300)
-      if (fade < 1 && fromIdx >= 0) { ctx.globalAlpha = 1 - fade; drawCell(ctx, D.clips[fromIdx].seq[fromFrame].col, D.clips[fromIdx].row, cv.width, cv.height) }
-      const cf = clipFrame(shown, startFrame, now - t0)
-      ctx.globalAlpha = fade; drawCell(ctx, D.clips[shown].seq[cf].col, D.clips[shown].row, cv.width, cv.height); ctx.globalAlpha = 1
-      const c = D.clips[shown]
-      document.getElementById('meta').textContent = `${c.name}  ${cf}/${c.frames - 1}  ${c.fps}fps${c.loop ? '' : ' one-shot'}${c.reverse ? ' ⟲' : ''}`
+      const c = clips[cur], n = c.frames.length
+      let f
+      if (playing && sel < 0) f = frameAt(c, performance.now() - t0)
+      else f = Math.max(0, Math.min(sel < 0 ? 0 : sel, n - 1))
+      drawFrame(ctx, c.frames[f], cv.width, cv.height)
+      document.getElementById('meta').textContent =
+        `${cur}  frame ${f}/${n - 1}  ${c.fps}fps${c.loop ? '' : ' · one-shot'}${c.reverse ? ' · ⟲' : ''}` +
+        (sel >= 0 ? `  · ${c.frames[f]}  drift ${meta[c.frames[f]].drift}` : '')
       requestAnimationFrame(loop)
     }
 
-    // ── frame editor ────────────────────────────────────────────────────────
-    const order = {}            // clip name -> array of seq entries (working order)
-    D.clips.forEach((c) => order[c.name] = c.seq.slice())
-    const pct = (d) => (100 * d / AREA).toFixed(1) + '%'
-
-    function renderEditor() {
-      const c = D.clips[shown], seq = order[c.name]
-      document.getElementById('editTitle').textContent = `frames — ${c.name} (${seq.length})`
-      const seam = c.diff[seq[seq.length - 1].col][seq[0].col]
-      document.getElementById('seam').innerHTML = c.loop ? `loop seam <b style="color:${seam > AREA * .08 ? '#d98a8a' : '#9bd17f'}">${pct(seam)}</b>` : 'one-shot'
-      const host = document.getElementById('frames'); host.innerHTML = ''
-      seq.forEach((s, k) => {
-        const next = seq[(k + 1) % seq.length]
-        const dNext = c.diff[s.col][next.col]
-        const bad = (c.loop || k < seq.length - 1) && dNext > AREA * 0.10
+    // ── library palette ─────────────────────────────────────────────────────
+    function renderPalette() {
+      const cat = document.getElementById('fCat').value
+      const sheet = document.getElementById('fSheet').value
+      const q = document.getElementById('fSearch').value.trim().toLowerCase()
+      const host = document.getElementById('palette'); host.innerHTML = ''
+      let shown = 0
+      for (const id of D.ids) {
+        const m = meta[id]
+        if (cat !== 'all' && m.cat !== cat) continue
+        if (sheet !== 'all' && m.sheet !== sheet) continue
+        if (q && !id.toLowerCase().includes(q)) continue
+        shown++
         const card = document.createElement('div')
-        card.className = 'card' + (bad ? ' bad' : ''); card.draggable = true; card.dataset.k = k
-        const cvn = document.createElement('canvas'); cvn.width = 92; cvn.height = 61
-        drawCellTo(cvn, s.col, c.row)
-        card.appendChild(cvn)
-        const id = document.createElement('div'); id.className = 'id'; id.textContent = s.id; card.appendChild(id)
-        const sub = document.createElement('div'); sub.className = 'sub'
-        sub.textContent = `drift ${s.drift[0]},${s.drift[1]} · Δ${pct(dNext)}`; card.appendChild(sub)
-        wireDrag(card, c.name); host.appendChild(card)
-      })
+        card.className = 'pcard'; card.draggable = true; card.title = `${id} · ${m.cat} · drift ${m.drift}`
+        const cvn = document.createElement('canvas'); cvn.width = 80; cvn.height = 44
+        drawFrame(cvn.getContext('2d'), id, 80, 44); card.appendChild(cvn)
+        const lbl = document.createElement('div'); lbl.className = 'pid'
+        lbl.innerHTML = `<span class="tag" style="background:${catColor(m.cat)}"></span>${id}`; card.appendChild(lbl)
+        card.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', JSON.stringify({ src: 'pal', id })))
+        host.appendChild(card)
+      }
+      document.getElementById('libCount').textContent = `${shown} / ${D.ids.length} frames`
     }
-    function drawCellTo(canvas, col, row) {
-      const g = canvas.getContext('2d')
-      const dh = canvas.height, dw = canvas.width
-      g.clearRect(0, 0, dw, dh); g.drawImage(img, col * CW, row * CH, CW, CH, 0, 0, dw, dh)
+
+    // ── clip strip ────────────────────────────────────────────────────────────
+    function selectClip(name) { cur = name; sel = -1; playing = true; t0 = performance.now(); syncClipUI(); renderStrip() }
+    function syncClipUI() {
+      const c = clips[cur]
+      for (const b of document.querySelectorAll('#clips button')) b.classList.toggle('on', b.dataset.n === cur)
+      document.getElementById('fps').value = c.fps
+      document.getElementById('loop').checked = c.loop
+      document.getElementById('reverse').checked = c.reverse
+      document.getElementById('play').textContent = playing ? '⏸ pause' : '▶ play'
+    }
+    function renderStrip() {
+      const c = clips[cur], arr = c.frames
+      document.getElementById('editTitle').textContent = `${cur} — ${arr.length} frames`
+      const seamEl = document.getElementById('seam')
+      if (c.loop && arr.length > 1) {
+        const seam = dif(arr[arr.length - 1], arr[0])
+        seamEl.innerHTML = `loop seam <b style="color:${seam > AREA * .08 ? '#d98a8a' : '#9bd17f'}">${pct(seam)}</b>`
+      } else seamEl.textContent = c.loop ? '' : 'one-shot'
+      const host = document.getElementById('strip'); host.innerHTML = ''
+      arr.forEach((id, k) => {
+        const next = arr[(k + 1) % arr.length]
+        const dNext = arr.length > 1 ? dif(id, next) : 0
+        const bad = (c.loop || k < arr.length - 1) && dNext > AREA * 0.10
+        const card = document.createElement('div')
+        card.className = 'card' + (bad ? ' bad' : '') + (k === sel ? ' sel' : '')
+        card.draggable = true; card.dataset.k = k
+        const cvn = document.createElement('canvas'); cvn.width = 94; cvn.height = 62
+        drawFrame(cvn.getContext('2d'), id, 94, 62); card.appendChild(cvn)
+        const idEl = document.createElement('div'); idEl.className = 'id'
+        idEl.innerHTML = `<span class="tag" style="background:${catColor(meta[id].cat)}"></span>${id}`; card.appendChild(idEl)
+        const sub = document.createElement('div'); sub.className = 'sub'
+        sub.textContent = `drift ${meta[id].drift[0]},${meta[id].drift[1]} · Δ${pct(dNext)}`; card.appendChild(sub)
+        const x = document.createElement('div'); x.className = 'x'; x.textContent = '×'
+        x.addEventListener('click', (e) => { e.stopPropagation(); removeAt(k) }); card.appendChild(x)
+        card.addEventListener('click', () => { sel = k; playing = false; syncClipUI(); renderStrip() })
+        wireDrop(card, k); host.appendChild(card)
+      })
+      const end = document.createElement('div'); end.className = 'dropend'; end.textContent = '+'
+      wireDrop(end, arr.length); host.appendChild(end)
     }
     let dragK = -1
-    function wireDrag(card, clipName) {
-      card.addEventListener('dragstart', () => { dragK = +card.dataset.k; card.classList.add('drag') })
-      card.addEventListener('dragend', () => card.classList.remove('drag'))
-      card.addEventListener('dragover', (e) => { e.preventDefault(); card.classList.add('over') })
-      card.addEventListener('dragleave', () => card.classList.remove('over'))
-      card.addEventListener('drop', (e) => {
-        e.preventDefault(); card.classList.remove('over')
-        const to = +card.dataset.k, arr = order[clipName]
-        if (dragK < 0 || dragK === to) return
-        const [m] = arr.splice(dragK, 1); arr.splice(to, 0, m)
-        renderEditor()
+    function wireDrop(el, to) {
+      if (el.classList.contains('card')) {
+        el.addEventListener('dragstart', (e) => { dragK = to; el.classList.add('drag'); e.dataTransfer.setData('text/plain', JSON.stringify({ src: 'strip', k: to })) })
+        el.addEventListener('dragend', () => { dragK = -1; el.classList.remove('drag') })
+      }
+      el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('over') })
+      el.addEventListener('dragleave', () => el.classList.remove('over'))
+      el.addEventListener('drop', (e) => {
+        e.preventDefault(); el.classList.remove('over')
+        let data; try { data = JSON.parse(e.dataTransfer.getData('text/plain')) } catch { return }
+        const arr = clips[cur].frames
+        if (data.src === 'pal') { arr.splice(to, 0, data.id); sel = to }
+        else if (data.src === 'strip') {
+          if (data.k === to || data.k + 1 === to) { /* no-op */ } else {
+            const [m] = arr.splice(data.k, 1); arr.splice(data.k < to ? to - 1 : to, 0, m)
+          }
+        }
+        renderStrip()
       })
     }
-    document.getElementById('resetOrder').onclick = () => { order[D.clips[shown].name] = D.clips[shown].seq.slice(); renderEditor() }
-    document.getElementById('copyOrder').onclick = () => {
-      const ids = order[D.clips[shown].name].map((s) => s.id)
-      navigator.clipboard.writeText(JSON.stringify(ids)).then(() => {
-        const b = document.getElementById('copyOrder'); b.textContent = 'copied!'; setTimeout(() => b.textContent = 'copy frames JSON', 1200)
-      })
+    function removeAt(k) {
+      const arr = clips[cur].frames
+      if (arr.length <= 1) return
+      arr.splice(k, 1); if (sel >= arr.length) sel = arr.length - 1
+      renderStrip()
     }
 
-    img.onload = () => {
-      const wrap = document.getElementById('clips')
-      D.clips.forEach((c, i) => {
-        const b = document.createElement('button'); b.textContent = c.name; b.dataset.i = i
-        b.classList.toggle('on', i === shown); b.onclick = () => switchTo(i); wrap.appendChild(b)
+    // ── controls ────────────────────────────────────────────────────────────
+    document.getElementById('speed').oninput = (e) => speed = +e.target.value
+    document.getElementById('play').onclick = () => { playing = !playing; if (playing) { sel = -1; t0 = performance.now() } syncClipUI(); renderStrip() }
+    document.getElementById('fps').oninput = (e) => { clips[cur].fps = Math.max(1, Math.min(60, +e.target.value || 1)); t0 = performance.now() }
+    document.getElementById('loop').onchange = (e) => { clips[cur].loop = e.target.checked; t0 = performance.now(); renderStrip() }
+    document.getElementById('reverse').onchange = (e) => { clips[cur].reverse = e.target.checked; t0 = performance.now() }
+    document.getElementById('reset').onclick = () => { clips[cur] = JSON.parse(JSON.stringify(D.clips[cur])); sel = -1; playing = true; t0 = performance.now(); syncClipUI(); renderStrip() }
+    document.getElementById('copy').onclick = () => {
+      navigator.clipboard.writeText(JSON.stringify(clips[cur].frames)).then(() => {
+        const b = document.getElementById('copy'); b.textContent = 'copied!'; setTimeout(() => b.textContent = 'copy frames', 1200)
       })
-      renderEditor(); requestAnimationFrame(loop)
     }
+    document.getElementById('export').onclick = () => {
+      const manifest = {
+        note: 'Edit `clips` (frames/fps/loop/reverse). Replace web/dog-frames.json with this and run `npm run gen:dog`. categories/frames are regenerated.',
+        categories: D.categories.map((c) => ({ id: c, frames: D.ids.filter((id) => meta[id].cat === c) })),
+        frames: Object.fromEntries(D.ids.map((id) => [id, { drift: meta[id].drift, category: meta[id].cat }])),
+        clips,
+      }
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(manifest, null, 1)], { type: 'application/json' }))
+      a.download = 'dog-frames.json'; a.click(); URL.revokeObjectURL(a.href)
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return
+      const arr = clips[cur].frames
+      if (e.key === 'ArrowLeft') { sel = sel < 0 ? 0 : Math.max(0, sel - 1); playing = false; syncClipUI(); renderStrip(); e.preventDefault() }
+      else if (e.key === 'ArrowRight') { sel = sel < 0 ? 0 : Math.min(arr.length - 1, sel + 1); playing = false; syncClipUI(); renderStrip(); e.preventDefault() }
+      else if (e.key === 'Delete' && sel >= 0) { removeAt(sel); e.preventDefault() }
+      else if (e.key === ' ') { document.getElementById('play').click(); e.preventDefault() }
+    })
+
+    // ── auto-cycle clips ──────────────────────────────────────────────────────
     let auto = null
     document.getElementById('auto').onclick = (e) => {
       if (auto) { clearInterval(auto); auto = null; e.target.textContent = '▶ auto-cycle'; return }
-      e.target.textContent = '⏸ stop'; auto = setInterval(() => switchTo((shown + 1) % D.clips.length), 2600)
+      e.target.textContent = '⏸ stop'; auto = setInterval(() => selectClip(names[(names.indexOf(cur) + 1) % names.length]), 2600)
     }
+
+    // ── boot ────────────────────────────────────────────────────────────────
+    function boot() {
+      const fc = document.getElementById('fCat'); fc.innerHTML = '<option value="all">all</option>' + D.categories.map((c) => `<option value="${c}">${c}</option>`).join('')
+      const fs = document.getElementById('fSheet'); fs.innerHTML = '<option value="all">all</option>' + D.sheets.map((s) => `<option value="${s}">${s}</option>`).join('')
+      fc.onchange = fs.onchange = renderPalette
+      document.getElementById('fSearch').oninput = renderPalette
+      const cw = document.getElementById('clips')
+      names.forEach((n) => { const b = document.createElement('button'); b.textContent = n; b.dataset.n = n; b.onclick = () => selectClip(n); cw.appendChild(b) })
+      renderPalette(); syncClipUI(); renderStrip(); requestAnimationFrame(loop)
+    }
+    if (img.complete) boot(); else img.onload = boot
   </script>
 </body>
 </html>

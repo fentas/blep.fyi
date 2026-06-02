@@ -1000,7 +1000,7 @@
  },
  "clips": {
   "walk": {
-   "fps": 24,
+   "fps": 12,
    "frames": [
     "walk#0",
     "walk#1",
@@ -1026,10 +1026,12 @@
     "walk#21",
     "walk#22",
     "walk#23"
-   ]
+   ],
+   "loop": true,
+   "reverse": true
   },
   "look": {
-   "fps": 24,
+   "fps": 12,
    "frames": [
     "sit#0",
     "sit#1",
@@ -1055,10 +1057,12 @@
     "sit#21",
     "sit#22",
     "sit#23"
-   ]
+   ],
+   "loop": true,
+   "reverse": true
   },
   "idle": {
-   "fps": 24,
+   "fps": 12,
    "frames": [
     "stand#0",
     "stand#1",
@@ -1084,10 +1088,12 @@
     "stand#21",
     "stand#22",
     "stand#23"
-   ]
+   ],
+   "loop": true,
+   "reverse": true
   },
   "found": {
-   "fps": 14,
+   "fps": 12,
    "frames": [
     "dig#0",
     "dig#1",
@@ -1113,7 +1119,9 @@
     "dig#21",
     "dig#22",
     "dig#23"
-   ]
+   ],
+   "loop": false,
+   "reverse": false
   }
  }
 }
