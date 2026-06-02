@@ -27,6 +27,7 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -46,6 +47,9 @@ private val proximityStops = listOf(
     0.70f to Color(0xFFAEDFA6),
     1.00f to Color(0xFFF4D58D),
 )
+
+private fun wearDistanceLabel(meters: Double): String =
+    if (meters < 1.5) "almost on it" else "~${meters.roundToInt()} m away"
 
 private fun proximityColor(f: Float): Color {
     val x = f.coerceIn(0f, 1f)
@@ -103,6 +107,15 @@ private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialS
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
             )
+            val est = spatial?.target
+            if (est != null && est.confidence >= 0.35f && est.distanceM != null) {
+                Text(
+                    wearDistanceLabel(est.distanceM!!),
+                    color = Ink.copy(alpha = 0.75f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 2.dp),
+                )
+            }
             Text(
                 name,
                 color = Ink.copy(alpha = 0.5f),

@@ -37,6 +37,7 @@ import fyi.blep.core.tracking.TrackingStatus
 import fyi.blep.ui.components.RadarView
 import fyi.blep.ui.components.VectorArrow
 import fyi.blep.ui.theme.BlepColors
+import kotlin.math.roundToInt
 
 @Composable
 fun TrackingScreen(
@@ -94,6 +95,18 @@ fun TrackingScreen(
             }
         }
 
+        // Spatial distance estimate, shown only once it's reasonably confident.
+        val estimate = spatial?.target
+        if (estimate != null && estimate.confidence >= 0.35f && estimate.distanceM != null) {
+            Text(
+                text = distanceLabel(estimate.distanceM!!),
+                style = MaterialTheme.typography.titleMedium,
+                color = BlepColors.Ink.copy(alpha = 0.78f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 6.dp),
+            )
+        }
+
         Text(
             text = rssi?.let { "$it dBm" } ?: "scanning…",
             style = MaterialTheme.typography.labelLarge,
@@ -112,4 +125,10 @@ fun TrackingScreen(
                 .padding(horizontal = 24.dp, vertical = 10.dp),
         )
     }
+}
+
+/** Human label for an estimated target distance. */
+internal fun distanceLabel(meters: Double): String = when {
+    meters < 1.5 -> "almost on it"
+    else -> "~${meters.roundToInt()} m away"
 }
