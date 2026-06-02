@@ -19,6 +19,11 @@ data class TargetEstimate(
     val distanceM: Double?,
     /** 0f (a guess) … 1f (confident). */
     val confidence: Float,
+    /** Uncertainty-ellipse semi-axes (m) + orientation (rad), from the filter
+     *  covariance. Null until a position is being reported. */
+    val semiMajorM: Double? = null,
+    val semiMinorM: Double? = null,
+    val ellipseRad: Double? = null,
 ) {
     companion object {
         val NONE = TargetEstimate(null, null, null, 0f)
@@ -47,6 +52,7 @@ data class SpatialSnapshot(
  */
 class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private val reckoner = DeadReckoner()
+    private val particles = ParticleTargetEstimator(tuning)
     private val points = ArrayList<TrackPoint>()
     private var frame: LocalFrame? = null
 
@@ -54,6 +60,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
 
     fun reset() {
         reckoner.reset()
+        particles.reset()
         points.clear()
         frame = null
     }
@@ -101,7 +108,28 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         val here = reckoner.update(motion)
         recordSample(here, rssi, motion.timeMs)
 
-        val target = TargetEstimator.estimate(points, here, tuning)
+        // Always fold the sample into the filter so evidence accumulates; only
+        // *report* a position once we've moved enough to triangulate.
+        val est = particles.update(here, rssi)
+        val spread = pathSpread()
+        val target = when {
+            spread < MIN_SPREAD_M -> TargetEstimate(null, null, null, 0f)
+            est.confidence >= REPORT_CONFIDENCE -> {
+                val toTarget = est.mean - here
+                TargetEstimate(
+                    position = est.mean,
+                    bearingRad = bearingOf(toTarget),
+                    distanceM = toTarget.length,
+                    confidence = est.confidence,
+                    semiMajorM = est.semiMajorM,
+                    semiMinorM = est.semiMinorM,
+                    ellipseRad = est.ellipseRad,
+                )
+            }
+            // Moved a little but not localised yet: offer just a gradient bearing.
+            else -> TargetEstimate(null, TargetEstimator.gradientBearing(points), null, est.confidence.coerceAtMost(0.25f))
+        }
+
         val onCourse = target.bearingRad?.let { b ->
             val v = reckoner.velocity.normalizedOrZero()
             if (v.length < 1e-6) 0f else v.dot(Vec2.heading(b)).toFloat().coerceIn(-1f, 1f)
@@ -115,6 +143,18 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             target = target,
             onCourse = onCourse,
         )
+    }
+
+    /** Bounding-box diagonal of the path — an O(n) proxy for how much we've moved. */
+    private fun pathSpread(): Double {
+        if (points.size < 2) return 0.0
+        var minX = Double.MAX_VALUE; var minY = Double.MAX_VALUE
+        var maxX = -Double.MAX_VALUE; var maxY = -Double.MAX_VALUE
+        for (p in points) {
+            if (p.pos.x < minX) minX = p.pos.x; if (p.pos.x > maxX) maxX = p.pos.x
+            if (p.pos.y < minY) minY = p.pos.y; if (p.pos.y > maxY) maxY = p.pos.y
+        }
+        return Vec2(maxX - minX, maxY - minY).length
     }
 
     private fun recordSample(here: Vec2, rssi: Double, timeMs: Long) {
@@ -134,5 +174,10 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         var w = 0
         for (r in points.indices) if (r % 2 == 0) { points[w] = points[r]; w++ }
         while (points.size > w) points.removeAt(points.lastIndex)
+    }
+
+    private companion object {
+        const val MIN_SPREAD_M = 1.5        // movement before any estimate is offered
+        const val REPORT_CONFIDENCE = 0.30f // filter confidence before reporting a position
     }
 }

@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.spatial.Vec2
 import fyi.blep.ui.theme.BlepColors
@@ -110,9 +112,25 @@ fun RadarView(
                 radius = glow, center = tc,
             )
             drawCircle(BlepColors.Pink.copy(alpha = 0.9f), radius = 5f, center = tc)
-            // Confidence ring: tighter = more confident.
-            val ringR = (span.toFloat() * scale) * 0.25f * (1.1f - est.confidence)
-            drawCircle(BlepColors.Pink.copy(alpha = 0.35f), radius = ringR.coerceAtLeast(8f), center = tc, style = Stroke(2f))
+            // Uncertainty ellipse from the particle-filter covariance (tighter =
+            // more confident); falls back to a circle if axes aren't present.
+            val maj = est.semiMajorM
+            val min = est.semiMinorM
+            if (maj != null && min != null && est.ellipseRad != null) {
+                val majPx = (maj * scale).toFloat().coerceIn(8f, size.minDimension)
+                val minPx = (min * scale).toFloat().coerceIn(6f, size.minDimension)
+                rotate(degrees = (-est.ellipseRad!! * 180.0 / kotlin.math.PI).toFloat(), pivot = tc) {
+                    drawOval(
+                        color = BlepColors.Pink.copy(alpha = 0.35f),
+                        topLeft = Offset(tc.x - majPx, tc.y - minPx),
+                        size = Size(majPx * 2, minPx * 2),
+                        style = Stroke(2f),
+                    )
+                }
+            } else {
+                val ringR = (span.toFloat() * scale) * 0.25f * (1.1f - est.confidence)
+                drawCircle(BlepColors.Pink.copy(alpha = 0.35f), radius = ringR.coerceAtLeast(8f), center = tc, style = Stroke(2f))
+            }
         }
 
         // ── you: position dot + heading wedge ────────────────────────────────
