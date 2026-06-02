@@ -125,7 +125,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
 
         // Always fold the sample into the filter so evidence accumulates; only
         // *report* a position once we've moved enough to triangulate.
-        val est = particles.update(here, altitude, rssi)
+        val est = particles.update(here, altitude, rssi, motion.timeMs)
         val spread = pathSpread()
         val target = when {
             spread < MIN_SPREAD_M -> TargetEstimate(null, null, null, 0f)

@@ -146,6 +146,34 @@ class SpatialTrackerTest {
     }
 
     @Test
+    fun estimate_follows_a_moving_target() {
+        val tracker = SpatialTracker(tuning)
+        // The user paces back and forth along x (to keep triangulating) while the
+        // target slides south from (8,8) to (8,1).
+        var truth = Vec2.ZERO; var lastT = -1L; var i = 0
+        var last: SpatialSnapshot? = null
+        val startTgt = Vec2(8.0, 8.0); val endTgt = Vec2(8.0, 1.0)
+        val steps = 60
+        for (k in 0 until steps) {
+            val t = k * 500L
+            val dt = if (lastT < 0) 0.0 else (t - lastT) / 1000.0; lastT = t
+            // pace: x oscillates 0..6, heading flips
+            val goingRight = (k / 6) % 2 == 0
+            val heading = if (goingRight) PI / 2 else -PI / 2 // pace east/west (no y drift)
+            if (dt > 0.0) truth += Vec2.heading(heading) * 0.5
+            val tgt = startTgt + (endTgt - startTgt) * (k.toDouble() / (steps - 1)) // slides south
+            val d = (truth - tgt).length.coerceAtLeast(0.5)
+            val rssi = -59.0 - 25.0 * kotlin.math.log10(d) + 0.4 * sin(i++.toDouble())
+            last = tracker.update(rssi, MotionSample(timeMs = t, headingRad = heading, stepDistanceM = 0.5, moving = true))
+        }
+        val est = last!!.target.position!!
+        // It should have tracked the target south — closer to where it ended up
+        // than to where it began.
+        assertTrue((est - endTgt).length < (est - startTgt).length, "did not follow the target: est=$est")
+        assertTrue((est - endTgt).length < 6.0, "estimate ${(est - endTgt).length} m off the moving target")
+    }
+
+    @Test
     fun no_sensors_degrades_to_a_single_point_without_crashing() {
         val tracker = SpatialTracker(tuning)
         var snap: SpatialSnapshot? = null

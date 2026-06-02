@@ -4,6 +4,7 @@ import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.exp
+import kotlin.math.ln
 import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -36,12 +37,17 @@ class ParticleTargetEstimator(
     private val measurementSigmaDb: Double = 3.5,
     private val jitterM: Double = 0.5,
     private val seedVerticalM: Double = 5.0,
+    /** Assumed target wander (m/s). >0 lets the filter follow a *moving* target;
+     *  the cloud diffuses by this each second so old evidence doesn't pin a stale
+     *  spot. Small enough that a static target still localises tightly. */
+    private val targetDriftMps: Double = 0.35,
 ) {
     private val px = DoubleArray(count)
     private val py = DoubleArray(count)
     private val pz = DoubleArray(count)
     private val w = DoubleArray(count)
     private var seeded = false
+    private var lastTimeMs = -1L
 
     /** One particle-filter estimate of the target. */
     data class Estimate(
@@ -54,12 +60,36 @@ class ParticleTargetEstimator(
         val confidence: Float,
     )
 
-    fun reset() { seeded = false }
+    fun reset() { seeded = false; lastTimeMs = -1L }
 
-    /** Folds one RSSI [rssi] measured at [samplePos] / [sampleAltitude] into the posterior. */
-    fun update(samplePos: Vec2, sampleAltitude: Double, rssi: Double): Estimate {
-        if (!seeded) seedRing(samplePos, sampleAltitude, rssi) else reweight(samplePos, sampleAltitude, rssi)
+    /** Folds one RSSI [rssi] measured at [samplePos] / [sampleAltitude], at [timeMs], into the posterior. */
+    fun update(samplePos: Vec2, sampleAltitude: Double, rssi: Double, timeMs: Long): Estimate {
+        if (!seeded) {
+            seedRing(samplePos, sampleAltitude, rssi)
+        } else {
+            val dt = if (lastTimeMs < 0) 0.0 else (timeMs - lastTimeMs).coerceAtLeast(0) / 1000.0
+            predict(dt.coerceAtMost(2.0)) // target may have wandered since the last sample
+            reweight(samplePos, sampleAltitude, rssi)
+        }
+        lastTimeMs = timeMs
         return estimate()
+    }
+
+    /** Process step: diffuse the cloud to allow following a moving target. */
+    private fun predict(dt: Double) {
+        val std = targetDriftMps * dt
+        if (std < 1e-6) return
+        for (i in 0 until count) {
+            px[i] += gauss() * std
+            py[i] += gauss() * std
+            pz[i] += gauss() * std * 0.5 // targets change floor far less often than they move
+        }
+    }
+
+    private fun gauss(): Double {
+        val u1 = rng.nextDouble().coerceAtLeast(1e-12)
+        val u2 = rng.nextDouble()
+        return sqrt(-2.0 * ln(u1)) * cos(2.0 * PI * u2)
     }
 
     private fun seedRing(p: Vec2, altitude: Double, rssi: Double) {
