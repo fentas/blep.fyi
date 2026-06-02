@@ -39,7 +39,8 @@
     .strip { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
     .card { width: 108px; background: #23272e; border: 2px solid #333; border-radius: 12px; padding: 6px; cursor: grab; user-select: none; position: relative; }
     .card.bad { border-color: #d98a8a; }
-    .card.sel { border-color: #f0c674; box-shadow: 0 0 0 2px #f0c67455; }
+    .card.sel { border-color: #f0c674; }
+    .card.cursor { box-shadow: 0 0 0 3px #f0c67466; }
     .card.drag { opacity: .35; }
     .card.over { border-color: #5f90c3; }
     .card canvas { width: 94px; height: 62px; background: #b6e0a0; border-radius: 6px; display: block; }
@@ -92,18 +93,24 @@
           <h2 class="edit" id="editTitle">clip</h2>
           <div class="row">
             <span class="meta" id="seam"></span>
+            <button id="copyF" title="copy selected frames (Ctrl+C)">⎘ copy</button>
+            <button id="pasteF" title="paste frames after selection (Ctrl+V)">paste</button>
             <button id="reset">reset clip</button>
-            <button id="copy">copy frames</button>
-            <button id="export" class="on">⬇ export dog-frames.json</button>
+            <button id="copy">copy ids</button>
+            <button id="export" class="on">⬇ export</button>
+            <button id="clear" class="ghost" title="discard saved edits & reload">clear saved</button>
           </div>
         </div>
         <div class="strip" id="strip"></div>
         <div class="help">
-          <b>Drag</b> a frame from the library into the strip to add it · drag cards to reorder · <b>click</b> a card to
-          select then <b>← / →</b> to step frame-by-frame · <b>×</b> or <kbd>Delete</kbd> removes the selected frame ·
-          <kbd>space</kbd> play/pause. While <b>paused</b>, hover any frame (library or strip) to onion-skin it over the
-          current one. Each card shows the <b>gemini id</b>, <b>drift</b>, and <b>Δnext</b> (red = likely jump).
-          <b>export</b> downloads <code>dog-frames.json</code> — replace <code>web/dog-frames.json</code> with it and run <code>npm run gen:dog</code>.
+          <b>Drag</b> a library frame into the strip to add it · drag cards to reorder · <b>click</b> to select
+          (<kbd>Shift</kbd>/<kbd>Ctrl</kbd>-click = range / toggle multi-select) · <b>← / →</b> step the cursor
+          (<kbd>Shift</kbd> extends) · <kbd>Ctrl</kbd>+<kbd>C</kbd>/<kbd>V</kbd> copy/paste frames (across clips too) ·
+          <kbd>Delete</kbd> removes selected · <kbd>space</kbd> play/pause. While <b>paused</b>, hover any frame to
+          onion-skin it over the current one. <b>+ new</b> / <b>⧉ dup</b> manage clips. Edits are <b>saved locally</b> and
+          survive reloads (<i>clear saved</i> to discard). <b>export</b> downloads <code>dog-frames.json</code> — replace
+          <code>web/dog-frames.json</code> with it and run <code>npm run gen:dog</code>.
+          <br><small>Note: the app currently maps only the first four clips (walk/look/idle/found) by order; extra clips are kept in the manifest for experimentation.</small>
         </div>
       </div>
     </main>
@@ -131,6 +138,23 @@
     const clips = JSON.parse(JSON.stringify(D.clips))
     const names = Object.keys(clips)
     let cur = names[0], sel = -1, playing = true, speed = 1, t0 = performance.now(), hoverId = null
+    let selSet = new Set(), clipboard = []   // multi-selected frame indices + copied frame ids
+
+    // ── local session cache (survives reloads) ────────────────────────────────
+    const STORE = 'blepDogEdit'
+    function save() { try { localStorage.setItem(STORE, JSON.stringify({ v: 1, cur, names, clips })) } catch {} }
+    function load() {
+      let s; try { s = JSON.parse(localStorage.getItem(STORE) || 'null') } catch { return }
+      if (!s || s.v !== 1 || !s.clips) return
+      for (const k of Object.keys(clips)) delete clips[k]
+      for (const [n, c] of Object.entries(s.clips)) {
+        clips[n] = { fps: c.fps ?? 12, loop: c.loop ?? true, reverse: c.reverse ?? false, frames: (c.frames || []).filter((id) => meta[id]) }
+      }
+      names.length = 0
+      ;(s.names || Object.keys(clips)).forEach((n) => clips[n] && names.push(n))
+      Object.keys(clips).forEach((n) => names.includes(n) || names.push(n))
+      cur = clips[s.cur] ? s.cur : names[0]
+    }
 
     // ── preview playback ──────────────────────────────────────────────────────
     const cv = document.getElementById('c'), ctx = cv.getContext('2d')
@@ -141,6 +165,11 @@
     }
     function loop() {
       const c = clips[cur], n = c.frames.length
+      if (n === 0) {
+        ctx.clearRect(0, 0, cv.width, cv.height)
+        document.getElementById('meta').textContent = `${cur} — empty · drag frames in from the library`
+        requestAnimationFrame(loop); return
+      }
       let f
       if (playing && sel < 0) f = frameAt(c, performance.now() - t0)
       else f = Math.max(0, Math.min(sel < 0 ? 0 : sel, n - 1))
@@ -183,7 +212,7 @@
     }
 
     // ── clip strip ────────────────────────────────────────────────────────────
-    function selectClip(name) { cur = name; sel = -1; playing = true; t0 = performance.now(); syncClipUI(); renderStrip() }
+    function selectClip(name) { cur = name; sel = -1; selSet.clear(); playing = true; t0 = performance.now(); save(); renderClipTabs(); syncClipUI(); renderStrip() }
     function syncClipUI() {
       const c = clips[cur]
       for (const b of document.querySelectorAll('#clips button')) b.classList.toggle('on', b.dataset.n === cur)
@@ -206,7 +235,7 @@
         const dNext = arr.length > 1 ? dif(id, next) : 0
         const bad = (c.loop || k < arr.length - 1) && dNext > AREA * 0.10
         const card = document.createElement('div')
-        card.className = 'card' + (bad ? ' bad' : '') + (k === sel ? ' sel' : '')
+        card.className = 'card' + (bad ? ' bad' : '') + (selSet.has(k) ? ' sel' : '') + (k === sel ? ' cursor' : '')
         card.draggable = true; card.dataset.k = k
         const cvn = document.createElement('canvas'); cvn.width = 94; cvn.height = 62
         drawFrame(cvn.getContext('2d'), id, 94, 62); card.appendChild(cvn)
@@ -216,7 +245,12 @@
         sub.textContent = `drift ${meta[id].drift[0]},${meta[id].drift[1]} · Δ${pct(dNext)}`; card.appendChild(sub)
         const x = document.createElement('div'); x.className = 'x'; x.textContent = '×'
         x.addEventListener('click', (e) => { e.stopPropagation(); removeAt(k) }); card.appendChild(x)
-        card.addEventListener('click', () => { sel = k; playing = false; syncClipUI(); renderStrip() })
+        card.addEventListener('click', (e) => {
+          if (e.shiftKey && sel >= 0) { selSet = new Set(); for (let i = Math.min(sel, k); i <= Math.max(sel, k); i++) selSet.add(i) }
+          else if (e.ctrlKey || e.metaKey) { selSet.has(k) ? selSet.delete(k) : selSet.add(k) }
+          else selSet = new Set([k])
+          sel = k; playing = false; syncClipUI(); renderStrip()
+        })
         card.addEventListener('mouseenter', () => hoverId = id)
         card.addEventListener('mouseleave', () => { if (hoverId === id) hoverId = null })
         wireDrop(card, k); host.appendChild(card)
@@ -236,34 +270,80 @@
         e.preventDefault(); el.classList.remove('over')
         let data; try { data = JSON.parse(e.dataTransfer.getData('text/plain')) } catch { return }
         const arr = clips[cur].frames
-        if (data.src === 'pal') { arr.splice(to, 0, data.id); sel = to }
+        if (data.src === 'pal') { arr.splice(to, 0, data.id); sel = to; selSet = new Set([to]) }
         else if (data.src === 'strip') {
           if (data.k === to || data.k + 1 === to) { /* no-op */ } else {
             const [m] = arr.splice(data.k, 1); arr.splice(data.k < to ? to - 1 : to, 0, m)
           }
         }
-        renderStrip()
+        save(); renderStrip()
       })
     }
     function removeAt(k) {
       const arr = clips[cur].frames
-      if (arr.length <= 1) return
-      arr.splice(k, 1); if (sel >= arr.length) sel = arr.length - 1
-      renderStrip()
+      arr.splice(k, 1); selSet.clear(); if (sel >= arr.length) sel = arr.length - 1
+      save(); renderStrip()
+    }
+    function removeSelected() {
+      const arr = clips[cur].frames
+      const idx = (selSet.size ? [...selSet] : sel >= 0 ? [sel] : []).sort((a, b) => b - a)
+      for (const i of idx) arr.splice(i, 1)
+      selSet.clear(); sel = Math.min(sel, arr.length - 1)
+      save(); renderStrip()
+    }
+    function copySel() {
+      const arr = clips[cur].frames
+      const idx = (selSet.size ? [...selSet] : sel >= 0 ? [sel] : []).sort((a, b) => a - b)
+      clipboard = idx.map((i) => arr[i])
+      flash('copy', clipboard.length ? `copied ${clipboard.length}` : 'nothing')
+    }
+    function pasteFrames() {
+      if (!clipboard.length) return
+      const arr = clips[cur].frames
+      const at = selSet.size ? Math.max(...selSet) + 1 : sel >= 0 ? sel + 1 : arr.length
+      arr.splice(at, 0, ...clipboard)
+      selSet = new Set(clipboard.map((_, j) => at + j)); sel = at; playing = false
+      save(); syncClipUI(); renderStrip()
+    }
+
+    // ── clip tabs (create / duplicate / delete) ───────────────────────────────
+    function renderClipTabs() {
+      const cw = document.getElementById('clips'); cw.innerHTML = ''
+      names.forEach((n) => {
+        const b = document.createElement('button'); b.textContent = n; b.dataset.n = n
+        b.className = n === cur ? 'on' : ''; b.onclick = () => selectClip(n); cw.appendChild(b)
+      })
+      const mk = (txt, fn, title) => { const b = document.createElement('button'); b.className = 'ghost'; b.textContent = txt; if (title) b.title = title; b.onclick = fn; cw.appendChild(b) }
+      mk('+ new', newClip); mk('⧉ dup', dupClip)
+      if (!(cur in D.clips)) mk('🗑', delClip, 'delete this clip')   // core 4 stay (app maps them by order)
+    }
+    function uniqueName(base) { let n = base, i = 2; while (n in clips) n = base + i++; return n }
+    function newClip() {
+      const raw = (prompt('New clip name:', 'clip') || '').trim().toLowerCase().replace(/[^a-z0-9_]+/g, '')
+      if (!raw) return
+      const name = uniqueName(raw); clips[name] = { fps: 12, loop: true, reverse: false, frames: [] }
+      names.push(name); save(); selectClip(name)
+    }
+    function dupClip() {
+      const name = uniqueName(cur + '_copy'); clips[name] = JSON.parse(JSON.stringify(clips[cur]))
+      names.push(name); save(); selectClip(name)
+    }
+    function delClip() {
+      if (cur in D.clips || !confirm(`Delete clip “${cur}”?`)) return
+      delete clips[cur]; names.splice(names.indexOf(cur), 1); save(); selectClip(names[0])
     }
 
     // ── controls ────────────────────────────────────────────────────────────
+    const flash = (id, msg) => { const b = document.getElementById(id), t = b.textContent; b.textContent = msg; setTimeout(() => b.textContent = t, 1100) }
     document.getElementById('speed').oninput = (e) => speed = +e.target.value
-    document.getElementById('play').onclick = () => { playing = !playing; if (playing) { sel = -1; t0 = performance.now() } syncClipUI(); renderStrip() }
-    document.getElementById('fps').oninput = (e) => { clips[cur].fps = Math.max(1, Math.min(60, +e.target.value || 1)); t0 = performance.now() }
-    document.getElementById('loop').onchange = (e) => { clips[cur].loop = e.target.checked; t0 = performance.now(); renderStrip() }
-    document.getElementById('reverse').onchange = (e) => { clips[cur].reverse = e.target.checked; t0 = performance.now() }
-    document.getElementById('reset').onclick = () => { clips[cur] = JSON.parse(JSON.stringify(D.clips[cur])); sel = -1; playing = true; t0 = performance.now(); syncClipUI(); renderStrip() }
-    document.getElementById('copy').onclick = () => {
-      navigator.clipboard.writeText(JSON.stringify(clips[cur].frames)).then(() => {
-        const b = document.getElementById('copy'); b.textContent = 'copied!'; setTimeout(() => b.textContent = 'copy frames', 1200)
-      })
-    }
+    document.getElementById('play').onclick = () => { playing = !playing; if (playing) { sel = -1; selSet.clear(); t0 = performance.now() } syncClipUI(); renderStrip() }
+    document.getElementById('fps').oninput = (e) => { clips[cur].fps = Math.max(1, Math.min(60, +e.target.value || 1)); t0 = performance.now(); save() }
+    document.getElementById('loop').onchange = (e) => { clips[cur].loop = e.target.checked; t0 = performance.now(); save(); renderStrip() }
+    document.getElementById('reverse').onchange = (e) => { clips[cur].reverse = e.target.checked; t0 = performance.now(); save() }
+    document.getElementById('reset').onclick = () => { if (cur in D.clips) clips[cur] = JSON.parse(JSON.stringify(D.clips[cur])); sel = -1; selSet.clear(); playing = true; t0 = performance.now(); save(); syncClipUI(); renderStrip() }
+    document.getElementById('copyF').onclick = copySel
+    document.getElementById('pasteF').onclick = pasteFrames
+    document.getElementById('copy').onclick = () => navigator.clipboard.writeText(JSON.stringify(clips[cur].frames)).then(() => flash('copy', 'copied!'))
     document.getElementById('export').onclick = () => {
       const manifest = {
         note: 'Edit `clips` (frames/fps/loop/reverse). Replace web/dog-frames.json with this and run `npm run gen:dog`. categories/frames are regenerated.',
@@ -277,10 +357,15 @@
     }
     document.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return
-      const arr = clips[cur].frames
-      if (e.key === 'ArrowLeft') { sel = sel < 0 ? 0 : Math.max(0, sel - 1); playing = false; syncClipUI(); renderStrip(); e.preventDefault() }
-      else if (e.key === 'ArrowRight') { sel = sel < 0 ? 0 : Math.min(arr.length - 1, sel + 1); playing = false; syncClipUI(); renderStrip(); e.preventDefault() }
-      else if (e.key === 'Delete' && sel >= 0) { removeAt(sel); e.preventDefault() }
+      const arr = clips[cur].frames, mod = e.ctrlKey || e.metaKey
+      if (mod && e.key.toLowerCase() === 'c') { copySel(); e.preventDefault() }
+      else if (mod && e.key.toLowerCase() === 'v') { pasteFrames(); e.preventDefault() }
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        const ns = sel < 0 ? 0 : Math.max(0, Math.min(arr.length - 1, sel + (e.key === 'ArrowRight' ? 1 : -1)))
+        if (e.shiftKey && sel >= 0) selSet.add(ns); else selSet = new Set([ns])
+        sel = ns; playing = false; syncClipUI(); renderStrip(); e.preventDefault()
+      }
+      else if ((e.key === 'Delete' || e.key === 'Backspace') && (selSet.size || sel >= 0)) { removeSelected(); e.preventDefault() }
       else if (e.key === ' ') { document.getElementById('play').click(); e.preventDefault() }
     })
 
@@ -291,15 +376,16 @@
       e.target.textContent = '⏸ stop'; auto = setInterval(() => selectClip(names[(names.indexOf(cur) + 1) % names.length]), 2600)
     }
 
+    document.getElementById('clear').onclick = () => { try { localStorage.removeItem(STORE) } catch {} location.reload() }
+
     // ── boot ────────────────────────────────────────────────────────────────
     function boot() {
+      load()   // restore cached edits (if any) before first render
       const fc = document.getElementById('fCat'); fc.innerHTML = '<option value="all">all</option>' + D.categories.map((c) => `<option value="${c}">${c}</option>`).join('')
       const fs = document.getElementById('fSheet'); fs.innerHTML = '<option value="all">all</option>' + D.sheets.map((s) => `<option value="${s}">${s}</option>`).join('')
       fc.onchange = fs.onchange = renderPalette
       document.getElementById('fSearch').oninput = renderPalette
-      const cw = document.getElementById('clips')
-      names.forEach((n) => { const b = document.createElement('button'); b.textContent = n; b.dataset.n = n; b.onclick = () => selectClip(n); cw.appendChild(b) })
-      renderPalette(); syncClipUI(); renderStrip(); requestAnimationFrame(loop)
+      renderPalette(); renderClipTabs(); syncClipUI(); renderStrip(); requestAnimationFrame(loop)
     }
     if (img.complete) boot(); else img.onload = boot
   </script>
