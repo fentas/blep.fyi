@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -24,6 +26,7 @@ import androidx.compose.ui.graphics.lerp
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.max
 import kotlin.math.sin
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,6 +35,8 @@ import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.Text
+import fyi.blep.core.spatial.SpatialSnapshot
+import fyi.blep.core.spatial.Vec2
 import fyi.blep.core.tracking.TrackingStatus
 
 private val Ink = Color(0xFF27313B)
@@ -58,7 +63,9 @@ fun WearApp(controller: WearController) {
     if (tracked == null) {
         DiscoveryList(controller)
     } else {
-        controller.status?.let { TrackingView(tracked.displayName, it, onCancel = controller::startDiscovery) }
+        controller.status?.let {
+            TrackingView(tracked.displayName, it, controller.spatial, onCancel = controller::startDiscovery)
+        }
     }
 }
 
@@ -81,14 +88,15 @@ private fun DiscoveryList(controller: WearController) {
 }
 
 @Composable
-private fun TrackingView(name: String, status: TrackingStatus, onCancel: () -> Unit) {
+private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialSnapshot?, onCancel: () -> Unit) {
     val bg by animateColorAsState(proximityColor(status.proximity), tween(800), label = "wearBg")
     Box(
         modifier = Modifier.fillMaxSize().background(bg).clickable(onClick = onCancel),
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            WearArrow(status.arrow.curl, status.arrow.scale)
+            // Spatial map when motion sensors feed it; otherwise the shape arrow.
+            if (spatial != null) WearRadar(spatial) else WearArrow(status.arrow.curl, status.arrow.scale)
             Text(
                 status.guidance.title,
                 color = Ink,
@@ -102,6 +110,62 @@ private fun TrackingView(name: String, status: TrackingStatus, onCancel: () -> U
                 modifier = Modifier.padding(top = 2.dp),
             )
         }
+    }
+}
+
+/** Compact map-less radar for the watch: trail (signal-coloured), your dot +
+ *  heading wedge (green toward / red away from target), and the target glow. */
+@Composable
+private fun WearRadar(snapshot: SpatialSnapshot) {
+    Canvas(modifier = Modifier.size(108.dp)) {
+        val cx = size.width / 2f; val cy = size.height / 2f
+        val pts = snapshot.path
+        val here = snapshot.here
+        val target = snapshot.target.position
+        var minX = -3.0; var maxX = 3.0; var minY = -3.0; var maxY = 3.0
+        fun include(v: Vec2) {
+            if (v.x < minX) minX = v.x; if (v.x > maxX) maxX = v.x
+            if (v.y < minY) minY = v.y; if (v.y > maxY) maxY = v.y
+        }
+        pts.forEach { include(it.pos) }; include(here); target?.let(::include)
+        val span = max(max(maxX - minX, maxY - minY), 6.0)
+        val midX = (minX + maxX) / 2.0; val midY = (minY + maxY) / 2.0
+        val scale = (minOf(size.width, size.height) * 0.82f) / span.toFloat()
+        fun toScreen(v: Vec2) = Offset(cx + ((v.x - midX) * scale).toFloat(), cy - ((v.y - midY) * scale).toFloat())
+
+        // trail
+        for (k in 1 until pts.size) {
+            drawLine(
+                proximityColor((pts[k - 1].strength01 + pts[k].strength01) / 2f),
+                toScreen(pts[k - 1].pos), toScreen(pts[k].pos), strokeWidth = 4f, cap = StrokeCap.Round,
+            )
+        }
+        // start
+        drawCircle(Ink.copy(alpha = 0.45f), radius = 4f, center = toScreen(Vec2.ZERO))
+        // target glow
+        val est = snapshot.target
+        if (target != null && est.confidence > 0.05f) {
+            val tc = toScreen(target)
+            val r = 14f * (0.6f + est.confidence)
+            drawCircle(Brush.radialGradient(listOf(Color(0xFFFAB1B7).copy(alpha = 0.5f * est.confidence), Color.Transparent), center = tc, radius = r), radius = r, center = tc)
+            drawCircle(Color(0xFFFAB1B7), radius = 4f, center = tc)
+        }
+        // you + heading wedge
+        val hp = toScreen(here)
+        val wedge = when {
+            snapshot.target.bearingRad == null -> Color(0xFF5F90C3)
+            snapshot.onCourse > 0.25f -> Color(0xFF8FCB7A)
+            snapshot.onCourse < -0.25f -> Color(0xFFE0907F)
+            else -> Color(0xFF5F90C3)
+        }
+        val dir = Offset(sin(snapshot.headingRad).toFloat(), -cos(snapshot.headingRad).toFloat())
+        val perp = Offset(-dir.y, dir.x)
+        val tip = Offset(hp.x + dir.x * 18f, hp.y + dir.y * 18f)
+        val b1 = Offset(hp.x + perp.x * 7f, hp.y + perp.y * 7f)
+        val b2 = Offset(hp.x - perp.x * 7f, hp.y - perp.y * 7f)
+        drawPath(Path().apply { moveTo(tip.x, tip.y); lineTo(b1.x, b1.y); lineTo(b2.x, b2.y); close() }, wedge)
+        drawCircle(Ink, radius = 5f, center = hp)
+        drawCircle(Color(0xFFF4F5F0), radius = 2.5f, center = hp)
     }
 }
 
