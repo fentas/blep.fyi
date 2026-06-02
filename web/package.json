@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "gen:icons": "node scripts/gen-icons.mjs",
-    "gen:dog": "node scripts/gen-dog-sheet.mjs"
+    "gen:dog": "node scripts/stitch-dog-sprites.mjs"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",

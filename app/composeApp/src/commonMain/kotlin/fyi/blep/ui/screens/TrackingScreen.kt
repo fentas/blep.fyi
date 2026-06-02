@@ -5,7 +5,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -34,9 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -98,8 +94,7 @@ fun TrackingScreen(
             }
         }
 
-        // The blep pup reacts to what you should do, with the live signal —
-        // and a ball rolls in as you close in.
+        // The blep pup reacts to what you should do, with the live signal.
         DogTrack(
             phase = status.phase,
             proximity = status.proximity,
@@ -120,30 +115,30 @@ fun TrackingScreen(
     }
 }
 
-// Sprite sheet layout: 8 frames per clip, 4 clip rows; each cell is 400x316 px.
-private const val CELL_W = 400
-private const val CELL_H = 316
-private const val FRAMES = 8
+// Sprite sheet layout: 12 frames per clip, 4 clip rows; each cell is 260x210 px.
+// Frames are stitched from hand-/AI-drawn sources (web/scripts/stitch-dog-sprites.mjs).
+private const val CELL_W = 260
+private const val CELL_H = 210
+private const val FRAMES = 12
 
 /** Clip rows in dog_sheet.png. */
 private enum class DogClip(val row: Int, val periodMs: Int, val moving: Boolean) {
-    WALK(0, 760, true),
-    LOOK(1, 1300, false),
-    IDLE(2, 1500, false),
-    SIT(3, 900, false),
+    WALK(0, 1080, true),   // trot
+    LOOK(1, 1700, false),  // sit + look around
+    IDLE(2, 1900, false),  // idle
+    FOUND(3, 1300, false), // sits with a bone (close / found)
 }
 
 /**
- * The blep pup at the bottom + the live RSSI, played from a vector-rendered
- * sprite sheet. It mirrors the guidance: **turning** → looks left/right,
- * **walking** → trots across and off one edge back in the other, **close** →
- * sits and wags while a ball rolls in.
+ * The blep pup at the bottom + the live RSSI, played from a stitched sprite
+ * sheet. It mirrors the guidance: **turning** → looks around, **walking** →
+ * trots across and off one edge back in the other, **close** → sits with a bone.
  */
 @Composable
 private fun DogTrack(phase: TrackingPhase, proximity: Float, rssi: Int?, modifier: Modifier = Modifier) {
     val sheet = imageResource(Res.drawable.dog_sheet)
     val clip = when {
-        proximity >= 0.78f || phase == TrackingPhase.PINPOINT -> DogClip.SIT
+        proximity >= 0.82f || phase == TrackingPhase.PINPOINT -> DogClip.FOUND
         phase == TrackingPhase.VECTOR_WALK -> DogClip.WALK
         phase == TrackingPhase.AXIS_SWEEP || phase == TrackingPhase.REORIENT -> DogClip.LOOK
         else -> DogClip.IDLE
@@ -154,11 +149,7 @@ private fun DogTrack(phase: TrackingPhase, proximity: Float, rssi: Int?, modifie
         0f, FRAMES.toFloat(), infiniteRepeatable(tween(clip.periodMs, easing = LinearEasing), RepeatMode.Restart), label = "frame",
     )
     val walkP by anim.animateFloat(
-        0f, 1f, infiniteRepeatable(tween(3200, easing = LinearEasing), RepeatMode.Restart), label = "walkX",
-    )
-    val ballIn by animateFloatAsState(
-        targetValue = ((proximity - 0.5f) / 0.45f).coerceIn(0f, 1f),
-        animationSpec = tween(700), label = "ballIn",
+        0f, 1f, infiniteRepeatable(tween(3600, easing = LinearEasing), RepeatMode.Restart), label = "walkX",
     )
 
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
@@ -167,16 +158,13 @@ private fun DogTrack(phase: TrackingPhase, proximity: Float, rssi: Int?, modifie
             style = MaterialTheme.typography.labelLarge,
             color = BlepColors.Ink.copy(alpha = 0.55f),
         )
-        Canvas(modifier = Modifier.fillMaxWidth().height(92.dp).clipToBounds()) {
+        Canvas(modifier = Modifier.fillMaxWidth().height(104.dp).clipToBounds()) {
             val frame = frameF.toInt().coerceIn(0, FRAMES - 1)
             val scale = size.height / CELL_H
             val dstW = CELL_W * scale
             val dstH = size.height
             val x = if (clip == DogClip.WALK) -dstW + (size.width + dstW) * walkP
             else (size.width - dstW) / 2f
-            val dogCenterX = x + dstW / 2f
-
-            if (ballIn > 0.01f) drawBall(dogCenterX, size.height * 0.96f, dstH * 0.12f, ballIn)
             drawImage(
                 image = sheet,
                 srcOffset = IntOffset(frame * CELL_W, clip.row * CELL_H),
@@ -186,15 +174,4 @@ private fun DogTrack(phase: TrackingPhase, proximity: Float, rssi: Int?, modifie
             )
         }
     }
-}
-
-/** A pink ball rolling in from the right edge toward the pup. */
-private fun DrawScope.drawBall(dogCenterX: Float, groundY: Float, r: Float, amount: Float) {
-    val startX = size.width + r * 2f
-    val restX = dogCenterX + r * 4.5f
-    val bx = startX + (restX - startX) * amount
-    val by = groundY - r
-    drawCircle(BlepColors.Pink, radius = r, center = Offset(bx, by))
-    drawCircle(BlepColors.Ink, radius = r, center = Offset(bx, by), style = Stroke(width = r * 0.22f))
-    drawCircle(BlepColors.Cream.copy(alpha = 0.85f), radius = r * 0.28f, center = Offset(bx - r * 0.3f, by - r * 0.3f))
 }
