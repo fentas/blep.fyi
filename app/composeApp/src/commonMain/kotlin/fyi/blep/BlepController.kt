@@ -6,6 +6,11 @@ import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.spatial.MotionProvider
+import fyi.blep.core.spatial.MotionSample
+import fyi.blep.core.spatial.SpatialSnapshot
+import fyi.blep.core.spatial.SpatialTracker
+import fyi.blep.core.spatial.createMotionProvider
 import fyi.blep.core.tracking.TrackingPhase
 import fyi.blep.core.tracking.TrackingSession
 import fyi.blep.core.tracking.TrackingStatus
@@ -32,6 +37,7 @@ sealed interface Screen {
 class BlepController(
     private val scanner: BleScanner,
     private val scope: CoroutineScope,
+    private val motionProvider: MotionProvider = createMotionProvider(),
 ) {
     var screen by mutableStateOf<Screen>(Screen.Discovery)
         private set
@@ -46,6 +52,9 @@ class BlepController(
     /** Latest raw RSSI (dBm) of the device being tracked, for display. */
     var lastRssi by mutableStateOf<Int?>(null)
         private set
+    /** Live spatial picture (track + target estimate) when motion sensors feed it. */
+    var spatial by mutableStateOf<SpatialSnapshot?>(null)
+        private set
 
     /** Devices shown in the list, honouring the unnamed toggle. */
     val visibleDevices: List<BleDevice>
@@ -58,6 +67,12 @@ class BlepController(
     private val aliases = mutableMapOf<String, String>()
     private var scanJob: Job? = null
     private var trackJob: Job? = null
+    private var motionJob: Job? = null
+
+    private val spatialTracker = SpatialTracker()
+    // Latest motion sample; both flows run on the same (Main) dispatcher, so a
+    // plain var is safe to share between the RSSI and motion collectors.
+    private var latestMotion: MotionSample? = null
 
     init {
         startDiscovery()
@@ -65,8 +80,12 @@ class BlepController(
 
     fun startDiscovery() {
         trackJob?.cancel(); trackJob = null
+        motionJob?.cancel(); motionJob = null
         status = null
         lastRssi = null
+        spatial = null
+        latestMotion = null
+        spatialTracker.reset()
         screen = Screen.Discovery
         restartScan()
     }
@@ -88,17 +107,42 @@ class BlepController(
         screen = Screen.Tracking(device)
         val session = TrackingSession()
         status = session.status
+        spatialTracker.reset()
+        spatial = null
+        latestMotion = null
+
+        // Spatial track: drive the SpatialTracker from the motion stream (a single
+        // time base), tagging each sample with the latest RSSI. Emits nothing on
+        // platforms without motion sensors, so `spatial` simply stays null there.
+        motionJob = scope.launch {
+            try {
+                motionProvider.motion().collect { sample ->
+                    latestMotion = sample
+                    spatial = spatialTracker.update((lastRssi ?: FALLBACK_RSSI).toDouble(), sample)
+                }
+            } catch (c: CancellationException) {
+                throw c
+            } catch (_: Throwable) {
+                // Sensors unavailable — ignore; RSSI tracking continues.
+            }
+        }
+
         trackJob = scope.launch {
             val clock = TimeSource.Monotonic.markNow()
             try {
                 scanner.rssi(device.id).collect { rssi ->
                     lastRssi = rssi
-                    val st = session.onSample(rssi, clock.elapsedNow().inWholeMilliseconds)
-                    status = st
-                    if (st.phase == TrackingPhase.COMPLETE) {
-                        screen = Screen.Done(device)
-                        // Stop ranging — the Done screen doesn't need live RSSI.
-                        trackJob?.cancel()
+                    // Ignore RSSI swings while the phone is being rotated/tilted —
+                    // those are antenna/body geometry, not the target moving.
+                    if (latestMotion?.reorienting != true) {
+                        val st = session.onSample(rssi, clock.elapsedNow().inWholeMilliseconds)
+                        status = st
+                        if (st.phase == TrackingPhase.COMPLETE) {
+                            screen = Screen.Done(device)
+                            // Stop ranging — the Done screen doesn't need live RSSI.
+                            trackJob?.cancel()
+                            motionJob?.cancel()
+                        }
                     }
                 }
             } catch (c: CancellationException) {
@@ -133,5 +177,10 @@ class BlepController(
                 delay(2000)
             }
         }
+    }
+
+    private companion object {
+        /** Stand-in RSSI for spatial samples taken before the first real reading. */
+        const val FALLBACK_RSSI = -100
     }
 }

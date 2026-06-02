@@ -2,6 +2,11 @@ package fyi.blep.ui.screens
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -13,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -26,7 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.tracking.TrackingStatus
+import fyi.blep.ui.components.RadarView
 import fyi.blep.ui.components.VectorArrow
 import fyi.blep.ui.theme.BlepColors
 
@@ -35,6 +43,7 @@ fun TrackingScreen(
     deviceName: String,
     status: TrackingStatus,
     rssi: Int?,
+    spatial: SpatialSnapshot?,
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -44,6 +53,9 @@ fun TrackingScreen(
         label = "trackingBackground",
     )
     val arrowTint = BlepColors.Ink.copy(alpha = 0.82f)
+    val pulse by rememberInfiniteTransition(label = "radar").animateFloat(
+        0f, 1f, infiniteRepeatable(tween(1100, easing = LinearEasing), RepeatMode.Reverse), label = "pulse",
+    )
 
     Column(
         modifier = modifier
@@ -60,8 +72,12 @@ fun TrackingScreen(
             modifier = Modifier.padding(top = 8.dp),
         )
 
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            VectorArrow(curl = status.arrow.curl, scale = status.arrow.scale, tint = arrowTint)
+        // The spatial map is the hero; a compact arrow keeps the immediate cue.
+        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+            RadarView(snapshot = spatial, pulse = pulse, modifier = Modifier.fillMaxSize())
+            if (spatial == null) {
+                VectorArrow(curl = status.arrow.curl, scale = status.arrow.scale, tint = arrowTint)
+            }
         }
 
         AnimatedContent(

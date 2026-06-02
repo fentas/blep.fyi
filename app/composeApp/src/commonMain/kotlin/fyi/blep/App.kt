@@ -47,6 +47,7 @@ fun App() {
                         deviceName = screen.device.displayName,
                         status = status,
                         rssi = controller.lastRssi,
+                        spatial = controller.spatial,
                         onCancel = controller::startDiscovery,
                     )
                 }
