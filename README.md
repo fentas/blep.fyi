@@ -133,6 +133,18 @@ into that same Kotlin engine — no Flow bridging.
 The toolchain is pinned with [mise](https://mise.jdx.dev) (`mise.toml`):
 JDK 21 + Gradle. Run `mise install` once, or bring your own JDK 21.
 
+Common tasks are wrapped in a **`Makefile`** — run `make help`:
+
+```
+make test            # core unit tests (JVM)
+make build           # phone + Wear debug APKs
+make run             # install + launch blep on a connected phone
+make emulator-setup  # one-time: install emulator + create the AVD
+make emulator        # boot it (UI only — emulators have no Bluetooth)
+make web             # website dev server
+make ci              # what CI runs on Linux (tests + Android build)
+```
+
 **Core unit tests** — no Android SDK needed:
 
 ```bash
