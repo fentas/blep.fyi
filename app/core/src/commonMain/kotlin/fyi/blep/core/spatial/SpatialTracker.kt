@@ -52,17 +52,22 @@ data class SpatialSnapshot(
  */
 class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private val reckoner = DeadReckoner()
-    private val particles = ParticleTargetEstimator(tuning)
+    private val pathLoss = PathLossModel.from(tuning)
+    private val particles = ParticleTargetEstimator(tuning, pathLoss)
     private val points = ArrayList<TrackPoint>()
     private var frame: LocalFrame? = null
+    private var samplesSinceCalibration = 0
 
     val path: List<TrackPoint> get() = points
 
     fun reset() {
         reckoner.reset()
         particles.reset()
+        pathLoss.rssiAt1m = tuning.rssiAt1m
+        pathLoss.exponent = tuning.pathLossExponent
         points.clear()
         frame = null
+        samplesSinceCalibration = 0
     }
 
     /**
@@ -115,6 +120,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         val target = when {
             spread < MIN_SPREAD_M -> TargetEstimate(null, null, null, 0f)
             est.confidence >= REPORT_CONFIDENCE -> {
+                maybeCalibrate(est)
                 val toTarget = est.mean - here
                 TargetEstimate(
                     position = est.mean,
@@ -143,6 +149,19 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             target = target,
             onCourse = onCourse,
         )
+    }
+
+    /**
+     * Periodically refit the path-loss model from the localised target, easing the
+     * new fit in so the filter adapts to the environment without jumping.
+     */
+    private fun maybeCalibrate(est: ParticleTargetEstimator.Estimate) {
+        if (est.confidence < CALIBRATE_CONFIDENCE) return
+        if (++samplesSinceCalibration < CALIBRATE_EVERY) return
+        samplesSinceCalibration = 0
+        val fit = PathLossCalibrator.calibrate(points, est.mean) ?: return
+        pathLoss.rssiAt1m += (fit.first - pathLoss.rssiAt1m) * CALIBRATE_EASE
+        pathLoss.exponent += (fit.second - pathLoss.exponent) * CALIBRATE_EASE
     }
 
     /** Bounding-box diagonal of the path — an O(n) proxy for how much we've moved. */
@@ -179,5 +198,8 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private companion object {
         const val MIN_SPREAD_M = 1.5        // movement before any estimate is offered
         const val REPORT_CONFIDENCE = 0.30f // filter confidence before reporting a position
+        const val CALIBRATE_CONFIDENCE = 0.5f // only learn path-loss when well localised
+        const val CALIBRATE_EVERY = 15      // samples between refits
+        const val CALIBRATE_EASE = 0.25     // fraction of each new fit eased in
     }
 }

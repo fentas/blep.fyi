@@ -5,7 +5,6 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.hypot
-import kotlin.math.log10
 import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -26,6 +25,7 @@ import kotlin.random.Random
  */
 class ParticleTargetEstimator(
     private val tuning: SpatialTuning = SpatialTuning(),
+    private val model: PathLossModel = PathLossModel.from(tuning),
     private val count: Int = 600,
     private val rng: Random = Random(1),
     private val measurementSigmaDb: Double = 3.5,
@@ -54,7 +54,7 @@ class ParticleTargetEstimator(
     }
 
     private fun seedRing(p: Vec2, rssi: Double) {
-        val r0 = tuning.rangeOf(rssi)
+        val r0 = model.rangeOf(rssi, tuning.maxRangeM)
         for (i in 0 until count) {
             val a = rng.nextDouble(0.0, 2 * PI)
             val r = (r0 * (0.3 + 1.4 * rng.nextDouble())).coerceIn(0.5, tuning.maxRangeM)
@@ -70,8 +70,7 @@ class ParticleTargetEstimator(
         var sum = 0.0
         for (i in 0 until count) {
             val d = hypot(px[i] - p.x, py[i] - p.y).coerceAtLeast(0.5)
-            val expected = tuning.rssiAt1m - 10.0 * tuning.pathLossExponent * log10(d)
-            val e = rssi - expected
+            val e = rssi - model.expectedRssi(d)
             w[i] *= exp(-(e * e) / twoSigSq)
             sum += w[i]
         }
