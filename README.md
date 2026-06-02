@@ -80,6 +80,34 @@ and is unit-tested.
 
 &nbsp;
 
+### 🛰 Sensor fusion & the live map
+
+The body-shielding loop is the floor, not the ceiling. When motion sensors are
+present blep fuses them into a parallel **spatial tracker** — and degrades
+cleanly back to RSSI-only when they aren't:
+
+- **Compass + accelerometer + step counter + GPS** dead-reckon the path you walk
+  (real step distance indoors; GPS-fused outdoors). Turning the phone no longer
+  fools the tracker — signal swings during reorientation are discounted.
+- A **recursive Bayesian particle filter** triangulates the target from the RSSI
+  sampled along that path: each reading constrains it to a sphere, and the
+  intersections across your route localise it. It accumulates evidence over time,
+  **learns the environment's path-loss** as it goes, and can even **follow a
+  moving target**.
+- A **barometer** adds altitude, so the filter is **3-D** — it can tell you the
+  target is *one floor up / down*.
+- The screen is a **no-map radar**: your heading wedge (green toward / red away),
+  a signal-coloured trail with a warm "fog", and the predicted target as a
+  pulsing glow with an **uncertainty ellipse** — plus **turn-by-turn** copy
+  ("turn 30° left · ~8 m") and a **Geiger-counter haptic + tone** that quickens
+  as you close in. On phone, Wear OS, and Apple Watch.
+
+It all lives in [`core/spatial`](app/core/src/commonMain/kotlin/fyi/blep/core/spatial)
+— pure and unit-tested like the rest, with platform sensor providers behind an
+`expect`/`actual` boundary.
+
+&nbsp;
+
 ### 🗂 Repository layout
 
 ```
@@ -88,7 +116,9 @@ and is unit-tested.
 │   ├── core/                 Pure tracking logic + BLE scanner (shared, tested)
 │   │   └── src/
 │   │       ├── commonMain/   RssiFilter · SignalTrend · DeviceTable ·
-│   │       │                 TrackingSession · BleScanner (expect)
+│   │       │                 TrackingSession · BleScanner (expect) ·
+│   │       │                 spatial/ (DeadReckoner · ParticleTargetEstimator ·
+│   │       │                 StepCounter · PathLossCalibrator · MotionProvider)
 │   │       ├── commonTest/   JVM-runnable unit tests
 │   │       ├── kableMain/    Kable scanner (Android + Apple share this)
 │   │       └── jvmMain/      Fake scanner for tests/preview
@@ -216,10 +246,15 @@ slug, and PayPal hosted-button id.
 
 ### 🧪 Testing & CI
 
-`:core` ships JVM unit tests for the RSSI filter, trend detector, device table and
+`:core` ships JVM unit tests for the RSSI filter, trend detector, device table,
 the full tracking state machine (calibration → … → completion, plus re-aim and
-stale-eviction edge cases). [CI](.github/workflows/ci.yml) additionally compiles
-the Android, iOS and watchOS targets to catch platform API regressions.
+stale-eviction edge cases), and the whole **spatial layer** — dead reckoning,
+particle-filter localisation (target found to within a few metres, follows a
+moving target, 3-D floor detection), path-loss calibration, step counting, haptic
+cadence and turn-by-turn guidance, all on synthetic walks.
+[CI](.github/workflows/ci.yml) additionally compiles the Android, iOS and watchOS
+Kotlin targets **and builds the SwiftUI iOS + watchOS apps** (XcodeGen +
+`xcodebuild`) so the Swift glue is verified too.
 
 &nbsp;
 
