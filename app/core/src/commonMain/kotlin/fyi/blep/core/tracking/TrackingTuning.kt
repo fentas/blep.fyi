@@ -52,4 +52,10 @@ data class TrackingTuning(
         val frac = (smoothedRssi - rssiFar) / (rssiNear - rssiFar)
         return frac.coerceIn(0.0, 1.0).toFloat()
     }
+
+    // Swift/ObjC can't call a Kotlin constructor whose params all have defaults
+    // (no zero-arg init is exported), so expose an explicit factory for it.
+    companion object {
+        fun default() = TrackingTuning()
+    }
 }

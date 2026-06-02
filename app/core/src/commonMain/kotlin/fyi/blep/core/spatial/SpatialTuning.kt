@@ -37,4 +37,9 @@ data class SpatialTuning(
     /** Log-distance path-loss estimate of range (m) for an RSSI sample. */
     fun rangeOf(rssi: Double): Double =
         10.0.pow((rssiAt1m - rssi) / (10.0 * pathLossExponent)).coerceIn(0.1, maxRangeM)
+
+    // Swift-friendly factory (Kotlin's all-default constructor exports no zero-arg init).
+    companion object {
+        fun default() = SpatialTuning()
+    }
 }

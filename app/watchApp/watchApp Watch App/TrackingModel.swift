@@ -8,12 +8,12 @@ final class TrackingModel: ObservableObject {
     @Published var spatial: SpatialSnapshot?
 
     private var session: TrackingSession
-    private let spatialTracker = SpatialTracker(tuning: SpatialTuning())
+    private let spatialTracker = SpatialTracker(tuning: SpatialTuning.companion.default())
     private let motion = MotionRanger()
     private var start = Date()
 
     init() {
-        let s = TrackingSession(tuning: TrackingTuning())
+        let s = TrackingSession(tuning: TrackingTuning.companion.default())
         self.session = s
         self.status = s.status
         motion.start()
@@ -21,7 +21,7 @@ final class TrackingModel: ObservableObject {
 
     /// Start a fresh tracking session (call when a new device is selected).
     func reset() {
-        let s = TrackingSession(tuning: TrackingTuning())
+        let s = TrackingSession(tuning: TrackingTuning.companion.default())
         session = s
         start = Date()
         status = s.status
