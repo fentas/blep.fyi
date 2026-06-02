@@ -63,3 +63,43 @@ jobs:
           :core:compileKotlinWatchosSimulatorArm64
           :composeApp:compileKotlinIosSimulatorArm64
           --stacktrace
+
+  swift-apps:
+    name: Build Swift apps (iOS + watchOS)
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode projects
+        run: |
+          (cd iosApp && xcodegen generate)
+          (cd watchApp && xcodegen generate)
+      - name: Build iOS app (compiles Swift + links the KMP framework)
+        run: >
+          xcodebuild
+          -project iosApp/iosApp.xcodeproj
+          -target iosApp
+          -configuration Debug
+          -sdk iphonesimulator
+          -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO
+          build
+      - name: Build watchOS app (compiles Swift + links the KMP framework)
+        run: >
+          xcodebuild
+          -project watchApp/watchApp.xcodeproj
+          -target watchApp
+          -configuration Debug
+          -sdk watchsimulator
+          -destination 'generic/platform=watchOS Simulator'
+          CODE_SIGNING_ALLOWED=NO
+          build
