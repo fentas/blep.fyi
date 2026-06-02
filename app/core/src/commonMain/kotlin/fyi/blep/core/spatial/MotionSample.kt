@@ -13,6 +13,9 @@ package fyi.blep.core.spatial
  * @property headingRad compass heading the device is pointing, 0 = north/+y,
  *   clockwise; null if the magnetometer is unavailable/uncalibrated.
  * @property headingAccuracyRad 1σ heading accuracy; NaN if unknown.
+ * @property stepDistanceM distance travelled since the previous sample from step
+ *   counting (pedestrian dead reckoning), or 0 if unavailable. When > 0 this is
+ *   used in preference to [speedMps] integration for far truer indoor distance.
  * @property speedMps horizontal ground speed (GPS- or step-derived).
  * @property verticalMps vertical velocity (accelerometer-derived); positive up.
  *   Used to notice the user crouching to "search low".
@@ -28,6 +31,7 @@ data class MotionSample(
     val positionAccuracyM: Double = Double.NaN,
     val headingRad: Double? = null,
     val headingAccuracyRad: Double = Double.NaN,
+    val stepDistanceM: Double = 0.0,
     val speedMps: Double = 0.0,
     val verticalMps: Double = 0.0,
     val moving: Boolean = false,

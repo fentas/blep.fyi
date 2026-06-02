@@ -41,6 +41,8 @@ internal class AndroidMotionProvider(private val context: Context) : MotionProvi
             var moving = false
             var reorienting = false
             var gpsSpeed = Double.NaN
+            val stepCounter = StepCounter()
+            var pendingStepDistance = 0.0
             var frame: LocalFrame? = null
             var localPos: Vec2? = null
             var posAccuracy = Double.NaN
@@ -70,6 +72,7 @@ internal class AndroidMotionProvider(private val context: Context) : MotionProvi
                             ).toDouble()
                             accelEma = 0.8 * accelEma + 0.2 * m
                             moving = accelEma > MOVE_ACCEL_THRESHOLD
+                            pendingStepDistance += stepCounter.onAccel(System.currentTimeMillis(), m)
                         }
                         Sensor.TYPE_GYROSCOPE -> {
                             val rate = sqrt(
@@ -113,11 +116,8 @@ internal class AndroidMotionProvider(private val context: Context) : MotionProvi
             // Emit a fused sample at a steady cadence aligned with RSSI sampling.
             val ticker = launch {
                 while (isActive) {
-                    val speed = when {
-                        !gpsSpeed.isNaN() -> gpsSpeed
-                        moving -> ASSUMED_WALK_MPS
-                        else -> 0.0
-                    }
+                    val stepDistance = pendingStepDistance
+                    pendingStepDistance = 0.0
                     trySend(
                         MotionSample(
                             timeMs = System.currentTimeMillis(),
@@ -125,7 +125,8 @@ internal class AndroidMotionProvider(private val context: Context) : MotionProvi
                             positionAccuracyM = posAccuracy,
                             headingRad = heading,
                             headingAccuracyRad = headingAccuracy,
-                            speedMps = speed,
+                            stepDistanceM = stepDistance,
+                            speedMps = if (!gpsSpeed.isNaN()) gpsSpeed else 0.0,
                             moving = moving,
                             reorienting = reorienting,
                         ),
@@ -145,7 +146,6 @@ internal class AndroidMotionProvider(private val context: Context) : MotionProvi
     private companion object {
         const val MOVE_ACCEL_THRESHOLD = 0.6     // m/s² (EMA) above which we count as moving
         const val REORIENT_RATE_THRESHOLD = 1.2  // rad/s gyro magnitude = a deliberate turn/tilt
-        const val ASSUMED_WALK_MPS = 1.2          // dead-reckoning pace when GPS speed is absent
         const val SAMPLE_INTERVAL_MS = 200L
     }
 }

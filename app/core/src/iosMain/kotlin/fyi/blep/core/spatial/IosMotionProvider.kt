@@ -42,6 +42,8 @@ private class IosMotionProvider : MotionProvider {
         var moving = false
         var reorienting = false
         var frame: LocalFrame? = null
+        val stepCounter = StepCounter()
+        var pendingStepDistance = 0.0
 
         val locationManager = CLLocationManager()
         val delegate = object : NSObject(), CLLocationManagerDelegateProtocol {
@@ -79,28 +81,30 @@ private class IosMotionProvider : MotionProvider {
             motionManager.deviceMotionUpdateInterval = 0.1
             motionManager.startDeviceMotionUpdatesToQueue(NSOperationQueue.mainQueue) { dm, _ ->
                 if (dm != null) {
-                    val accel = dm.userAcceleration.useContents { sqrt(x * x + y * y + z * z) }
-                    moving = accel > MOVE_ACCEL_THRESHOLD
+                    val accelG = dm.userAcceleration.useContents { sqrt(x * x + y * y + z * z) }
+                    moving = accelG > MOVE_ACCEL_THRESHOLD
                     val rate = dm.rotationRate.useContents { sqrt(x * x + y * y + z * z) }
                     reorienting = rate > REORIENT_RATE_THRESHOLD
+                    // StepCounter works in m/s²; userAcceleration is in g.
+                    pendingStepDistance += stepCounter.onAccel(
+                        (NSProcessInfo.processInfo.systemUptime * 1000.0).toLong(), accelG * 9.81,
+                    )
                 }
             }
         }
 
         val ticker = launch {
             while (isActive) {
-                val speed = when {
-                    !gpsSpeed.isNaN() -> gpsSpeed
-                    moving -> ASSUMED_WALK_MPS
-                    else -> 0.0
-                }
+                val stepDistance = pendingStepDistance
+                pendingStepDistance = 0.0
                 trySend(
                     MotionSample(
                         timeMs = (NSProcessInfo.processInfo.systemUptime * 1000.0).toLong(),
                         position = localPos,
                         positionAccuracyM = posAccuracy,
                         headingRad = heading,
-                        speedMps = speed,
+                        stepDistanceM = stepDistance,
+                        speedMps = if (!gpsSpeed.isNaN()) gpsSpeed else 0.0,
                         moving = moving,
                         reorienting = reorienting,
                     ),
@@ -120,7 +124,6 @@ private class IosMotionProvider : MotionProvider {
     private companion object {
         const val MOVE_ACCEL_THRESHOLD = 0.08     // g (userAcceleration) above which we count as moving
         const val REORIENT_RATE_THRESHOLD = 1.2   // rad/s rotation = a deliberate turn/tilt
-        const val ASSUMED_WALK_MPS = 1.2
         const val SAMPLE_INTERVAL_MS = 200L
     }
 }

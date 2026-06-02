@@ -36,12 +36,15 @@ class DeadReckoner {
 
         sample.headingRad?.let { headingRad = it; hasHeading = true }
 
-        // Dead-reckon along the heading we're facing while actually moving.
-        val stepped = if (sample.moving && hasHeading && dt > 0.0) {
-            position + Vec2.heading(headingRad) * (sample.speedMps * dt)
-        } else {
-            position
+        // Dead-reckon along the heading we're facing. Prefer step-counted distance
+        // (pedestrian dead reckoning) over speed×dt — it's far truer indoors.
+        val forward = when {
+            !hasHeading -> 0.0
+            sample.stepDistanceM > 0.0 -> sample.stepDistanceM
+            sample.moving && dt > 0.0 -> sample.speedMps * dt
+            else -> 0.0
         }
+        val stepped = position + Vec2.heading(headingRad) * forward
 
         // Blend a GPS fix in proportion to how much we trust its accuracy.
         var fused = stepped
