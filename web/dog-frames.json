@@ -1,0 +1,854 @@
+{
+ "note": "Edit `clips` to hand-pick/reorder frames (reuse ids across sheets). `category` groups like poses. Re-run `npm run gen:dog`.",
+ "cell": [
+  400,
+  264
+ ],
+ "categories": [
+  {
+   "id": "c0",
+   "frames": [
+    "trot#0",
+    "trot#1",
+    "trot#2",
+    "trot#3",
+    "trot#4",
+    "trot#5",
+    "trot#6",
+    "trot#7",
+    "trot#8",
+    "trot#9",
+    "trot#10",
+    "trot#11",
+    "trot#12",
+    "trot#18",
+    "trot#19",
+    "sit#0",
+    "sit#1",
+    "sit#2",
+    "sit#3",
+    "sit#4",
+    "sit#5",
+    "stand#2",
+    "stand#3",
+    "stand#4",
+    "stand#5",
+    "stand#6",
+    "stand#7",
+    "stand#8",
+    "stand#9",
+    "stand#10",
+    "stand#11",
+    "stand#12",
+    "stand#13",
+    "stand#14",
+    "stand#15",
+    "stand#16",
+    "stand#17",
+    "stand#18",
+    "stand#19",
+    "stand#20",
+    "stand#21",
+    "stand#22",
+    "stand#23"
+   ]
+  },
+  {
+   "id": "c1",
+   "frames": [
+    "trot#13",
+    "trot#14",
+    "trot#15",
+    "trot#17"
+   ]
+  },
+  {
+   "id": "c2",
+   "frames": [
+    "trot#16",
+    "bone#3"
+   ]
+  },
+  {
+   "id": "c3",
+   "frames": [
+    "trot#20",
+    "trot#21",
+    "trot#22",
+    "sit#6",
+    "sit#7",
+    "sit#8",
+    "sit#9",
+    "sit#10",
+    "sit#11",
+    "sit#12",
+    "sit#13",
+    "sit#14",
+    "sit#15",
+    "sit#16",
+    "sit#17",
+    "sit#18",
+    "sit#19",
+    "sit#20",
+    "sit#21",
+    "sit#22",
+    "sit#23",
+    "stand#1"
+   ]
+  },
+  {
+   "id": "c4",
+   "frames": [
+    "trot#23",
+    "stand#0"
+   ]
+  },
+  {
+   "id": "c5",
+   "frames": [
+    "bone#0"
+   ]
+  },
+  {
+   "id": "c6",
+   "frames": [
+    "bone#1",
+    "bone#2"
+   ]
+  },
+  {
+   "id": "c7",
+   "frames": [
+    "bone#4",
+    "bone#5"
+   ]
+  },
+  {
+   "id": "c8",
+   "frames": [
+    "bone#6",
+    "bone#10"
+   ]
+  },
+  {
+   "id": "c9",
+   "frames": [
+    "bone#7"
+   ]
+  },
+  {
+   "id": "c10",
+   "frames": [
+    "bone#8"
+   ]
+  },
+  {
+   "id": "c11",
+   "frames": [
+    "bone#9"
+   ]
+  },
+  {
+   "id": "c12",
+   "frames": [
+    "bone#11"
+   ]
+  }
+ ],
+ "frames": {
+  "trot#0": {
+   "drift": [
+    103,
+    53
+   ],
+   "category": "c0"
+  },
+  "trot#1": {
+   "drift": [
+    103,
+    50
+   ],
+   "category": "c0"
+  },
+  "trot#2": {
+   "drift": [
+    105,
+    52
+   ],
+   "category": "c0"
+  },
+  "trot#3": {
+   "drift": [
+    103,
+    53
+   ],
+   "category": "c0"
+  },
+  "trot#4": {
+   "drift": [
+    94,
+    56
+   ],
+   "category": "c0"
+  },
+  "trot#5": {
+   "drift": [
+    93,
+    62
+   ],
+   "category": "c0"
+  },
+  "trot#6": {
+   "drift": [
+    115,
+    47
+   ],
+   "category": "c0"
+  },
+  "trot#7": {
+   "drift": [
+    130,
+    48
+   ],
+   "category": "c0"
+  },
+  "trot#8": {
+   "drift": [
+    103,
+    63
+   ],
+   "category": "c0"
+  },
+  "trot#9": {
+   "drift": [
+    101,
+    62
+   ],
+   "category": "c0"
+  },
+  "trot#10": {
+   "drift": [
+    102,
+    66
+   ],
+   "category": "c0"
+  },
+  "trot#11": {
+   "drift": [
+    103,
+    57
+   ],
+   "category": "c0"
+  },
+  "trot#12": {
+   "drift": [
+    97,
+    66
+   ],
+   "category": "c0"
+  },
+  "trot#13": {
+   "drift": [
+    98,
+    59
+   ],
+   "category": "c1"
+  },
+  "trot#14": {
+   "drift": [
+    102,
+    39
+   ],
+   "category": "c1"
+  },
+  "trot#15": {
+   "drift": [
+    97,
+    32
+   ],
+   "category": "c1"
+  },
+  "trot#16": {
+   "drift": [
+    102,
+    17
+   ],
+   "category": "c2"
+  },
+  "trot#17": {
+   "drift": [
+    105,
+    46
+   ],
+   "category": "c1"
+  },
+  "trot#18": {
+   "drift": [
+    106,
+    48
+   ],
+   "category": "c0"
+  },
+  "trot#19": {
+   "drift": [
+    104,
+    46
+   ],
+   "category": "c0"
+  },
+  "trot#20": {
+   "drift": [
+    89,
+    54
+   ],
+   "category": "c3"
+  },
+  "trot#21": {
+   "drift": [
+    96,
+    49
+   ],
+   "category": "c3"
+  },
+  "trot#22": {
+   "drift": [
+    92,
+    36
+   ],
+   "category": "c3"
+  },
+  "trot#23": {
+   "drift": [
+    95,
+    31
+   ],
+   "category": "c4"
+  },
+  "sit#0": {
+   "drift": [
+    96,
+    56
+   ],
+   "category": "c0"
+  },
+  "sit#1": {
+   "drift": [
+    106,
+    55
+   ],
+   "category": "c0"
+  },
+  "sit#2": {
+   "drift": [
+    103,
+    56
+   ],
+   "category": "c0"
+  },
+  "sit#3": {
+   "drift": [
+    103,
+    55
+   ],
+   "category": "c0"
+  },
+  "sit#4": {
+   "drift": [
+    101,
+    55
+   ],
+   "category": "c0"
+  },
+  "sit#5": {
+   "drift": [
+    96,
+    56
+   ],
+   "category": "c0"
+  },
+  "sit#6": {
+   "drift": [
+    93,
+    53
+   ],
+   "category": "c3"
+  },
+  "sit#7": {
+   "drift": [
+    89,
+    52
+   ],
+   "category": "c3"
+  },
+  "sit#8": {
+   "drift": [
+    90,
+    52
+   ],
+   "category": "c3"
+  },
+  "sit#9": {
+   "drift": [
+    91,
+    55
+   ],
+   "category": "c3"
+  },
+  "sit#10": {
+   "drift": [
+    92,
+    54
+   ],
+   "category": "c3"
+  },
+  "sit#11": {
+   "drift": [
+    92,
+    54
+   ],
+   "category": "c3"
+  },
+  "sit#12": {
+   "drift": [
+    93,
+    50
+   ],
+   "category": "c3"
+  },
+  "sit#13": {
+   "drift": [
+    93,
+    49
+   ],
+   "category": "c3"
+  },
+  "sit#14": {
+   "drift": [
+    95,
+    49
+   ],
+   "category": "c3"
+  },
+  "sit#15": {
+   "drift": [
+    95,
+    49
+   ],
+   "category": "c3"
+  },
+  "sit#16": {
+   "drift": [
+    92,
+    48
+   ],
+   "category": "c3"
+  },
+  "sit#17": {
+   "drift": [
+    95,
+    47
+   ],
+   "category": "c3"
+  },
+  "sit#18": {
+   "drift": [
+    93,
+    48
+   ],
+   "category": "c3"
+  },
+  "sit#19": {
+   "drift": [
+    89,
+    39
+   ],
+   "category": "c3"
+  },
+  "sit#20": {
+   "drift": [
+    94,
+    46
+   ],
+   "category": "c3"
+  },
+  "sit#21": {
+   "drift": [
+    92,
+    47
+   ],
+   "category": "c3"
+  },
+  "sit#22": {
+   "drift": [
+    93,
+    46
+   ],
+   "category": "c3"
+  },
+  "sit#23": {
+   "drift": [
+    94,
+    47
+   ],
+   "category": "c3"
+  },
+  "stand#0": {
+   "drift": [
+    121,
+    46
+   ],
+   "category": "c4"
+  },
+  "stand#1": {
+   "drift": [
+    97,
+    48
+   ],
+   "category": "c3"
+  },
+  "stand#2": {
+   "drift": [
+    97,
+    55
+   ],
+   "category": "c0"
+  },
+  "stand#3": {
+   "drift": [
+    101,
+    60
+   ],
+   "category": "c0"
+  },
+  "stand#4": {
+   "drift": [
+    104,
+    54
+   ],
+   "category": "c0"
+  },
+  "stand#5": {
+   "drift": [
+    100,
+    52
+   ],
+   "category": "c0"
+  },
+  "stand#6": {
+   "drift": [
+    97,
+    58
+   ],
+   "category": "c0"
+  },
+  "stand#7": {
+   "drift": [
+    96,
+    59
+   ],
+   "category": "c0"
+  },
+  "stand#8": {
+   "drift": [
+    102,
+    56
+   ],
+   "category": "c0"
+  },
+  "stand#9": {
+   "drift": [
+    105,
+    55
+   ],
+   "category": "c0"
+  },
+  "stand#10": {
+   "drift": [
+    102,
+    58
+   ],
+   "category": "c0"
+  },
+  "stand#11": {
+   "drift": [
+    100,
+    56
+   ],
+   "category": "c0"
+  },
+  "stand#12": {
+   "drift": [
+    102,
+    56
+   ],
+   "category": "c0"
+  },
+  "stand#13": {
+   "drift": [
+    102,
+    51
+   ],
+   "category": "c0"
+  },
+  "stand#14": {
+   "drift": [
+    103,
+    56
+   ],
+   "category": "c0"
+  },
+  "stand#15": {
+   "drift": [
+    104,
+    48
+   ],
+   "category": "c0"
+  },
+  "stand#16": {
+   "drift": [
+    103,
+    52
+   ],
+   "category": "c0"
+  },
+  "stand#17": {
+   "drift": [
+    102,
+    49
+   ],
+   "category": "c0"
+  },
+  "stand#18": {
+   "drift": [
+    105,
+    50
+   ],
+   "category": "c0"
+  },
+  "stand#19": {
+   "drift": [
+    103,
+    47
+   ],
+   "category": "c0"
+  },
+  "stand#20": {
+   "drift": [
+    105,
+    49
+   ],
+   "category": "c0"
+  },
+  "stand#21": {
+   "drift": [
+    102,
+    49
+   ],
+   "category": "c0"
+  },
+  "stand#22": {
+   "drift": [
+    105,
+    51
+   ],
+   "category": "c0"
+  },
+  "stand#23": {
+   "drift": [
+    102,
+    47
+   ],
+   "category": "c0"
+  },
+  "bone#0": {
+   "drift": [
+    64,
+    26
+   ],
+   "category": "c5"
+  },
+  "bone#1": {
+   "drift": [
+    60,
+    72
+   ],
+   "category": "c6"
+  },
+  "bone#2": {
+   "drift": [
+    60,
+    56
+   ],
+   "category": "c6"
+  },
+  "bone#3": {
+   "drift": [
+    81,
+    8
+   ],
+   "category": "c2"
+  },
+  "bone#4": {
+   "drift": [
+    63,
+    30
+   ],
+   "category": "c7"
+  },
+  "bone#5": {
+   "drift": [
+    60,
+    31
+   ],
+   "category": "c7"
+  },
+  "bone#6": {
+   "drift": [
+    58,
+    5
+   ],
+   "category": "c8"
+  },
+  "bone#7": {
+   "drift": [
+    53,
+    19
+   ],
+   "category": "c9"
+  },
+  "bone#8": {
+   "drift": [
+    71,
+    20
+   ],
+   "category": "c10"
+  },
+  "bone#9": {
+   "drift": [
+    53,
+    18
+   ],
+   "category": "c11"
+  },
+  "bone#10": {
+   "drift": [
+    67,
+    5
+   ],
+   "category": "c8"
+  },
+  "bone#11": {
+   "drift": [
+    41,
+    -64
+   ],
+   "category": "c12"
+  }
+ },
+ "clips": {
+  "walk": {
+   "fps": 24,
+   "frames": [
+    "trot#0",
+    "trot#1",
+    "trot#2",
+    "trot#3",
+    "trot#4",
+    "trot#5",
+    "trot#6",
+    "trot#7",
+    "trot#8",
+    "trot#9",
+    "trot#10",
+    "trot#11",
+    "trot#12",
+    "trot#13",
+    "trot#14",
+    "trot#15",
+    "trot#16",
+    "trot#17",
+    "trot#18",
+    "trot#19",
+    "trot#20",
+    "trot#21",
+    "trot#22",
+    "trot#23"
+   ]
+  },
+  "look": {
+   "fps": 24,
+   "frames": [
+    "sit#0",
+    "sit#1",
+    "sit#2",
+    "sit#3",
+    "sit#4",
+    "sit#5",
+    "sit#6",
+    "sit#7",
+    "sit#8",
+    "sit#9",
+    "sit#10",
+    "sit#11",
+    "sit#12",
+    "sit#13",
+    "sit#14",
+    "sit#15",
+    "sit#16",
+    "sit#17",
+    "sit#18",
+    "sit#19",
+    "sit#20",
+    "sit#21",
+    "sit#22",
+    "sit#23"
+   ]
+  },
+  "idle": {
+   "fps": 24,
+   "frames": [
+    "stand#0",
+    "stand#1",
+    "stand#2",
+    "stand#3",
+    "stand#4",
+    "stand#5",
+    "stand#6",
+    "stand#7",
+    "stand#8",
+    "stand#9",
+    "stand#10",
+    "stand#11",
+    "stand#12",
+    "stand#13",
+    "stand#14",
+    "stand#15",
+    "stand#16",
+    "stand#17",
+    "stand#18",
+    "stand#19",
+    "stand#20",
+    "stand#21",
+    "stand#22",
+    "stand#23"
+   ]
+  },
+  "found": {
+   "fps": 12,
+   "frames": [
+    "bone#0",
+    "bone#1",
+    "bone#2",
+    "bone#3",
+    "bone#4",
+    "bone#5",
+    "bone#6",
+    "bone#7",
+    "bone#8",
+    "bone#9",
+    "bone#10",
+    "bone#11"
+   ]
+  }
+ }
+}

@@ -2,6 +2,7 @@ package fyi.blep.ui.screens
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -28,11 +29,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -122,18 +130,19 @@ private const val CELL_H = 264
 
 /** Clip rows in dog_sheet.png, with frame count + playback rate. */
 private enum class DogClip(val row: Int, val frames: Int, val fps: Int, val moving: Boolean) {
-    WALK(0, 24, 12, true),     // trot
-    LOOK(1, 24, 12, false),    // look around
-    IDLE(2, 24, 8, false),     // idle (calmer)
+    WALK(0, 24, 24, true),     // trot
+    LOOK(1, 24, 24, false),    // look around
+    IDLE(2, 24, 24, false),    // idle
     FOUND(3, 12, 12, false);   // with a bone (close / found)
 
     val periodMs: Int get() = frames * 1000 / fps
 }
 
 /**
- * The blep pup at the bottom + the live RSSI, played from a stitched sprite
- * sheet. It mirrors the guidance: **turning** → looks around, **walking** →
- * trots across and off one edge back in the other, **close** → sits with a bone.
+ * The blep pup at the bottom + the live RSSI. Plays each clip from the sprite
+ * sheet at its own fps and **crossfades between clips**, entering the new clip
+ * at the pose that best matches the outgoing one (precomputed in [DogFrames]),
+ * so switches are coherent rather than abrupt.
  */
 @Composable
 private fun DogTrack(phase: TrackingPhase, proximity: Float, rssi: Int?, modifier: Modifier = Modifier) {
@@ -145,13 +154,30 @@ private fun DogTrack(phase: TrackingPhase, proximity: Float, rssi: Int?, modifie
         else -> DogClip.IDLE
     }
 
+    var shown by remember { mutableStateOf(clip) }
+    var startFrame by remember { mutableIntStateOf(0) }
+    var fromClip by remember { mutableStateOf<DogClip?>(null) }
+    var fromFrame by remember { mutableIntStateOf(0) }
+    val fade = remember { Animatable(1f) }
+
     val anim = rememberInfiniteTransition(label = "dog")
-    val frameF by anim.animateFloat(
-        0f, clip.frames.toFloat(), infiniteRepeatable(tween(clip.periodMs, easing = LinearEasing), RepeatMode.Restart), label = "frame",
+    val freeF by anim.animateFloat(
+        0f, shown.frames.toFloat(), infiniteRepeatable(tween(shown.periodMs, easing = LinearEasing), RepeatMode.Restart), label = "frame",
     )
     val walkP by anim.animateFloat(
         0f, 1f, infiniteRepeatable(tween(3600, easing = LinearEasing), RepeatMode.Restart), label = "walkX",
     )
+    val curFrame = (startFrame + freeF.toInt()) % shown.frames
+
+    LaunchedEffect(clip) {
+        if (clip != shown) {
+            fromClip = shown; fromFrame = curFrame
+            startFrame = DogFrames.transition[shown.ordinal][clip.ordinal]
+                .getOrElse(curFrame) { 0 }.coerceIn(0, clip.frames - 1)
+            shown = clip
+            fade.snapTo(0f); fade.animateTo(1f, tween(durationMillis = 300))
+        }
+    }
 
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
@@ -160,19 +186,24 @@ private fun DogTrack(phase: TrackingPhase, proximity: Float, rssi: Int?, modifie
             color = BlepColors.Ink.copy(alpha = 0.55f),
         )
         Canvas(modifier = Modifier.fillMaxWidth().height(108.dp).clipToBounds()) {
-            val frame = frameF.toInt().coerceIn(0, clip.frames - 1)
-            val scale = size.height / CELL_H
-            val dstW = CELL_W * scale
-            val dstH = size.height
-            val x = if (clip == DogClip.WALK) -dstW + (size.width + dstW) * walkP
-            else (size.width - dstW) / 2f
-            drawImage(
-                image = sheet,
-                srcOffset = IntOffset(frame * CELL_W, clip.row * CELL_H),
-                srcSize = IntSize(CELL_W, CELL_H),
-                dstOffset = IntOffset(x.roundToInt(), 0),
-                dstSize = IntSize(dstW.roundToInt(), dstH.roundToInt()),
-            )
+            fromClip?.let { fc ->
+                if (fade.value < 0.999f) drawDogFrame(sheet, fc, fromFrame, walkP, alpha = 1f - fade.value)
+            }
+            drawDogFrame(sheet, shown, curFrame, walkP, alpha = fade.value)
         }
     }
+}
+
+private fun DrawScope.drawDogFrame(sheet: ImageBitmap, clip: DogClip, frame: Int, walkP: Float, alpha: Float) {
+    val scale = size.height / CELL_H
+    val dstW = CELL_W * scale
+    val x = if (clip.moving) -dstW + (size.width + dstW) * walkP else (size.width - dstW) / 2f
+    drawImage(
+        image = sheet,
+        srcOffset = IntOffset(frame.coerceIn(0, clip.frames - 1) * CELL_W, clip.row * CELL_H),
+        srcSize = IntSize(CELL_W, CELL_H),
+        dstOffset = IntOffset(x.roundToInt(), 0),
+        dstSize = IntSize(dstW.roundToInt(), size.height.roundToInt()),
+        alpha = alpha.coerceIn(0f, 1f),
+    )
 }

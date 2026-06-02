@@ -1,49 +1,58 @@
-// Builds the app's dog sprite sheet from the AI-generated source grids and
-// turns each loose set of frames into a SMOOTH animation:
+// Frame-library pipeline for the app's dog animation.
 //
-//   1. CUT   — flood-key the cream page/shadow/dividers from the edges, then
-//              connected-component cleanup keeps the pup (+bone) and drops
-//              captions, specks, neighbour-frame bleed (touches L/R edge) and
-//              thin divider lines. Crop expanded horizontally so nose/tail
-//              aren't clipped.
-//   2. ALIGN — scale every frame of a clip by one uniform factor, then place
-//              each by its centre of mass at a fixed point (drift removed, so
-//              the frames stack on top of each other).
-//   3. ORDER — source frames are usually already sequenced, so the source order
-//              is kept by default; a "smoothest cycle" (greedy NN + 2-opt over
-//              the frame-to-frame diff) is *suggested* in the report and can be
-//              applied per clip via `order: true`.
-//   4. WRITE — compose the sheet + web/dog-sprites-report.md (applied/suggested
-//              order, roughness, and isolated frames to review).
+//   1. CUT      — every frame of every source sheet is flood-keyed + cleaned
+//                 (drops page/shadow/dividers, captions, specks, neighbour
+//                 bleed, thin border lines) and cropped to the pup's extent.
+//   2. ALIGN    — one global uniform scale + centre-of-mass placement; the
+//                 applied offset (drift) is recorded per frame.
+//   3. CATEGORISE — frames are clustered by pose similarity so like frames are
+//                 grouped (so they can be reused between animations).
+//   4. MANIFEST — web/dog-frames.json holds every frame (drift + category) and
+//                 the CLIPS as ordered frame-id lists. It is the manual control
+//                 surface: hand-pick frames, reuse frames across sheets, rename
+//                 / link categories. Existing clip/category edits are preserved;
+//                 drift + categories are (re)computed each run (calc once, here).
+//   5. BUILD    — the sprite sheet is assembled from the clip frame-lists, and a
+//                 cross-reference transition map is baked to DogFrames.kt (best
+//                 entry frame per clip pair) so the app needs no runtime calc.
 //
-// Output → app/composeApp/src/commonMain/composeResources/drawable/dog_sheet.png
-// Run with `npm run gen:dog`.  Source folders (spr24/, sprites/) are gitignored.
+// Run with `npm run gen:dog`. Source folders (spr24/, sprites/) are gitignored.
 import sharp from 'sharp'
-import { writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
-const CLIPS = [
-  { clip: 'walk',  dir: 'spr24',   file: 'Gemini_Generated_Image_fbd8sxfbd8sxfbd8.png', cols: 8, rows: 3, frames: 24, order: false },
-  { clip: 'look',  dir: 'spr24',   file: 'Gemini_Generated_Image_w1h6y3w1h6y3w1h6.png', cols: 8, rows: 3, frames: 24, order: false },
-  { clip: 'idle',  dir: 'spr24',   file: 'Gemini_Generated_Image_xsgea4xsgea4xsge.png', cols: 8, rows: 3, frames: 24, order: false },
-  { clip: 'found', dir: 'sprites', file: 'Gemini_Generated_Image_6m0nln6m0nln6m0n.png', cols: 6, rows: 2, frames: 12, order: false },
-]
+// Source sheets (id → grid). Add sheets here; reference their frames from clips.
+const SHEETS = {
+  trot:  { dir: 'spr24',   file: 'Gemini_Generated_Image_fbd8sxfbd8sxfbd8.png', cols: 8, rows: 3, frames: 24 },
+  sit:   { dir: 'spr24',   file: 'Gemini_Generated_Image_w1h6y3w1h6y3w1h6.png', cols: 8, rows: 3, frames: 24 },
+  stand: { dir: 'spr24',   file: 'Gemini_Generated_Image_xsgea4xsgea4xsge.png', cols: 8, rows: 3, frames: 24 },
+  bone:  { dir: 'sprites', file: 'Gemini_Generated_Image_6m0nln6m0nln6m0n.png', cols: 6, rows: 2, frames: 12 },
+}
+// Default clips (rows, in this order) → frame-id lists. The manifest overrides.
+const DEFAULT_CLIPS = {
+  walk:  { fps: 24, frames: range('trot', 24) },
+  look:  { fps: 24, frames: range('sit', 24) },
+  idle:  { fps: 24, frames: range('stand', 24) },
+  found: { fps: 12, frames: range('bone', 12) },
+}
+function range(sheet, n) { return Array.from({ length: n }, (_, i) => `${sheet}#${i}`) }
 
 const CELL_W = 400, CELL_H = 264, TARGET_H = 170, ANCHOR_Y = 0.54
 const AREA_MIN = 900, FILL_MIN = 0.12, MASK = 40
 const isBgPx = (r, g, b) => Math.min(r, g, b) > 185
+const maskDiff = (a, b) => { let d = 0; for (let i = 0; i < a.length; i++) d += a[i] !== b[i] ? 1 : 0; return d }
+const median = (a) => { const s = [...a].sort((x, y) => x - y); return s[s.length >> 1] || 1 }
 
-// ── 1. CUT ────────────────────────────────────────────────────────────────
+// ── 1. CUT ──────────────────────────────────────────────────────────────────
 function extractCell(src, W, H, ch, cellX, cellY, cellW, cellH) {
   const EX = Math.round(cellW * 0.18)
   const cx0 = Math.max(0, cellX - EX), cx1 = Math.min(W, cellX + cellW + EX)
   const cy0 = Math.max(0, cellY + 2), cy1 = Math.min(H, cellY + cellH - 2)
   const cw = cx1 - cx0, chh = cy1 - cy0
   const captionTop = chh - Math.round(cellH * 0.16)
-
   const buf = new Uint8Array(cw * chh * 4)
   for (let y = 0; y < chh; y++) for (let x = 0; x < cw; x++) {
     const si = ((cy0 + y) * W + (cx0 + x)) * ch, di = (y * cw + x) * 4
@@ -59,7 +68,6 @@ function extractCell(src, W, H, ch, cellX, cellY, cellW, cellH) {
   for (let x = 0; x < cw; x++) { visit(x, 0); visit(x, chh - 1) }
   for (let y = 0; y < chh; y++) { visit(0, y); visit(cw - 1, y) }
   while (stack.length) { const p = stack.pop(), x = p % cw, y = (p / cw) | 0; visit(x + 1, y); visit(x - 1, y); visit(x, y + 1); visit(x, y - 1) }
-
   const label = new Int32Array(cw * chh); let n = 0; const comps = []
   for (let s = 0; s < cw * chh; s++) {
     if (buf[s * 4 + 3] === 0 || label[s]) continue
@@ -76,15 +84,9 @@ function extractCell(src, W, H, ch, cellX, cellY, cellW, cellH) {
       }
     }
     const w = maxx - minx + 1, h = maxy - miny + 1
-    const fill = area / (w * h)
-    const aspect = Math.max(w, h) / Math.min(w, h)
-    comps.push({ id: n, area, fill, aspect, touchesLR: minx === 0 || maxx === cw - 1, miny })
+    comps.push({ id: n, area, fill: area / (w * h), aspect: Math.max(w, h) / Math.min(w, h), touchesLR: minx === 0 || maxx === cw - 1, miny })
   }
-  // keep the pup (+bone): sizeable, solid, not a long thin line (border/divider),
-  // not a neighbour bleed (touches L/R), not the caption band.
-  const keep = new Set(comps.filter((c) =>
-    c.area >= AREA_MIN && c.fill >= FILL_MIN && c.aspect <= 7 && !c.touchesLR && c.miny < captionTop,
-  ).map((c) => c.id))
+  const keep = new Set(comps.filter((c) => c.area >= AREA_MIN && c.fill >= FILL_MIN && c.aspect <= 7 && !c.touchesLR && c.miny < captionTop).map((c) => c.id))
   if (!keep.size) return null
   let kminx = cw, kminy = chh, kmaxx = 0, kmaxy = 0, ksx = 0, ksy = 0, ka = 0
   for (let y = 0; y < chh; y++) for (let x = 0; x < cw; x++) {
@@ -102,105 +104,80 @@ function extractCell(src, W, H, ch, cellX, cellY, cellW, cellH) {
   return { raw: out, bw, bh, cxRel: ksx / ka - kminx, cyRel: ksy / ka - kminy }
 }
 
-const median = (a) => { const s = [...a].sort((x, y) => x - y); return s[s.length >> 1] || 1 }
-
-// ── 3. ORDER: smoothest cycle via nearest-neighbour + 2-opt ─────────────────
-function maskDiff(a, b) { let d = 0; for (let i = 0; i < a.length; i++) d += a[i] !== b[i] ? 1 : 0; return d }
-function smoothestOrder(masks) {
-  const N = masks.length
-  const D = masks.map((m, i) => masks.map((o, j) => (i === j ? 0 : maskDiff(m, o))))
-  const used = Array(N).fill(false); const tour = [0]; used[0] = true
-  for (let s = 1; s < N; s++) {
-    const last = tour[tour.length - 1]; let best = -1, bd = Infinity
-    for (let j = 0; j < N; j++) if (!used[j] && D[last][j] < bd) { bd = D[last][j]; best = j }
-    tour.push(best); used[best] = true
+// Cut every frame of every sheet → frame library keyed by `${sheet}#${idx}`.
+const FRAMES = {}
+for (const [key, S] of Object.entries(SHEETS)) {
+  const { data, info } = await sharp(resolve(root, '..', S.dir, S.file)).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
+  const W = info.width, H = info.height, ch = info.channels, cw = W / S.cols, chh = H / S.rows
+  for (let k = 0; k < S.frames; k++) {
+    const gc = k % S.cols, gr = (k / S.cols) | 0
+    const cut = extractCell(data, W, H, ch, Math.round(gc * cw), Math.round(gr * chh), Math.round(cw), Math.round(chh))
+    if (cut) FRAMES[`${key}#${k}`] = cut
   }
-  const len = (t) => { let s = 0; for (let i = 0; i < N; i++) s += D[t[i]][t[(i + 1) % N]]; return s }
-  let improved = true
-  while (improved) {
-    improved = false
-    for (let i = 0; i < N - 1; i++) for (let k = i + 1; k < N; k++) {
-      const nt = tour.slice(0, i).concat(tour.slice(i, k + 1).reverse(), tour.slice(k + 1))
-      if (len(nt) < len(tour) - 1e-9) { tour.splice(0, N, ...nt); improved = true }
-    }
-  }
-  return tour
 }
 
-const MAX_FRAMES = Math.max(...CLIPS.map((c) => c.frames))
-const sheetW = CELL_W * MAX_FRAMES, sheetH = CELL_H * CLIPS.length
+// ── 2. ALIGN (global uniform scale) + render each frame to a placed cell ──────
+const SCALE = TARGET_H / median(Object.values(FRAMES).map((f) => f.bh))
+const PLACED = {}, MASKS = {}, DRIFT = {}
+for (const [id, f] of Object.entries(FRAMES)) {
+  let rw = Math.max(1, Math.round(f.bw * SCALE)), rh = Math.max(1, Math.round(f.bh * SCALE))
+  if (rw > CELL_W || rh > CELL_H) { const fit = Math.min(CELL_W / rw, CELL_H / rh); rw = Math.round(rw * fit); rh = Math.round(rh * fit) }
+  const dog = await sharp(Buffer.from(f.raw), { raw: { width: f.bw, height: f.bh, channels: 4 } }).resize(rw, rh).png().toBuffer()
+  let left = Math.round(CELL_W / 2 - f.cxRel * SCALE), top = Math.round(CELL_H * ANCHOR_Y - f.cyRel * SCALE)
+  DRIFT[id] = [left, top]
+  left = Math.max(Math.min(left, CELL_W - rw), 0); top = Math.max(Math.min(top, CELL_H - rh), 0)
+  const cell = await sharp({ create: { width: CELL_W, height: CELL_H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+    .composite([{ input: dog, left, top }]).png().toBuffer()
+  PLACED[id] = cell
+  const m = await sharp(cell).extractChannel('alpha').resize(MASK, MASK, { fit: 'fill' }).raw().toBuffer()
+  MASKS[id] = Uint8Array.from(m, (v) => (v > 24 ? 1 : 0))
+}
+
+// ── 3. CATEGORISE (group like poses; reusable between animations) ─────────────
+const ids = Object.keys(FRAMES)
+const cats = []; const CAT = {}
+const CAT_THRESH = MASK * MASK * 0.085
+for (const id of ids) {
+  let best = -1, bd = Infinity
+  cats.forEach((c, ci) => { const d = maskDiff(MASKS[id], c.proto); if (d < bd) { bd = d; best = ci } })
+  if (best >= 0 && bd < CAT_THRESH) { CAT[id] = best; cats[best].members.push(id) }
+  else { CAT[id] = cats.length; cats.push({ proto: MASKS[id], members: [id] }) }
+}
+
+// ── 4. MANIFEST (read existing manual edits, else defaults) ───────────────────
+const manifestPath = resolve(root, 'dog-frames.json')
+let manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, 'utf8')) : null
+const clips = (manifest && manifest.clips) ? manifest.clips : DEFAULT_CLIPS
+// validate clip frame ids exist (skip missing so a bad manual edit can't crash)
+for (const [name, c] of Object.entries(clips)) c.frames = c.frames.filter((id) => PLACED[id])
+const newManifest = {
+  note: 'Edit `clips` to hand-pick/reorder frames (reuse ids across sheets). `category` groups like poses. Re-run `npm run gen:dog`.',
+  cell: [CELL_W, CELL_H],
+  categories: cats.map((c, i) => ({ id: `c${i}`, frames: c.members })),
+  frames: Object.fromEntries(ids.map((id) => [id, { drift: DRIFT[id], category: `c${CAT[id]}` }])),
+  clips,
+}
+writeFileSync(manifestPath, JSON.stringify(newManifest, null, 1))
+
+// ── 5. BUILD sheet + DogFrames.kt transition map ──────────────────────────────
+const clipList = Object.entries(clips)
+const MAXF = Math.max(...clipList.map(([, c]) => c.frames.length))
 const composites = []
-const report = ['# Dog sprite frame report', '',
-  'Auto-generated by `npm run gen:dog`. Each clip is cut + centre-of-mass aligned',
-  '(drift removed). Source frame order is kept by default; the smoothest order is',
-  'only *suggested* here (set `order: true` for a clip to apply it). Use the',
-  'isolated-frames list to spot frames worth redrawing/replacing.', '']
-
-for (let r = 0; r < CLIPS.length; r++) {
-  const C = CLIPS[r]
-  const { data, info } = await sharp(resolve(root, '..', C.dir, C.file)).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
-  const W = info.width, H = info.height, ch = info.channels
-  const cellW = W / C.cols, cellH = H / C.rows
-
-  // 1. cut
-  const cuts = []
-  for (let k = 0; k < C.frames; k++) {
-    const gc = k % C.cols, gr = (k / C.cols) | 0
-    cuts.push(extractCell(data, W, H, ch, Math.round(gc * cellW), Math.round(gr * cellH), Math.round(cellW), Math.round(cellH)))
-  }
-  // 2. align: uniform scale + centre-of-mass placement (drift removed)
-  const scale = TARGET_H / median(cuts.filter(Boolean).map((c) => c.bh))
-  const anchorX = CELL_W / 2, anchorY = CELL_H * ANCHOR_Y
-  const placed = [], masks = [], drift = []
-  for (let k = 0; k < C.frames; k++) {
-    const f = cuts[k]
-    if (!f) { placed.push(null); masks.push(null); drift.push(null); continue }
-    let rw = Math.max(1, Math.round(f.bw * scale)), rh = Math.max(1, Math.round(f.bh * scale))
-    if (rw > CELL_W || rh > CELL_H) { const fit = Math.min(CELL_W / rw, CELL_H / rh); rw = Math.round(rw * fit); rh = Math.round(rh * fit) }
-    const dog = await sharp(Buffer.from(f.raw), { raw: { width: f.bw, height: f.bh, channels: 4 } }).resize(rw, rh).png().toBuffer()
-    let left = Math.round(anchorX - f.cxRel * scale)
-    let top = Math.round(anchorY - f.cyRel * scale)
-    drift.push([left, top])
-    left = Math.max(Math.min(left, CELL_W - rw), 0); top = Math.max(Math.min(top, CELL_H - rh), 0)
-    const cell = await sharp({ create: { width: CELL_W, height: CELL_H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
-      .composite([{ input: dog, left, top }]).png().toBuffer()
-    placed.push(cell)
-    const m = await sharp(cell).extractChannel('alpha').resize(MASK, MASK, { fit: 'fill' }).raw().toBuffer()
-    masks.push(Uint8Array.from(m, (v) => (v > 24 ? 1 : 0)))
-  }
-  // fill any failed frame with its predecessor so the cycle stays full
-  for (let k = 0; k < C.frames; k++) if (!placed[k]) { const p = (k - 1 + C.frames) % C.frames; placed[k] = placed[p]; masks[k] = masks[p] }
-
-  // 3. order. The source frames are usually already correctly sequenced
-  // (FRAME 1..N), and silhouette-similarity reordering can fold a gait cycle,
-  // so we KEEP the source order by default and only *suggest* the smoothest
-  // order in the report (opt in per clip via `order: true`).
-  const identity = masks.map((_, i) => i)
-  const suggested = smoothestOrder(masks)
-  const order = C.order ? suggested : identity
-  const roughness = (t) => Math.round(t.reduce((s, _, i) => s + maskDiff(masks[t[i]], masks[t[(i + 1) % t.length]]), 0))
-  // isolated frames: those whose best match is still far (candidate for redraw)
-  const isolated = []
-  for (let i = 0; i < masks.length; i++) {
-    let best = Infinity
-    for (let j = 0; j < masks.length; j++) if (j !== i) best = Math.min(best, maskDiff(masks[i], masks[j]))
-    if (best > MASK * MASK * 0.16) isolated.push(i + 1)
-  }
-
-  // 4. write into sheet in the chosen order
-  order.forEach((srcIdx, dst) => composites.push({ input: placed[srcIdx], left: dst * CELL_W, top: r * CELL_H }))
-
-  report.push(`## ${C.clip} — ${C.file} (${C.frames} frames)`)
-  report.push(`applied order: ${C.order ? 'suggested (reordered)' : 'source order (1..N)'}`)
-  report.push(`transition roughness — source: ${roughness(identity)}, suggested: ${roughness(suggested)}`)
-  report.push(`suggested smoothest order: ${suggested.map((i) => i + 1).join(', ')}`)
-  report.push(isolated.length ? `isolated frames to review (consider redraw/replace): ${isolated.join(', ')}` : 'no isolated frames')
-  report.push('')
-}
-
+clipList.forEach(([, c], r) => c.frames.forEach((id, k) => composites.push({ input: PLACED[id], left: k * CELL_W, top: r * CELL_H })))
 const outDir = resolve(root, '../app/composeApp/src/commonMain/composeResources/drawable')
-await sharp({ create: { width: sheetW, height: sheetH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+await sharp({ create: { width: CELL_W * MAXF, height: CELL_H * clipList.length, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
   .composite(composites).png({ palette: true, compressionLevel: 9 }).toFile(resolve(outDir, 'dog_sheet.png'))
-writeFileSync(resolve(root, 'dog-sprites-report.md'), report.join('\n'))
-console.log(`dog_sheet.png — ${CLIPS.length} clips, up to ${MAX_FRAMES} frames, cell ${CELL_W}x${CELL_H} (${sheetW}x${sheetH})`)
-console.log('report → web/dog-sprites-report.md')
+
+// transition[from][to][fromFrame] = best-matching entry frame in `to`
+const clipMasks = clipList.map(([, c]) => c.frames.map((id) => MASKS[id]))
+const trans = clipMasks.map((mf) => clipMasks.map((mt) => mf.map((a) => {
+  let best = 0, bd = Infinity; mt.forEach((b, j) => { const d = maskDiff(a, b); if (d < bd) { bd = d; best = j } }); return best
+})))
+const ktRows = trans.map((a) => '        arrayOf(' + a.map((b) => 'intArrayOf(' + b.join(', ') + ')').join(', ') + ')').join(',\n')
+writeFileSync(resolve(root, '../app/composeApp/src/commonMain/kotlin/fyi/blep/ui/screens/DogFrames.kt'),
+  `package fyi.blep.ui.screens\n\n// Generated by web/scripts/stitch-dog-sprites.mjs — do not edit.\n` +
+  `// transition[fromClip.ordinal][toClip.ordinal][fromFrame] = matching entry frame in toClip.\n` +
+  `internal object DogFrames {\n    val transition: Array<Array<IntArray>> = arrayOf(\n${ktRows}\n    )\n}\n`)
+
+console.log(`dog_sheet.png — clips: ${clipList.map(([n, c]) => `${n}(${c.frames.length})`).join(', ')}`)
+console.log(`${cats.length} categories · manifest → web/dog-frames.json · map → DogFrames.kt`)
