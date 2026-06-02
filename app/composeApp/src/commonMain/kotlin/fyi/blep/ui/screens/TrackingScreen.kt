@@ -115,10 +115,10 @@ fun TrackingScreen(
     }
 }
 
-// Sprite sheet layout: 12 frames per clip, 4 clip rows; each cell is 260x210 px.
+// Sprite sheet layout: 12 frames per clip, 4 clip rows; each cell is 300x248 px.
 // Frames are stitched from hand-/AI-drawn sources (web/scripts/stitch-dog-sprites.mjs).
-private const val CELL_W = 260
-private const val CELL_H = 210
+private const val CELL_W = 300
+private const val CELL_H = 248
 private const val FRAMES = 12
 
 /** Clip rows in dog_sheet.png. */
