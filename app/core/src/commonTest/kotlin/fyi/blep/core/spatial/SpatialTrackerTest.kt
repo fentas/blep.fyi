@@ -90,6 +90,17 @@ class SpatialTrackerTest {
     }
 
     @Test
+    fun updateGeo_projects_raw_latlon_into_the_local_track() {
+        val tracker = SpatialTracker(tuning)
+        // Origin fix, then ~1 arc-second east (~21 m at this latitude) — the local
+        // x should grow, y stay ~0, proving the lat/lon projection works.
+        tracker.updateGeo(-70.0, 0L, 0.0, false, 50.0, 8.0, true, 4.0, 0.0, false, false)
+        val snap = tracker.updateGeo(-68.0, 500L, 0.0, false, 50.0, 8.0003, true, 4.0, 0.0, true, false)
+        assertTrue(snap.here.x > 10.0, "expected eastward local x, got ${snap.here}")
+        assertTrue(kotlin.math.abs(snap.here.y) < 2.0, "expected ~0 northing, got ${snap.here.y}")
+    }
+
+    @Test
     fun no_sensors_degrades_to_a_single_point_without_crashing() {
         val tracker = SpatialTracker(tuning)
         var snap: SpatialSnapshot? = null

@@ -87,7 +87,7 @@ struct ContentView: View {
 
     var body: some View {
         if let name = trackingName {
-            TrackingScreen(name: name, status: tracking.status) {
+            TrackingScreen(name: name, status: tracking.status, spatial: tracking.spatial) {
                 ranger.onRssi = nil
                 trackingName = nil
                 ranger.startScan()
@@ -127,7 +127,15 @@ struct DiscoveryScreen: View {
 struct TrackingScreen: View {
     let name: String
     let status: TrackingStatus
+    let spatial: SpatialSnapshot?
     let onCancel: () -> Void
+
+    /// Confident spatial distance estimate, formatted, or nil.
+    private var distanceText: String? {
+        guard let est = spatial?.target, est.confidence >= 0.35,
+              let d = est.distanceM?.doubleValue else { return nil }
+        return d < 1.5 ? "almost on it" : "~\(Int(d.rounded())) m away"
+    }
 
     var body: some View {
         ZStack {
@@ -141,6 +149,9 @@ struct TrackingScreen: View {
                     .animation(.spring(response: 0.5, dampingFraction: 0.7), value: status.arrow.curl)
                     .animation(.easeInOut(duration: 0.6), value: status.arrow.scale)
                 Text(status.guidance.title).font(.headline).foregroundColor(ink)
+                if let distanceText {
+                    Text(distanceText).font(.caption).foregroundColor(ink.opacity(0.75))
+                }
                 Text(name).font(.caption2).foregroundColor(ink.opacity(0.6))
             }
             .padding()

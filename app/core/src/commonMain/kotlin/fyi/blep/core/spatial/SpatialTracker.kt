@@ -48,12 +48,52 @@ data class SpatialSnapshot(
 class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private val reckoner = DeadReckoner()
     private val points = ArrayList<TrackPoint>()
+    private var frame: LocalFrame? = null
 
     val path: List<TrackPoint> get() = points
 
     fun reset() {
         reckoner.reset()
         points.clear()
+        frame = null
+    }
+
+    /**
+     * Swift/ObjC-friendly entry point that takes only non-null primitives (no
+     * Kotlin nullable `Double?`/`Vec2?` to bridge) and manages the local frame
+     * internally from raw GPS lat/lon. Booleans gate the optional fields.
+     */
+    fun updateGeo(
+        rssi: Double,
+        timeMs: Long,
+        headingRad: Double,
+        hasHeading: Boolean,
+        lat: Double,
+        lon: Double,
+        hasFix: Boolean,
+        positionAccuracyM: Double,
+        speedMps: Double,
+        moving: Boolean,
+        reorienting: Boolean,
+    ): SpatialSnapshot {
+        val pos = if (hasFix) {
+            val f = frame ?: LocalFrame(lat, lon).also { frame = it }
+            f.toLocal(GeoPoint(lat, lon))
+        } else {
+            null
+        }
+        return update(
+            rssi,
+            MotionSample(
+                timeMs = timeMs,
+                position = pos,
+                positionAccuracyM = if (hasFix) positionAccuracyM else Double.NaN,
+                headingRad = if (hasHeading) headingRad else null,
+                speedMps = speedMps,
+                moving = moving,
+                reorienting = reorienting,
+            ),
+        )
     }
 
     /** Feeds one [rssi] sample with its [motion] context; returns the new snapshot. */
