@@ -27,6 +27,12 @@
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>blep uses Bluetooth to find and guide you to your nearby devices.</string>
 
+    <!-- Compass heading + position improve direction guidance while tracking. -->
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>blep uses your heading and location to map your path and point you toward the device.</string>
+    <key>NSMotionUsageDescription</key>
+    <string>blep uses motion to tell when you’re walking or turning, sharpening the guidance.</string>
+
     <key>UISupportedInterfaceOrientations</key>
     <array>
         <string>UIInterfaceOrientationPortrait</string>
