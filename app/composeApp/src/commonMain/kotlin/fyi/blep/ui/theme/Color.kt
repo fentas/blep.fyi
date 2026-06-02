@@ -14,12 +14,12 @@ object BlepColors {
     val Ink = Color(0xFF27313B)
     val Mist = Color(0xFFEEF2F6)
 
-    // Proximity gradient stops: far (cool) → close (warm).
+    // Proximity gradient stops: far → close ends on green ("you're on it").
     private val proximityStops = listOf(
-        0.00f to Color(0xFF7FA8D4), // cool pastel blue
-        0.40f to Color(0xFF8FD0CB), // calm teal
-        0.70f to Color(0xFFAEDFA6), // pastel green
-        1.00f to Color(0xFFF4D58D), // warm pastel gold
+        0.00f to Color(0xFF7FA8D4), // far: cool pastel blue
+        0.45f to Color(0xFF8FD0CB), // calm teal
+        0.75f to Color(0xFFB6E0A0), // light green
+        1.00f to Color(0xFF7FC65C), // close: vivid green
     )
 
     /**

@@ -128,12 +128,14 @@ fun TrackingScreen(
 private const val CELL_W = 400
 private const val CELL_H = 264
 
-/** Clip rows in dog_sheet.png, with frame count, playback rate, and looping. */
-private enum class DogClip(val row: Int, val frames: Int, val fps: Int, val moving: Boolean, val loop: Boolean) {
-    WALK(0, 24, 24, true, true),      // trot
-    LOOK(1, 24, 24, false, true),     // look around
-    IDLE(2, 24, 24, false, true),     // idle
-    FOUND(3, 24, 12, false, false);   // dig → bone: play once, then hold the bone
+/** Clip rows in dog_sheet.png: frame count, fps, looping, play direction. */
+private enum class DogClip(val row: Int, val frames: Int, val fps: Int, val moving: Boolean, val loop: Boolean, val reverse: Boolean) {
+    WALK(0, 24, 12, true, true, true),      // trot
+    LOOK(1, 24, 12, false, true, true),     // look around
+    IDLE(2, 24, 12, false, true, true),     // idle
+    FOUND(3, 24, 12, false, false, true);   // dig → bone: play once, then hold the bone
+
+    // All clips share 12 fps (24 frames → ~2 s); found plays once.
 
     val periodMs: Int get() = frames * 1000 / fps
 }
@@ -175,8 +177,10 @@ private fun DogTrack(phase: TrackingPhase, proximity: Float, rssi: Int?, modifie
             oneShot.animateTo((shown.frames - 1).toFloat(), tween(shown.periodMs, easing = LinearEasing))
         }
     }
-    val curFrame = if (shown.loop) (startFrame + freeF.toInt()) % shown.frames
-    else oneShot.value.toInt().coerceIn(0, shown.frames - 1)
+    val step = if (shown.loop) freeF.toInt() else oneShot.value.toInt()
+    val dir = if (shown.reverse) -1 else 1
+    val base = if (shown.loop) startFrame else if (shown.reverse) shown.frames - 1 else 0
+    val curFrame = (((base + dir * step) % shown.frames) + shown.frames) % shown.frames
 
     LaunchedEffect(clip) {
         if (clip != shown) {
