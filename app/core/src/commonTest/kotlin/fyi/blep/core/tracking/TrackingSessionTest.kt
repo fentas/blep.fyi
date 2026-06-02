@@ -1,5 +1,6 @@
 package fyi.blep.core.tracking
 
+import fyi.blep.core.spatial.MotionSample
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -124,5 +125,29 @@ class TrackingSessionTest {
         s.reset()
         assertEquals(TrackingPhase.CALIBRATION, s.status.phase)
         assertTrue(s.baselineRssi == null)
+    }
+
+    @Test
+    fun sweepDoesNotLockWithoutRotationWhenHeadingIsKnown() {
+        val s = session()
+        s.calibrate()
+        // Same peak-then-drop as the lock test, but the compass says we never
+        // turned — so it must NOT lock onto a (false) bearing.
+        val still = MotionSample(timeMs = 0, headingRad = 0.0)
+        s.onSample(-88, 2750, still); s.onSample(-86, 3000, still); s.onSample(-84, 3250, still)
+        val r = s.onSample(-89, 3500, still)
+        assertEquals(TrackingPhase.AXIS_SWEEP, r.phase)
+    }
+
+    @Test
+    fun sweepLocksOnceTheUserActuallyTurns() {
+        val s = session()
+        s.calibrate()
+        fun m(t: Long, h: Double) = MotionSample(timeMs = t, headingRad = h)
+        s.onSample(-88, 2750, m(2750, 0.0))
+        s.onSample(-86, 3000, m(3000, 0.2))
+        s.onSample(-84, 3250, m(3250, 0.4)) // rotated ~0.4 rad > threshold
+        val locked = s.onSample(-89, 3500, m(3500, 0.6))
+        assertEquals(TrackingPhase.VECTOR_WALK, locked.phase)
     }
 }

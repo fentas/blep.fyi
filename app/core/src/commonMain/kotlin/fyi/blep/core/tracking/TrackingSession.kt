@@ -3,6 +3,9 @@ package fyi.blep.core.tracking
 import fyi.blep.core.ble.RssiFilter
 import fyi.blep.core.ble.SignalTrend
 import fyi.blep.core.ble.Trend
+import fyi.blep.core.spatial.MotionSample
+import fyi.blep.core.spatial.angleDelta
+import kotlin.math.abs
 
 /**
  * The body-shielding tracking heuristic as a pure, deterministic state machine.
@@ -48,11 +51,32 @@ class TrackingSession(
     private var calSum = 0.0
     private var calCount = 0
 
+    // Compass-derived rotation accumulated during the current sweep leg, used to
+    // require the user has actually turned before locking a bearing.
+    private var prevHeading: Double? = null
+    private var rotatedRad = 0.0
+    private var sweepHeadingKnown = false
+
     /** Feeds one raw RSSI sample at [timeMs] and returns the new status. */
-    fun onSample(rssi: Int, timeMs: Long): TrackingStatus {
+    fun onSample(rssi: Int, timeMs: Long): TrackingStatus = onSample(rssi, timeMs, null)
+
+    /**
+     * Feeds one RSSI sample plus optional [motion] context. The motion is used
+     * only to make the heuristic more robust (e.g. don't lock a sweep bearing
+     * until the user has actually rotated); with `motion == null` the behaviour
+     * is identical to the RSSI-only [onSample].
+     */
+    fun onSample(rssi: Int, timeMs: Long, motion: MotionSample?): TrackingStatus {
         val smoothed = filter.update(rssi)
         val movement = trend.update(smoothed)
         val proximity = tuning.proximityOf(smoothed)
+
+        // Accumulate how far we've turned this sweep leg, when a heading exists.
+        if ((phase == TrackingPhase.AXIS_SWEEP || phase == TrackingPhase.REORIENT) && motion?.headingRad != null) {
+            prevHeading?.let { rotatedRad += abs(angleDelta(motion.headingRad!!, it)) }
+            prevHeading = motion.headingRad
+            sweepHeadingKnown = true
+        }
 
         val next = when (phase) {
             TrackingPhase.CALIBRATION -> calibrate(smoothed, timeMs, proximity)
@@ -78,6 +102,9 @@ class TrackingSession(
         baselineRssi = null
         calSum = 0.0
         calCount = 0
+        rotatedRad = 0.0
+        prevHeading = null
+        sweepHeadingKnown = false
         status = calibrationPrompt(0f)
     }
 
@@ -108,7 +135,10 @@ class TrackingSession(
     private fun sweep(smoothed: Double, movement: Trend, proximity: Float): TrackingStatus {
         val rose = trend.peak - legEntryRssi >= tuning.sweepRiseDb
         val pastPeak = trend.dropFromPeak() >= tuning.sweepPeakDropDb
-        if (rose && pastPeak) {
+        // When we can measure rotation, require a real turn before locking — a
+        // peak-then-dip while standing still is noise, not a bearing.
+        val turnedEnough = !sweepHeadingKnown || rotatedRad >= tuning.minSweepRotationRad
+        if (rose && pastPeak && turnedEnough) {
             // We turned through the strongest bearing — lock it in.
             val target = if (proximity >= tuning.pinpointProximity)
                 TrackingPhase.PINPOINT else TrackingPhase.VECTOR_WALK
@@ -197,6 +227,10 @@ class TrackingSession(
         legEntryRssi = smoothed
         completeHold = 0
         pinpointLoss = 0
+        // Rotation is per-leg, like the peak.
+        rotatedRad = 0.0
+        prevHeading = null
+        sweepHeadingKnown = false
         // Peak is per-leg so dropFromPeak measures movement within this leg only.
         trend.reset()
         trend.update(smoothed)

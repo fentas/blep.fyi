@@ -35,6 +35,13 @@ data class TrackingTuning(
     val pinpointRegressMargin: Float = 0.18f,
     /** Consecutive lost-signal samples in pinpoint before handing back to reorient. */
     val pinpointLossSamples: Int = 4,
+    /**
+     * Minimum rotation (radians) the user must actually turn before a sweep is
+     * allowed to lock onto a bearing. Only enforced when a compass heading is
+     * available — it stops RSSI noise from declaring a false peak while standing
+     * still. ~0.35 rad ≈ 20°.
+     */
+    val minSweepRotationRad: Double = 0.35,
 ) {
     init {
         require(rssiNear > rssiFar) { "rssiNear must be stronger (greater) than rssiFar" }
