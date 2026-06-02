@@ -29,6 +29,15 @@ object SpatialGuidance {
         return "$turn · ${distanceWord(distance)}"
     }
 
+    /** A floor-difference hint, e.g. "↑ 1 floor up" / "↓ 2 floors down", or null. */
+    fun floorHint(floorDelta: Int): String? = when {
+        floorDelta > 0 -> "↑ $floorDelta floor${plural(floorDelta)} up"
+        floorDelta < 0 -> "↓ ${-floorDelta} floor${plural(-floorDelta)} down"
+        else -> null
+    }
+
+    private fun plural(n: Int) = if (n == 1) "" else "s"
+
     private fun roundTo5(deg: Double): Int = ((deg / 5.0).roundToInt() * 5).coerceIn(5, 180)
 
     private fun distanceWord(m: Double): String = if (m < 1.5) "almost there" else "~${m.roundToInt()} m"

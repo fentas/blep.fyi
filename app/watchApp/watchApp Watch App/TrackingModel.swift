@@ -44,7 +44,8 @@ final class TrackingModel: ObservableObject {
             positionAccuracyM: motion.accuracyM,
             speedMps: motion.speedMps,
             moving: motion.moving,
-            reorienting: motion.reorienting
+            reorienting: motion.reorienting,
+            relativeAltitudeM: motion.relativeAltitude
         )
     }
 

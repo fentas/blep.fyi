@@ -109,6 +109,16 @@ fun TrackingScreen(
                 modifier = Modifier.padding(top = 6.dp),
             )
         }
+        val floor = spatial?.floorDelta?.let { SpatialGuidance.floorHint(it) }
+        if (floor != null) {
+            Text(
+                text = floor,
+                style = MaterialTheme.typography.bodyLarge,
+                color = BlepColors.Ink.copy(alpha = 0.6f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 2.dp),
+            )
+        }
 
         Text(
             text = rssi?.let { "$it dBm" } ?: "scanning…",

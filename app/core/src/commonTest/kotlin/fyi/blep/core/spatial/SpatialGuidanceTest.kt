@@ -38,6 +38,13 @@ class SpatialGuidanceTest {
     }
 
     @Test
+    fun floor_hint_reads_up_down_or_nothing() {
+        assertEquals("↑ 1 floor up", SpatialGuidance.floorHint(1))
+        assertEquals("↓ 2 floors down", SpatialGuidance.floorHint(-2))
+        assertNull(SpatialGuidance.floorHint(0))
+    }
+
+    @Test
     fun null_without_confidence_or_heading() {
         assertNull(SpatialGuidance.instruction(snap(0.0, PI / 2, 8.0, confidence = 0.2f)))
         assertNull(SpatialGuidance.instruction(snap(0.0, PI / 2, 8.0, confidence = 0.6f, headingKnown = false)))

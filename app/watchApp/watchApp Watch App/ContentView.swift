@@ -155,6 +155,9 @@ struct TrackingScreen: View {
                 if let distanceText {
                     Text(distanceText).font(.caption).foregroundColor(ink.opacity(0.75))
                 }
+                if let spatial, let floor = SpatialGuidance.shared.floorHint(floorDelta: spatial.floorDelta) {
+                    Text(floor).font(.caption2).foregroundColor(ink.opacity(0.6))
+                }
                 Text(name).font(.caption2).foregroundColor(ink.opacity(0.6))
             }
             .padding()

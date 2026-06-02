@@ -15,6 +15,7 @@ import platform.CoreLocation.CLLocation
 import platform.CoreLocation.CLLocationManager
 import platform.CoreLocation.CLLocationManagerDelegateProtocol
 import platform.CoreLocation.kCLLocationAccuracyBest
+import platform.CoreMotion.CMAltimeter
 import platform.CoreMotion.CMMotionManager
 import platform.Foundation.NSError
 import platform.Foundation.NSOperationQueue
@@ -44,6 +45,7 @@ private class IosMotionProvider : MotionProvider {
         var frame: LocalFrame? = null
         val stepCounter = StepCounter()
         var pendingStepDistance = 0.0
+        var relativeAltitude = 0.0
 
         val locationManager = CLLocationManager()
         val delegate = object : NSObject(), CLLocationManagerDelegateProtocol {
@@ -93,6 +95,13 @@ private class IosMotionProvider : MotionProvider {
             }
         }
 
+        val altimeter = CMAltimeter()
+        if (CMAltimeter.isRelativeAltitudeAvailable()) {
+            altimeter.startRelativeAltitudeUpdatesToQueue(NSOperationQueue.mainQueue) { data, _ ->
+                if (data != null) relativeAltitude = data.relativeAltitude.doubleValue
+            }
+        }
+
         val ticker = launch {
             while (isActive) {
                 val stepDistance = pendingStepDistance
@@ -105,6 +114,7 @@ private class IosMotionProvider : MotionProvider {
                         headingRad = heading,
                         stepDistanceM = stepDistance,
                         speedMps = if (!gpsSpeed.isNaN()) gpsSpeed else 0.0,
+                        relativeAltitudeM = relativeAltitude,
                         moving = moving,
                         reorienting = reorienting,
                     ),
@@ -118,6 +128,7 @@ private class IosMotionProvider : MotionProvider {
             locationManager.stopUpdatingLocation()
             locationManager.stopUpdatingHeading()
             motionManager.stopDeviceMotionUpdates()
+            altimeter.stopRelativeAltitudeUpdates()
         }
     }
 

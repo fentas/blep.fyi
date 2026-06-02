@@ -41,6 +41,8 @@ data class SpatialSnapshot(
     val target: TargetEstimate,
     /** −1f (walking away) … +1f (walking toward), velocity·bearing. 0 if unknown. */
     val onCourse: Float,
+    /** Floors to the target relative to here: +above, −below, 0 if same/unknown. */
+    val floorDelta: Int = 0,
 )
 
 /**
@@ -56,6 +58,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private val reckoner = DeadReckoner()
     private val pathLoss = PathLossModel.from(tuning)
     private val particles = ParticleTargetEstimator(tuning, pathLoss)
+    private val floors = FloorEstimator()
     private val points = ArrayList<TrackPoint>()
     private var frame: LocalFrame? = null
     private var samplesSinceCalibration = 0
@@ -65,6 +68,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     fun reset() {
         reckoner.reset()
         particles.reset()
+        floors.reset()
         pathLoss.rssiAt1m = tuning.rssiAt1m
         pathLoss.exponent = tuning.pathLossExponent
         points.clear()
@@ -89,6 +93,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         speedMps: Double,
         moving: Boolean,
         reorienting: Boolean,
+        relativeAltitudeM: Double = 0.0,
     ): SpatialSnapshot {
         val pos = if (hasFix) {
             val f = frame ?: LocalFrame(lat, lon).also { frame = it }
@@ -104,6 +109,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
                 positionAccuracyM = if (hasFix) positionAccuracyM else Double.NaN,
                 headingRad = if (hasHeading) headingRad else null,
                 speedMps = speedMps,
+                relativeAltitudeM = relativeAltitudeM,
                 moving = moving,
                 reorienting = reorienting,
             ),
@@ -114,6 +120,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     fun update(rssi: Double, motion: MotionSample): SpatialSnapshot {
         val here = reckoner.update(motion)
         recordSample(here, rssi, motion.timeMs)
+        floors.update(motion.relativeAltitudeM, tuning.strength01(rssi))
 
         // Always fold the sample into the filter so evidence accumulates; only
         // *report* a position once we've moved enough to triangulate.
@@ -151,6 +158,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             path = points,
             target = target,
             onCourse = onCourse,
+            floorDelta = floors.floorDelta,
         )
     }
 

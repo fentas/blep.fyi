@@ -11,9 +11,11 @@ import Foundation
 final class MotionRanger: NSObject, CLLocationManagerDelegate {
     private let motion = CMMotionManager()
     private let location = CLLocationManager()
+    private let altimeter = CMAltimeter()
 
     private(set) var headingRad: Double = 0
     private(set) var hasHeading = false
+    private(set) var relativeAltitude: Double = 0
     private(set) var lat: Double = 0
     private(set) var lon: Double = 0
     private(set) var hasFix = false
@@ -31,6 +33,11 @@ final class MotionRanger: NSObject, CLLocationManagerDelegate {
     func start() {
         location.requestWhenInUseAuthorization()
         location.startUpdatingLocation()
+        if CMAltimeter.isRelativeAltitudeAvailable() {
+            altimeter.startRelativeAltitudeUpdates(to: .main) { [weak self] data, _ in
+                if let d = data { self?.relativeAltitude = d.relativeAltitude.doubleValue }
+            }
+        }
         guard motion.isDeviceMotionAvailable else { return }
         motion.deviceMotionUpdateInterval = 0.1
         if CMMotionManager.availableAttitudeReferenceFrames().contains(.xMagneticNorthZVertical) {
@@ -48,6 +55,7 @@ final class MotionRanger: NSObject, CLLocationManagerDelegate {
     func stop() {
         location.stopUpdatingLocation()
         motion.stopDeviceMotionUpdates()
+        altimeter.stopRelativeAltitudeUpdates()
     }
 
     private func consume(_ dm: CMDeviceMotion?) {

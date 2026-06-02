@@ -119,6 +119,15 @@ private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialS
                     modifier = Modifier.padding(top = 2.dp),
                 )
             }
+            val floor = spatial?.floorDelta?.let { SpatialGuidance.floorHint(it) }
+            if (floor != null) {
+                Text(
+                    floor,
+                    color = Ink.copy(alpha = 0.6f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 1.dp),
+                )
+            }
             Text(
                 name,
                 color = Ink.copy(alpha = 0.5f),

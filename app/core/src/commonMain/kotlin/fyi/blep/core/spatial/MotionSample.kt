@@ -17,6 +17,8 @@ package fyi.blep.core.spatial
  *   counting (pedestrian dead reckoning), or 0 if unavailable. When > 0 this is
  *   used in preference to [speedMps] integration for far truer indoor distance.
  * @property speedMps horizontal ground speed (GPS- or step-derived).
+ * @property relativeAltitudeM barometric altitude relative to the session start
+ *   (metres; positive = higher). Lets the tracker notice floor changes.
  * @property verticalMps vertical velocity (accelerometer-derived); positive up.
  *   Used to notice the user crouching to "search low".
  * @property moving whether the device is translating (vs held still) — from the
@@ -33,6 +35,7 @@ data class MotionSample(
     val headingAccuracyRad: Double = Double.NaN,
     val stepDistanceM: Double = 0.0,
     val speedMps: Double = 0.0,
+    val relativeAltitudeM: Double = 0.0,
     val verticalMps: Double = 0.0,
     val moving: Boolean = false,
     val reorienting: Boolean = false,

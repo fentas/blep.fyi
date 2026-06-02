@@ -43,6 +43,8 @@ internal class AndroidMotionProvider(private val context: Context) : MotionProvi
             var gpsSpeed = Double.NaN
             val stepCounter = StepCounter()
             var pendingStepDistance = 0.0
+            var basePressure = Float.NaN
+            var relativeAltitude = 0.0
             var frame: LocalFrame? = null
             var localPos: Vec2? = null
             var posAccuracy = Double.NaN
@@ -82,6 +84,13 @@ internal class AndroidMotionProvider(private val context: Context) : MotionProvi
                             ).toDouble()
                             reorienting = rate > REORIENT_RATE_THRESHOLD
                         }
+                        Sensor.TYPE_PRESSURE -> {
+                            val p = e.values[0]
+                            if (basePressure.isNaN()) basePressure = p
+                            val std = SensorManager.PRESSURE_STANDARD_ATMOSPHERE
+                            relativeAltitude = (SensorManager.getAltitude(std, p) -
+                                SensorManager.getAltitude(std, basePressure)).toDouble()
+                        }
                     }
                 }
 
@@ -96,6 +105,7 @@ internal class AndroidMotionProvider(private val context: Context) : MotionProvi
             register(Sensor.TYPE_ROTATION_VECTOR)
             register(Sensor.TYPE_LINEAR_ACCELERATION)
             register(Sensor.TYPE_GYROSCOPE)
+            register(Sensor.TYPE_PRESSURE)
 
             // GPS (best-effort; needs location permission, already held for BLE).
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
@@ -127,6 +137,7 @@ internal class AndroidMotionProvider(private val context: Context) : MotionProvi
                             headingAccuracyRad = headingAccuracy,
                             stepDistanceM = stepDistance,
                             speedMps = if (!gpsSpeed.isNaN()) gpsSpeed else 0.0,
+                            relativeAltitudeM = relativeAltitude,
                             moving = moving,
                             reorienting = reorienting,
                         ),
