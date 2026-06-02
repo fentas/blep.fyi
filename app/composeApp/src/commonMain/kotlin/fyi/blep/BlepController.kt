@@ -6,10 +6,13 @@ import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.spatial.Haptic
+import fyi.blep.core.spatial.HapticCadence
 import fyi.blep.core.spatial.MotionProvider
 import fyi.blep.core.spatial.MotionSample
 import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.spatial.SpatialTracker
+import fyi.blep.core.spatial.createHaptic
 import fyi.blep.core.spatial.createMotionProvider
 import fyi.blep.core.tracking.TrackingPhase
 import fyi.blep.core.tracking.TrackingSession
@@ -38,6 +41,7 @@ class BlepController(
     private val scanner: BleScanner,
     private val scope: CoroutineScope,
     private val motionProvider: MotionProvider = createMotionProvider(),
+    private val haptic: Haptic = createHaptic(),
 ) {
     var screen by mutableStateOf<Screen>(Screen.Discovery)
         private set
@@ -68,6 +72,7 @@ class BlepController(
     private var scanJob: Job? = null
     private var trackJob: Job? = null
     private var motionJob: Job? = null
+    private var hapticJob: Job? = null
 
     private val spatialTracker = SpatialTracker()
     // Latest motion sample; both flows run on the same (Main) dispatcher, so a
@@ -81,6 +86,7 @@ class BlepController(
     fun startDiscovery() {
         trackJob?.cancel(); trackJob = null
         motionJob?.cancel(); motionJob = null
+        hapticJob?.cancel(); hapticJob = null
         status = null
         lastRssi = null
         spatial = null
@@ -127,6 +133,15 @@ class BlepController(
             }
         }
 
+        // Geiger-counter haptic/audio: pulse faster the closer you get.
+        hapticJob = scope.launch {
+            while (isActive) {
+                val p = status?.proximity ?: 0f
+                val interval = HapticCadence.intervalMs(p)
+                if (interval == null) delay(250) else { haptic.pulse(p); delay(interval) }
+            }
+        }
+
         trackJob = scope.launch {
             val clock = TimeSource.Monotonic.markNow()
             try {
@@ -139,9 +154,11 @@ class BlepController(
                         status = st
                         if (st.phase == TrackingPhase.COMPLETE) {
                             screen = Screen.Done(device)
+                            haptic.success()
                             // Stop ranging — the Done screen doesn't need live RSSI.
                             trackJob?.cancel()
                             motionJob?.cancel()
+                            hapticJob?.cancel()
                         }
                     }
                 }

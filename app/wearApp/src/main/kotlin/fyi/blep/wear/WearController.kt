@@ -5,10 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.spatial.Haptic
+import fyi.blep.core.spatial.HapticCadence
 import fyi.blep.core.spatial.MotionProvider
 import fyi.blep.core.spatial.MotionSample
 import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.spatial.SpatialTracker
+import fyi.blep.core.spatial.createHaptic
 import fyi.blep.core.spatial.createMotionProvider
 import fyi.blep.core.tracking.TrackingPhase
 import fyi.blep.core.tracking.TrackingSession
@@ -31,6 +34,7 @@ class WearController(
     private val scanner: BleScanner,
     private val scope: CoroutineScope,
     private val motionProvider: MotionProvider = createMotionProvider(),
+    private val haptic: Haptic = createHaptic(),
 ) {
     var devices by mutableStateOf<List<BleDevice>>(emptyList())
         private set
@@ -44,6 +48,7 @@ class WearController(
     private var scanJob: Job? = null
     private var trackJob: Job? = null
     private var motionJob: Job? = null
+    private var hapticJob: Job? = null
     private val spatialTracker = SpatialTracker()
     private var latestMotion: MotionSample? = null
 
@@ -52,6 +57,7 @@ class WearController(
     fun startDiscovery() {
         trackJob?.cancel(); trackJob = null
         motionJob?.cancel(); motionJob = null
+        hapticJob?.cancel(); hapticJob = null
         tracking = null; status = null
         spatial = null; latestMotion = null
         spatialTracker.reset()
@@ -90,6 +96,14 @@ class WearController(
             } catch (_: Throwable) { /* no sensors — RSSI-only */ }
         }
 
+        hapticJob = scope.launch {
+            while (isActive) {
+                val p = status?.proximity ?: 0f
+                val interval = HapticCadence.intervalMs(p)
+                if (interval == null) delay(250) else { haptic.pulse(p); delay(interval) }
+            }
+        }
+
         trackJob = scope.launch {
             val clock = TimeSource.Monotonic.markNow()
             try {
@@ -99,7 +113,9 @@ class WearController(
                     if (latestMotion?.reorienting != true) {
                         val st = session.onSample(rssi, clock.elapsedNow().inWholeMilliseconds)
                         status = st
-                        if (st.phase == TrackingPhase.COMPLETE) { trackJob?.cancel(); motionJob?.cancel() }
+                        if (st.phase == TrackingPhase.COMPLETE) {
+                            haptic.success(); trackJob?.cancel(); motionJob?.cancel(); hapticJob?.cancel()
+                        }
                     }
                 }
             } catch (c: CancellationException) {
