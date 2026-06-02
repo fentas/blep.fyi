@@ -43,6 +43,9 @@ class BlepController(
         private set
     var status by mutableStateOf<TrackingStatus?>(null)
         private set
+    /** Latest raw RSSI (dBm) of the device being tracked, for display. */
+    var lastRssi by mutableStateOf<Int?>(null)
+        private set
 
     /** Devices shown in the list, honouring the unnamed toggle. */
     val visibleDevices: List<BleDevice>
@@ -63,6 +66,7 @@ class BlepController(
     fun startDiscovery() {
         trackJob?.cancel(); trackJob = null
         status = null
+        lastRssi = null
         screen = Screen.Discovery
         restartScan()
     }
@@ -88,6 +92,7 @@ class BlepController(
             val clock = TimeSource.Monotonic.markNow()
             try {
                 scanner.rssi(device.id).collect { rssi ->
+                    lastRssi = rssi
                     val st = session.onSample(rssi, clock.elapsedNow().inWholeMilliseconds)
                     status = st
                     if (st.phase == TrackingPhase.COMPLETE) {

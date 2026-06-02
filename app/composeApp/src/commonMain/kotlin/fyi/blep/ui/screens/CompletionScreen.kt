@@ -17,8 +17,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -99,7 +102,7 @@ fun CompletionScreen(
 @Composable
 private fun FoundPanel(deviceName: String, onGotIt: () -> Unit, onKeepLooking: () -> Unit) {
     Column(
-        Modifier.fillMaxSize().padding(28.dp),
+        Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom,
     ) {
@@ -140,7 +143,7 @@ private fun CelebratePanel(headline: String, onDonate: () -> Unit, onAnother: ()
         label = "pop",
     )
     Column(
-        Modifier.fillMaxSize().padding(28.dp),
+        Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {

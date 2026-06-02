@@ -46,6 +46,7 @@ fun App() {
                     TrackingScreen(
                         deviceName = screen.device.displayName,
                         status = status,
+                        rssi = controller.lastRssi,
                         onCancel = controller::startDiscovery,
                     )
                 }
