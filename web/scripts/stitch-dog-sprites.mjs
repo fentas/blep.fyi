@@ -242,7 +242,18 @@ const PLAYBACK = {
 }
 const anim = {
   cell: [CELL_W, CELL_H],
-  clips: clipList.map(([n, c], i) => ({ name: n, row: i, frames: c.frames.length, ...(PLAYBACK[n] || { fps: 12, loop: true, reverse: false }) })),
+  maskArea: MASK * MASK,
+  clips: clipList.map(([n, c], i) => {
+    const masks = c.frames.map((id) => MASKS[id])
+    return {
+      name: n, row: i, frames: c.frames.length,
+      ...(PLAYBACK[n] || { fps: 12, loop: true, reverse: false }),
+      // per output slot: source frame id ("sheet#idx"), drift, sheet column
+      seq: c.frames.map((id, k) => ({ id, drift: DRIFT[id], col: k })),
+      // diff[a][b] = pose difference between slots a and b (for live Δ on reorder)
+      diff: masks.map((a) => masks.map((b) => maskDiff(a, b))),
+    }
+  }),
   transition: trans,
 }
 mkdirSync(resolve(root, 'dog-test'), { recursive: true })
