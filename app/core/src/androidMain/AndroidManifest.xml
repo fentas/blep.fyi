@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Captures the application context for the BLE layer at startup. -->
+        <provider
+            android:name="fyi.blep.core.ble.BlepContextProvider"
+            android:authorities="${applicationId}.blepcontext"
+            android:exported="false"
+            android:initOrder="100" />
+    </application>
+</manifest>

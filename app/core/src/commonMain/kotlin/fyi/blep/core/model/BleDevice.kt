@@ -7,6 +7,8 @@ package fyi.blep.core.model
  * @property name advertised name, or `null` when the device advertises none.
  * @property rssi most recent raw signal strength in dBm (negative; closer to 0 is stronger).
  * @property isConnected whether the OS currently reports an active connection to this device.
+ * @property isPaired whether the device is bonded/paired (e.g. a watch) — it may
+ *   not advertise, so it's tracked via a GATT connection rather than scan RSSI.
  * @property alias user-assigned rename, takes precedence over [name] for display.
  */
 data class BleDevice(
@@ -14,8 +16,11 @@ data class BleDevice(
     val name: String?,
     val rssi: Int,
     val isConnected: Boolean = false,
+    val isPaired: Boolean = false,
     val alias: String? = null,
 ) {
+    /** True when no live advertisement RSSI is available (bonded, not advertising). */
+    val rssiUnknown: Boolean get() = rssi == RSSI_UNKNOWN
     /** True when the device advertises a non-blank name. */
     val isNamed: Boolean get() = !name.isNullOrBlank()
 
@@ -24,4 +29,9 @@ data class BleDevice(
         get() = alias?.takeIf { it.isNotBlank() }
             ?: name?.takeIf { it.isNotBlank() }
             ?: "Unnamed device"
+
+    companion object {
+        /** Sentinel RSSI for a bonded device that isn't advertising. */
+        const val RSSI_UNKNOWN: Int = -127
+    }
 }

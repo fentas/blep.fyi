@@ -185,10 +185,10 @@ private fun DeviceCard(
                     color = if (device.isNamed) BlepColors.Ink else BlepColors.Ink.copy(alpha = 0.55f),
                 )
                 Spacer(Modifier.height(2.dp))
-                if (device.isConnected) {
-                    ConnectedChip()
-                } else {
-                    Text(
+                when {
+                    device.isConnected -> StatusChip("Connected", showDot = true)
+                    device.isPaired -> StatusChip("Paired", showDot = false)
+                    else -> Text(
                         "${device.rssi} dBm",
                         style = MaterialTheme.typography.labelLarge,
                         color = BlepColors.Ink.copy(alpha = 0.45f),
@@ -225,15 +225,17 @@ private fun Avatar(device: BleDevice) {
 }
 
 @Composable
-private fun ConnectedChip() {
+private fun StatusChip(label: String, showDot: Boolean) {
     Surface(color = BlepColors.Blue.copy(alpha = 0.14f), shape = RoundedCornerShape(999.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
         ) {
-            Box(Modifier.size(6.dp).clip(CircleShape).background(BlepColors.Blue))
-            Spacer(Modifier.width(5.dp))
-            Text("Connected", style = MaterialTheme.typography.labelLarge, color = BlepColors.Blue)
+            if (showDot) {
+                Box(Modifier.size(6.dp).clip(CircleShape).background(BlepColors.Blue))
+                Spacer(Modifier.width(5.dp))
+            }
+            Text(label, style = MaterialTheme.typography.labelLarge, color = BlepColors.Blue)
         }
     }
 }

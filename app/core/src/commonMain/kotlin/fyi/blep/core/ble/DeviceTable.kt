@@ -20,13 +20,21 @@ class DeviceTable {
      * [BleDevice.alias].
      * @param seenAtMs monotonic timestamp of this sighting, used by [prune].
      */
-    fun upsert(id: String, name: String?, rssi: Int, isConnected: Boolean, seenAtMs: Long = 0L) {
+    fun upsert(
+        id: String,
+        name: String?,
+        rssi: Int,
+        isConnected: Boolean,
+        seenAtMs: Long = 0L,
+        isPaired: Boolean = false,
+    ) {
         val existing = byId[id]
         byId[id] = BleDevice(
             id = id,
             name = name ?: existing?.name,
             rssi = rssi,
             isConnected = isConnected,
+            isPaired = isPaired || existing?.isPaired == true,
             alias = existing?.alias,
         )
         lastSeenMs[id] = seenAtMs
@@ -58,7 +66,10 @@ class DeviceTable {
             .asSequence()
             .filter { includeUnnamed || it.isNamed }
             .sortedWith(
-                compareByDescending<BleDevice> { it.isConnected }
+                // connected/paired devices first, then connected above paired,
+                // then named, then strongest signal.
+                compareByDescending<BleDevice> { it.isConnected || it.isPaired }
+                    .thenByDescending { it.isConnected }
                     .thenByDescending { it.isNamed }
                     .thenByDescending { it.rssi },
             )
