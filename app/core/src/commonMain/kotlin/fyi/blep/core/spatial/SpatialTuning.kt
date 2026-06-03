@@ -80,6 +80,9 @@ data class SpatialTuning(
     val angularCoverageFraction: Double = 0.8,
     /** Front/back dB difference that counts as a fully peaked field. */
     val angularPeakednessDb: Double = 5.0,
+    /** While the signal is cooling (you've walked past), travel (m) over which a
+     *  swept bin decays to half — short = re-sweep soon after overshooting. */
+    val angularStaleHalfLifeM: Double = 3.0,
 
     // ── guidance thresholds ───────────────────────────────────────────────────
     /** Within this many degrees of a bearing reads as "straight ahead". */

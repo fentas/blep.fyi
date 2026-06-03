@@ -85,6 +85,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         binEma = tuning.angularBinEma,
         coverageFraction = tuning.angularCoverageFraction,
         peakednessDb = tuning.angularPeakednessDb,
+        staleHalfLifeM = tuning.angularStaleHalfLifeM,
     )
     private val grid = SignalGrid(cellM = tuning.gridCellM, zCellM = tuning.floorHeightM)
     private var signalEma = Double.NaN
@@ -95,6 +96,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     // re-triangulate after real movement (not on noise while standing still).
     private var lastFoldPos: Vec2? = null
     private var lastFoldAlt = 0.0
+    private var lastAngularPos: Vec2? = null
     private var recovering = false
 
     val path: List<TrackPoint> get() = points
@@ -112,6 +114,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         samplesSinceCalibration = 0
         lastFoldPos = null
         lastFoldAlt = 0.0
+        lastAngularPos = null
         recovering = false
     }
 
@@ -161,7 +164,13 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         recordSample(here, rssi, motion.timeMs)
         val altitude = motion.relativeAltitudeM
         // Compass directionality (works while turning in place, before triangulation).
-        if (motion.headingRad != null) angular.update(motion.headingRad, rssi)
+        // Feed it travel so the field can age stale bins once you walk past the
+        // target (the bearing must be re-earned, not coasted on).
+        if (motion.headingRad != null) {
+            val movedM = lastAngularPos?.let { (here - it).length } ?: 0.0
+            lastAngularPos = here
+            angular.update(motion.headingRad, rssi, movedM)
+        }
         // Spatial memory of where the signal was strong (for recovery).
         signalEma = if (signalEma.isNaN()) rssi else signalEma * 0.6 + rssi * 0.4
         grid.update(here, altitude, signalEma)
