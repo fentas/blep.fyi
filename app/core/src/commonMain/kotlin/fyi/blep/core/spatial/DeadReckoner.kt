@@ -49,10 +49,13 @@ class DeadReckoner {
         }
         val stepped = position + Vec2.heading(headingRad) * forward
 
-        // Blend a GPS fix in proportion to how much we trust its accuracy.
+        // Blend a GPS fix in proportion to how much we trust its accuracy — but
+        // only once it has converged to a usable accuracy. A fresh fix starts
+        // coarse (tens to hundreds of metres, like Maps' big blue circle) and
+        // would teleport us, so ignore anything worse than [MAX_USABLE_ACCURACY_M].
         var fused = stepped
         val pos = sample.position
-        if (pos != null && sample.positionAccuracyM.isFinite() && sample.positionAccuracyM > 0.0) {
+        if (pos != null && sample.positionAccuracyM in 0.0..MAX_USABLE_ACCURACY_M) {
             val k = gpsTrust(sample.positionAccuracyM)
             fused = stepped * (1.0 - k) + pos * k
         }
@@ -64,4 +67,9 @@ class DeadReckoner {
 
     /** Trust weight for a GPS fix: ~0.6 at a 5 m fix, fading to ~0 by 60 m. */
     private fun gpsTrust(accuracyM: Double): Double = (5.0 / accuracyM).coerceIn(0.0, 0.6)
+
+    private companion object {
+        /** Ignore GPS fixes coarser than this (m) — they're still converging. */
+        const val MAX_USABLE_ACCURACY_M = 25.0
+    }
 }

@@ -201,6 +201,18 @@ class SpatialTrackerTest {
     }
 
     @Test
+    fun coarse_gps_fixes_are_ignored_until_they_converge() {
+        val dr = DeadReckoner()
+        // A fresh, wildly inaccurate fix (like Maps' initial 200 m circle) must
+        // not teleport us.
+        dr.update(MotionSample(timeMs = 0, position = Vec2(500.0, 0.0), positionAccuracyM = 200.0))
+        assertTrue(dr.position.length < 1.0, "coarse fix moved us to ${dr.position}")
+        // Once it has converged to a usable accuracy, it's trusted.
+        repeat(5) { dr.update(MotionSample(timeMs = (it + 1) * 500L, position = Vec2(10.0, 0.0), positionAccuracyM = 5.0)) }
+        assertTrue(dr.position.x > 4.0, "accurate fix not used: ${dr.position}")
+    }
+
+    @Test
     fun no_sensors_degrades_to_a_single_point_without_crashing() {
         val tracker = SpatialTracker(tuning)
         var snap: SpatialSnapshot? = null
