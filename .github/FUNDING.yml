@@ -1,6 +1,6 @@
 # GitHub "Sponsor" button + funding links. See:
 # https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
 github: [fentas]
-open_collective: blep
+open_collective: fentas
 custom:
   - "https://blep.fyi/donate.html" # all methods (Stripe · PayPal · receipts)
