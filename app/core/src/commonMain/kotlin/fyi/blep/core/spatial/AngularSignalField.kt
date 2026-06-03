@@ -15,7 +15,12 @@ import kotlin.math.sin
  * [confidence] needs both enough of a turn (coverage) and a real front/back
  * difference (peakedness) before it's worth trusting.
  */
-class AngularSignalField(private val binCount: Int = 24) {
+class AngularSignalField(
+    private val binCount: Int = 24,
+    private val binEma: Double = 0.5,
+    private val coverageFraction: Double = 0.8,
+    private val peakednessDb: Double = 5.0,
+) {
     private val binRssi = DoubleArray(binCount) { Double.NaN }
     private val binSize = 2.0 * PI / binCount
 
@@ -26,7 +31,7 @@ class AngularSignalField(private val binCount: Int = 24) {
     fun update(headingRad: Double, rssi: Double) {
         val h = ((headingRad % (2 * PI)) + 2 * PI) % (2 * PI)
         val i = (h / binSize).toInt().coerceIn(0, binCount - 1)
-        binRssi[i] = if (binRssi[i].isNaN()) rssi else binRssi[i] * 0.5 + rssi * 0.5
+        binRssi[i] = if (binRssi[i].isNaN()) rssi else binRssi[i] * (1.0 - binEma) + rssi * binEma
     }
 
     /** Bearing (rad, clockwise from north) of the strongest signal, or null. */
@@ -58,8 +63,8 @@ class AngularSignalField(private val binCount: Int = 24) {
             var min = Double.MAX_VALUE; var max = -Double.MAX_VALUE; var seen = 0
             for (v in binRssi) if (!v.isNaN()) { seen++; if (v < min) min = v; if (v > max) max = v }
             if (seen < 2) return 0f
-            val coverage = (seen / (binCount * 0.8)).coerceIn(0.0, 1.0) // ~290° swept = full
-            val peakedness = ((max - min) / 5.0).coerceIn(0.0, 1.0)     // ~5 dB front/back = full
+            val coverage = (seen / (binCount * coverageFraction)).coerceIn(0.0, 1.0) // full sweep
+            val peakedness = ((max - min) / peakednessDb).coerceIn(0.0, 1.0)          // front/back = full
             if (!peakInterior()) return (coverage * peakedness * 0.4).toFloat() // edge peak: distrust
             return (coverage * peakedness).toFloat()
         }

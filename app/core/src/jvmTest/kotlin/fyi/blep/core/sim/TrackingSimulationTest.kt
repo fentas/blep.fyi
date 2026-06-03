@@ -130,7 +130,7 @@ class TrackingSimulationTest {
             )
             val status = session.onSample(rssi, t, motion)
             val snap = spatial.update(rssi.toDouble(), motion)
-            val instruction = SpatialGuidance.instruction(snap)
+            val instruction = SpatialGuidance.instruction(snap, spatialTuning)
 
             val d = world.distance()
             if (d < minD) minD = d

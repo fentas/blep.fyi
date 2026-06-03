@@ -69,9 +69,20 @@ data class SpatialSnapshot(
 class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private val reckoner = DeadReckoner()
     private val pathLoss = PathLossModel.from(tuning)
-    private val particles = ParticleTargetEstimator(tuning, pathLoss, targetDriftMps = tuning.targetDriftMps)
-    private val angular = AngularSignalField()
-    private val grid = SignalGrid()
+    private val particles = ParticleTargetEstimator(
+        tuning, pathLoss,
+        count = tuning.particleCount,
+        measurementSigmaDb = tuning.measurementSigmaDb,
+        jitterM = tuning.particleJitterM,
+        targetDriftMps = tuning.targetDriftMps,
+    )
+    private val angular = AngularSignalField(
+        binCount = tuning.angularBins,
+        binEma = tuning.angularBinEma,
+        coverageFraction = tuning.angularCoverageFraction,
+        peakednessDb = tuning.angularPeakednessDb,
+    )
+    private val grid = SignalGrid(cellM = tuning.gridCellM, zCellM = tuning.floorHeightM)
     private var signalEma = Double.NaN
     private val points = ArrayList<TrackPoint>()
     private var frame: LocalFrame? = null
@@ -167,8 +178,8 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         }
         val spread = pathSpread()
         val target = when {
-            spread < MIN_SPREAD_M -> TargetEstimate(null, null, null, 0f)
-            est.confidence >= REPORT_CONFIDENCE -> {
+            spread < tuning.minSpreadM -> TargetEstimate(null, null, null, 0f)
+            est.confidence >= tuning.reportConfidence -> {
                 maybeCalibrate(est)
                 val toTarget = est.mean - here
                 TargetEstimate(
@@ -210,7 +221,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private fun warmestBearing(here: Vec2): Double? {
         val best = grid.strongest() ?: return null
         val toBest = Vec2(best.x, best.y) - here
-        return if (toBest.length > WARMEST_MIN_OFFSET_M) bearingOf(toBest) else null
+        return if (toBest.length > tuning.warmestMinOffsetM) bearingOf(toBest) else null
     }
 
     /**
@@ -220,8 +231,8 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
      */
     private fun floorDelta(est: ParticleTargetEstimator.Estimate, currentAltitude: Double): Int {
         val dz = est.meanZ - currentAltitude
-        return if (est.semiVerticalM < FLOOR_HEIGHT_M && abs(dz) >= FLOOR_HEIGHT_M * 0.5) {
-            (dz / FLOOR_HEIGHT_M).roundToInt()
+        return if (est.semiVerticalM < tuning.floorHeightM && abs(dz) >= tuning.floorHeightM * 0.5) {
+            (dz / tuning.floorHeightM).roundToInt()
         } else {
             0
         }
@@ -232,12 +243,12 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
      * new fit in so the filter adapts to the environment without jumping.
      */
     private fun maybeCalibrate(est: ParticleTargetEstimator.Estimate) {
-        if (est.confidence < CALIBRATE_CONFIDENCE) return
-        if (++samplesSinceCalibration < CALIBRATE_EVERY) return
+        if (est.confidence < tuning.calibrateConfidence) return
+        if (++samplesSinceCalibration < tuning.calibrateEvery) return
         samplesSinceCalibration = 0
         val fit = PathLossCalibrator.calibrate(points, est.mean) ?: return
-        pathLoss.rssiAt1m += (fit.first - pathLoss.rssiAt1m) * CALIBRATE_EASE
-        pathLoss.exponent += (fit.second - pathLoss.exponent) * CALIBRATE_EASE
+        pathLoss.rssiAt1m += (fit.first - pathLoss.rssiAt1m) * tuning.calibrateEase
+        pathLoss.exponent += (fit.second - pathLoss.exponent) * tuning.calibrateEase
     }
 
     /** Bounding-box diagonal of the path — an O(n) proxy for how much we've moved. */
@@ -269,15 +280,5 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         var w = 0
         for (r in points.indices) if (r % 2 == 0) { points[w] = points[r]; w++ }
         while (points.size > w) points.removeAt(points.lastIndex)
-    }
-
-    private companion object {
-        const val MIN_SPREAD_M = 1.5        // movement before any estimate is offered
-        const val REPORT_CONFIDENCE = 0.30f // filter confidence before reporting a position
-        const val CALIBRATE_CONFIDENCE = 0.5f // only learn path-loss when well localised
-        const val CALIBRATE_EVERY = 15      // samples between refits
-        const val CALIBRATE_EASE = 0.25     // fraction of each new fit eased in
-        const val FLOOR_HEIGHT_M = 3.0
-        const val WARMEST_MIN_OFFSET_M = 1.5 // must be this far off the warm spot to point back
     }
 }
