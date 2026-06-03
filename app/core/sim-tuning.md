@@ -46,6 +46,7 @@ then the grid recovery brute-forces it). `one floor up` / `moving` are hard case
 | 2 | bearing = peak-bin local window | — | 5/13 reached | ✗ reverted |
 | 3 | cross-bearing (fox-hunt) triangulator | 9/13 | 11/13 | neutral (dormant — needs lateral spread); not kept |
 | 4 | auto "try another floor" (4 variants) | ≤8 | — | ✗ all reverted — can't tell "stuck on wrong bearing" from "another floor" |
+| 5 | SIGNAL_MIN_CONFIDENCE 0.35→0.45 / 0.55 | 6/13 | 7/13 | ✗ reverted — fixes randomized but a single threshold starves the weak far signal (far/extra-far fail) |
 
 Next: make `behind`/`randomized` **clean** (fix the sweep committing to a biased
 bearing) — that's the real win, not just reaching by wandering.
