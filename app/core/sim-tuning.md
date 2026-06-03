@@ -47,6 +47,27 @@ then the grid recovery brute-forces it). `one floor up` / `moving` are hard case
 | 3 | cross-bearing (fox-hunt) triangulator | 9/13 | 11/13 | neutral (dormant — needs lateral spread); not kept |
 | 4 | auto "try another floor" (4 variants) | ≤8 | — | ✗ all reverted — can't tell "stuck on wrong bearing" from "another floor" |
 | 5 | SIGNAL_MIN_CONFIDENCE 0.35→0.45 / 0.55 | 6/13 | 7/13 | ✗ reverted — fixes randomized but a single threshold starves the weak far signal (far/extra-far fail) |
+| 6 | hoist all knobs into SpatialTuning | 9/13 | 11/13 | ✓ kept — behaviour-neutral; enables chaos search |
+| 7 | angularPeakednessDb 5→4.5 + binEma 0.5→0.55 | 9/13 | 9/13 | ✗ reverted — turns the 2 wanderers into outright fails (worse) |
 
-Next: make `behind`/`randomized` **clean** (fix the sweep committing to a biased
-bearing) — that's the real win, not just reaching by wandering.
+## Chaos search (random parameter sweep)
+
+`CHAOS_N=70 ./gradlew :core:jvmTest --tests '*chaos*'` turns all 17 dials to
+random values, runs the suite, and reports which dials separate the top third
+from the bottom third. Run across 4 seeds (42/7/99/2024):
+
+- The **angular field is the only consistent lever** — `angularCoverageFraction ↑`
+  appears in *every* seed, with `angularPeakednessDb ↓` and `angularBinEma ↑`
+  close behind. The sweep/bearing logic is where clean solves live, confirming the
+  `behind`/`randomized` wander is a sweep-bias problem.
+- But the "good third" means **hug the current defaults** (coverage ≈ 0.80 = default,
+  peakedness ≈ 5.1, binEma ≈ 0.5). The defaults already sit in a good basin; the
+  10–11/13 configs win by *luck* on the two borderline scenarios, and their
+  individual best-config dials are noisy/contradictory across seeds (overfit to
+  these 13 fixed worlds).
+- Acting on the signal directly (change #7) made things worse, as predicted.
+
+**Conclusion:** no single-knob win exists. `behind`/`randomized` need a smarter
+sweep (commit to the bearing only after turning fully *through* the peak from both
+sides), not a constant tweak. Defaults stay. The chaos harness stays for future
+exploration (e.g. after the sweep logic changes).
