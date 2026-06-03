@@ -14,7 +14,6 @@ enum class CueKind { RECOVER, SIGNAL, TARGET }
  */
 data class Cue(
     val worldBearingRad: Double,
-    val confidence: Float,
     val kind: CueKind,
     val distanceM: Double? = null,
 )
@@ -44,7 +43,7 @@ object SpatialGuidance {
         //    walked through, you've wandered off — head back to it instead of
         //    chasing a now-misleading bearing.
         val warm = snapshot.warmestBearingRad
-        if (warm != null && snapshot.recovering) return Cue(warm, RECOVER_CONFIDENCE, CueKind.RECOVER)
+        if (warm != null && snapshot.recovering) return Cue(warm, CueKind.RECOVER)
 
         // 1) Compass + body-shielding bearing first. Holding the phone to your body
         //    makes RSSI directional, which is exactly what *breaks* range-based
@@ -53,7 +52,7 @@ object SpatialGuidance {
         //    peaks in is the trustworthy cue.
         val signal = snapshot.signalBearingRad
         if (signal != null && snapshot.signalBearingConfidence >= tuning.signalMinConfidence) {
-            return Cue(signal, snapshot.signalBearingConfidence, CueKind.SIGNAL)
+            return Cue(signal, CueKind.SIGNAL)
         }
 
         // 2) Fall back to the triangulated target (e.g. you moved without turning,
@@ -61,7 +60,7 @@ object SpatialGuidance {
         val est = snapshot.target
         val bearing = est.bearingRad; val distance = est.distanceM
         if (bearing != null && distance != null && est.confidence >= tuning.guidanceMinConfidence) {
-            return Cue(bearing, est.confidence, CueKind.TARGET, distance)
+            return Cue(bearing, CueKind.TARGET, distance)
         }
         return null
     }
@@ -95,10 +94,6 @@ object SpatialGuidance {
     private fun roundTo5(deg: Double): Int = ((deg / 5.0).roundToInt() * 5).coerceIn(5, 180)
 
     private fun distanceWord(m: Double): String = if (m < 1.5) "almost there" else "~${m.roundToInt()} m"
-
-    // Recovery is a deliberate state, not a measured bearing — give it a moderate
-    // confidence so the stabilizer treats a recover↔signal flip like any other.
-    private const val RECOVER_CONFIDENCE = 0.5f
 }
 
 /**
@@ -140,7 +135,8 @@ class GuidanceStabilizer(
     }
 
     fun reset() {
-        committed = null; committedDistanceM = null; pending = null; pendingCount = 0; unsupported = 0; noisy = false
+        committed = null; committedKind = CueKind.SIGNAL; committedDistanceM = null
+        pending = null; pendingCount = 0; unsupported = 0; noisy = false
     }
 
     /** One-call evaluate → stabilize → phrase for a [snapshot]: the stabilised
@@ -166,7 +162,7 @@ class GuidanceStabilizer(
 
         if (cue == null) {
             val held = committed
-            if (held != null && unsupported < holdTicks) { unsupported++; return Cue(held, 0f, committedKind, committedDistanceM) }
+            if (held != null && unsupported < holdTicks) { unsupported++; return Cue(held, committedKind, committedDistanceM) }
             committed = null; committedDistanceM = null; pending = null; pendingCount = 0; unsupported = 0
             return null
         }
@@ -190,6 +186,6 @@ class GuidanceStabilizer(
             return cue
         }
         // Otherwise stay the course (keep walking the committed world direction).
-        return Cue(cur, cue.confidence, committedKind, cue.distanceM ?: committedDistanceM)
+        return Cue(cur, committedKind, cue.distanceM ?: committedDistanceM)
     }
 }
