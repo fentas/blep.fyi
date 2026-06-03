@@ -15,8 +15,19 @@ object SpatialGuidance {
     const val SIGNAL_MIN_CONFIDENCE = 0.35f
     private const val AHEAD_DEG = 22.0
 
+    const val RECOVER_DB = 6.0
+
     fun instruction(snapshot: SpatialSnapshot): String? {
         if (!snapshot.headingKnown) return null // a left/right cue needs a compass
+
+        // 0) Recovery: if the signal has dropped well below the warmest spot you
+        //    walked through, you've wandered off — head back to it instead of
+        //    chasing a now-misleading bearing.
+        val warm = snapshot.warmestBearingRad
+        if (warm != null && snapshot.belowWarmestDb >= RECOVER_DB) {
+            val deg = angleDelta(warm, snapshot.headingRad) * 180.0 / PI
+            return if (abs(deg) < AHEAD_DEG) "straight ahead — warmer" else "${turnPhrase(deg)} — warmer"
+        }
 
         // 1) Compass + body-shielding bearing first. Holding the phone to your
         //    body makes RSSI directional, which is exactly what *breaks*

@@ -134,6 +134,11 @@ class TrackingSimulationTest {
             if (reachTick < 0 && d <= REACH_M) { reachTick = tick; walkedToReach = walked }
             if (status.phase == TrackingPhase.COMPLETE) break
 
+            if (DEBUG && name.startsWith("behind") && tick in 14..70 && tick % 2 == 0) {
+                println("t=%2d hd=%4.0f° pos=(%4.1f,%4.1f) %-26s tgtC=%.2f sigC=%.2f d=%4.1f".format(
+                    tick, (world.heading * 180 / PI) % 360, world.x, world.y,
+                    instruction ?: "(${status.guidance.title})", snap.target.confidence, snap.signalBearingConfidence, d))
+            }
             val (turn, step) = act(status.phase, instruction)
             world.heading += turn
             world.x += sin(world.heading) * step
@@ -197,6 +202,7 @@ class TrackingSimulationTest {
         const val SWEEP_DEG = 18.0
         const val MAX_TICKS = 450 // ≈ 3 min timeout per scenario
         const val DT_MS = 400L
+        const val DEBUG = false
     }
 }
 

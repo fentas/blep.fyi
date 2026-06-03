@@ -50,6 +50,11 @@ data class SpatialSnapshot(
      *  before the target is triangulated — null/0 until you've turned enough. */
     val signalBearingRad: Double? = null,
     val signalBearingConfidence: Float = 0f,
+    /** Bearing back to the strongest spot you've stood in, and how many dB the
+     *  signal has dropped since — lets the UI say "warmer back that way" when you
+     *  wander off, so you recover instead of orbiting. Null until you've left it. */
+    val warmestBearingRad: Double? = null,
+    val belowWarmestDb: Double = 0.0,
 )
 
 /**
@@ -66,6 +71,8 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private val pathLoss = PathLossModel.from(tuning)
     private val particles = ParticleTargetEstimator(tuning, pathLoss, targetDriftMps = tuning.targetDriftMps)
     private val angular = AngularSignalField()
+    private val grid = SignalGrid()
+    private var signalEma = Double.NaN
     private val points = ArrayList<TrackPoint>()
     private var frame: LocalFrame? = null
     private var samplesSinceCalibration = 0
@@ -80,6 +87,8 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         reckoner.reset()
         particles.reset()
         angular.reset()
+        grid.reset()
+        signalEma = Double.NaN
         pathLoss.rssiAt1m = tuning.rssiAt1m
         pathLoss.exponent = tuning.pathLossExponent
         points.clear()
@@ -136,6 +145,9 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         val altitude = motion.relativeAltitudeM
         // Compass directionality (works while turning in place, before triangulation).
         if (motion.headingRad != null) angular.update(motion.headingRad, rssi)
+        // Spatial memory of where the signal was strong (for recovery).
+        signalEma = if (signalEma.isNaN()) rssi else signalEma * 0.6 + rssi * 0.4
+        grid.update(here, altitude, signalEma)
 
         // Only fold a sample into the filter once we've actually moved (3-D) since
         // the last one — new geometry. Standing still adds only noise, which would
@@ -189,7 +201,16 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             floorDelta = floorDelta(est, altitude),
             signalBearingRad = angular.bearingRad,
             signalBearingConfidence = angular.confidence,
+            warmestBearingRad = warmestBearing(here),
+            belowWarmestDb = grid.strongest()?.let { (it.rssi - signalEma).coerceAtLeast(0.0) } ?: 0.0,
         )
+    }
+
+    /** Bearing back to the warmest cell, once you've moved off it. */
+    private fun warmestBearing(here: Vec2): Double? {
+        val best = grid.strongest() ?: return null
+        val toBest = Vec2(best.x, best.y) - here
+        return if (toBest.length > WARMEST_MIN_OFFSET_M) bearingOf(toBest) else null
     }
 
     /**
@@ -257,5 +278,6 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         const val CALIBRATE_EVERY = 15      // samples between refits
         const val CALIBRATE_EASE = 0.25     // fraction of each new fit eased in
         const val FLOOR_HEIGHT_M = 3.0
+        const val WARMEST_MIN_OFFSET_M = 1.5 // must be this far off the warm spot to point back
     }
 }
