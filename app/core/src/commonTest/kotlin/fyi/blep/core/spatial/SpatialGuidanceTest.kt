@@ -38,6 +38,17 @@ class SpatialGuidanceTest {
     }
 
     @Test
+    fun guides_toward_the_signal_before_a_fix_exists() {
+        // No triangulated target yet, but turning revealed the signal to the east.
+        val s = SpatialSnapshot(
+            here = Vec2.ZERO, headingRad = 0.0, headingKnown = true, velocity = Vec2.ZERO,
+            path = emptyList(), target = TargetEstimate(null, null, null, 0f), onCourse = 0f,
+            signalBearingRad = PI / 2, signalBearingConfidence = 0.6f,
+        )
+        assertEquals("turn 90° right to the signal", SpatialGuidance.instruction(s))
+    }
+
+    @Test
     fun floor_hint_reads_up_down_or_nothing() {
         assertEquals("↑ 1 floor up", SpatialGuidance.floorHint(1))
         assertEquals("↓ 2 floors down", SpatialGuidance.floorHint(-2))

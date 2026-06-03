@@ -46,6 +46,10 @@ data class SpatialSnapshot(
     val onCourse: Float,
     /** Floors to the target relative to here: +above, −below, 0 if same/unknown. */
     val floorDelta: Int = 0,
+    /** Compass bearing the signal is strongest in (from turning on the spot),
+     *  before the target is triangulated — null/0 until you've turned enough. */
+    val signalBearingRad: Double? = null,
+    val signalBearingConfidence: Float = 0f,
 )
 
 /**
@@ -61,6 +65,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private val reckoner = DeadReckoner()
     private val pathLoss = PathLossModel.from(tuning)
     private val particles = ParticleTargetEstimator(tuning, pathLoss, targetDriftMps = tuning.targetDriftMps)
+    private val angular = AngularSignalField()
     private val points = ArrayList<TrackPoint>()
     private var frame: LocalFrame? = null
     private var samplesSinceCalibration = 0
@@ -74,6 +79,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     fun reset() {
         reckoner.reset()
         particles.reset()
+        angular.reset()
         pathLoss.rssiAt1m = tuning.rssiAt1m
         pathLoss.exponent = tuning.pathLossExponent
         points.clear()
@@ -128,6 +134,8 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         val here = reckoner.update(motion)
         recordSample(here, rssi, motion.timeMs)
         val altitude = motion.relativeAltitudeM
+        // Compass directionality (works while turning in place, before triangulation).
+        if (motion.headingRad != null) angular.update(motion.headingRad, rssi)
 
         // Only fold a sample into the filter once we've actually moved (3-D) since
         // the last one — new geometry. Standing still adds only noise, which would
@@ -179,6 +187,8 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             target = target,
             onCourse = onCourse,
             floorDelta = floorDelta(est, altitude),
+            signalBearingRad = angular.bearingRad,
+            signalBearingConfidence = angular.confidence,
         )
     }
 

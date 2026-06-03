@@ -131,6 +131,25 @@ fun RadarView(
                 val ringR = (span.toFloat() * scale) * 0.25f * (1.1f - est.confidence)
                 drawCircle(BlepColors.Pink.copy(alpha = 0.35f), radius = ringR.coerceAtLeast(8f), center = tc, style = Stroke(2f))
             }
+        } else if (snapshot?.signalBearingRad != null && snapshot.signalBearingConfidence > 0.3f) {
+            // No fix yet, but turning in place has revealed a direction — point to it.
+            val b = snapshot.signalBearingRad!!
+            val dir = Offset(sin(b).toFloat(), -cos(b).toFloat())
+            val hp = toScreen(here)
+            val tip = hp + dir * (size.minDimension * 0.34f)
+            val col = BlepColors.Pink.copy(alpha = 0.25f + 0.5f * snapshot.signalBearingConfidence)
+            drawLine(col, hp, tip, strokeWidth = 4f, cap = StrokeCap.Round)
+            val perp = Offset(-dir.y, dir.x)
+            val back = tip - dir * 12f
+            drawPath(
+                Path().apply {
+                    moveTo(tip.x, tip.y)
+                    lineTo((back + perp * 7f).x, (back + perp * 7f).y)
+                    lineTo((back - perp * 7f).x, (back - perp * 7f).y)
+                    close()
+                },
+                col,
+            )
         }
 
         // ── you: position dot + heading wedge ────────────────────────────────
