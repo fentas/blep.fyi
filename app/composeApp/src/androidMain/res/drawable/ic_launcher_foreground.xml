@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive-icon foreground: the mascot (cream belly + pink tongue), scaled up
+     into the central safe zone so the launcher mask never clips it. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group android:pivotX="54" android:pivotY="59" android:scaleX="1.3" android:scaleY="1.3">
+        <path
+            android:fillColor="#F4F5F0"
+            android:pathData="M54,34c11,0 20,9 20,24c0,16 -9,26 -20,26c-11,0 -20,-10 -20,-26c0,-15 9,-24 20,-24z" />
+        <path
+            android:fillColor="#FAB1B7"
+            android:pathData="M48,70h12v10a6,6 0 0 1 -12,0z" />
+    </group>
+</vector>
