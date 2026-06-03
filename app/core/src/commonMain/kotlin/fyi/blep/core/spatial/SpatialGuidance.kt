@@ -133,8 +133,22 @@ class GuidanceStabilizer(
     private var unsupported = 0
     private var noisy = false // hysteretic regime flag
 
+    // Swift-friendly factory (Kotlin's all-default constructor exports no zero-arg init).
+    companion object {
+        fun default() = GuidanceStabilizer()
+    }
+
     fun reset() {
         committed = null; pending = null; pendingCount = 0; unsupported = 0; noisy = false
+    }
+
+    /** One-call evaluate → stabilize → phrase for a [snapshot]: the stabilised
+     *  instruction line, or null. The single entry every caller (Compose, Wear,
+     *  Swift) should use — [tuning] is explicit (no default) so it bridges to
+     *  Swift, where Kotlin default arguments don't export. */
+    fun guide(snapshot: SpatialSnapshot, tuning: SpatialTuning): String? {
+        val cue = stabilize(SpatialGuidance.evaluate(snapshot, tuning), snapshot.signalVolatilityDb)
+        return if (snapshot.headingKnown && cue != null) SpatialGuidance.phrase(cue, snapshot.headingRad, tuning) else null
     }
 
     /** Folds the raw [cue] for this tick into the committed direction, given the

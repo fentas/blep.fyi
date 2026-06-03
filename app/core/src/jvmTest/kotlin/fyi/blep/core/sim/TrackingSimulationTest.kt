@@ -134,12 +134,8 @@ class TrackingSimulationTest {
             )
             val status = session.onSample(rssi, t, motion)
             val snap = spatial.update(rssi.toDouble(), motion)
-            val instruction = if (stabilizer != null) {
-                val stable = stabilizer.stabilize(SpatialGuidance.evaluate(snap, spatialTuning), snap.signalVolatilityDb)
-                if (snap.headingKnown && stable != null) SpatialGuidance.phrase(stable, snap.headingRad, spatialTuning) else null
-            } else {
-                SpatialGuidance.instruction(snap, spatialTuning)
-            }
+            val instruction = if (stabilizer != null) stabilizer.guide(snap, spatialTuning)
+            else SpatialGuidance.instruction(snap, spatialTuning)
 
             if (tick > 10) { volSum += snap.signalVolatilityDb; volN++ } // skip warm-up
 

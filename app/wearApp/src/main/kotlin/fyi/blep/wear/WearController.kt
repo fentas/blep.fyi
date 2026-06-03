@@ -10,9 +10,9 @@ import fyi.blep.core.spatial.Haptic
 import fyi.blep.core.spatial.HapticCadence
 import fyi.blep.core.spatial.MotionProvider
 import fyi.blep.core.spatial.MotionSample
-import fyi.blep.core.spatial.SpatialGuidance
 import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.spatial.SpatialTracker
+import fyi.blep.core.spatial.SpatialTuning
 import fyi.blep.core.spatial.createHaptic
 import fyi.blep.core.spatial.createMotionProvider
 import fyi.blep.core.tracking.TrackingPhase
@@ -58,12 +58,6 @@ class WearController(
     private val guidanceStabilizer = GuidanceStabilizer()
     private var latestMotion: MotionSample? = null
 
-    /** evaluate → stabilizer → phrase; stateful, so kept out of the Composable. */
-    private fun stabilisedGuidance(snap: SpatialSnapshot): String? {
-        val cue = guidanceStabilizer.stabilize(SpatialGuidance.evaluate(snap), snap.signalVolatilityDb)
-        return if (snap.headingKnown && cue != null) SpatialGuidance.phrase(cue, snap.headingRad) else null
-    }
-
     init { startDiscovery() }
 
     fun startDiscovery() {
@@ -103,7 +97,7 @@ class WearController(
                     latestMotion = sample
                     val snap = spatialTracker.update((lastRssi ?: -100).toDouble(), sample)
                     spatial = snap
-                    guidance = stabilisedGuidance(snap)
+                    guidance = guidanceStabilizer.guide(snap, SpatialTuning())
                 }
             } catch (c: CancellationException) {
                 throw c

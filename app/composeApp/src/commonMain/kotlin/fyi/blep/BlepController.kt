@@ -11,9 +11,9 @@ import fyi.blep.core.spatial.Haptic
 import fyi.blep.core.spatial.HapticCadence
 import fyi.blep.core.spatial.MotionProvider
 import fyi.blep.core.spatial.MotionSample
-import fyi.blep.core.spatial.SpatialGuidance
 import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.spatial.SpatialTracker
+import fyi.blep.core.spatial.SpatialTuning
 import fyi.blep.core.spatial.createHaptic
 import fyi.blep.core.spatial.createMotionProvider
 import fyi.blep.core.tracking.TrackingPhase
@@ -93,13 +93,6 @@ class BlepController(
         startDiscovery()
     }
 
-    /** evaluate → stabilizer → phrase for one snapshot. Lives here (not in the
-     *  Composable) because the stabilizer is stateful and must see every snapshot
-     *  once, in order — recomposition would corrupt its commitment. */
-    private fun stabilisedGuidance(snap: SpatialSnapshot): String? {
-        val cue = guidanceStabilizer.stabilize(SpatialGuidance.evaluate(snap), snap.signalVolatilityDb)
-        return if (snap.headingKnown && cue != null) SpatialGuidance.phrase(cue, snap.headingRad) else null
-    }
 
     fun startDiscovery() {
         trackJob?.cancel(); trackJob = null
@@ -154,7 +147,7 @@ class BlepController(
                     latestMotion = sample
                     val snap = spatialTracker.update((lastRssi ?: FALLBACK_RSSI).toDouble(), sample)
                     spatial = snap
-                    guidance = stabilisedGuidance(snap)
+                    guidance = guidanceStabilizer.guide(snap, SpatialTuning())
                 }
             } catch (c: CancellationException) {
                 throw c

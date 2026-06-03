@@ -87,7 +87,7 @@ struct ContentView: View {
 
     var body: some View {
         if let name = trackingName {
-            TrackingScreen(name: name, status: tracking.status, spatial: tracking.spatial) {
+            TrackingScreen(name: name, status: tracking.status, spatial: tracking.spatial, guidanceLine: tracking.guidance) {
                 ranger.onRssi = nil
                 trackingName = nil
                 ranger.startScan()
@@ -128,11 +128,12 @@ struct TrackingScreen: View {
     let name: String
     let status: TrackingStatus
     let spatial: SpatialSnapshot?
+    let guidanceLine: String?
     let onCancel: () -> Void
 
-    /// Turn-by-turn instruction when confident + compass present, else distance.
+    /// Turn-by-turn instruction (stabilised in the model) when confident, else distance.
     private var distanceText: String? {
-        if let snap = spatial, let instruction = SpatialGuidance.shared.instruction(snapshot: snap) {
+        if let instruction = guidanceLine {
             return instruction
         }
         guard let est = spatial?.target, est.confidence >= 0.35,

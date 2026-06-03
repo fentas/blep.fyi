@@ -6,9 +6,13 @@ import BlepCore
 final class TrackingModel: ObservableObject {
     @Published var status: TrackingStatus
     @Published var spatial: SpatialSnapshot?
+    /// Stabilised turn-by-turn line (committed direction in clean fields).
+    @Published var guidance: String?
 
     private var session: TrackingSession
+    private let tuning = SpatialTuning.companion.default()
     private let spatialTracker = SpatialTracker(tuning: SpatialTuning.companion.default())
+    private let stabilizer = GuidanceStabilizer.companion.default()
     private let motion = MotionRanger()
     private var start = Date()
 
@@ -26,14 +30,16 @@ final class TrackingModel: ObservableObject {
         start = Date()
         status = s.status
         spatialTracker.reset()
+        stabilizer.reset()
         spatial = nil
+        guidance = nil
     }
 
     /// Feed one RSSI sample (called from `BleRanger.onRssi`).
     func onRssi(_ rssi: Int) {
         let ms = Int64(Date().timeIntervalSince(start) * 1000)
         status = session.onSample(rssi: Int32(rssi), timeMs: ms)
-        spatial = spatialTracker.updateGeo(
+        let snap = spatialTracker.updateGeo(
             rssi: Double(rssi),
             timeMs: ms,
             headingRad: motion.headingRad,
@@ -47,6 +53,8 @@ final class TrackingModel: ObservableObject {
             reorienting: motion.reorienting,
             relativeAltitudeM: motion.relativeAltitude
         )
+        spatial = snap
+        guidance = stabilizer.guide(snapshot: snap, tuning: tuning)
     }
 
     var isComplete: Bool { status.phase == .complete }
