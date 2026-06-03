@@ -59,6 +59,10 @@ data class SpatialSnapshot(
      *  the warmest spot, staying true until you've climbed most of the way back —
      *  so guidance commits to "head back" instead of flip-flopping at the edge. */
     val recovering: Boolean = false,
+    /** How much the raw RSSI jitters around its smooth track (dB, mean-abs-dev) —
+     *  low in clean line-of-sight, high under canopy / multipath / heavy noise.
+     *  Lets guidance pick a behaviour suited to the current environment. */
+    val signalVolatilityDb: Double = 0.0,
 )
 
 /**
@@ -89,6 +93,9 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     )
     private val grid = SignalGrid(cellM = tuning.gridCellM, zCellM = tuning.floorHeightM)
     private var signalEma = Double.NaN
+    private var signalVolatility = Double.NaN // steady-heading |Δrssi| EMA = environmental noise
+    private var lastVolHeading: Double? = null
+    private var lastVolRssi = Double.NaN
     private val points = ArrayList<TrackPoint>()
     private var frame: LocalFrame? = null
     private var samplesSinceCalibration = 0
@@ -107,6 +114,9 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         angular.reset()
         grid.reset()
         signalEma = Double.NaN
+        signalVolatility = Double.NaN
+        lastVolHeading = null
+        lastVolRssi = Double.NaN
         pathLoss.rssiAt1m = tuning.rssiAt1m
         pathLoss.exponent = tuning.pathLossExponent
         points.clear()
@@ -173,6 +183,20 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         }
         // Spatial memory of where the signal was strong (for recovery).
         signalEma = if (signalEma.isNaN()) rssi else signalEma * 0.6 + rssi * 0.4
+        // Classify the environment by how much the signal jitters *that turning
+        // can't explain*: measure |Δrssi| only between consecutive samples taken at
+        // a near-steady heading (so the ±10 dB body-shield swing during a sweep
+        // doesn't masquerade as environmental noise). Low = clean line-of-sight,
+        // high = canopy / multipath / heavy noise.
+        val heading = motion.headingRad
+        if (heading != null && lastVolHeading != null && !lastVolRssi.isNaN()) {
+            val turned = abs(angleDelta(heading, lastVolHeading!!))
+            if (turned < VOL_STEADY_RAD) {
+                val jitter = abs(rssi - lastVolRssi)
+                signalVolatility = if (signalVolatility.isNaN()) jitter else signalVolatility * 0.9 + jitter * 0.1
+            }
+        }
+        if (heading != null) { lastVolHeading = heading; lastVolRssi = rssi }
         grid.update(here, altitude, signalEma)
 
         // Only fold a sample into the filter once we've actually moved (3-D) since
@@ -240,6 +264,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             warmestBearingRad = warmestBearing(here),
             belowWarmestDb = belowWarmest,
             recovering = recovering,
+            signalVolatilityDb = if (signalVolatility.isNaN()) 0.0 else signalVolatility,
         )
     }
 
@@ -312,5 +337,8 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         // Recovery releases once the signal is back within this fraction of recoverDb
         // of the warmest spot — the lower hysteresis band that stops flip-flopping.
         const val RECOVER_EXIT_FRACTION = 0.3
+        // Only sample environmental jitter between headings this close (rad ≈ 5°),
+        // so the body-shield swing during a sweep isn't counted as noise.
+        const val VOL_STEADY_RAD = 0.09
     }
 }

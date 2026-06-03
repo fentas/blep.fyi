@@ -1,5 +1,6 @@
 package fyi.blep.core.sim
 
+import fyi.blep.core.spatial.GuidanceStabilizer
 import fyi.blep.core.spatial.MotionSample
 import fyi.blep.core.spatial.SpatialGuidance
 import fyi.blep.core.spatial.SpatialTracker
@@ -101,7 +102,7 @@ class TrackingSimulationTest {
 
     private data class Result(
         val name: String, val initialM: Double, val minDistanceM: Double, val reachTick: Int,
-        val walkedToReachM: Double, val walkedM: Double,
+        val walkedToReachM: Double, val walkedM: Double, val volatilityDb: Double = 0.0,
     ) {
         val solved get() = reachTick >= 0
         val efficiency get() = (if (solved) walkedToReachM else walkedM) / max(initialM, 0.1)
@@ -117,8 +118,10 @@ class TrackingSimulationTest {
     ): Result {
         val session = TrackingSession(tuning)
         val spatial = SpatialTracker(spatialTuning)
+        val stabilizer = if (STABILIZE) GuidanceStabilizer() else null
         val initial = world.distance()
         var t = 0L; var walked = 0.0; var walkedToReach = 0.0; var minD = initial; var reachTick = -1; var lastStep = 0.0
+        var volSum = 0.0; var volN = 0
 
         for (tick in 0 until MAX_TICKS) {
             val rssi = world.rssi()
@@ -131,7 +134,14 @@ class TrackingSimulationTest {
             )
             val status = session.onSample(rssi, t, motion)
             val snap = spatial.update(rssi.toDouble(), motion)
-            val instruction = SpatialGuidance.instruction(snap, spatialTuning)
+            val instruction = if (stabilizer != null) {
+                val stable = stabilizer.stabilize(SpatialGuidance.evaluate(snap, spatialTuning), snap.signalVolatilityDb)
+                if (snap.headingKnown && stable != null) SpatialGuidance.phrase(stable, snap.headingRad, spatialTuning) else null
+            } else {
+                SpatialGuidance.instruction(snap, spatialTuning)
+            }
+
+            if (tick > 10) { volSum += snap.signalVolatilityDb; volN++ } // skip warm-up
 
             val d = world.distance()
             if (d < minD) minD = d
@@ -151,7 +161,7 @@ class TrackingSimulationTest {
             walked += step; lastStep = step
             t += DT_MS
         }
-        return Result(name, initial, minD, reachTick, walkedToReach, walked)
+        return Result(name, initial, minD, reachTick, walkedToReach, walked, if (volN > 0) volSum / volN else 0.0)
     }
 
     /** The scenario spread — fresh (mutable) worlds each call, so a trial can't
@@ -187,12 +197,12 @@ class TrackingSimulationTest {
 
         fun secs(v: Int) = if (v < 0) "timeout" else "${"%.0f".format(v * DT_MS / 1000.0)}s"
         println("\n── tracking simulation (timeout ${MAX_TICKS * DT_MS / 1000}s) ──────────────────────────")
-        println("scenario           straight   closest   found     walked   path-eff   result")
+        println("scenario           straight   closest   found     walked   path-eff   vol     result")
         results.forEach {
             val mark = if (it.clean) "★ clean" else if (it.solved) "~ wander" else "✗ fail"
             println(
-                "%-16s   %5.1f m   %5.1f m   %7s   %5.1f m   %5.1f×    %s".format(
-                    it.name, it.initialM, it.minDistanceM, secs(it.reachTick), it.walkedM, it.efficiency, mark,
+                "%-16s   %5.1f m   %5.1f m   %7s   %5.1f m   %5.1f×   %4.1f   %s".format(
+                    it.name, it.initialM, it.minDistanceM, secs(it.reachTick), it.walkedM, it.efficiency, it.volatilityDb, mark,
                 ),
             )
         }
@@ -343,6 +353,9 @@ class TrackingSimulationTest {
         const val MAX_TICKS = 450 // ≈ 3 min timeout per scenario
         const val DT_MS = 400L
         const val DEBUG = false
+        // The regime-aware stabilizer is what production runs, so it's on by
+        // default here too; A/B against the raw path with STABILIZE=0.
+        val STABILIZE = System.getenv("STABILIZE") != "0"
 
         /** Every knob the chaos search turns, with its search range and default. */
         val DIALS = listOf(

@@ -48,6 +48,7 @@ fun App() {
                         status = status,
                         rssi = controller.lastRssi,
                         spatial = controller.spatial,
+                        guidanceLine = controller.guidance,
                         soundOn = controller.soundOn,
                         onToggleSound = controller::toggleSound,
                         onCancel = controller::startDiscovery,

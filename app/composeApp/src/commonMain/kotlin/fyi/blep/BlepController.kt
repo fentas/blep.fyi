@@ -6,10 +6,12 @@ import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.spatial.GuidanceStabilizer
 import fyi.blep.core.spatial.Haptic
 import fyi.blep.core.spatial.HapticCadence
 import fyi.blep.core.spatial.MotionProvider
 import fyi.blep.core.spatial.MotionSample
+import fyi.blep.core.spatial.SpatialGuidance
 import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.spatial.SpatialTracker
 import fyi.blep.core.spatial.createHaptic
@@ -59,6 +61,10 @@ class BlepController(
     /** Live spatial picture (track + target estimate) when motion sensors feed it. */
     var spatial by mutableStateOf<SpatialSnapshot?>(null)
         private set
+    /** Stabilised turn-by-turn line (commits to a direction in clean fields, stays
+     *  reactive in noisy ones). Null until guidance is confident. */
+    var guidance by mutableStateOf<String?>(null)
+        private set
     /** Whether the audible tracking tone is on (haptics stay regardless). */
     var soundOn by mutableStateOf(true)
         private set
@@ -78,12 +84,21 @@ class BlepController(
     private var hapticJob: Job? = null
 
     private val spatialTracker = SpatialTracker()
+    private val guidanceStabilizer = GuidanceStabilizer()
     // Latest motion sample; both flows run on the same (Main) dispatcher, so a
     // plain var is safe to share between the RSSI and motion collectors.
     private var latestMotion: MotionSample? = null
 
     init {
         startDiscovery()
+    }
+
+    /** evaluate → stabilizer → phrase for one snapshot. Lives here (not in the
+     *  Composable) because the stabilizer is stateful and must see every snapshot
+     *  once, in order — recomposition would corrupt its commitment. */
+    private fun stabilisedGuidance(snap: SpatialSnapshot): String? {
+        val cue = guidanceStabilizer.stabilize(SpatialGuidance.evaluate(snap), snap.signalVolatilityDb)
+        return if (snap.headingKnown && cue != null) SpatialGuidance.phrase(cue, snap.headingRad) else null
     }
 
     fun startDiscovery() {
@@ -93,8 +108,10 @@ class BlepController(
         status = null
         lastRssi = null
         spatial = null
+        guidance = null
         latestMotion = null
         spatialTracker.reset()
+        guidanceStabilizer.reset()
         screen = Screen.Discovery
         restartScan()
     }
@@ -123,7 +140,9 @@ class BlepController(
         val session = TrackingSession()
         status = session.status
         spatialTracker.reset()
+        guidanceStabilizer.reset()
         spatial = null
+        guidance = null
         latestMotion = null
 
         // Spatial track: drive the SpatialTracker from the motion stream (a single
@@ -133,7 +152,9 @@ class BlepController(
             try {
                 motionProvider.motion().collect { sample ->
                     latestMotion = sample
-                    spatial = spatialTracker.update((lastRssi ?: FALLBACK_RSSI).toDouble(), sample)
+                    val snap = spatialTracker.update((lastRssi ?: FALLBACK_RSSI).toDouble(), sample)
+                    spatial = snap
+                    guidance = stabilisedGuidance(snap)
                 }
             } catch (c: CancellationException) {
                 throw c

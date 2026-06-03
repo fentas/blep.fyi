@@ -5,10 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.spatial.GuidanceStabilizer
 import fyi.blep.core.spatial.Haptic
 import fyi.blep.core.spatial.HapticCadence
 import fyi.blep.core.spatial.MotionProvider
 import fyi.blep.core.spatial.MotionSample
+import fyi.blep.core.spatial.SpatialGuidance
 import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.spatial.SpatialTracker
 import fyi.blep.core.spatial.createHaptic
@@ -44,13 +46,23 @@ class WearController(
         private set
     var spatial by mutableStateOf<SpatialSnapshot?>(null)
         private set
+    /** Stabilised turn-by-turn line (committed direction in clean fields). */
+    var guidance by mutableStateOf<String?>(null)
+        private set
 
     private var scanJob: Job? = null
     private var trackJob: Job? = null
     private var motionJob: Job? = null
     private var hapticJob: Job? = null
     private val spatialTracker = SpatialTracker()
+    private val guidanceStabilizer = GuidanceStabilizer()
     private var latestMotion: MotionSample? = null
+
+    /** evaluate → stabilizer → phrase; stateful, so kept out of the Composable. */
+    private fun stabilisedGuidance(snap: SpatialSnapshot): String? {
+        val cue = guidanceStabilizer.stabilize(SpatialGuidance.evaluate(snap), snap.signalVolatilityDb)
+        return if (snap.headingKnown && cue != null) SpatialGuidance.phrase(cue, snap.headingRad) else null
+    }
 
     init { startDiscovery() }
 
@@ -59,8 +71,8 @@ class WearController(
         motionJob?.cancel(); motionJob = null
         hapticJob?.cancel(); hapticJob = null
         tracking = null; status = null
-        spatial = null; latestMotion = null
-        spatialTracker.reset()
+        spatial = null; guidance = null; latestMotion = null
+        spatialTracker.reset(); guidanceStabilizer.reset()
         scanJob?.cancel()
         scanJob = scope.launch {
             // Self-healing: scanning throws until the BLE permission is granted.
@@ -82,14 +94,16 @@ class WearController(
         tracking = device
         val session = TrackingSession()
         status = session.status
-        spatialTracker.reset(); spatial = null; latestMotion = null
+        spatialTracker.reset(); guidanceStabilizer.reset(); spatial = null; guidance = null; latestMotion = null
 
         var lastRssi: Int? = null
         motionJob = scope.launch {
             try {
                 motionProvider.motion().collect { sample ->
                     latestMotion = sample
-                    spatial = spatialTracker.update((lastRssi ?: -100).toDouble(), sample)
+                    val snap = spatialTracker.update((lastRssi ?: -100).toDouble(), sample)
+                    spatial = snap
+                    guidance = stabilisedGuidance(snap)
                 }
             } catch (c: CancellationException) {
                 throw c

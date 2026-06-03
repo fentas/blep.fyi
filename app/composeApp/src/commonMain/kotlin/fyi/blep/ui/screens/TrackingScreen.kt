@@ -46,6 +46,7 @@ fun TrackingScreen(
     status: TrackingStatus,
     rssi: Int?,
     spatial: SpatialSnapshot?,
+    guidanceLine: String?,
     soundOn: Boolean,
     onToggleSound: () -> Unit,
     onCancel: () -> Unit,
@@ -109,8 +110,9 @@ fun TrackingScreen(
             }
         }
 
-        // Turn-by-turn when confident + a compass exists; else a plain distance.
-        val line = spatial?.let { SpatialGuidance.instruction(it) }
+        // Turn-by-turn (stabilised in the controller) when confident + a compass
+        // exists; else a plain distance.
+        val line = guidanceLine
             ?: spatial?.target?.takeIf { it.confidence >= 0.35f && it.distanceM != null }
                 ?.let { distanceLabel(it.distanceM!!) }
         if (line != null) {

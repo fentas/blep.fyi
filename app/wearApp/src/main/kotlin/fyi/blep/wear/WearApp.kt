@@ -69,7 +69,7 @@ fun WearApp(controller: WearController) {
         DiscoveryList(controller)
     } else {
         controller.status?.let {
-            TrackingView(tracked.displayName, it, controller.spatial, onCancel = controller::startDiscovery)
+            TrackingView(tracked.displayName, it, controller.spatial, controller.guidance, onCancel = controller::startDiscovery)
         }
     }
 }
@@ -93,7 +93,7 @@ private fun DiscoveryList(controller: WearController) {
 }
 
 @Composable
-private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialSnapshot?, onCancel: () -> Unit) {
+private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialSnapshot?, guidanceLine: String?, onCancel: () -> Unit) {
     val bg by animateColorAsState(proximityColor(status.proximity), tween(800), label = "wearBg")
     Box(
         modifier = Modifier.fillMaxSize().background(bg).clickable(onClick = onCancel),
@@ -108,7 +108,7 @@ private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialS
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
             )
-            val line = spatial?.let { SpatialGuidance.instruction(it) }
+            val line = guidanceLine
                 ?: spatial?.target?.takeIf { it.confidence >= 0.35f && it.distanceM != null }
                     ?.let { wearDistanceLabel(it.distanceM!!) }
             if (line != null) {
