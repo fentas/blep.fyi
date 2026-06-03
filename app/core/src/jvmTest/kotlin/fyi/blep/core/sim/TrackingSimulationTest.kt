@@ -209,10 +209,13 @@ class TrackingSimulationTest {
             clean, results.size, reached, results.size, if (eff.isEmpty()) 0.0 else eff.average()))
         println()
 
-        // Report-first: only assert the simplest case is a CLEAN solve, so a gross
-        // regression fails the build. "Reached by wandering" doesn't count.
+        // The simplest case must always be a CLEAN solve...
         val ahead = results.first { it.name.startsWith("ahead") }
         assertTrue(ahead.clean, "straight-ahead target not cleanly found (closest ${"%.1f".format(ahead.minDistanceM)} m, ${"%.1f".format(ahead.efficiency)}× path)")
+        // ...and the suite as a whole must stay near its 12/13 optimum, so a real
+        // regression that spares the trivial case still fails the build (only the
+        // structurally-unsolvable "one floor up" is expected to miss).
+        assertTrue(clean >= CLEAN_FLOOR, "tracking regressed: only $clean/${results.size} clean (floor $CLEAN_FLOOR)")
     }
 
     /**
@@ -343,6 +346,7 @@ class TrackingSimulationTest {
     private companion object {
         const val REACH_M = 2.0   // within arm's reach counts as found
         const val CLEAN_EFF = 3.5 // ≤ this × the straight line = a clean solve (not wandering)
+        const val CLEAN_FLOOR = 11 // suite must stay here (currently 12/13); guards regressions
         const val STEP = 0.6
         const val MAX_TURN_DEG = 30.0
         const val SWEEP_DEG = 18.0

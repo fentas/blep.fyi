@@ -97,6 +97,9 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private var lastVolHeading: Double? = null
     private var lastVolRssi = Double.NaN
     private val points = ArrayList<TrackPoint>()
+    // Path bounding box, maintained incrementally so pathSpread() is O(1).
+    private var pathMinX = Double.MAX_VALUE; private var pathMaxX = -Double.MAX_VALUE
+    private var pathMinY = Double.MAX_VALUE; private var pathMaxY = -Double.MAX_VALUE
     private var frame: LocalFrame? = null
     private var samplesSinceCalibration = 0
     // Position + altitude of the last sample folded into the filter, so we only
@@ -120,6 +123,8 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         pathLoss.rssiAt1m = tuning.rssiAt1m
         pathLoss.exponent = tuning.pathLossExponent
         points.clear()
+        pathMinX = Double.MAX_VALUE; pathMaxX = -Double.MAX_VALUE
+        pathMinY = Double.MAX_VALUE; pathMaxY = -Double.MAX_VALUE
         frame = null
         samplesSinceCalibration = 0
         lastFoldPos = null
@@ -243,7 +248,9 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         // Hysteresis: engage recovery once you've dropped well below the warmest
         // spot, and hold it until you've climbed most of the way back — otherwise
         // guidance flip-flops (recover ↔ chase) every time you cross the threshold.
-        val belowWarmest = grid.strongest()?.let { (it.rssi - signalEma).coerceAtLeast(0.0) } ?: 0.0
+        // (One grid scan per tick — both belowWarmest and the bearing reuse it.)
+        val warmest = grid.strongest()
+        val belowWarmest = warmest?.let { (it.rssi - signalEma).coerceAtLeast(0.0) } ?: 0.0
         recovering = when {
             belowWarmest >= tuning.recoverDb -> true
             belowWarmest <= tuning.recoverDb * RECOVER_EXIT_FRACTION -> false
@@ -261,16 +268,16 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             floorDelta = floorDelta(est, altitude),
             signalBearingRad = angular.bearingRad,
             signalBearingConfidence = angular.confidence,
-            warmestBearingRad = warmestBearing(here),
+            warmestBearingRad = warmestBearing(here, warmest),
             belowWarmestDb = belowWarmest,
             recovering = recovering,
             signalVolatilityDb = if (signalVolatility.isNaN()) 0.0 else signalVolatility,
         )
     }
 
-    /** Bearing back to the warmest cell, once you've moved off it. */
-    private fun warmestBearing(here: Vec2): Double? {
-        val best = grid.strongest() ?: return null
+    /** Bearing back to the [warmest] cell, once you've moved off it. */
+    private fun warmestBearing(here: Vec2, warmest: SignalGrid.Cell?): Double? {
+        val best = warmest ?: return null
         val toBest = Vec2(best.x, best.y) - here
         return if (toBest.length > tuning.warmestMinOffsetM) bearingOf(toBest) else null
     }
@@ -302,19 +309,15 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         pathLoss.exponent += (fit.second - pathLoss.exponent) * tuning.calibrateEase
     }
 
-    /** Bounding-box diagonal of the path — an O(n) proxy for how much we've moved. */
-    private fun pathSpread(): Double {
-        if (points.size < 2) return 0.0
-        var minX = Double.MAX_VALUE; var minY = Double.MAX_VALUE
-        var maxX = -Double.MAX_VALUE; var maxY = -Double.MAX_VALUE
-        for (p in points) {
-            if (p.pos.x < minX) minX = p.pos.x; if (p.pos.x > maxX) maxX = p.pos.x
-            if (p.pos.y < minY) minY = p.pos.y; if (p.pos.y > maxY) maxY = p.pos.y
-        }
-        return Vec2(maxX - minX, maxY - minY).length
-    }
+    /** Bounding-box diagonal of the path — a movement proxy. The box is maintained
+     *  incrementally in [recordSample] (it only grows), so this is O(1); only used
+     *  to gate "have we moved enough to estimate?", which is monotonic anyway. */
+    private fun pathSpread(): Double =
+        if (points.size < 2) 0.0 else Vec2(pathMaxX - pathMinX, pathMaxY - pathMinY).length
 
     private fun recordSample(here: Vec2, rssi: Double, timeMs: Long) {
+        if (here.x < pathMinX) pathMinX = here.x; if (here.x > pathMaxX) pathMaxX = here.x
+        if (here.y < pathMinY) pathMinY = here.y; if (here.y > pathMaxY) pathMaxY = here.y
         val last = points.lastOrNull()
         val strength = tuning.strength01(rssi)
         if (last != null && (here - last.pos).length < tuning.minSampleSpacingM) {

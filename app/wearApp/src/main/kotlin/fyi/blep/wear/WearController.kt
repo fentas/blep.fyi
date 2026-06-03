@@ -54,7 +54,8 @@ class WearController(
     private var trackJob: Job? = null
     private var motionJob: Job? = null
     private var hapticJob: Job? = null
-    private val spatialTracker = SpatialTracker()
+    private val spatialTuning = SpatialTuning()
+    private val spatialTracker = SpatialTracker(spatialTuning)
     private val guidanceStabilizer = GuidanceStabilizer()
     private var latestMotion: MotionSample? = null
 
@@ -97,7 +98,7 @@ class WearController(
                     latestMotion = sample
                     val snap = spatialTracker.update((lastRssi ?: -100).toDouble(), sample)
                     spatial = snap
-                    guidance = guidanceStabilizer.guide(snap, SpatialTuning())
+                    guidance = guidanceStabilizer.guide(snap, spatialTuning)
                 }
             } catch (c: CancellationException) {
                 throw c

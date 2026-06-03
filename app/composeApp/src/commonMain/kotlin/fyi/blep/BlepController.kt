@@ -83,7 +83,8 @@ class BlepController(
     private var motionJob: Job? = null
     private var hapticJob: Job? = null
 
-    private val spatialTracker = SpatialTracker()
+    private val spatialTuning = SpatialTuning()
+    private val spatialTracker = SpatialTracker(spatialTuning)
     private val guidanceStabilizer = GuidanceStabilizer()
     // Latest motion sample; both flows run on the same (Main) dispatcher, so a
     // plain var is safe to share between the RSSI and motion collectors.
@@ -92,7 +93,6 @@ class BlepController(
     init {
         startDiscovery()
     }
-
 
     fun startDiscovery() {
         trackJob?.cancel(); trackJob = null
@@ -147,7 +147,7 @@ class BlepController(
                     latestMotion = sample
                     val snap = spatialTracker.update((lastRssi ?: FALLBACK_RSSI).toDouble(), sample)
                     spatial = snap
-                    guidance = guidanceStabilizer.guide(snap, SpatialTuning())
+                    guidance = guidanceStabilizer.guide(snap, spatialTuning)
                 }
             } catch (c: CancellationException) {
                 throw c

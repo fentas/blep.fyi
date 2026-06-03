@@ -128,6 +128,7 @@ class GuidanceStabilizer(
 ) {
     private var committed: Double? = null
     private var committedKind: CueKind = CueKind.SIGNAL
+    private var committedDistanceM: Double? = null // carried so a held TARGET cue keeps its range
     private var pending: Double? = null
     private var pendingCount = 0
     private var unsupported = 0
@@ -139,7 +140,7 @@ class GuidanceStabilizer(
     }
 
     fun reset() {
-        committed = null; pending = null; pendingCount = 0; unsupported = 0; noisy = false
+        committed = null; committedDistanceM = null; pending = null; pendingCount = 0; unsupported = 0; noisy = false
     }
 
     /** One-call evaluate → stabilize → phrase for a [snapshot]: the stabilised
@@ -165,15 +166,15 @@ class GuidanceStabilizer(
 
         if (cue == null) {
             val held = committed
-            if (held != null && unsupported < holdTicks) { unsupported++; return Cue(held, 0f, committedKind) }
-            committed = null; pending = null; pendingCount = 0; unsupported = 0
+            if (held != null && unsupported < holdTicks) { unsupported++; return Cue(held, 0f, committedKind, committedDistanceM) }
+            committed = null; committedDistanceM = null; pending = null; pendingCount = 0; unsupported = 0
             return null
         }
         unsupported = 0
         val cur = committed
         // First fix, or a small correction in the same general direction → adopt now.
         if (cur == null || abs(angleDelta(cue.worldBearingRad, cur)) < adoptDeltaRad) {
-            committed = cue.worldBearingRad; committedKind = cue.kind
+            committed = cue.worldBearingRad; committedKind = cue.kind; committedDistanceM = cue.distanceM
             pending = null; pendingCount = 0
             return cue
         }
@@ -184,11 +185,11 @@ class GuidanceStabilizer(
             pending = cue.worldBearingRad; pendingCount = 1
         }
         if (pendingCount >= persistTicks) {
-            committed = cue.worldBearingRad; committedKind = cue.kind
+            committed = cue.worldBearingRad; committedKind = cue.kind; committedDistanceM = cue.distanceM
             pending = null; pendingCount = 0
             return cue
         }
         // Otherwise stay the course (keep walking the committed world direction).
-        return Cue(cur, cue.confidence, committedKind, cue.distanceM)
+        return Cue(cur, cue.confidence, committedKind, cue.distanceM ?: committedDistanceM)
     }
 }

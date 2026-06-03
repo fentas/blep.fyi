@@ -131,7 +131,9 @@ fun RadarView(
                 val ringR = (span.toFloat() * scale) * 0.25f * (1.1f - est.confidence)
                 drawCircle(BlepColors.Pink.copy(alpha = 0.35f), radius = ringR.coerceAtLeast(8f), center = tc, style = Stroke(2f))
             }
-        } else if (snapshot?.signalBearingRad != null && snapshot.signalBearingConfidence > 0.3f) {
+            // Matches SpatialTuning.signalMinConfidence so the arrow and the text
+            // cue appear together (the alpha below still fades it in near threshold).
+        } else if (snapshot?.signalBearingRad != null && snapshot.signalBearingConfidence >= 0.35f) {
             // No fix yet, but turning in place has revealed a direction — point to it.
             val b = snapshot.signalBearingRad!!
             val dir = Offset(sin(b).toFloat(), -cos(b).toFloat())
