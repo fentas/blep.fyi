@@ -117,6 +117,33 @@ Both are the same root: when *no* cue is reliable the arbitration flip-flops.
 A future structural fix would be directional commitment (don't reverse the cue
 every tick on a marginal confidence wobble) — needs guidance to carry state.
 
+## Directional commitment — built properly, measured, not adopted
+
+Refactored guidance into `evaluate` (snapshot → world-bearing `Cue`) → optional
+stateful `GuidanceStabilizer` → `phrase`. The stabilizer commits to a *world*
+direction: adopts small corrections instantly (stays responsive — the thing naive
+bearing-smoothing broke), but a *reversal* must persist N ticks before it switches,
+and it can briefly hold through a one-frame dropout. A/B over the fixed suite +
+4 held-out seeds (160 worlds):
+
+| config | fixed | held-out (4 seeds) |
+|--------|:-----:|:------------------:|
+| OFF (baseline) | 12/13 | 139/160 |
+| stabilizer 90°/persist2/hold0 | 12/13 (diagonal 3.1→2.3×) | 136/160 |
+| stabilizer 90°/persist2/hold2 | 11/13 (forest breaks) | 141/160 |
+
+**Verdict: not a clear win — reverted.** Commitment helps *stable* geometry
+(diagonal tightens) but the `hold` that helps held-out also breaks `forest`,
+where the canopy genuinely fades and you *must* re-evaluate. It only reshuffles
+which cases win, and every delta is within the ±3/40 seed noise. A real win would
+need the commitment to be *adaptive* (engage only when the field is stable, relax
+in fading/multipath) — more machinery than the marginal payoff justifies.
+
+The refactor itself (evaluate/phrase split) was behaviour-neutral; reverted too so
+no unused stateful scaffolding is left in production. Baseline 12/13 · ~87% held
+out stands as the validated optimum; the residual failures are fundamental
+BLE/body-shielding limits, not tuning.
+
 ## Chaos search (random parameter sweep)
 
 `CHAOS_N=70 ./gradlew :core:jvmTest --tests '*chaos*'` turns all 17 dials to
