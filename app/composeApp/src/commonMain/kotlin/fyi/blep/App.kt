@@ -48,6 +48,8 @@ fun App() {
                         status = status,
                         rssi = controller.lastRssi,
                         spatial = controller.spatial,
+                        soundOn = controller.soundOn,
+                        onToggleSound = controller::toggleSound,
                         onCancel = controller::startDiscovery,
                     )
                 }

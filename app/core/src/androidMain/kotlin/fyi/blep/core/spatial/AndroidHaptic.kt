@@ -28,6 +28,10 @@ internal class AndroidHaptic(context: Context) : Haptic {
     private val tone: ToneGenerator? =
         runCatching { ToneGenerator(AudioManager.STREAM_MUSIC, 35) }.getOrNull()
 
+    @Volatile private var soundOn = true
+
+    override fun setSoundEnabled(enabled: Boolean) { soundOn = enabled }
+
     override fun pulse(intensity: Float) {
         val amp = (40 + 215 * intensity).toInt().coerceIn(1, 255)
         runCatching {
@@ -37,7 +41,7 @@ internal class AndroidHaptic(context: Context) : Haptic {
                 @Suppress("DEPRECATION") vibrator?.vibrate(26)
             }
         }
-        runCatching { tone?.startTone(ToneGenerator.TONE_PROP_BEEP, 16) }
+        if (soundOn) runCatching { tone?.startTone(ToneGenerator.TONE_PROP_BEEP, 16) }
     }
 
     override fun success() {
@@ -48,7 +52,7 @@ internal class AndroidHaptic(context: Context) : Haptic {
                 @Suppress("DEPRECATION") vibrator?.vibrate(longArrayOf(0, 40, 60, 120), -1)
             }
         }
-        runCatching { tone?.startTone(ToneGenerator.TONE_PROP_ACK, 150) }
+        if (soundOn) runCatching { tone?.startTone(ToneGenerator.TONE_PROP_ACK, 150) }
     }
 
     override fun release() {

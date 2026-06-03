@@ -59,6 +59,9 @@ class BlepController(
     /** Live spatial picture (track + target estimate) when motion sensors feed it. */
     var spatial by mutableStateOf<SpatialSnapshot?>(null)
         private set
+    /** Whether the audible tracking tone is on (haptics stay regardless). */
+    var soundOn by mutableStateOf(true)
+        private set
 
     /** Devices shown in the list, honouring the unnamed toggle. */
     val visibleDevices: List<BleDevice>
@@ -99,6 +102,12 @@ class BlepController(
     fun toggleUnnamed() {
         // The scan always collects everything; this only flips what's shown.
         includeUnnamed = !includeUnnamed
+    }
+
+    /** Mute/unmute the audible tracking tone (the Geiger tick); haptics stay on. */
+    fun toggleSound() {
+        soundOn = !soundOn
+        haptic.setSoundEnabled(soundOn)
     }
 
     /** User-assigned rename, overlaid on scan results. */

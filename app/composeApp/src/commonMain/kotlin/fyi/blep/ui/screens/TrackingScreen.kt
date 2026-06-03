@@ -46,6 +46,8 @@ fun TrackingScreen(
     status: TrackingStatus,
     rssi: Int?,
     spatial: SpatialSnapshot?,
+    soundOn: Boolean,
+    onToggleSound: () -> Unit,
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -67,12 +69,23 @@ fun TrackingScreen(
             .padding(horizontal = 24.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = deviceName,
-            style = MaterialTheme.typography.titleMedium,
-            color = BlepColors.Ink.copy(alpha = 0.7f),
-            modifier = Modifier.padding(top = 8.dp),
-        )
+        Box(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+            Text(
+                text = deviceName,
+                style = MaterialTheme.typography.titleMedium,
+                color = BlepColors.Ink.copy(alpha = 0.7f),
+                modifier = Modifier.align(Alignment.Center),
+            )
+            Text(
+                text = if (soundOn) "🔊" else "🔇",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .clip(RoundedCornerShape(50))
+                    .clickable(onClick = onToggleSound)
+                    .padding(6.dp),
+            )
+        }
 
         // The spatial map is the hero; a compact arrow keeps the immediate cue.
         Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {

@@ -12,6 +12,9 @@ interface Haptic {
     /** A distinct "found it" cue. */
     fun success()
 
+    /** Mute/unmute just the audible tone (haptic vibration is unaffected). */
+    fun setSoundEnabled(enabled: Boolean)
+
     /** Release any audio/vibrator resources. */
     fun release()
 }
@@ -23,5 +26,6 @@ expect fun createHaptic(): Haptic
 object NoHaptic : Haptic {
     override fun pulse(intensity: Float) {}
     override fun success() {}
+    override fun setSoundEnabled(enabled: Boolean) {}
     override fun release() {}
 }
