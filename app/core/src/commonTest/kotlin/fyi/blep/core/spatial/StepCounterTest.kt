@@ -6,28 +6,46 @@ import kotlin.test.assertTrue
 
 class StepCounterTest {
 
-    @Test
-    fun counts_one_step_per_acceleration_peak() {
-        val counter = StepCounter(stepLengthM = 0.7)
+    /** Feeds a peak then a trough [steps] times at [periodMs] between peaks. */
+    private fun walk(counter: StepCounter, steps: Int, periodMs: Long): Double {
         var distance = 0.0
         var t = 0L
-        // 10 walking oscillations: a high peak then a low trough, ~500 ms apart.
-        repeat(10) {
-            distance += counter.onAccel(t, 3.0); t += 250      // peak (step)
-            distance += counter.onAccel(t, 0.2); t += 250      // trough (re-arm)
+        repeat(steps) {
+            distance += counter.onAccel(t, 3.0)              // peak
+            distance += counter.onAccel(t + periodMs / 2, 0.2) // trough (re-arm)
+            t += periodMs
         }
-        assertEquals(10 * 0.7, distance, 1e-9)
+        return distance
     }
 
     @Test
-    fun debounces_rapid_spikes_into_a_single_step() {
-        val counter = StepCounter(stepLengthM = 0.7, minIntervalMs = 280)
+    fun credits_distance_only_after_a_walking_rhythm_is_confirmed() {
+        val counter = StepCounter(stepLengthM = 0.7, warmupSteps = 3)
+        // 10 rhythmic steps → the first 2 warm up (no credit), the rest count.
+        val distance = walk(counter, steps = 10, periodMs = 500)
+        assertEquals(8 * 0.7, distance, 1e-9)
+    }
+
+    @Test
+    fun isolated_phone_jostles_move_you_nowhere() {
+        val counter = StepCounter(stepLengthM = 0.7)
         var distance = 0.0
-        // Several spikes within the debounce window with no trough between → 1 step.
-        distance += counter.onAccel(0, 3.0)
-        distance += counter.onAccel(50, 3.2)
-        distance += counter.onAccel(100, 3.1)
-        assertEquals(0.7, distance, 1e-9)
+        // Spikes far apart (no rhythm) — like picking up / tilting the phone.
+        distance += counter.onAccel(0, 4.0)
+        distance += counter.onAccel(200, 0.1)
+        distance += counter.onAccel(3000, 4.0)   // 3 s later: rhythm broken
+        distance += counter.onAccel(3200, 0.1)
+        distance += counter.onAccel(8000, 4.0)
+        assertEquals(0.0, distance, 1e-9)
+    }
+
+    @Test
+    fun a_brief_walk_then_stopping_resets_the_warm_up() {
+        val counter = StepCounter(stepLengthM = 0.7, warmupSteps = 3)
+        walk(counter, steps = 6, periodMs = 500)           // walking → credits
+        // Stop for a while, then a single step: rhythm lost, must warm up again.
+        val resumed = counter.onAccel(20_000, 3.0)
+        assertEquals(0.0, resumed, 1e-9)
     }
 
     @Test
@@ -43,7 +61,6 @@ class StepCounterTest {
     fun step_distance_drives_dead_reckoning_without_speed() {
         val dr = DeadReckoner()
         dr.update(MotionSample(timeMs = 0, headingRad = 0.0))          // face north, no move
-        // Two 0.7 m steps north with no speed field set at all.
         dr.update(MotionSample(timeMs = 500, headingRad = 0.0, stepDistanceM = 0.7))
         dr.update(MotionSample(timeMs = 1000, headingRad = 0.0, stepDistanceM = 0.7))
         assertEquals(0.0, dr.position.x, 1e-9)

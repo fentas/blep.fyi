@@ -24,6 +24,18 @@ data class SpatialTuning(
     val anchorCellM: Double = 1.0,
     /** Hard cap on retained path points (older ones are decimated). */
     val maxPathPoints: Int = 4000,
+    /**
+     * Minimum 3-D movement (m) since the last folded sample before a new RSSI
+     * reading is triangulated. Standing still gives no new geometry, so folding
+     * more noise there only makes the estimate wander — this gates it out.
+     */
+    val minTriangulationStepM: Double = 0.7,
+    /**
+     * Assumed target wander (m/s). 0 = stationary (finding lost things — the
+     * default). Raise it to let the estimate follow a target that moves while you
+     * hunt; the cost is a slightly less steady fix.
+     */
+    val targetDriftMps: Double = 0.0,
 ) {
     init {
         require(rssiNear > rssiFar) { "rssiNear must be greater (stronger) than rssiFar" }

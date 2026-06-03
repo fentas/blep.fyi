@@ -60,10 +60,14 @@ data class SpatialSnapshot(
 class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private val reckoner = DeadReckoner()
     private val pathLoss = PathLossModel.from(tuning)
-    private val particles = ParticleTargetEstimator(tuning, pathLoss)
+    private val particles = ParticleTargetEstimator(tuning, pathLoss, targetDriftMps = tuning.targetDriftMps)
     private val points = ArrayList<TrackPoint>()
     private var frame: LocalFrame? = null
     private var samplesSinceCalibration = 0
+    // Position + altitude of the last sample folded into the filter, so we only
+    // re-triangulate after real movement (not on noise while standing still).
+    private var lastFoldPos: Vec2? = null
+    private var lastFoldAlt = 0.0
 
     val path: List<TrackPoint> get() = points
 
@@ -75,6 +79,8 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         points.clear()
         frame = null
         samplesSinceCalibration = 0
+        lastFoldPos = null
+        lastFoldAlt = 0.0
     }
 
     /**
@@ -123,9 +129,22 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         recordSample(here, rssi, motion.timeMs)
         val altitude = motion.relativeAltitudeM
 
-        // Always fold the sample into the filter so evidence accumulates; only
-        // *report* a position once we've moved enough to triangulate.
-        val est = particles.update(here, altitude, rssi, motion.timeMs)
+        // Only fold a sample into the filter once we've actually moved (3-D) since
+        // the last one — new geometry. Standing still adds only noise, which would
+        // make the estimate wander; there we reuse the last estimate unchanged.
+        val moved = lastFoldPos?.let {
+            val dxy = (here - it).length; val dz = altitude - lastFoldAlt
+            kotlin.math.sqrt(dxy * dxy + dz * dz)
+        } ?: Double.MAX_VALUE
+        val est = if (moved >= tuning.minTriangulationStepM) {
+            lastFoldPos = here; lastFoldAlt = altitude
+            particles.update(here, altitude, rssi, motion.timeMs)
+        } else {
+            particles.peek() ?: run {
+                lastFoldPos = here; lastFoldAlt = altitude
+                particles.update(here, altitude, rssi, motion.timeMs)
+            }
+        }
         val spread = pathSpread()
         val target = when {
             spread < MIN_SPREAD_M -> TargetEstimate(null, null, null, 0f)

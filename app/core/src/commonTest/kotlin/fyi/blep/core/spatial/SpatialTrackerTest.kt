@@ -147,7 +147,9 @@ class SpatialTrackerTest {
 
     @Test
     fun estimate_follows_a_moving_target() {
-        val tracker = SpatialTracker(tuning)
+        // Following a moving target needs the process drift turned up (default is 0
+        // — a stationary target, the common case).
+        val tracker = SpatialTracker(SpatialTuning(targetDriftMps = 0.6))
         // The user paces back and forth along x (to keep triangulating) while the
         // target slides south from (8,8) to (8,1).
         var truth = Vec2.ZERO; var lastT = -1L; var i = 0
@@ -171,6 +173,31 @@ class SpatialTrackerTest {
         // than to where it began.
         assertTrue((est - endTgt).length < (est - startTgt).length, "did not follow the target: est=$est")
         assertTrue((est - endTgt).length < 6.0, "estimate ${(est - endTgt).length} m off the moving target")
+    }
+
+    @Test
+    fun a_stationary_target_does_not_wander_while_you_stand_still() {
+        val tracker = SpatialTracker(tuning) // default: stationary target, drift 0
+        val target = Vec2(8.0, 8.0)
+        var truth = Vec2.ZERO; var lastT = -1L; var i = 0
+        var snap: SpatialSnapshot? = null
+        fun step(timeMs: Long, headingRad: Double, stepDist: Double) {
+            val dt = if (lastT < 0) 0.0 else (timeMs - lastT) / 1000.0; lastT = timeMs
+            if (dt > 0.0 && stepDist > 0.0) truth += Vec2.heading(headingRad) * stepDist
+            val d = (truth - target).length.coerceAtLeast(0.5)
+            val rssi = -59.0 - 25.0 * kotlin.math.log10(d) + 1.0 * sin(i * 1.7) // signal keeps fluctuating
+            snap = tracker.update(rssi, MotionSample(timeMs = timeMs, headingRad = headingRad, stepDistanceM = stepDist, moving = stepDist > 0))
+            i++
+        }
+        var t = 0L
+        repeat(13) { step(t, 0.0, if (it == 0) 0.0 else 0.5); t += 500 }   // walk north
+        repeat(12) { step(t, PI / 2, 0.5); t += 500 }                       // walk east → localised
+        val before = snap!!.target.position
+        assertTrue(before != null, "should have localised before standing still")
+        // Now STAND STILL (no travel) while the noisy signal keeps changing.
+        repeat(40) { step(t, PI / 2, 0.0); t += 500 }
+        val after = snap!!.target.position!!
+        assertTrue((after - before!!).length < 0.5, "estimate wandered ${(after - before).length} m while standing still")
     }
 
     @Test

@@ -35,12 +35,12 @@ class ParticleTargetEstimator(
     private val count: Int = 600,
     private val rng: Random = Random(1),
     private val measurementSigmaDb: Double = 3.5,
-    private val jitterM: Double = 0.5,
+    private val jitterM: Double = 0.3,
     private val seedVerticalM: Double = 5.0,
-    /** Assumed target wander (m/s). >0 lets the filter follow a *moving* target;
-     *  the cloud diffuses by this each second so old evidence doesn't pin a stale
-     *  spot. Small enough that a static target still localises tightly. */
-    private val targetDriftMps: Double = 0.35,
+    /** Assumed target wander (m/s); 0 = stationary. >0 lets the filter follow a
+     *  *moving* target by diffusing the cloud so old evidence doesn't pin a stale
+     *  spot. Driven by [SpatialTuning.targetDriftMps]. */
+    private val targetDriftMps: Double = 0.0,
 ) {
     private val px = DoubleArray(count)
     private val py = DoubleArray(count)
@@ -48,6 +48,7 @@ class ParticleTargetEstimator(
     private val w = DoubleArray(count)
     private var seeded = false
     private var lastTimeMs = -1L
+    private var last: Estimate? = null
 
     /** One particle-filter estimate of the target. */
     data class Estimate(
@@ -60,7 +61,10 @@ class ParticleTargetEstimator(
         val confidence: Float,
     )
 
-    fun reset() { seeded = false; lastTimeMs = -1L }
+    fun reset() { seeded = false; lastTimeMs = -1L; last = null }
+
+    /** The most recent estimate without folding a new sample (null before any). */
+    fun peek(): Estimate? = last
 
     /** Folds one RSSI [rssi] measured at [samplePos] / [sampleAltitude], at [timeMs], into the posterior. */
     fun update(samplePos: Vec2, sampleAltitude: Double, rssi: Double, timeMs: Long): Estimate {
@@ -72,7 +76,7 @@ class ParticleTargetEstimator(
             reweight(samplePos, sampleAltitude, rssi)
         }
         lastTimeMs = timeMs
-        return estimate()
+        return estimate().also { last = it }
     }
 
     /** Process step: diffuse the cloud to allow following a moving target. */
