@@ -185,18 +185,29 @@ private fun DeviceCard(
                     color = if (device.isNamed) BlepColors.Ink else BlepColors.Ink.copy(alpha = 0.55f),
                 )
                 Spacer(Modifier.height(2.dp))
+                // Show the live signal whenever we have it (even when connected or
+                // paired — the avatar already marks connection). The chip only
+                // stands in when a bonded device isn't advertising any signal.
                 when {
+                    !device.rssiUnknown -> Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (device.isConnected) {
+                            Box(Modifier.size(6.dp).clip(CircleShape).background(BlepColors.Blue))
+                            Spacer(Modifier.width(6.dp))
+                        }
+                        Text(
+                            "${device.rssi} dBm",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = BlepColors.Ink.copy(alpha = 0.45f),
+                        )
+                    }
                     device.isConnected -> StatusChip("Connected", showDot = true)
-                    device.isPaired -> StatusChip("Paired", showDot = false)
-                    else -> Text(
-                        "${device.rssi} dBm",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = BlepColors.Ink.copy(alpha = 0.45f),
-                    )
+                    else -> StatusChip("Paired", showDot = false)
                 }
             }
-            SignalDots(rssi = device.rssi)
-            Spacer(Modifier.width(10.dp))
+            if (!device.rssiUnknown) {
+                SignalDots(rssi = device.rssi)
+                Spacer(Modifier.width(10.dp))
+            }
             RenameButton(onRename)
         }
     }

@@ -29,10 +29,14 @@ class DeviceTable {
         isPaired: Boolean = false,
     ) {
         val existing = byId[id]
+        // A bonded-device enumeration carries no signal (RSSI_UNKNOWN). Don't let it
+        // clobber a real advertisement RSSI we already have, or a paired device that
+        // *is* advertising would flip between its dBm and "Paired" each scan tick.
+        val mergedRssi = if (rssi == BleDevice.RSSI_UNKNOWN) existing?.rssi ?: rssi else rssi
         byId[id] = BleDevice(
             id = id,
             name = name ?: existing?.name,
-            rssi = rssi,
+            rssi = mergedRssi,
             isConnected = isConnected,
             isPaired = isPaired || existing?.isPaired == true,
             alias = existing?.alias,
