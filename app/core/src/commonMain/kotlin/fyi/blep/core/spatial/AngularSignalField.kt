@@ -47,14 +47,31 @@ class AngularSignalField(private val binCount: Int = 24) {
             return atan2(sx, sy)
         }
 
-    /** 0f … 1f: needs both coverage (you turned enough) and a clear peak. */
+    /**
+     * 0f … 1f. Needs a clear front/back difference **and** a near-full sweep —
+     * otherwise the "peak" is just the strongest heading sampled so far (the edge
+     * of where you've turned), which points the wrong way. Trust it only once
+     * you've turned past the peak from both sides.
+     */
     val confidence: Float
         get() {
             var min = Double.MAX_VALUE; var max = -Double.MAX_VALUE; var seen = 0
             for (v in binRssi) if (!v.isNaN()) { seen++; if (v < min) min = v; if (v > max) max = v }
             if (seen < 2) return 0f
-            val coverage = (seen / (binCount * 0.5)).coerceIn(0.0, 1.0) // ~half a turn = full
+            val coverage = (seen / (binCount * 0.8)).coerceIn(0.0, 1.0) // ~290° swept = full
             val peakedness = ((max - min) / 5.0).coerceIn(0.0, 1.0)     // ~5 dB front/back = full
+            if (!peakInterior()) return (coverage * peakedness * 0.4).toFloat() // edge peak: distrust
             return (coverage * peakedness).toFloat()
         }
+
+    /** True when the strongest bin has sampled (non-empty) neighbours on both
+     *  sides — i.e. we've actually turned through the peak, not stopped at it. */
+    private fun peakInterior(): Boolean {
+        var bi = -1; var bv = -Double.MAX_VALUE
+        for (i in 0 until binCount) { val v = binRssi[i]; if (!v.isNaN() && v > bv) { bv = v; bi = i } }
+        if (bi < 0) return false
+        val left = binRssi[(bi - 1 + binCount) % binCount]
+        val right = binRssi[(bi + 1) % binCount]
+        return !left.isNaN() && !right.isNaN()
+    }
 }

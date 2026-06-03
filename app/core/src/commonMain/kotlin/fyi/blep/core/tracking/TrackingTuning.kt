@@ -7,10 +7,11 @@ package fyi.blep.core.tracking
  * All RSSI values are dBm (negative; closer to 0 = stronger/closer).
  */
 data class TrackingTuning(
-    /** Smoothed RSSI mapped to proximity 0f. */
-    val rssiFar: Double = -95.0,
-    /** Smoothed RSSI mapped to proximity 1f. */
-    val rssiNear: Double = -45.0,
+    /** Smoothed RSSI mapped to proximity 0f (~15–20 m for a typical tag). */
+    val rssiFar: Double = -90.0,
+    /** Smoothed RSSI mapped to proximity 1f (~1 m). Scaled so "close"/pinpoint
+     *  cues fire around arm's reach (a few metres), not only on top of it. */
+    val rssiNear: Double = -58.0,
     /** EMA smoothing factor for the RSSI filter. */
     val emaAlpha: Double = 0.45,
     /** Slope band (dBm) treated as "flat" for trend detection. */

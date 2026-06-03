@@ -18,20 +18,24 @@ object SpatialGuidance {
     fun instruction(snapshot: SpatialSnapshot): String? {
         if (!snapshot.headingKnown) return null // a left/right cue needs a compass
 
-        // 1) Triangulated target → full turn-by-turn with a distance.
+        // 1) Compass + body-shielding bearing first. Holding the phone to your
+        //    body makes RSSI directional, which is exactly what *breaks*
+        //    range-based trilateration (the signal is strong whenever you face the
+        //    target, so the filter thinks it's right on top of you) — so the
+        //    heading the signal peaks in is the trustworthy cue.
+        val signal = snapshot.signalBearingRad
+        if (signal != null && snapshot.signalBearingConfidence >= SIGNAL_MIN_CONFIDENCE) {
+            val deg = angleDelta(signal, snapshot.headingRad) * 180.0 / PI
+            return if (abs(deg) < AHEAD_DEG) "facing the signal" else "${turnPhrase(deg)} to the signal"
+        }
+
+        // 2) Fall back to the triangulated target (e.g. you moved without turning,
+        //    so there's no swept bearing yet) — turn-by-turn with a distance.
         val est = snapshot.target
         val bearing = est.bearingRad; val distance = est.distanceM
         if (bearing != null && distance != null && est.confidence >= MIN_CONFIDENCE) {
             val deg = angleDelta(bearing, snapshot.headingRad) * 180.0 / PI
             return "${turnPhrase(deg)} · ${distanceWord(distance)}"
-        }
-
-        // 2) Before triangulation, the compass + body-shielding still give a
-        //    direction: turn toward the heading the signal is strongest in.
-        val signal = snapshot.signalBearingRad
-        if (signal != null && snapshot.signalBearingConfidence >= SIGNAL_MIN_CONFIDENCE) {
-            val deg = angleDelta(signal, snapshot.headingRad) * 180.0 / PI
-            return if (abs(deg) < AHEAD_DEG) "facing the signal" else "${turnPhrase(deg)} to the signal"
         }
         return null
     }
