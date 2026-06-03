@@ -88,6 +88,35 @@ turning a constant. The chaos search's verdict held — the angular field was th
 lever, but the fixes were structural (when to trust / age / re-earn the bearing),
 not parameter values.
 
+## Held-out generalisation (robustness_suite)
+
+The fixed 13 can be overfit, so `robustness_suite` runs N random worlds (bearing,
+distance 4–28 m, noise, ~30% a wall, ~20% a slope) as a held-out set. Current
+tuning: **~85% clean across seeds** (31–37/40, seeds 1234/77/2025), 88% reached.
+The structural fixes generalise; they don't just fit the suite.
+
+Things tried against held-out that did **not** stick:
+- `angularStaleHalfLifeM` 3→2.5/2: nudges held-out +3% but breaks `forest` +
+  `moving` in the fixed suite (too many re-sweeps for noisy/moving signals). 3.0
+  is the sweet spot — kept.
+- Gate the particle-target branch when a warm spot is known: fixed 12→10/13 and
+  held-out swung 73–98% by seed (the branch genuinely helps move-without-turning).
+  Reverted.
+
+Two residual held-out failure modes (genuinely hard — fundamental BLE limits):
+1. **Low-confidence thrash**: in a noisy world the swept bearing hovers right at
+   `signalMinConfidence`, flickering on/off, so the user shuffles instead of doing
+   one clean in-place sweep. Never localises.
+2. **Shielding-inflated range**: up close the particle filter is *confident* but
+   reports a distance way too large (e.g. "~16 m" at 4 m) because body-shielding
+   keeps the signal strong all around — so it orbits. This is the very reason the
+   compass bearing is trusted over trilateration; it only bites when the bearing
+   has also gone stale/low-confidence.
+
+Both are the same root: when *no* cue is reliable the arbitration flip-flops.
+A future structural fix would be directional commitment (don't reverse the cue
+every tick on a marginal confidence wobble) — needs guidance to carry state.
+
 ## Chaos search (random parameter sweep)
 
 `CHAOS_N=70 ./gradlew :core:jvmTest --tests '*chaos*'` turns all 17 dials to
