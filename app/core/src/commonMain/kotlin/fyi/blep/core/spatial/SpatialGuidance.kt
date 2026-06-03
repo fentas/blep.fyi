@@ -19,7 +19,7 @@ object SpatialGuidance {
         //    walked through, you've wandered off — head back to it instead of
         //    chasing a now-misleading bearing.
         val warm = snapshot.warmestBearingRad
-        if (warm != null && snapshot.belowWarmestDb >= tuning.recoverDb) {
+        if (warm != null && snapshot.recovering) {
             val deg = angleDelta(warm, snapshot.headingRad) * 180.0 / PI
             return if (abs(deg) < aheadDeg) "straight ahead — warmer" else "${turnPhrase(deg, aheadDeg)} — warmer"
         }

@@ -69,14 +69,21 @@ class AngularSignalField(
             return (coverage * peakedness).toFloat()
         }
 
-    /** True when the strongest bin has sampled (non-empty) neighbours on both
-     *  sides — i.e. we've actually turned through the peak, not stopped at it. */
+    /** True when we've turned a clear margin *past* the peak on both sides — the
+     *  strongest bin has sampled neighbours out to ±2, and the signal is falling
+     *  off on each side (not still rising toward an unswept stronger heading). The
+     *  ±2 + descending test is what stops us committing to the *edge* of a partial
+     *  sweep, which reads as a peak but points ~30° short of the true one. */
     private fun peakInterior(): Boolean {
         var bi = -1; var bv = -Double.MAX_VALUE
         for (i in 0 until binCount) { val v = binRssi[i]; if (!v.isNaN() && v > bv) { bv = v; bi = i } }
         if (bi < 0) return false
-        val left = binRssi[(bi - 1 + binCount) % binCount]
-        val right = binRssi[(bi + 1) % binCount]
-        return !left.isNaN() && !right.isNaN()
+        val l1 = binRssi[(bi - 1 + binCount) % binCount]
+        val r1 = binRssi[(bi + 1) % binCount]
+        val l2 = binRssi[(bi - 2 + binCount) % binCount]
+        val r2 = binRssi[(bi + 2) % binCount]
+        if (l1.isNaN() || r1.isNaN() || l2.isNaN() || r2.isNaN()) return false
+        // Signal must descend outward on both sides — a real bump, not a slope.
+        return l2 <= l1 && r2 <= r1
     }
 }

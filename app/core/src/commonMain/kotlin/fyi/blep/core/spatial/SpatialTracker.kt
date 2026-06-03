@@ -55,6 +55,10 @@ data class SpatialSnapshot(
      *  wander off, so you recover instead of orbiting. Null until you've left it. */
     val warmestBearingRad: Double? = null,
     val belowWarmestDb: Double = 0.0,
+    /** Sticky recovery state (hysteresis): true once the signal dropped well below
+     *  the warmest spot, staying true until you've climbed most of the way back —
+     *  so guidance commits to "head back" instead of flip-flopping at the edge. */
+    val recovering: Boolean = false,
 )
 
 /**
@@ -91,6 +95,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     // re-triangulate after real movement (not on noise while standing still).
     private var lastFoldPos: Vec2? = null
     private var lastFoldAlt = 0.0
+    private var recovering = false
 
     val path: List<TrackPoint> get() = points
 
@@ -107,6 +112,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         samplesSinceCalibration = 0
         lastFoldPos = null
         lastFoldAlt = 0.0
+        recovering = false
     }
 
     /**
@@ -201,6 +207,16 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             if (v.length < 1e-6) 0f else v.dot(Vec2.heading(b)).toFloat().coerceIn(-1f, 1f)
         } ?: 0f
 
+        // Hysteresis: engage recovery once you've dropped well below the warmest
+        // spot, and hold it until you've climbed most of the way back — otherwise
+        // guidance flip-flops (recover ↔ chase) every time you cross the threshold.
+        val belowWarmest = grid.strongest()?.let { (it.rssi - signalEma).coerceAtLeast(0.0) } ?: 0.0
+        recovering = when {
+            belowWarmest >= tuning.recoverDb -> true
+            belowWarmest <= tuning.recoverDb * RECOVER_EXIT_FRACTION -> false
+            else -> recovering
+        }
+
         return SpatialSnapshot(
             here = here,
             headingRad = reckoner.headingRad,
@@ -213,7 +229,8 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             signalBearingRad = angular.bearingRad,
             signalBearingConfidence = angular.confidence,
             warmestBearingRad = warmestBearing(here),
-            belowWarmestDb = grid.strongest()?.let { (it.rssi - signalEma).coerceAtLeast(0.0) } ?: 0.0,
+            belowWarmestDb = belowWarmest,
+            recovering = recovering,
         )
     }
 
@@ -280,5 +297,11 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         var w = 0
         for (r in points.indices) if (r % 2 == 0) { points[w] = points[r]; w++ }
         while (points.size > w) points.removeAt(points.lastIndex)
+    }
+
+    private companion object {
+        // Recovery releases once the signal is back within this fraction of recoverDb
+        // of the warmest spot — the lower hysteresis band that stops flip-flopping.
+        const val RECOVER_EXIT_FRACTION = 0.3
     }
 }
