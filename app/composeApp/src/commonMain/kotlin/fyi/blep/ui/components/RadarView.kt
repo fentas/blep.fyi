@@ -58,9 +58,9 @@ fun RadarView(
         )
 
         // ── range rings (scale reference, no map) ────────────────────────────
-        val ring = BlepColors.Ink.copy(alpha = 0.08f)
+        val ring = BlepColors.Ink.copy(alpha = 0.10f)
         listOf(span / 6.0, span / 3.0).forEach { r ->
-            drawCircle(ring, radius = (r * scale).toFloat(), center = toScreen(here), style = Stroke(width = 1.5f))
+            drawCircle(ring, radius = (r * scale).toFloat(), center = toScreen(here), style = Stroke(width = 2.5f))
         }
 
         // ── signal fog: soft warm discs at strong samples ────────────────────
@@ -92,12 +92,12 @@ fun RadarView(
             drawLine(
                 color = signalColor((a.strength01 + b.strength01) / 2f),
                 start = toScreen(a.pos), end = toScreen(b.pos),
-                strokeWidth = 5f, cap = StrokeCap.Round,
+                strokeWidth = 8f, cap = StrokeCap.Round,
             )
         }
 
-        // ── start marker (a small four-point star) ───────────────────────────
-        drawStar(toScreen(Vec2.ZERO), r = 9f, color = BlepColors.Ink.copy(alpha = 0.55f))
+        // ── start marker (a four-point star) ─────────────────────────────────
+        drawStar(toScreen(Vec2.ZERO), r = 13f, color = BlepColors.Ink.copy(alpha = 0.55f))
 
         // ── predicted target: glow + confidence ring ─────────────────────────
         val est = snapshot?.target
@@ -111,7 +111,7 @@ fun RadarView(
                 ),
                 radius = glow, center = tc,
             )
-            drawCircle(BlepColors.Pink.copy(alpha = 0.9f), radius = 5f, center = tc)
+            drawCircle(BlepColors.Pink.copy(alpha = 0.9f), radius = 7f, center = tc)
             // Uncertainty ellipse from the particle-filter covariance (tighter =
             // more confident); falls back to a circle if axes aren't present.
             val maj = est.semiMajorM
@@ -138,16 +138,16 @@ fun RadarView(
             val b = snapshot.signalBearingRad!!
             val dir = Offset(sin(b).toFloat(), -cos(b).toFloat())
             val hp = toScreen(here)
-            val tip = hp + dir * (size.minDimension * 0.34f)
+            val tip = hp + dir * (size.minDimension * 0.40f)
             val col = BlepColors.Pink.copy(alpha = 0.25f + 0.5f * snapshot.signalBearingConfidence)
-            drawLine(col, hp, tip, strokeWidth = 4f, cap = StrokeCap.Round)
+            drawLine(col, hp, tip, strokeWidth = 6f, cap = StrokeCap.Round)
             val perp = Offset(-dir.y, dir.x)
-            val back = tip - dir * 12f
+            val back = tip - dir * 16f
             drawPath(
                 Path().apply {
                     moveTo(tip.x, tip.y)
-                    lineTo((back + perp * 7f).x, (back + perp * 7f).y)
-                    lineTo((back - perp * 7f).x, (back - perp * 7f).y)
+                    lineTo((back + perp * 10f).x, (back + perp * 10f).y)
+                    lineTo((back - perp * 10f).x, (back - perp * 10f).y)
                     close()
                 },
                 col,
@@ -167,20 +167,20 @@ fun RadarView(
             }
             val dir = Offset(sin(heading).toFloat(), -cos(heading).toFloat())
             val perp = Offset(-dir.y, dir.x)
-            val tip = hp + dir * 22f
-            val base = hp - dir * 4f
+            val tip = hp + dir * 32f
+            val base = hp - dir * 6f
             val wedge = Path().apply {
                 moveTo(tip.x, tip.y)
-                lineTo((base + perp * 9f).x, (base + perp * 9f).y)
-                lineTo((base - perp * 9f).x, (base - perp * 9f).y)
+                lineTo((base + perp * 13f).x, (base + perp * 13f).y)
+                lineTo((base - perp * 13f).x, (base - perp * 13f).y)
                 close()
             }
             drawPath(wedge, wedgeColor.copy(alpha = 0.9f))
-            drawCircle(BlepColors.Ink, radius = 6f, center = hp)
-            drawCircle(BlepColors.Cream, radius = 3f, center = hp)
+            drawCircle(BlepColors.Ink, radius = 9f, center = hp)
+            drawCircle(BlepColors.Cream, radius = 5f, center = hp)
         } else {
             // No motion yet: just the start marker, centred.
-            drawCircle(BlepColors.Ink, radius = 6f, center = Offset(cx, cy))
+            drawCircle(BlepColors.Ink, radius = 9f, center = Offset(cx, cy))
         }
     }
 }

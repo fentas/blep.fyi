@@ -11,6 +11,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +32,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import fyi.blep.core.spatial.SpatialGuidance
@@ -77,14 +84,10 @@ fun TrackingScreen(
                 color = BlepColors.Ink.copy(alpha = 0.7f),
                 modifier = Modifier.align(Alignment.Center),
             )
-            Text(
-                text = if (soundOn) "🔊" else "🔇",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .clip(RoundedCornerShape(50))
-                    .clickable(onClick = onToggleSound)
-                    .padding(6.dp),
+            MuteToggle(
+                soundOn = soundOn,
+                onToggle = onToggleSound,
+                modifier = Modifier.align(Alignment.CenterEnd),
             )
         }
 
@@ -96,34 +99,30 @@ fun TrackingScreen(
             }
         }
 
+        // ONE authoritative cue, never two that disagree: the precise compass /
+        // turn-by-turn instruction when we have it (it already folds in warmer /
+        // distance), otherwise the coarser RSSI phase guidance.
+        val instruction = guidanceLine
+            ?: spatial?.target?.takeIf { it.confidence >= 0.35f && it.distanceM != null }
+                ?.let { distanceLabel(it.distanceM!!) }
+        val headline = instruction ?: status.guidance.title
+        val detail = if (instruction != null) null else status.guidance.detail
         AnimatedContent(
-            targetState = status.guidance,
+            targetState = headline,
             transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(200)) },
             label = "guidance",
-        ) { guidance ->
+        ) { text ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                Text(guidance.title, style = MaterialTheme.typography.displayLarge, color = BlepColors.Ink, textAlign = TextAlign.Center)
-                Text(guidance.detail, style = MaterialTheme.typography.bodyLarge, color = BlepColors.Ink.copy(alpha = 0.7f), textAlign = TextAlign.Center)
+                Text(text, style = MaterialTheme.typography.displaySmall, color = BlepColors.Ink, textAlign = TextAlign.Center)
+                if (detail != null) {
+                    Text(detail, style = MaterialTheme.typography.bodyLarge, color = BlepColors.Ink.copy(alpha = 0.7f), textAlign = TextAlign.Center)
+                }
             }
         }
 
-        // Turn-by-turn (stabilised in the controller) when confident + a compass
-        // exists; else a plain distance.
-        val line = guidanceLine
-            ?: spatial?.target?.takeIf { it.confidence >= 0.35f && it.distanceM != null }
-                ?.let { distanceLabel(it.distanceM!!) }
-        if (line != null) {
-            Text(
-                text = line,
-                style = MaterialTheme.typography.titleMedium,
-                color = BlepColors.Ink.copy(alpha = 0.78f),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 6.dp),
-            )
-        }
         val floor = spatial?.floorDelta?.let { SpatialGuidance.floorHint(it) }
         if (floor != null) {
             Text(
@@ -131,14 +130,22 @@ fun TrackingScreen(
                 style = MaterialTheme.typography.bodyLarge,
                 color = BlepColors.Ink.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 2.dp),
+                modifier = Modifier.padding(top = 4.dp),
             )
         }
 
+        // RSSI + which environment the tracker thinks it's in (from signal jitter).
         Text(
-            text = rssi?.let { "$it dBm" } ?: "scanning…",
+            text = buildString {
+                append(rssi?.let { "$it dBm" } ?: "scanning…")
+                spatial?.signalVolatilityDb?.takeIf { it > 0.0 }?.let { v ->
+                    val tag = if (v >= NOISY_FIELD_DB) "noisy" else "clean"
+                    append("  ·  $tag field ${(v * 10).roundToInt() / 10.0} dB")
+                }
+            },
             style = MaterialTheme.typography.labelLarge,
             color = BlepColors.Ink.copy(alpha = 0.55f),
+            textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 12.dp),
         )
 
@@ -159,4 +166,50 @@ fun TrackingScreen(
 internal fun distanceLabel(meters: Double): String = when {
     meters < 1.5 -> "almost on it"
     else -> "~${meters.roundToInt()} m away"
+}
+
+// Above this much signal jitter (dB) the field reads as "noisy" — mirrors
+// GuidanceStabilizer.noisyVolatilityDb, which gates directional commitment.
+private const val NOISY_FIELD_DB = 2.2
+
+/** A flat 2-D speaker glyph (no system emoji) that toggles the tracking tone:
+ *  sound-wave arcs when on, a slash when muted. */
+@Composable
+private fun MuteToggle(soundOn: Boolean, onToggle: () -> Unit, modifier: Modifier = Modifier) {
+    val tint = BlepColors.Ink.copy(alpha = 0.72f)
+    Canvas(
+        modifier = modifier
+            .clip(RoundedCornerShape(50))
+            .clickable(onClick = onToggle)
+            .padding(10.dp)
+            .size(26.dp),
+    ) {
+        val w = size.width; val h = size.height
+        // Speaker = back block + cone, one filled polygon.
+        drawPath(
+            Path().apply {
+                moveTo(w * 0.08f, h * 0.38f)
+                lineTo(w * 0.28f, h * 0.38f)
+                lineTo(w * 0.50f, h * 0.16f)
+                lineTo(w * 0.50f, h * 0.84f)
+                lineTo(w * 0.28f, h * 0.62f)
+                lineTo(w * 0.08f, h * 0.62f)
+                close()
+            },
+            tint,
+        )
+        if (soundOn) {
+            val cx = w * 0.45f; val cy = h * 0.5f
+            listOf(w * 0.22f, w * 0.34f).forEach { r ->
+                drawArc(
+                    color = tint,
+                    startAngle = -55f, sweepAngle = 110f, useCenter = false,
+                    topLeft = Offset(cx - r, cy - r), size = Size(r * 2, r * 2),
+                    style = Stroke(width = w * 0.07f, cap = StrokeCap.Round),
+                )
+            }
+        } else {
+            drawLine(tint, Offset(w * 0.58f, h * 0.22f), Offset(w * 0.96f, h * 0.78f), strokeWidth = w * 0.08f, cap = StrokeCap.Round)
+        }
+    }
 }
