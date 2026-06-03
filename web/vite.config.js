@@ -5,12 +5,13 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   // Served from the apex domain (blep.fyi), so assets live at the root.
   base: '/',
-  // Multi-page: the landing page + a dedicated /donate.html the app links to.
+  // Multi-page: landing + /donate.html (app's donate link) + /privacy.html (store-required).
   build: {
     rollupOptions: {
       input: {
         main: 'index.html',
         donate: 'donate.html',
+        privacy: 'privacy.html',
       },
     },
   },
