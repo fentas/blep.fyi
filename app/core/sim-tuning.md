@@ -14,28 +14,29 @@ can diff what helped.
 
 Headline score: **clean / total**.
 
-## Baseline (compass-bearing-first · grid recovery · proximity rescale)
-
-`clean 9/13 · reached 11/13 · avg path-eff 1.9×`
+## Current best: `clean 12/13 · reached 12/13 · avg path-eff 1.2×`
 
 | scenario       | path-eff | result |
 |----------------|---------:|--------|
 | ahead 5 m      |   0.6×   | ★ clean |
-| behind 8 m     |   7.6×   | ~ wander |
+| behind 8 m     |   0.8×   | ★ clean |
 | to the side 6 m|   0.8×   | ★ clean |
-| diagonal 14 m  |   2.6×   | ★ clean |
+| diagonal 14 m  |   3.1×   | ★ clean |
 | far 20 m       |   0.9×   | ★ clean |
 | extra-far 35 m |   0.9×   | ★ clean |
 | through a wall |   0.8×   | ★ clean |
 | up a slope     |   0.8×   | ★ clean |
-| forest 12 m    |   0.8×   | ★ clean |
+| forest 12 m    |   0.9×   | ★ clean |
 | noisy room     |   0.8×   | ★ clean |
-| randomized     |   4.5×   | ~ wander |
-| one floor up   |    —     | ✗ fail (can't auto-detect another floor) |
-| moving device  |   11×    | ✗ fail (edge case) |
+| randomized     |   1.5×   | ★ clean |
+| one floor up   |    —     | ✗ fail (needs stairs — vertical can't be auto-detected) |
+| moving device  |   2.3×   | ★ clean |
 
-Open: `behind` + `randomized` wander (sweep commits to a slightly-wrong bearing,
-then the grid recovery brute-forces it). `one floor up` / `moving` are hard cases.
+Only `one floor up` is unsolved: the virtual user can't climb, and auto floor
+detection is provably unreliable (#4). 12/13 is effectively the ceiling here.
+
+### Original baseline (for reference): `clean 9/13 · reached 11/13 · 1.9×`
+`behind` 7.6×, `randomized` 4.5×, `moving` 11× fail. The journey 9→12 below.
 
 ## Change history
 
@@ -49,6 +50,43 @@ then the grid recovery brute-forces it). `one floor up` / `moving` are hard case
 | 5 | SIGNAL_MIN_CONFIDENCE 0.35→0.45 / 0.55 | 6/13 | 7/13 | ✗ reverted — fixes randomized but a single threshold starves the weak far signal (far/extra-far fail) |
 | 6 | hoist all knobs into SpatialTuning | 9/13 | 11/13 | ✓ kept — behaviour-neutral; enables chaos search |
 | 7 | angularPeakednessDb 5→4.5 + binEma 0.5→0.55 | 9/13 | 9/13 | ✗ reverted — turns the 2 wanderers into outright fails (worse) |
+| 8 | peak-region centroid (window cutoff) | 8–9/13 | 11/13 | ✗ reverted — too narrow breaks diagonal; behind no better |
+| 9 | signal-bearing beats recovery (reorder) | 8/13 | 8/13 | ✗ reverted — recovery *was* the crude search that reached behind |
+| 10 | peakInterior ±2 + descending (turn through peak) | 9/13 | 10/13 | ✓ kept (in #11) — fixes behind 7.6×→0.8×; cost diagonal until #11 |
+| 11 | sticky recovery (hysteresis) | 11/13 | 12/13 | ✓ kept — stops recover↔chase flip-flop; fixes randomized + moving |
+| 12 | freshness decay, every step | 8/13 | 8/13 | ✗ reverted — ages valid long approaches (far/wall/forest fail) |
+| 13 | recoverDb 6→4 | 9/13 | 10/13 | ✗ reverted — over-eager recovery breaks forest/moving |
+| 14 | freshness decay **gated on cooling** | **12/13** | 12/13 | ✓ kept — diagonal 5.2×→3.1×; long approaches untouched (still warming) |
+
+## Observations (the 9→12 climb)
+
+The sim traces were decisive — eyeballing a metric never would have found these:
+
+1. **The bearing was committed at the sweep *edge*.** Turning in place from north,
+   `behind` locked onto a heading ~30° short of the true peak (the strongest bin
+   *sampled so far*, not the real peak), and overshot. Fix: `peakInterior` now
+   requires turning ±2 bins **past** the peak with the signal descending on both
+   sides (#10). This alone fixed `behind` 7.6×→0.8×.
+
+2. **Recovery and the bearing cue fought every tick.** Once you overshot, the
+   "head back to the warm spot" cue and the "follow the signal" cue alternated at
+   the single dB threshold — you orbited the target forever. Fix: recovery is now
+   **sticky** (engage at recoverDb below warmest, release only at 30% of it) (#11).
+   This fixed `randomized` *and* `moving` for free.
+
+3. **A straight walk coasts on a stale bearing.** The swept field is anchored to
+   where you stood; walk past the target and it still says "forward" because you
+   only refresh the bin you face. Fix: bins **age with travel — but only while
+   cooling** (#14). The cooling gate is the whole trick: `far`/`wall`/`forest`
+   keep warming on a straight approach so their bearing is never thrown away,
+   while `diagonal` cools the moment it passes and re-sweeps onto the now-sideways
+   target. Distance-only decay (#12) broke the long approaches; the cooling gate
+   doesn't.
+
+**Meta:** every win came from *watching the agent fail in the trace*, not from
+turning a constant. The chaos search's verdict held — the angular field was the
+lever, but the fixes were structural (when to trust / age / re-earn the bearing),
+not parameter values.
 
 ## Chaos search (random parameter sweep)
 
@@ -71,3 +109,5 @@ from the bottom third. Run across 4 seeds (42/7/99/2024):
 sweep (commit to the bearing only after turning fully *through* the peak from both
 sides), not a constant tweak. Defaults stay. The chaos harness stays for future
 exploration (e.g. after the sweep logic changes).
+
+→ This conclusion drove the #10–#14 structural fixes above (9/13 → 12/13).
