@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,19 +38,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import fyi.blep.ui.components.VectorArrow
 import fyi.blep.ui.theme.BlepColors
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.random.Random
 
 private val CELEBRATIONS = listOf(
-    "Hurray! 🎉",
-    "Awesome!",
-    "Juhu! 🎉",
-    "Glad it worked out!",
-    "Time saved!",
-    "Found at last!",
-    "Nice — reunited!",
+    "Found it! 🎉", "Gotcha! 🎯", "There you are!", "Reunited! 🎉",
+    "Nailed it! ✨", "Hurray! 🎉", "Got it! 🙌", "Tracked down!",
+    "Mission complete 🥳", "Bingo! 🎉", "Recovered! ✨", "Sweet success!",
 )
+
+private val SUBLINES = listOf(
+    "That's one less thing to worry about.",
+    "Back where it belongs. ✨",
+    "Phew — saved you a hunt.",
+    "Crisis averted. 🙌",
+    "Nice teamwork. 🐾",
+    "Right where blep said it'd be.",
+    "Hope it wasn't hiding too long.",
+    "Another one found.",
+)
+
+private val BURST_EMOJI = listOf("🎉", "✨", "🎈", "🥳", "⭐", "🙌", "💫", "🐾", "🎊")
 
 @Composable
 fun CompletionScreen(
@@ -61,29 +71,19 @@ fun CompletionScreen(
     modifier: Modifier = Modifier,
 ) {
     var celebrated by remember { mutableStateOf(false) }
+    // Each visit picks a fresh headline, sub-line, and animation flavour.
     val celebration = remember { CELEBRATIONS[Random.nextInt(CELEBRATIONS.size)] }
-
-    // The guidance arrow lands: it shrinks, floats up and fades into a faint
-    // background watermark as the screen settles.
-    var landed by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { landed = true }
-    val arrowScale by animateFloatAsState(if (landed) 0.4f else 1.1f, tween(900), label = "landScale")
-    val arrowShift by animateFloatAsState(if (landed) -160f else 0f, tween(900), label = "landShift")
-    val arrowAlpha by animateFloatAsState(if (landed) 0.14f else 0.85f, tween(900), label = "landAlpha")
+    val subline = remember { SUBLINES[Random.nextInt(SUBLINES.size)] }
+    val flavour = remember { Random.nextInt(3) } // 0 confetti · 1 emoji · 2 both
 
     Box(
         modifier = modifier.fillMaxSize().background(BlepColors.proximity(1f)),
         contentAlignment = Alignment.Center,
     ) {
-        // Faint floating arrow (settles near the top).
-        VectorArrow(
-            curl = 0f,
-            scale = arrowScale,
-            tint = BlepColors.Ink.copy(alpha = arrowAlpha),
-            modifier = Modifier.graphicsLayer { translationY = arrowShift },
-        )
-
-        if (celebrated) Confetti(Modifier.fillMaxSize())
+        if (celebrated) {
+            if (flavour != 1) Confetti(Modifier.fillMaxSize())
+            if (flavour != 0) EmojiBurst(Modifier.fillMaxSize())
+        }
 
         AnimatedContent(
             targetState = celebrated,
@@ -93,7 +93,7 @@ fun CompletionScreen(
             if (!done) {
                 FoundPanel(deviceName = deviceName, onGotIt = { celebrated = true }, onKeepLooking = onDone)
             } else {
-                CelebratePanel(headline = celebration, onDonate = onDonate, onAnother = onDone)
+                CelebratePanel(headline = celebration, subline = subline, onDonate = onDonate, onAnother = onDone)
             }
         }
     }
@@ -136,7 +136,7 @@ private fun FoundPanel(deviceName: String, onGotIt: () -> Unit, onKeepLooking: (
 }
 
 @Composable
-private fun CelebratePanel(headline: String, onDonate: () -> Unit, onAnother: () -> Unit) {
+private fun CelebratePanel(headline: String, subline: String, onDonate: () -> Unit, onAnother: () -> Unit) {
     val pop by animateFloatAsState(
         targetValue = 1f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
@@ -154,14 +154,21 @@ private fun CelebratePanel(headline: String, onDonate: () -> Unit, onAnother: ()
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer { scaleX = pop; scaleY = pop },
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(10.dp))
         Text(
-            "Glad it helped. If blep saved you some time, maybe help me out?",
-            style = MaterialTheme.typography.bodyLarge,
-            color = BlepColors.Ink.copy(alpha = 0.75f),
+            subline,
+            style = MaterialTheme.typography.titleMedium,
+            color = BlepColors.Ink.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(28.dp))
+        Text(
+            "If blep saved you some time, a small tip keeps it going. ♥",
+            style = MaterialTheme.typography.bodyLarge,
+            color = BlepColors.Ink.copy(alpha = 0.7f),
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(16.dp))
         Button(
             onClick = onDonate,
             colors = ButtonDefaults.buttonColors(containerColor = BlepColors.Blue, contentColor = BlepColors.Cream),
@@ -179,7 +186,7 @@ private fun CelebratePanel(headline: String, onDonate: () -> Unit, onAnother: ()
 private fun Confetti(modifier: Modifier = Modifier) {
     val palette = listOf(BlepColors.Blue, BlepColors.Pink, BlepColors.proximity(0.7f), BlepColors.proximity(1f))
     val bits = remember {
-        List(18) {
+        List(22) {
             ConfettiBit(
                 xFrac = Random.nextFloat(),
                 delay = Random.nextFloat() * 0.3f,
@@ -200,6 +207,33 @@ private fun Confetti(modifier: Modifier = Modifier) {
             val x = (b.xFrac + b.drift * p) * size.width
             val y = (-0.05f + p * 0.85f) * size.height
             drawCircle(b.color.copy(alpha = (1f - p) * 0.9f), radius = b.radius, center = androidx.compose.ui.geometry.Offset(x, y))
+        }
+    }
+}
+
+/** A radial pop of celebratory emoji from the centre, scaling out and fading. */
+@Composable
+private fun EmojiBurst(modifier: Modifier = Modifier) {
+    val emoji = remember { BURST_EMOJI.shuffled().take(7) }
+    var go by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { go = true }
+    val p by animateFloatAsState(if (go) 1f else 0f, tween(1100), label = "burst")
+
+    Box(modifier, contentAlignment = Alignment.Center) {
+        emoji.forEachIndexed { i, e ->
+            val ang = (i.toFloat() / emoji.size) * 2f * PI.toFloat()
+            Text(
+                e,
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.graphicsLayer {
+                    val reach = 360f * p
+                    translationX = cos(ang) * reach
+                    translationY = sin(ang) * reach
+                    val s = (0.4f + p * 1.1f).coerceAtMost(1.5f)
+                    scaleX = s; scaleY = s
+                    alpha = (1f - p) * 0.85f + 0.12f
+                },
+            )
         }
     }
 }
