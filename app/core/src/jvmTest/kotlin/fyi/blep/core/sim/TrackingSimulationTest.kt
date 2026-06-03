@@ -11,6 +11,7 @@ import fyi.blep.core.tracking.TrackingPhase
 import fyi.blep.core.tracking.TrackingSession
 import fyi.blep.core.tracking.TrackingTuning
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.log10
 import kotlin.math.max
@@ -153,13 +154,14 @@ class TrackingSimulationTest {
         return Result(name, initial, minD, reachTick, walkedToReach, walked)
     }
 
-    @Test
-    fun simulation_suite() {
-        val rnd = Random(7) // seeded → the "randomized" scenario is reproducible
+    /** The scenario spread — fresh (mutable) worlds each call, so a trial can't
+     *  pollute the next. Seeded so "randomized" is reproducible across trials. */
+    private fun scenarios(): List<Pair<String, World>> {
+        val rnd = Random(7)
         val rAng = rnd.nextDouble(0.0, 2 * PI)
         val rDist = rnd.nextDouble(7.0, 18.0)
         val rNoise = rnd.nextDouble(1.0, 3.0)
-        val scenarios = listOf(
+        return listOf(
             "ahead 5 m" to World(0.0, 5.0),
             "behind 8 m" to World(0.0, -8.0),
             "to the side 6 m" to World(6.0, 0.0),
@@ -174,7 +176,14 @@ class TrackingSimulationTest {
             "one floor up" to World(4.0, 0.0, tz = 3.0),       // needs stairs — expected fail
             "moving device" to World(0.0, 8.0, vx = 0.25),     // edge case — solve last
         )
-        val results = scenarios.map { (n, w) -> run(n, w) }
+    }
+
+    private fun runSuite(tuning: TrackingTuning, spatialTuning: SpatialTuning): List<Result> =
+        scenarios().map { (n, w) -> run(n, w, tuning, spatialTuning) }
+
+    @Test
+    fun simulation_suite() {
+        val results = runSuite(TrackingTuning(), SpatialTuning())
 
         fun secs(v: Int) = if (v < 0) "timeout" else "${"%.0f".format(v * DT_MS / 1000.0)}s"
         println("\n── tracking simulation (timeout ${MAX_TICKS * DT_MS / 1000}s) ──────────────────────────")
@@ -200,6 +209,92 @@ class TrackingSimulationTest {
         assertTrue(ahead.clean, "straight-ahead target not cleanly found (closest ${"%.1f".format(ahead.minDistanceM)} m, ${"%.1f".format(ahead.efficiency)}× path)")
     }
 
+    /** A single dial we can turn: a [name]d tuning field, its [lo]..[hi] search
+     *  range and current [def]ault. Trial 0 pins every dial to its default. */
+    private class Dial(val name: String, val lo: Double, val hi: Double, val def: Double)
+
+    private data class Trial(val score: Double, val clean: Int, val reached: Int, val eff: Double, val knobs: Map<String, Double>)
+
+    /**
+     * Chaos mode: turn every knob to a random value, run the whole suite, score it,
+     * and after N trials report which dials actually move the needle (top-third vs
+     * bottom-third mean) so we know where to look. Opt-in (it's slow):
+     *
+     *     CHAOS_N=60 ./gradlew :core:jvmTest --tests '*TrackingSimulationTest.chaos*'
+     *     CHAOS_N=60 CHAOS_SEED=7 ./gradlew ...   # different random draw
+     */
+    @Test
+    fun chaos_search() {
+        val trials = (System.getenv("CHAOS_N") ?: "0").toIntOrNull() ?: 0
+        if (trials <= 0) return // off by default — doesn't bloat CI
+        val rnd = Random(System.getenv("CHAOS_SEED")?.toLongOrNull() ?: 42L)
+
+        val out = ArrayList<Trial>(trials)
+        repeat(trials) { k ->
+            val v = DIALS.associate { it.name to if (k == 0) it.def else rnd.nextDouble(it.lo, it.hi) }
+            val st = SpatialTuning(
+                pathLossExponent = v.getValue("pathLossExponent"),
+                minTriangulationStepM = v.getValue("minTriangulationStepM"),
+                measurementSigmaDb = v.getValue("measurementSigmaDb"),
+                particleJitterM = v.getValue("particleJitterM"),
+                minSpreadM = v.getValue("minSpreadM"),
+                reportConfidence = v.getValue("reportConfidence").toFloat(),
+                warmestMinOffsetM = v.getValue("warmestMinOffsetM"),
+                recoverDb = v.getValue("recoverDb"),
+                angularBinEma = v.getValue("angularBinEma"),
+                angularCoverageFraction = v.getValue("angularCoverageFraction"),
+                angularPeakednessDb = v.getValue("angularPeakednessDb"),
+                aheadDeg = v.getValue("aheadDeg"),
+                signalMinConfidence = v.getValue("signalMinConfidence").toFloat(),
+                guidanceMinConfidence = v.getValue("guidanceMinConfidence").toFloat(),
+            )
+            val tt = TrackingTuning(
+                emaAlpha = v.getValue("emaAlpha"),
+                rssiFar = v.getValue("rssiFar"),
+                rssiNear = v.getValue("rssiNear"),
+            )
+            val res = runSuite(tt, st)
+            val clean = res.count { it.clean }
+            val reached = res.count { it.solved }
+            val effs = res.filter { it.solved }.map { it.efficiency }
+            val avgEff = if (effs.isEmpty()) 9.9 else effs.average()
+            // clean solves dominate; path-eff breaks ties (lower = better).
+            out += Trial(clean - 0.05 * avgEff, clean, reached, avgEff, v)
+        }
+        val baseline = out.first() // trial 0 pinned every dial to its default
+        out.sortByDescending { it.score }
+
+        println("\n══ chaos search · $trials trials (seed ${System.getenv("CHAOS_SEED") ?: "42"}) ══")
+        println("baseline (defaults): clean ${baseline.clean}/13 · reached ${baseline.reached}/13 · eff %.2f×".format(baseline.eff))
+        println("\ntop 5 configs:")
+        out.take(5).forEach { t ->
+            println("  clean ${t.clean}/13 · reached ${t.reached}/13 · eff %.2f×".format(t.eff))
+        }
+        val best = out.first()
+        if (best.clean > baseline.clean || (best.clean == baseline.clean && best.eff < baseline.eff - 0.05)) {
+            println("\nbest beat baseline — its dials:")
+            DIALS.forEach { d -> println("  %-24s %.3f  (default %.3f)".format(d.name, best.knobs.getValue(d.name), d.def)) }
+        }
+
+        // Which dials separate good from bad? Compare top-third vs bottom-third mean,
+        // normalised by the dial's range so they're comparable.
+        val third = (out.size / 3).coerceAtLeast(1)
+        val good = out.take(third); val bad = out.takeLast(third)
+        println("\ndials that move the score most (top-third vs bottom-third mean):")
+        DIALS.map { d ->
+            val g = good.map { it.knobs.getValue(d.name) }.average()
+            val b = bad.map { it.knobs.getValue(d.name) }.average()
+            Triple(d, g, b)
+        }.sortedByDescending { (d, g, b) -> abs(g - b) / (d.hi - d.lo) }
+            .take(8)
+            .forEach { (d, g, b) ->
+                val pull = if (g > b) "↑ higher" else "↓ lower"
+                println("  %-24s good≈%.3f bad≈%.3f  → %s helps  (range %.2f..%.2f)".format(
+                    d.name, g, b, pull, d.lo, d.hi))
+            }
+        println("══════════════════════════════════════════════════════════════")
+    }
+
     private companion object {
         const val REACH_M = 2.0   // within arm's reach counts as found
         const val CLEAN_EFF = 3.5 // ≤ this × the straight line = a clean solve (not wandering)
@@ -209,6 +304,33 @@ class TrackingSimulationTest {
         const val MAX_TICKS = 450 // ≈ 3 min timeout per scenario
         const val DT_MS = 400L
         const val DEBUG = false
+
+        /** Every knob the chaos search turns, with its search range and default. */
+        val DIALS = listOf(
+            // spatial: range model + particle filter
+            Dial("pathLossExponent", 2.0, 3.4, 2.5),
+            Dial("minTriangulationStepM", 0.4, 1.2, 0.7),
+            Dial("measurementSigmaDb", 2.0, 6.0, 3.5),
+            Dial("particleJitterM", 0.15, 0.6, 0.3),
+            // spatial: reporting gates
+            Dial("minSpreadM", 1.0, 2.5, 1.5),
+            Dial("reportConfidence", 0.2, 0.45, 0.30),
+            // spatial: warmest-spot recovery
+            Dial("warmestMinOffsetM", 1.0, 2.5, 1.5),
+            Dial("recoverDb", 4.0, 9.0, 6.0),
+            // spatial: angular direction-finding
+            Dial("angularBinEma", 0.3, 0.7, 0.5),
+            Dial("angularCoverageFraction", 0.6, 0.95, 0.8),
+            Dial("angularPeakednessDb", 3.0, 8.0, 5.0),
+            // guidance thresholds
+            Dial("aheadDeg", 15.0, 30.0, 22.0),
+            Dial("signalMinConfidence", 0.25, 0.5, 0.35),
+            Dial("guidanceMinConfidence", 0.3, 0.5, 0.4),
+            // RSSI phase machine (affects PINPOINT small-step + strength mapping)
+            Dial("emaAlpha", 0.3, 0.6, 0.45),
+            Dial("rssiFar", -95.0, -85.0, -90.0),
+            Dial("rssiNear", -64.0, -52.0, -58.0),
+        )
     }
 }
 
