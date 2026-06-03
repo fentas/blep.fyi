@@ -104,6 +104,9 @@ class TrackingSimulationTest {
     ) {
         val solved get() = reachTick >= 0
         val efficiency get() = (if (solved) walkedToReachM else walkedM) / max(initialM, 0.1)
+        /** A real success: reached it AND didn't wander to get there. Walking 77 m
+         *  for an 8 m target counts as a fail even though you technically arrived. */
+        val clean get() = solved && efficiency < CLEAN_EFF
     }
 
     private fun run(
@@ -175,28 +178,31 @@ class TrackingSimulationTest {
 
         fun secs(v: Int) = if (v < 0) "timeout" else "${"%.0f".format(v * DT_MS / 1000.0)}s"
         println("\n── tracking simulation (timeout ${MAX_TICKS * DT_MS / 1000}s) ──────────────────────────")
-        println("scenario           straight   closest   found     walked   path-eff   solved")
+        println("scenario           straight   closest   found     walked   path-eff   result")
         results.forEach {
+            val mark = if (it.clean) "★ clean" else if (it.solved) "~ wander" else "✗ fail"
             println(
                 "%-16s   %5.1f m   %5.1f m   %7s   %5.1f m   %5.1f×    %s".format(
-                    it.name, it.initialM, it.minDistanceM, secs(it.reachTick), it.walkedM,
-                    it.efficiency, if (it.solved) "✓" else "✗",
+                    it.name, it.initialM, it.minDistanceM, secs(it.reachTick), it.walkedM, it.efficiency, mark,
                 ),
             )
         }
-        val solved = results.count { it.solved }
+        val clean = results.count { it.clean }
+        val reached = results.count { it.solved }
         val eff = results.filter { it.solved }.map { it.efficiency }
-        println("───────────────────────────────  solved %d/%d   avg path-eff %.1f×  ──".format(solved, results.size, if (eff.isEmpty()) 0.0 else eff.average()))
+        println("──────────────────  clean %d/%d  ·  reached %d/%d  ·  avg path-eff %.1f×  ──".format(
+            clean, results.size, reached, results.size, if (eff.isEmpty()) 0.0 else eff.average()))
         println()
 
-        // Report-first: just make sure the simplest line-of-sight case works, so a
-        // gross regression still fails the build. The rest is for tuning.
+        // Report-first: only assert the simplest case is a CLEAN solve, so a gross
+        // regression fails the build. "Reached by wandering" doesn't count.
         val ahead = results.first { it.name.startsWith("ahead") }
-        assertTrue(ahead.solved, "even a target straight ahead wasn't found (closest ${"%.1f".format(ahead.minDistanceM)} m)")
+        assertTrue(ahead.clean, "straight-ahead target not cleanly found (closest ${"%.1f".format(ahead.minDistanceM)} m, ${"%.1f".format(ahead.efficiency)}× path)")
     }
 
     private companion object {
         const val REACH_M = 2.0   // within arm's reach counts as found
+        const val CLEAN_EFF = 3.5 // ≤ this × the straight line = a clean solve (not wandering)
         const val STEP = 0.6
         const val MAX_TURN_DEG = 30.0
         const val SWEEP_DEG = 18.0

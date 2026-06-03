@@ -1,50 +1,51 @@
 # Tracking tuning log
 
-Driven by `TrackingSimulationTest` (a virtual user reads the on-screen guidance
-and follows it, against a body-shielding RSSI model + walls/slope/elevation/
-canopy/noise/motion). We record each tweak and whether it helped, so we keep
-what works and revert what doesn't.
+Driven by `TrackingSimulationTest`: a virtual user reads the on-screen guidance
+and follows it, against a body-shielding RSSI model + walls / slope / elevation /
+canopy / noise / motion. We commit **one change at a time** with its score so we
+can diff what helped.
 
-Metric: **solved** = reached within 2 m before the 180 s timeout. **path-eff** =
-distance walked to reach ÷ straight-line (1.0 = beeline). Lower is better.
+## Metric
 
-## Baseline (after: compass-bearing-first, peak-interior sweep, proximity rescale)
+- **reached** = got within 2 m before the 180 s timeout.
+- **path-eff** = distance walked to reach ÷ straight-line (1.0 = a beeline).
+- **★ clean** = reached **and** path-eff < 3.5× (a real solve). Reaching an 8 m
+  target by wandering 77 m (7.6×) is **~ wander** — counts as a fail.
 
-`solved 8/13 · avg path-eff 0.8×`
+Headline score: **clean / total**.
 
-| scenario       | straight | closest | found   | path-eff | solved |
-|----------------|---------:|--------:|---------|---------:|:------:|
-| ahead 5 m      |   5.0 m  |  0.2 m  | 12 s    |   0.6×   |  ✓ |
-| behind 8 m     |   8.0 m  |  4.0 m  | timeout |  32×     |  ✗ |
-| to the side 6 m|   6.0 m  |  0.0 m  | 14 s    |   0.8×   |  ✓ |
-| diagonal 14 m  |  14.1 m  |  2.2 m  | timeout |  18×     |  ✗ |
-| far 20 m       |  20.0 m  |  0.2 m  | 22 s    |   0.9×   |  ✓ |
-| extra-far 35 m |  35.0 m  |  0.2 m  | 32 s    |   0.9×   |  ✓ |
-| through a wall |   9.0 m  |  0.0 m  | 15 s    |   0.8×   |  ✓ |
-| up a slope     |  12.1 m  |  0.0 m  | 17 s    |   0.8×   |  ✓ |
-| forest 12 m    |  12.0 m  |  0.1 m  | 17 s    |   0.8×   |  ✓ |
-| noisy room     |   8.0 m  |  0.2 m  | 14 s    |   0.8×   |  ✓ |
-| randomized     |  13.0 m  |  2.3 m  | timeout |  18×     |  ✗ |
-| one floor up   |   5.0 m  |  3.0 m  | timeout |  —       |  ✗ (needs stairs) |
-| moving device  |   8.0 m  |  3.8 m  | timeout |  29×     |  ✗ (edge case) |
+## Baseline (compass-bearing-first · grid recovery · proximity rescale)
 
-Open: `behind` (bearing wrong → never closes), `diagonal`/`randomized` (orbit at
-~2.2 m, just outside the 2 m ring), `one floor up` + `moving` (expected edge
-cases).
+`clean 9/13 · reached 11/13 · avg path-eff 1.9×`
 
-## Changes
+| scenario       | path-eff | result |
+|----------------|---------:|--------|
+| ahead 5 m      |   0.6×   | ★ clean |
+| behind 8 m     |   7.6×   | ~ wander |
+| to the side 6 m|   0.8×   | ★ clean |
+| diagonal 14 m  |   2.6×   | ★ clean |
+| far 20 m       |   0.9×   | ★ clean |
+| extra-far 35 m |   0.9×   | ★ clean |
+| through a wall |   0.8×   | ★ clean |
+| up a slope     |   0.8×   | ★ clean |
+| forest 12 m    |   0.8×   | ★ clean |
+| noisy room     |   0.8×   | ★ clean |
+| randomized     |   4.5×   | ~ wander |
+| one floor up   |    —     | ✗ fail (can't auto-detect another floor) |
+| moving device  |   11×    | ✗ fail (edge case) |
 
-| # | change | result | keep? |
-|---|--------|--------|:-----:|
-| 0 | baseline above | 8/13, eff 0.8× | — |
-| 1 | AngularSignalField coverage 0.8→0.92 | 7/13 — broke far/extra-far | ✗ revert |
-| 2 | bearing = peak-bin local window (±2) | 5/13 — broke side/noisy | ✗ revert |
-| 3 | **SignalGrid memory + "warmer back that way" recovery** | **11/13** — solved behind, diagonal, randomized (orbiters); eff 1.9× (recovery adds some backtrack) | ✓ **keep** |
+Open: `behind` + `randomized` wander (sweep commits to a slightly-wrong bearing,
+then the grid recovery brute-forces it). `one floor up` / `moving` are hard cases.
 
-After #3: only `one floor up` (needs stairs) and `moving device` (edge case)
-remain. Recovery fires when the signal drops ≥6 dB below the warmest grid cell
-visited, pointing you back to it.
+## Change history
 
-Next idea (from grid): the cells are a multi-vantage dataset — triangulate the
-target by intersecting bearings / RSSI ranges across cells (robust under
-body-shielding, unlike single range-trilateration).
+| # | change | clean | reached | note |
+|---|--------|:-----:|:-------:|------|
+| 0 | baseline (compass-first + grid recovery) | 9/13 | 11/13 | committed |
+| 1 | AngularSignalField coverage 0.8→0.92 | — | 7/13 reached | ✗ reverted (broke far) |
+| 2 | bearing = peak-bin local window | — | 5/13 reached | ✗ reverted |
+| 3 | cross-bearing (fox-hunt) triangulator | 9/13 | 11/13 | neutral (dormant — needs lateral spread); not kept |
+| 4 | auto "try another floor" (4 variants) | ≤8 | — | ✗ all reverted — can't tell "stuck on wrong bearing" from "another floor" |
+
+Next: make `behind`/`randomized` **clean** (fix the sweep committing to a biased
+bearing) — that's the real win, not just reaching by wandering.
