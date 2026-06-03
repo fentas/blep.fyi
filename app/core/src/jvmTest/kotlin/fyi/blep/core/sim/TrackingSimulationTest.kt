@@ -138,7 +138,7 @@ class TrackingSimulationTest {
             if (reachTick < 0 && d <= REACH_M) { reachTick = tick; walkedToReach = walked }
             if (status.phase == TrackingPhase.COMPLETE) break
 
-            if (DEBUG && name.startsWith("behind") && tick in 14..70 && tick % 2 == 0) {
+            if (DEBUG && name.startsWith("diagonal") && tick in 38..70 && tick % 2 == 0) {
                 println("t=%2d hd=%4.0f° pos=(%4.1f,%4.1f) %-26s tgtC=%.2f sigC=%.2f d=%4.1f".format(
                     tick, (world.heading * 180 / PI) % 360, world.x, world.y,
                     instruction ?: "(${status.guidance.title})", snap.target.confidence, snap.signalBearingConfidence, d))
@@ -207,6 +207,45 @@ class TrackingSimulationTest {
         // regression fails the build. "Reached by wandering" doesn't count.
         val ahead = results.first { it.name.startsWith("ahead") }
         assertTrue(ahead.clean, "straight-ahead target not cleanly found (closest ${"%.1f".format(ahead.minDistanceM)} m, ${"%.1f".format(ahead.efficiency)}× path)")
+    }
+
+    /**
+     * Held-out generalisation: many *randomly generated* worlds (bearing, distance,
+     * noise, sometimes a wall or slope), none of them the hand-picked 13. Tells us
+     * whether the tuning actually generalises or just overfits the fixed suite.
+     * Defaults to 40 worlds; override with ROBUST_N. All same-floor (vertical is
+     * the known-unsolvable case), so the bar is a high clean rate.
+     */
+    @Test
+    fun robustness_suite() {
+        val n = (System.getenv("ROBUST_N") ?: "40").toIntOrNull() ?: 40
+        val rnd = Random(System.getenv("ROBUST_SEED")?.toLongOrNull() ?: 1234L)
+        val results = (0 until n).map { k ->
+            val ang = rnd.nextDouble(0.0, 2 * PI)
+            val dist = rnd.nextDouble(4.0, 28.0)
+            val tx = sin(ang) * dist; val ty = cos(ang) * dist
+            val noise = rnd.nextDouble(1.0, 4.0)
+            // ~30% have an attenuating wall roughly between you and the target.
+            val wall = if (rnd.nextDouble() < 0.3) {
+                val mx = tx / 2; val my = ty / 2; val s = 4.0
+                Wall(mx - ty / dist * s, my + tx / dist * s, mx + ty / dist * s, my - tx / dist * s, db = rnd.nextDouble(8.0, 18.0))
+            } else null
+            val slope = if (rnd.nextDouble() < 0.2) rnd.nextDouble(0.05, 0.18) else 0.0
+            run("rnd#$k", World(tx, ty, slope = slope, canopyDb = if (noise > 3.0) 5.0 else 0.0, wall = wall, noiseDb = noise))
+        }
+        val clean = results.count { it.clean }
+        val reached = results.count { it.solved }
+        val eff = results.filter { it.solved }.map { it.efficiency }
+        println("\n── robustness ($n random worlds) ──")
+        println("clean %d/%d (%.0f%%) · reached %d/%d · avg path-eff %.1f×".format(
+            clean, n, 100.0 * clean / n, reached, n, if (eff.isEmpty()) 0.0 else eff.average()))
+        // The worst few, to see what geometry still trips it up.
+        results.filter { !it.clean }.sortedByDescending { it.efficiency }.take(6).forEach {
+            println("  %-7s straight %.1f m  closest %.1f m  eff %.1f×  %s".format(
+                it.name, it.initialM, it.minDistanceM, it.efficiency, if (it.solved) "wander" else "fail"))
+        }
+        // Soft floor: a gross regression (tuning that doesn't generalise) fails here.
+        assertTrue(clean >= n * 0.65, "random-world clean rate regressed: $clean/$n")
     }
 
     /** A single dial we can turn: a [name]d tuning field, its [lo]..[hi] search
