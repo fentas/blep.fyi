@@ -18,6 +18,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -40,9 +41,11 @@ class TrackingSimulationTest {
 
     // ── world + body-shielding signal model ──────────────────────────────────
     private class World(
-        val tx: Double, val ty: Double, val tz: Double = 0.0,
+        var tx: Double, var ty: Double, val tz: Double = 0.0,
         val wall: Wall? = null,
         val slope: Double = 0.0,        // ground rises this much per metre walked north
+        val vx: Double = 0.0, val vy: Double = 0.0, // the device itself moving (m/s)
+        val canopyDb: Double = 0.0,     // forest: position-dependent shadowing/fading
         val txAt1m: Double = -59.0,
         val pathLossN: Double = 2.5,
         val shieldDb: Double = 10.0,    // front/back attenuation from your body
@@ -54,16 +57,20 @@ class TrackingSimulationTest {
 
         fun distance() = sqrt((x - tx) * (x - tx) + (y - ty) * (y - ty) + (z - tz) * (z - tz))
 
-        /** Integer dBm: path loss + directional body shielding + wall + noise. */
+        fun advanceTarget(dtSec: Double) { tx += vx * dtSec; ty += vy * dtSec }
+
+        /** Integer dBm: path loss + directional body shielding + wall + canopy + noise. */
         fun rssi(): Int {
             val d = max(distance(), 0.4)
             val pathLoss = txAt1m - 10.0 * pathLossN * log10(d)
             val toTarget = bearingOf(Vec2(tx - x, ty - y))
             val shield = -shieldDb * (1 - cos(angleDelta(toTarget, heading))) / 2.0
             val blocked = if (wall != null && crosses(x, y, tx, ty, wall.x1, wall.y1, wall.x2, wall.y2)) -wall.db else 0.0
+            // Canopy: trees shadow the signal in a position-dependent fading pattern.
+            val canopy = if (canopyDb > 0.0) canopyDb * sin(x * 0.8 + 1.3) * sin(y * 0.9) else 0.0
             val noise = noiseDb * sin(i * 1.3) + 0.5 * sin(i * 0.37)
             i++
-            return (pathLoss + shield + blocked + noise).roundToInt()
+            return (pathLoss + shield + blocked + canopy + noise).roundToInt()
         }
     }
 
@@ -131,6 +138,7 @@ class TrackingSimulationTest {
             world.heading += turn
             world.x += sin(world.heading) * step
             world.y += cos(world.heading) * step
+            world.advanceTarget(DT_MS / 1000.0) // the device may be moving too
             walked += step; lastStep = step
             t += DT_MS
         }
@@ -139,16 +147,24 @@ class TrackingSimulationTest {
 
     @Test
     fun simulation_suite() {
+        val rnd = Random(7) // seeded → the "randomized" scenario is reproducible
+        val rAng = rnd.nextDouble(0.0, 2 * PI)
+        val rDist = rnd.nextDouble(7.0, 18.0)
+        val rNoise = rnd.nextDouble(1.0, 3.0)
         val scenarios = listOf(
             "ahead 5 m" to World(0.0, 5.0),
             "behind 8 m" to World(0.0, -8.0),
             "to the side 6 m" to World(6.0, 0.0),
             "diagonal 14 m" to World(10.0, 10.0),
             "far 20 m" to World(0.0, 20.0),
+            "extra-far 35 m" to World(0.0, 35.0),
             "through a wall" to World(0.0, 9.0, wall = Wall(-4.0, 4.5, 4.0, 4.5, db = 16.0)),
             "up a slope" to World(0.0, 12.0, tz = 1.8, slope = 0.15),
-            "one floor up" to World(4.0, 0.0, tz = 3.0),  // needs stairs — expected to fail
+            "forest 12 m" to World(0.0, 12.0, canopyDb = 6.0, noiseDb = 2.5),
             "noisy room" to World(0.0, 8.0, noiseDb = 4.0),
+            "randomized" to World(sin(rAng) * rDist, cos(rAng) * rDist, noiseDb = rNoise),
+            "one floor up" to World(4.0, 0.0, tz = 3.0),       // needs stairs — expected fail
+            "moving device" to World(0.0, 8.0, vx = 0.25),     // edge case — solve last
         )
         val results = scenarios.map { (n, w) -> run(n, w) }
 
