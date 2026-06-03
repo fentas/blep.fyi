@@ -144,6 +144,37 @@ no unused stateful scaffolding is left in production. Baseline 12/13 · ~87% hel
 out stands as the validated optimum; the residual failures are fundamental
 BLE/body-shielding limits, not tuning.
 
+## Regime-aware commitment — SHIPPED
+
+The directional-commitment verdict above ("helps clean geometry, hurts fading")
+*is* a clear signal — so instead of picking one globally, **detect the regime and
+switch**:
+
+1. **Categorise** — `SpatialTracker.signalVolatilityDb` = |Δrssi| between
+   consecutive samples *at a steady heading* (so the ±10 dB sweep shield-swing
+   isn't counted as noise). Cleanly separates clean LOS (~1.4 dB) from
+   canopy/heavy-noise (≥2.7 dB).
+2. **Different behaviour** — `GuidanceStabilizer` commits to a world direction in
+   a calm field, passes straight through in a noisy one (hysteretic at
+   `noisyVolatilityDb` = 2.2).
+3. **Detect live** — per-sample, with hysteresis so it doesn't chatter.
+
+A/B (`STABILIZE=0` disables it):
+
+| metric | baseline | shipped |
+|--------|:--------:|:-------:|
+| fixed clean | 12/13 | 12/13 |
+| fixed avg path-eff | 1.2× | **1.1×** |
+| diagonal (clean field) | 3.1× · 60 s | **2.3× · 38 s** |
+| forest (fading field) | 0.9× | 0.9× (protected) |
+| held-out, 8 seeds | 272/320 | 270/320 (tie) |
+
+The sim **under-counts** the real win: its virtual user follows jittery guidance
+perfectly, but a human can't — committing to a direction (vs an arrow flipping
+±90° each tick) is a UX gain path-eff can't measure. Shipped to Blep/WearController
+behind the volatility gate; no regression anywhere. The volatility metric is also
+a reusable primitive (future: "noisy area — move around" hints, haptic patterns).
+
 ## Chaos search (random parameter sweep)
 
 `CHAOS_N=70 ./gradlew :core:jvmTest --tests '*chaos*'` turns all 17 dials to
