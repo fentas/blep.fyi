@@ -12,15 +12,15 @@ data class TrackingTuning(
     /** Smoothed RSSI mapped to proximity 1f. */
     val rssiNear: Double = -45.0,
     /** EMA smoothing factor for the RSSI filter. */
-    val emaAlpha: Double = 0.3,
+    val emaAlpha: Double = 0.45,
     /** Slope band (dBm) treated as "flat" for trend detection. */
     val flatBand: Double = 1.5,
     /** Time (ms) the phone is held at the chest to log a baseline. */
     val calibrationMs: Long = 2500,
     /** Rise (dBm) above a leg's entry value that proves a real peak exists. */
-    val sweepRiseDb: Double = 3.0,
+    val sweepRiseDb: Double = 2.0,
     /** Drop (dBm) from the sweep peak that confirms we turned past the bearing. */
-    val sweepPeakDropDb: Double = 4.0,
+    val sweepPeakDropDb: Double = 2.5,
     /** Rise (dBm) above the walk's entry value that proves we're closing in. */
     val walkRiseDb: Double = 3.0,
     /** Drop (dBm) from the walk peak that means "you overshot — stop". */
