@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- German. Missing keys fall back to the default (English) strings.xml. -->
+<resources>
+    <!-- Safety scan -->
+    <string name="safety_entry_title">Verfolgt dich etwas?</string>
+    <string name="safety_entry_subtitle">Nach unerwünschten AirTags &amp; Trackern suchen</string>
+    <string name="safety_title">Verfolgt dich etwas?</string>
+    <string name="safety_scanning">Suche in der Nähe nach unerwünschten Trackern…</string>
+    <string name="safety_all_clear">Alles sauber</string>
+    <string name="safety_all_clear_body">Gerade keine unerwünschten Tracker in deiner Nähe. Lass dies eine Minute offen, während du dich bewegst — ein Tracker, der dir folgt, taucht auf.</string>
+    <string name="safety_find_it">Finden</string>
+    <string name="safety_its_mine">Gehört mir</string>
+    <string name="safety_muted_undo">Als deins markiert — wird nicht mehr gemeldet</string>
+    <string name="action_undo">Rückgängig</string>
+    <string name="action_done">Fertig</string>
+    <string name="safety_remember_title">Über Sitzungen merken</string>
+    <string name="safety_remember_body">Speichert nur Tracker-Typ + Zeit — keine Identität, kein Standort — damit ein Tag, der über Stunden immer wieder auftaucht, markiert wird.</string>
+</resources>

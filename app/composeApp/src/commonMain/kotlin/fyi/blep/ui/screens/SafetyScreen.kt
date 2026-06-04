@@ -41,6 +41,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import fyi.blep.resources.Res
+import fyi.blep.resources.action_done
+import fyi.blep.resources.action_undo
+import fyi.blep.resources.dbm
+import fyi.blep.resources.safety_all_clear
+import fyi.blep.resources.safety_all_clear_body
+import fyi.blep.resources.safety_find_it
+import fyi.blep.resources.safety_its_mine
+import fyi.blep.resources.safety_muted_undo
+import fyi.blep.resources.safety_remember_body
+import fyi.blep.resources.safety_remember_title
+import fyi.blep.resources.safety_scanning
+import fyi.blep.resources.safety_title
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,13 +84,16 @@ fun SafetyScreen(
 ) {
     Box(modifier.fillMaxSize().background(BlepColors.Mist)) {
         val snackbarHostState = remember { SnackbarHostState() }
+        // Snackbar runs in a coroutine, so resolve its strings in composition first.
+        val mutedMessage = stringResource(Res.string.safety_muted_undo)
+        val undoLabel = stringResource(Res.string.action_undo)
         // Show a brief "Undo" when a tracker is marked mine — so an accidental tap (or
         // a change of mind) is reversible instead of a permanent, invisible mute.
         LaunchedEffect(lastMuted) {
             if (lastMuted == null) return@LaunchedEffect
             val result = snackbarHostState.showSnackbar(
-                message = "Marked as yours — won't flag it again",
-                actionLabel = "Undo",
+                message = mutedMessage,
+                actionLabel = undoLabel,
                 duration = SnackbarDuration.Short,
             )
             if (result == SnackbarResult.ActionPerformed) onUndoMute() else onMuteUndoShown()
@@ -89,13 +106,13 @@ fun SafetyScreen(
                 .padding(horizontal = 20.dp),
         ) {
             Spacer(Modifier.height(12.dp))
-            Text("Is anything tracking you?", style = MaterialTheme.typography.headlineMedium, color = BlepColors.Ink)
+            Text(stringResource(Res.string.safety_title), style = MaterialTheme.typography.headlineMedium, color = BlepColors.Ink)
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ScanningDot()
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    "Scanning nearby Bluetooth for unwanted trackers…",
+                    stringResource(Res.string.safety_scanning),
                     style = MaterialTheme.typography.bodyLarge,
                     color = BlepColors.Ink.copy(alpha = 0.55f),
                 )
@@ -113,7 +130,7 @@ fun SafetyScreen(
             RememberToggle(rememberOn, onToggleRemember)
 
             TextButton(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                Text("Done", color = BlepColors.Ink.copy(alpha = 0.6f))
+                Text(stringResource(Res.string.action_done), color = BlepColors.Ink.copy(alpha = 0.6f))
             }
         }
 
@@ -136,9 +153,9 @@ private fun RememberToggle(on: Boolean, onToggle: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text("Remember across sessions", style = MaterialTheme.typography.titleSmall, color = BlepColors.Ink)
+                Text(stringResource(Res.string.safety_remember_title), style = MaterialTheme.typography.titleSmall, color = BlepColors.Ink)
                 Text(
-                    "Logs only the tracker type + time — no identity, no location — so a tag that keeps reappearing over hours gets flagged.",
+                    stringResource(Res.string.safety_remember_body),
                     style = MaterialTheme.typography.bodySmall,
                     color = BlepColors.Ink.copy(alpha = 0.55f),
                 )
@@ -179,20 +196,20 @@ private fun AlertCard(alert: TrackerAlert, onFind: (TrackerAlert) -> Unit, onMin
             Spacer(Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "${alert.rssi} dBm",
+                    stringResource(Res.string.dbm, alert.rssi),
                     style = MaterialTheme.typography.labelLarge,
                     color = BlepColors.Ink.copy(alpha = 0.45f),
                     modifier = Modifier.weight(1f),
                 )
                 if (alert.trackingAddress != null) {
                     TextButton(onClick = { onMine(alert) }) {
-                        Text("It's mine", color = BlepColors.Ink.copy(alpha = 0.55f))
+                        Text(stringResource(Res.string.safety_its_mine), color = BlepColors.Ink.copy(alpha = 0.55f))
                     }
                     Spacer(Modifier.width(4.dp))
                     Button(
                         onClick = { onFind(alert) },
                         colors = ButtonDefaults.buttonColors(containerColor = BlepColors.Blue, contentColor = BlepColors.Cream),
-                    ) { Text("Find it") }
+                    ) { Text(stringResource(Res.string.safety_find_it)) }
                 }
             }
         }
@@ -205,10 +222,10 @@ private fun AllClear(modifier: Modifier = Modifier) {
         Spacer(Modifier.height(48.dp))
         Text("🛡️", style = MaterialTheme.typography.displayMedium)
         Spacer(Modifier.height(12.dp))
-        Text("All clear", style = MaterialTheme.typography.titleLarge, color = BlepColors.Ink.copy(alpha = 0.7f))
+        Text(stringResource(Res.string.safety_all_clear), style = MaterialTheme.typography.titleLarge, color = BlepColors.Ink.copy(alpha = 0.7f))
         Spacer(Modifier.height(6.dp))
         Text(
-            "No unwanted trackers near you right now. Keep this open for a minute while you move — a tracker following you will show up.",
+            stringResource(Res.string.safety_all_clear_body),
             style = MaterialTheme.typography.bodyLarge,
             color = BlepColors.Ink.copy(alpha = 0.5f),
             textAlign = TextAlign.Center,

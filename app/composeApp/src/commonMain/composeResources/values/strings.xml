@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Default (English) strings. Per-locale overrides live in values-<lang>/strings.xml.
+     blep stays untranslated everywhere (it's the brand). -->
+<resources>
+    <!-- Discovery -->
+    <string name="app_tagline">Tap a device to track it</string>
+    <string name="nearby_count">%1$d nearby</string>
+    <string name="section_nearby">Nearby</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_paired">Paired</string>
+    <string name="hide_unnamed">Hide unnamed devices</string>
+    <string name="show_unnamed_one">Show %1$d unnamed device</string>
+    <string name="show_unnamed_many">Show %1$d unnamed devices</string>
+    <string name="discovery_hint">Make sure the device is powered on and nearby.</string>
+    <string name="avail_bluetooth_off">Turn on Bluetooth to scan</string>
+    <string name="avail_permission">Allow Bluetooth access to scan</string>
+    <string name="avail_location_off">Turn on Location to scan (Android)</string>
+    <string name="avail_unsupported">Bluetooth LE isn\'t supported on this device</string>
+    <string name="rename_title">Rename device</string>
+    <string name="rename_label">Name</string>
+    <string name="action_save">Save</string>
+    <string name="action_clear">Clear</string>
+    <string name="dbm">%1$d dBm</string>
+
+    <!-- Safety scan -->
+    <string name="safety_entry_title">Is something tracking you?</string>
+    <string name="safety_entry_subtitle">Scan for unwanted AirTags &amp; trackers</string>
+    <string name="safety_title">Is anything tracking you?</string>
+    <string name="safety_scanning">Scanning nearby Bluetooth for unwanted trackers…</string>
+    <string name="safety_all_clear">All clear</string>
+    <string name="safety_all_clear_body">No unwanted trackers near you right now. Keep this open for a minute while you move — a tracker following you will show up.</string>
+    <string name="safety_find_it">Find it</string>
+    <string name="safety_its_mine">It\'s mine</string>
+    <string name="safety_muted_undo">Marked as yours — won\'t flag it again</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_done">Done</string>
+    <string name="safety_remember_title">Remember across sessions</string>
+    <string name="safety_remember_body">Logs only the tracker type + time — no identity, no location — so a tag that keeps reappearing over hours gets flagged.</string>
+
+    <!-- Tracking -->
+    <string name="tracking_no_signal">No signal</string>
+    <string name="tracking_out_of_range">Out of range, or off</string>
+    <string name="tracking_last_heard">· last heard %1$ds ago</string>
+    <string name="tracking_no_signal_lc">no signal</string>
+    <string name="tracking_scanning">scanning…</string>
+    <string name="tracking_field_noisy">noisy</string>
+    <string name="tracking_field_clean">clean</string>
+    <string name="tracking_field_suffix">·  %1$s field %2$s dB</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="sound_on">Mute sound</string>
+    <string name="sound_off">Unmute sound</string>
+
+    <!-- Completion -->
+    <string name="done_here">Right here?</string>
+    <string name="done_on_top">You\'re right on top of it.</string>
+    <string name="done_got_it">Got it 👍</string>
+    <string name="done_donate_blurb">If blep saved you some time, a small tip keeps it going. ♥</string>
+    <string name="done_donate_button">♥  Help &amp; donate</string>
+</resources>
