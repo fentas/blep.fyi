@@ -56,11 +56,8 @@ class SafetyScanner(
             log.record(alert.kind, now)
             val cross = log.crossSession(alert.kind, now)
             if (cross != null && cross.persistent) {
-                alert.copy(
-                    severity = Severity.ALERT,
-                    detail = alert.detail +
-                        " It's shown up near you across ${cross.distinctHours} separate hours — a strong sign it's travelling with you.",
-                )
+                // Promote + carry the hour count; the UI appends the localized sentence.
+                alert.copy(severity = Severity.ALERT, crossSessionHours = cross.distinctHours)
             } else {
                 alert
             }

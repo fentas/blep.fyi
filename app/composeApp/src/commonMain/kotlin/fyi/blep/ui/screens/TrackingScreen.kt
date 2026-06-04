@@ -45,13 +45,74 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import fyi.blep.core.spatial.SpatialGuidance
+import fyi.blep.core.spatial.CueKind
+import fyi.blep.core.spatial.GuidanceLine
 import fyi.blep.core.spatial.SpatialSnapshot
+import fyi.blep.core.tracking.Guidance
+import fyi.blep.core.tracking.GuidanceCue
 import fyi.blep.core.tracking.TrackingStatus
+import fyi.blep.resources.Res
+import fyi.blep.resources.action_cancel
+import fyi.blep.resources.cue_calibrate_detail
+import fyi.blep.resources.cue_calibrate_title
+import fyi.blep.resources.cue_complete_detail
+import fyi.blep.resources.cue_complete_title
+import fyi.blep.resources.cue_pinpoint_detail
+import fyi.blep.resources.cue_pinpoint_lost_detail
+import fyi.blep.resources.cue_pinpoint_lost_title
+import fyi.blep.resources.cue_pinpoint_title
+import fyi.blep.resources.cue_reorient_detail
+import fyi.blep.resources.cue_reorient_title
+import fyi.blep.resources.cue_sweep_colder_detail
+import fyi.blep.resources.cue_sweep_colder_title
+import fyi.blep.resources.cue_sweep_flat_detail
+import fyi.blep.resources.cue_sweep_flat_title
+import fyi.blep.resources.cue_sweep_start_detail
+import fyi.blep.resources.cue_sweep_start_title
+import fyi.blep.resources.cue_sweep_warmer_detail
+import fyi.blep.resources.cue_sweep_warmer_title
+import fyi.blep.resources.cue_walk_colder_detail
+import fyi.blep.resources.cue_walk_colder_title
+import fyi.blep.resources.cue_walk_flat_detail
+import fyi.blep.resources.cue_walk_flat_title
+import fyi.blep.resources.cue_walk_found_detail
+import fyi.blep.resources.cue_walk_found_title
+import fyi.blep.resources.cue_walk_overshoot_detail
+import fyi.blep.resources.cue_walk_overshoot_title
+import fyi.blep.resources.cue_walk_warmer_detail
+import fyi.blep.resources.cue_walk_warmer_title
+import fyi.blep.resources.dbm
+import fyi.blep.resources.distance_almost_on_it
+import fyi.blep.resources.distance_away
+import fyi.blep.resources.floor_down_many
+import fyi.blep.resources.floor_down_one
+import fyi.blep.resources.floor_up_many
+import fyi.blep.resources.floor_up_one
+import fyi.blep.resources.line_ahead_warmer
+import fyi.blep.resources.line_distance_almost
+import fyi.blep.resources.line_distance_m
+import fyi.blep.resources.line_facing_signal
+import fyi.blep.resources.line_target
+import fyi.blep.resources.line_turn_to_signal
+import fyi.blep.resources.line_turn_warmer
+import fyi.blep.resources.sound_off
+import fyi.blep.resources.sound_on
+import fyi.blep.resources.tracking_field_clean
+import fyi.blep.resources.tracking_field_noisy
+import fyi.blep.resources.tracking_field_suffix
+import fyi.blep.resources.tracking_last_heard
+import fyi.blep.resources.tracking_no_signal
+import fyi.blep.resources.tracking_no_signal_lc
+import fyi.blep.resources.tracking_out_of_range
+import fyi.blep.resources.tracking_scanning
+import fyi.blep.resources.turn_ahead
+import fyi.blep.resources.turn_left
+import fyi.blep.resources.turn_right
 import fyi.blep.ui.KeepScreenOn
 import fyi.blep.ui.components.RadarView
 import fyi.blep.ui.components.VectorArrow
 import fyi.blep.ui.theme.BlepColors
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
 @Composable
@@ -60,7 +121,7 @@ fun TrackingScreen(
     status: TrackingStatus,
     rssi: Int?,
     spatial: SpatialSnapshot?,
-    guidanceLine: String?,
+    guidanceLine: GuidanceLine?,
     signalLost: Boolean,
     signalAgeSec: Int,
     soundOn: Boolean,
@@ -112,16 +173,21 @@ fun TrackingScreen(
         // ONE authoritative cue, never two that disagree: the precise compass /
         // turn-by-turn instruction when we have it (it already folds in warmer /
         // distance), otherwise the coarser RSSI phase guidance.
-        val instruction = guidanceLine
-            ?: spatial?.target?.takeIf { it.confidence >= 0.35f && it.distanceM != null }
+        val lineText: String? = guidanceLine?.let { guidanceLineText(it) }
+        val fallback: String? = if (lineText == null) {
+            spatial?.target?.takeIf { it.confidence >= 0.35f && it.distanceM != null }
                 ?.let { distanceLabel(it.distanceM!!) }
+        } else {
+            null
+        }
+        val instruction = lineText ?: fallback
         // No fresh signal trumps everything — don't guide on a stale reading.
-        val headline = if (signalLost) "No signal" else instruction ?: status.guidance.title
+        val headline = if (signalLost) stringResource(Res.string.tracking_no_signal) else instruction ?: phaseTitle(status.guidance)
         val detail = when {
-            signalLost -> "Out of range, or off" +
-                (if (signalAgeSec > 0) " · last heard ${signalAgeSec}s ago" else "")
+            signalLost -> stringResource(Res.string.tracking_out_of_range) +
+                (if (signalAgeSec > 0) " " + stringResource(Res.string.tracking_last_heard, signalAgeSec) else "")
             instruction != null -> null
-            else -> status.guidance.detail
+            else -> phaseDetail(status.guidance)
         }
         AnimatedContent(
             targetState = headline,
@@ -146,7 +212,7 @@ fun TrackingScreen(
             }
         }
 
-        val floor = spatial?.floorDelta?.let { SpatialGuidance.floorHint(it) }
+        val floor = spatial?.floorDelta?.let { floorHint(it) }
         if (floor != null) {
             Text(
                 text = floor,
@@ -158,17 +224,14 @@ fun TrackingScreen(
         }
 
         // RSSI + which environment the tracker thinks it's in (from signal jitter).
+        val rssiText = rssi?.let { stringResource(Res.string.dbm, it) } ?: stringResource(Res.string.tracking_scanning)
+        val fieldSuffix = spatial?.signalVolatilityDb?.takeIf { it > 0.0 }?.let { v ->
+            val tag = stringResource(if (v >= NOISY_FIELD_DB) Res.string.tracking_field_noisy else Res.string.tracking_field_clean)
+            "  " + stringResource(Res.string.tracking_field_suffix, tag, (v * 10).roundToInt() / 10.0)
+        }
+        val noSignalLc = stringResource(Res.string.tracking_no_signal_lc)
         Text(
-            text = when {
-                signalLost -> "no signal"
-                else -> buildString {
-                    append(rssi?.let { "$it dBm" } ?: "scanning…")
-                    spatial?.signalVolatilityDb?.takeIf { it > 0.0 }?.let { v ->
-                        val tag = if (v >= NOISY_FIELD_DB) "noisy" else "clean"
-                        append("  ·  $tag field ${(v * 10).roundToInt() / 10.0} dB")
-                    }
-                }
-            },
+            text = if (signalLost) noSignalLc else rssiText + (fieldSuffix ?: ""),
             style = MaterialTheme.typography.labelLarge,
             color = BlepColors.Ink.copy(alpha = 0.55f),
             textAlign = TextAlign.Center,
@@ -176,7 +239,7 @@ fun TrackingScreen(
         )
 
         Text(
-            text = "Cancel",
+            text = stringResource(Res.string.action_cancel),
             style = MaterialTheme.typography.labelLarge,
             color = BlepColors.Ink.copy(alpha = 0.55f),
             modifier = Modifier
@@ -188,10 +251,83 @@ fun TrackingScreen(
     }
 }
 
-/** Human label for an estimated target distance. */
-internal fun distanceLabel(meters: Double): String = when {
-    meters < 1.5 -> "almost on it"
-    else -> "~${meters.roundToInt()} m away"
+// ── Localized formatters for the core-generated guidance ────────────────────
+
+@Composable
+private fun phaseTitle(g: Guidance): String = cueTitle(g.cue)?.let { stringResource(it) } ?: g.title
+
+@Composable
+private fun phaseDetail(g: Guidance): String = cueDetail(g.cue)?.let { stringResource(it) } ?: g.detail
+
+private fun cueTitle(cue: GuidanceCue) = when (cue) {
+    GuidanceCue.NONE -> null
+    GuidanceCue.CALIBRATE -> Res.string.cue_calibrate_title
+    GuidanceCue.SWEEP_START -> Res.string.cue_sweep_start_title
+    GuidanceCue.SWEEP_WARMER -> Res.string.cue_sweep_warmer_title
+    GuidanceCue.SWEEP_COLDER -> Res.string.cue_sweep_colder_title
+    GuidanceCue.SWEEP_FLAT -> Res.string.cue_sweep_flat_title
+    GuidanceCue.WALK_WARMER -> Res.string.cue_walk_warmer_title
+    GuidanceCue.WALK_COLDER -> Res.string.cue_walk_colder_title
+    GuidanceCue.WALK_FLAT -> Res.string.cue_walk_flat_title
+    GuidanceCue.WALK_OVERSHOOT -> Res.string.cue_walk_overshoot_title
+    GuidanceCue.WALK_FOUND -> Res.string.cue_walk_found_title
+    GuidanceCue.REORIENT -> Res.string.cue_reorient_title
+    GuidanceCue.PINPOINT -> Res.string.cue_pinpoint_title
+    GuidanceCue.PINPOINT_LOST -> Res.string.cue_pinpoint_lost_title
+    GuidanceCue.COMPLETE -> Res.string.cue_complete_title
+}
+
+private fun cueDetail(cue: GuidanceCue) = when (cue) {
+    GuidanceCue.NONE -> null
+    GuidanceCue.CALIBRATE -> Res.string.cue_calibrate_detail
+    GuidanceCue.SWEEP_START -> Res.string.cue_sweep_start_detail
+    GuidanceCue.SWEEP_WARMER -> Res.string.cue_sweep_warmer_detail
+    GuidanceCue.SWEEP_COLDER -> Res.string.cue_sweep_colder_detail
+    GuidanceCue.SWEEP_FLAT -> Res.string.cue_sweep_flat_detail
+    GuidanceCue.WALK_WARMER -> Res.string.cue_walk_warmer_detail
+    GuidanceCue.WALK_COLDER -> Res.string.cue_walk_colder_detail
+    GuidanceCue.WALK_FLAT -> Res.string.cue_walk_flat_detail
+    GuidanceCue.WALK_OVERSHOOT -> Res.string.cue_walk_overshoot_detail
+    GuidanceCue.WALK_FOUND -> Res.string.cue_walk_found_detail
+    GuidanceCue.REORIENT -> Res.string.cue_reorient_detail
+    GuidanceCue.PINPOINT -> Res.string.cue_pinpoint_detail
+    GuidanceCue.PINPOINT_LOST -> Res.string.cue_pinpoint_lost_detail
+    GuidanceCue.COMPLETE -> Res.string.cue_complete_detail
+}
+
+@Composable
+private fun guidanceLineText(line: GuidanceLine): String {
+    val turn = turnText(line.ahead, line.turnDeg)
+    return when (line.kind) {
+        CueKind.SIGNAL ->
+            if (line.ahead) stringResource(Res.string.line_facing_signal) else stringResource(Res.string.line_turn_to_signal, turn)
+        CueKind.RECOVER ->
+            if (line.ahead) stringResource(Res.string.line_ahead_warmer) else stringResource(Res.string.line_turn_warmer, turn)
+        CueKind.TARGET -> stringResource(Res.string.line_target, turn, distanceWord(line.distanceM ?: 0.0))
+    }
+}
+
+@Composable
+private fun turnText(ahead: Boolean, turnDeg: Int): String = when {
+    ahead -> stringResource(Res.string.turn_ahead)
+    turnDeg > 0 -> stringResource(Res.string.turn_right, turnDeg)
+    else -> stringResource(Res.string.turn_left, -turnDeg)
+}
+
+@Composable
+private fun distanceWord(m: Double): String =
+    if (m < 1.5) stringResource(Res.string.line_distance_almost) else stringResource(Res.string.line_distance_m, m.roundToInt())
+
+/** Human label for an estimated target distance (the coarse fallback cue). */
+@Composable
+private fun distanceLabel(meters: Double): String =
+    if (meters < 1.5) stringResource(Res.string.distance_almost_on_it) else stringResource(Res.string.distance_away, meters.roundToInt())
+
+@Composable
+private fun floorHint(delta: Int): String? = when {
+    delta > 0 -> stringResource(if (delta == 1) Res.string.floor_up_one else Res.string.floor_up_many, delta)
+    delta < 0 -> stringResource(if (delta == -1) Res.string.floor_down_one else Res.string.floor_down_many, -delta)
+    else -> null
 }
 
 // Above this much signal jitter (dB) the field reads as "noisy" — mirrors
@@ -203,11 +339,12 @@ private const val NOISY_FIELD_DB = 2.2
 @Composable
 private fun MuteToggle(soundOn: Boolean, onToggle: () -> Unit, modifier: Modifier = Modifier) {
     val tint = BlepColors.Ink.copy(alpha = 0.72f)
+    val desc = stringResource(if (soundOn) Res.string.sound_on else Res.string.sound_off)
     Canvas(
         modifier = modifier
             .clip(RoundedCornerShape(50))
             .clickable(onClick = onToggle)
-            .semantics { contentDescription = if (soundOn) "Mute sound" else "Unmute sound"; role = Role.Button }
+            .semantics { contentDescription = desc; role = Role.Button }
             .padding(10.dp)
             .size(26.dp),
     ) {

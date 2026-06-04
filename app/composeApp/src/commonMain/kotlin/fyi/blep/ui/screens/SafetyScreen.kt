@@ -44,7 +44,22 @@ import androidx.compose.runtime.remember
 import fyi.blep.resources.Res
 import fyi.blep.resources.action_done
 import fyi.blep.resources.action_undo
+import fyi.blep.resources.alert_cross_session
+import fyi.blep.resources.alert_following_detail
+import fyi.blep.resources.alert_following_title
+import fyi.blep.resources.alert_nearby_detail
+import fyi.blep.resources.alert_nearby_title
+import fyi.blep.resources.alert_rotation_detail
+import fyi.blep.resources.alert_rotation_title
 import fyi.blep.resources.dbm
+import fyi.blep.resources.dur_a_little_while
+import fyi.blep.resources.dur_minutes
+import fyi.blep.resources.kind_dult
+import fyi.blep.resources.kind_find_my
+import fyi.blep.resources.kind_google_find_my
+import fyi.blep.resources.kind_smarttag
+import fyi.blep.resources.kind_tile
+import fyi.blep.resources.kind_unknown
 import fyi.blep.resources.safety_all_clear
 import fyi.blep.resources.safety_all_clear_body
 import fyi.blep.resources.safety_find_it
@@ -54,6 +69,9 @@ import fyi.blep.resources.safety_remember_body
 import fyi.blep.resources.safety_remember_title
 import fyi.blep.resources.safety_scanning
 import fyi.blep.resources.safety_title
+import fyi.blep.resources.severity_alert
+import fyi.blep.resources.severity_info
+import fyi.blep.resources.severity_warn
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,8 +81,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import fyi.blep.core.safety.AlertReason
 import fyi.blep.core.safety.Severity
 import fyi.blep.core.safety.TrackerAlert
+import fyi.blep.core.safety.TrackerKind
 import fyi.blep.ui.theme.BlepColors
 
 private val AMBER = Color(0xFFE8A33D)
@@ -74,7 +94,7 @@ fun SafetyScreen(
     alerts: List<TrackerAlert>,
     rememberOn: Boolean,
     onToggleRemember: () -> Unit,
-    onFind: (TrackerAlert) -> Unit,
+    onFind: (TrackerAlert, String) -> Unit,
     onMine: (TrackerAlert) -> Unit,
     lastMuted: TrackerAlert?,
     onUndoMute: () -> Unit,
@@ -170,29 +190,77 @@ private fun RememberToggle(on: Boolean, onToggle: () -> Unit) {
     }
 }
 
+/** Localized title for a structured [TrackerAlert]. */
 @Composable
-private fun AlertCard(alert: TrackerAlert, onFind: (TrackerAlert) -> Unit, onMine: (TrackerAlert) -> Unit) {
+private fun alertTitle(alert: TrackerAlert): String = when (alert.reason) {
+    AlertReason.FOLLOWING -> stringResource(Res.string.alert_following_title, kindLabel(alert.kind))
+    AlertReason.SEPARATED_NEARBY -> stringResource(Res.string.alert_nearby_title, kindLabel(alert.kind))
+    AlertReason.ROTATION -> stringResource(Res.string.alert_rotation_title)
+}
+
+/** Localized detail for a structured [TrackerAlert], incl. the cross-session note. */
+@Composable
+private fun alertDetail(alert: TrackerAlert): String {
+    val base = when (alert.reason) {
+        AlertReason.FOLLOWING -> stringResource(Res.string.alert_following_detail, durLabel(alert.durationMs))
+        AlertReason.SEPARATED_NEARBY -> stringResource(Res.string.alert_nearby_detail)
+        AlertReason.ROTATION -> stringResource(Res.string.alert_rotation_detail, alert.distinctCount)
+    }
+    return if (alert.crossSessionHours >= 3) {
+        base + " " + stringResource(Res.string.alert_cross_session, alert.crossSessionHours)
+    } else {
+        base
+    }
+}
+
+@Composable
+private fun kindLabel(kind: TrackerKind): String = stringResource(
+    when (kind) {
+        TrackerKind.FIND_MY -> Res.string.kind_find_my
+        TrackerKind.GOOGLE_FIND_MY -> Res.string.kind_google_find_my
+        TrackerKind.TILE -> Res.string.kind_tile
+        TrackerKind.SMARTTAG -> Res.string.kind_smarttag
+        TrackerKind.DULT -> Res.string.kind_dult
+        TrackerKind.UNKNOWN -> Res.string.kind_unknown
+    },
+)
+
+@Composable
+private fun durLabel(ms: Long): String =
+    if (ms < 60_000L) stringResource(Res.string.dur_a_little_while)
+    else stringResource(Res.string.dur_minutes, (ms / 60_000L).toInt())
+
+@Composable
+private fun AlertCard(alert: TrackerAlert, onFind: (TrackerAlert, String) -> Unit, onMine: (TrackerAlert) -> Unit) {
     val accent = when (alert.severity) {
         Severity.ALERT -> BlepColors.Pink
         Severity.WARN -> AMBER
         Severity.INFO -> BlepColors.Blue
     }
+    val severityLabel = stringResource(
+        when (alert.severity) {
+            Severity.ALERT -> Res.string.severity_alert
+            Severity.WARN -> Res.string.severity_warn
+            Severity.INFO -> Res.string.severity_info
+        },
+    )
+    val title = alertTitle(alert)
     Surface(shape = RoundedCornerShape(20.dp), color = Color.White, shadowElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(10.dp).clip(CircleShape).background(accent))
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    alert.severity.name,
+                    severityLabel,
                     style = MaterialTheme.typography.labelLarge,
                     color = accent,
                     fontWeight = FontWeight.Bold,
                 )
             }
             Spacer(Modifier.height(6.dp))
-            Text(alert.title, style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink)
+            Text(title, style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink)
             Spacer(Modifier.height(2.dp))
-            Text(alert.detail, style = MaterialTheme.typography.bodyMedium, color = BlepColors.Ink.copy(alpha = 0.65f))
+            Text(alertDetail(alert), style = MaterialTheme.typography.bodyMedium, color = BlepColors.Ink.copy(alpha = 0.65f))
             Spacer(Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -207,7 +275,7 @@ private fun AlertCard(alert: TrackerAlert, onFind: (TrackerAlert) -> Unit, onMin
                     }
                     Spacer(Modifier.width(4.dp))
                     Button(
-                        onClick = { onFind(alert) },
+                        onClick = { onFind(alert, title) },
                         colors = ButtonDefaults.buttonColors(containerColor = BlepColors.Blue, contentColor = BlepColors.Cream),
                     ) { Text(stringResource(Res.string.safety_find_it)) }
                 }

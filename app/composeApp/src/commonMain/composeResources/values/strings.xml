@@ -11,6 +11,7 @@
     <string name="hide_unnamed">Hide unnamed devices</string>
     <string name="show_unnamed_one">Show %1$d unnamed device</string>
     <string name="show_unnamed_many">Show %1$d unnamed devices</string>
+    <string name="discovery_empty_title">Looking around…</string>
     <string name="discovery_hint">Make sure the device is powered on and nearby.</string>
     <string name="avail_bluetooth_off">Turn on Bluetooth to scan</string>
     <string name="avail_permission">Allow Bluetooth access to scan</string>
@@ -37,6 +38,28 @@
     <string name="safety_remember_title">Remember across sessions</string>
     <string name="safety_remember_body">Logs only the tracker type + time — no identity, no location — so a tag that keeps reappearing over hours gets flagged.</string>
 
+    <!-- Tracker kinds (used inside the alert title) -->
+    <string name="kind_find_my">Find My tracker</string>
+    <string name="kind_google_find_my">Find My Device tracker</string>
+    <string name="kind_tile">Tile</string>
+    <string name="kind_smarttag">SmartTag</string>
+    <string name="kind_dult">tracker</string>
+    <string name="kind_unknown">device</string>
+
+    <!-- Tracker alert text (built from the structured TrackerAlert) -->
+    <string name="severity_alert">ALERT</string>
+    <string name="severity_warn">WARN</string>
+    <string name="severity_info">INFO</string>
+    <string name="alert_following_title">%1$s may be following you</string>
+    <string name="alert_following_detail">It\'s been near you for %1$s. If it isn\'t yours, find and disable it.</string>
+    <string name="alert_nearby_title">Unknown %1$s nearby</string>
+    <string name="alert_nearby_detail">A tracker that\'s separated from its owner is advertising close to you.</string>
+    <string name="alert_rotation_title">Something keeps reappearing near you</string>
+    <string name="alert_rotation_detail">%1$d anonymous devices have shadowed you at close range — possibly one tracker rotating its ID.</string>
+    <string name="alert_cross_session">It\'s shown up near you across %1$d separate hours — a strong sign it\'s travelling with you.</string>
+    <string name="dur_a_little_while">a little while</string>
+    <string name="dur_minutes">%1$d min</string>
+
     <!-- Tracking -->
     <string name="tracking_no_signal">No signal</string>
     <string name="tracking_out_of_range">Out of range, or off</string>
@@ -49,6 +72,54 @@
     <string name="action_cancel">Cancel</string>
     <string name="sound_on">Mute sound</string>
     <string name="sound_off">Unmute sound</string>
+    <string name="floor_up_one">↑ %1$d floor up</string>
+    <string name="floor_up_many">↑ %1$d floors up</string>
+    <string name="floor_down_one">↓ %1$d floor down</string>
+    <string name="floor_down_many">↓ %1$d floors down</string>
+
+    <!-- Phase guidance (TrackingSession cues): title + detail per GuidanceCue -->
+    <string name="cue_calibrate_title">Hold at your chest</string>
+    <string name="cue_calibrate_detail">Keep the phone flat against your chest and stay still.</string>
+    <string name="cue_sweep_start_title">Now turn slowly</string>
+    <string name="cue_sweep_start_detail">Rotate on the spot. I\'ll tell you when you\'re facing it.</string>
+    <string name="cue_sweep_warmer_title">Keep turning</string>
+    <string name="cue_sweep_warmer_detail">Warmer — you\'re facing it more.</string>
+    <string name="cue_sweep_colder_title">Turn back</string>
+    <string name="cue_sweep_colder_detail">Colder — go the other way.</string>
+    <string name="cue_sweep_flat_title">Turn slowly</string>
+    <string name="cue_sweep_flat_detail">Keep rotating to find the strongest point.</string>
+    <string name="cue_walk_warmer_title">Keep going</string>
+    <string name="cue_walk_warmer_detail">Warmer — straight ahead.</string>
+    <string name="cue_walk_colder_title">Stop</string>
+    <string name="cue_walk_colder_detail">Colder — pause and re-aim.</string>
+    <string name="cue_walk_flat_title">Walk forward</string>
+    <string name="cue_walk_flat_detail">Move slowly straight ahead.</string>
+    <string name="cue_walk_overshoot_title">Stop — turn again</string>
+    <string name="cue_walk_overshoot_detail">You passed it. Turn slowly to re-aim.</string>
+    <string name="cue_walk_found_title">Walk forward</string>
+    <string name="cue_walk_found_detail">Found it — move slowly straight ahead.</string>
+    <string name="cue_reorient_title">Turn slowly</string>
+    <string name="cue_reorient_detail">Rotate to re-aim.</string>
+    <string name="cue_pinpoint_title">Almost there</string>
+    <string name="cue_pinpoint_detail">Kneel down and search low, near the floor.</string>
+    <string name="cue_pinpoint_lost_title">Lost it — turn again</string>
+    <string name="cue_pinpoint_lost_detail">Signal dropped. Turn slowly to re-aim.</string>
+    <string name="cue_complete_title">Finished</string>
+    <string name="cue_complete_detail">Congratulations — you found it!</string>
+
+    <!-- Turn-by-turn guidance line (structured GuidanceLine) -->
+    <string name="turn_ahead">straight ahead</string>
+    <string name="turn_right">turn %1$d° right</string>
+    <string name="turn_left">turn %1$d° left</string>
+    <string name="line_facing_signal">facing the signal</string>
+    <string name="line_turn_to_signal">%1$s to the signal</string>
+    <string name="line_ahead_warmer">straight ahead — warmer</string>
+    <string name="line_turn_warmer">%1$s — warmer</string>
+    <string name="line_target">%1$s · %2$s</string>
+    <string name="line_distance_almost">almost there</string>
+    <string name="line_distance_m">~%1$d m</string>
+    <string name="distance_almost_on_it">almost on it</string>
+    <string name="distance_away">~%1$d m away</string>
 
     <!-- Completion -->
     <string name="done_here">Right here?</string>
@@ -56,4 +127,26 @@
     <string name="done_got_it">Got it 👍</string>
     <string name="done_donate_blurb">If blep saved you some time, a small tip keeps it going. ♥</string>
     <string name="done_donate_button">♥  Help &amp; donate</string>
+    <string name="done_keep_looking">Keep looking</string>
+    <string name="done_track_another">Track another</string>
+    <string name="celebrate_1">Found it! 🎉</string>
+    <string name="celebrate_2">Gotcha! 🎯</string>
+    <string name="celebrate_3">There you are!</string>
+    <string name="celebrate_4">Reunited! 🎉</string>
+    <string name="celebrate_5">Nailed it! ✨</string>
+    <string name="celebrate_6">Hurray! 🎉</string>
+    <string name="celebrate_7">Got it! 🙌</string>
+    <string name="celebrate_8">Tracked down!</string>
+    <string name="celebrate_9">Mission complete 🥳</string>
+    <string name="celebrate_10">Bingo! 🎉</string>
+    <string name="celebrate_11">Recovered! ✨</string>
+    <string name="celebrate_12">Sweet success!</string>
+    <string name="subline_1">That\'s one less thing to worry about.</string>
+    <string name="subline_2">Back where it belongs. ✨</string>
+    <string name="subline_3">Phew — saved you a hunt.</string>
+    <string name="subline_4">Crisis averted. 🙌</string>
+    <string name="subline_5">Nice teamwork. 🐾</string>
+    <string name="subline_6">Right where blep said it\'d be.</string>
+    <string name="subline_7">Hope it wasn\'t hiding too long.</string>
+    <string name="subline_8">Another one found.</string>
 </resources>

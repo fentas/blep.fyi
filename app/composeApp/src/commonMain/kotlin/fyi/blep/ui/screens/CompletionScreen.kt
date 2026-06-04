@@ -38,30 +38,60 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import fyi.blep.resources.Res
+import fyi.blep.resources.celebrate_1
+import fyi.blep.resources.celebrate_10
+import fyi.blep.resources.celebrate_11
+import fyi.blep.resources.celebrate_12
+import fyi.blep.resources.celebrate_2
+import fyi.blep.resources.celebrate_3
+import fyi.blep.resources.celebrate_4
+import fyi.blep.resources.celebrate_5
+import fyi.blep.resources.celebrate_6
+import fyi.blep.resources.celebrate_7
+import fyi.blep.resources.celebrate_8
+import fyi.blep.resources.celebrate_9
+import fyi.blep.resources.done_donate_blurb
+import fyi.blep.resources.done_donate_button
+import fyi.blep.resources.done_got_it
+import fyi.blep.resources.done_here
+import fyi.blep.resources.done_keep_looking
+import fyi.blep.resources.done_on_top
+import fyi.blep.resources.done_track_another
+import fyi.blep.resources.subline_1
+import fyi.blep.resources.subline_2
+import fyi.blep.resources.subline_3
+import fyi.blep.resources.subline_4
+import fyi.blep.resources.subline_5
+import fyi.blep.resources.subline_6
+import fyi.blep.resources.subline_7
+import fyi.blep.resources.subline_8
 import fyi.blep.ui.theme.BlepColors
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
-private val CELEBRATIONS = listOf(
-    "Found it! 🎉", "Gotcha! 🎯", "There you are!", "Reunited! 🎉",
-    "Nailed it! ✨", "Hurray! 🎉", "Got it! 🙌", "Tracked down!",
-    "Mission complete 🥳", "Bingo! 🎉", "Recovered! ✨", "Sweet success!",
-)
-
-private val SUBLINES = listOf(
-    "That's one less thing to worry about.",
-    "Back where it belongs. ✨",
-    "Phew — saved you a hunt.",
-    "Crisis averted. 🙌",
-    "Nice teamwork. 🐾",
-    "Right where blep said it'd be.",
-    "Hope it wasn't hiding too long.",
-    "Another one found.",
-)
-
 private val BURST_EMOJI = listOf("🎉", "✨", "🎈", "🥳", "⭐", "🙌", "💫", "🐾", "🎊")
+
+@Composable
+private fun celebrations(): List<String> = listOf(
+    stringResource(Res.string.celebrate_1), stringResource(Res.string.celebrate_2),
+    stringResource(Res.string.celebrate_3), stringResource(Res.string.celebrate_4),
+    stringResource(Res.string.celebrate_5), stringResource(Res.string.celebrate_6),
+    stringResource(Res.string.celebrate_7), stringResource(Res.string.celebrate_8),
+    stringResource(Res.string.celebrate_9), stringResource(Res.string.celebrate_10),
+    stringResource(Res.string.celebrate_11), stringResource(Res.string.celebrate_12),
+)
+
+@Composable
+private fun sublines(): List<String> = listOf(
+    stringResource(Res.string.subline_1), stringResource(Res.string.subline_2),
+    stringResource(Res.string.subline_3), stringResource(Res.string.subline_4),
+    stringResource(Res.string.subline_5), stringResource(Res.string.subline_6),
+    stringResource(Res.string.subline_7), stringResource(Res.string.subline_8),
+)
 
 @Composable
 fun CompletionScreen(
@@ -72,8 +102,10 @@ fun CompletionScreen(
 ) {
     var celebrated by remember { mutableStateOf(false) }
     // Each visit picks a fresh headline, sub-line, and animation flavour.
-    val celebration = remember { CELEBRATIONS[Random.nextInt(CELEBRATIONS.size)] }
-    val subline = remember { SUBLINES[Random.nextInt(SUBLINES.size)] }
+    val celebs = celebrations()
+    val subs = sublines()
+    val celebration = remember { celebs[Random.nextInt(celebs.size)] }
+    val subline = remember { subs[Random.nextInt(subs.size)] }
     val flavour = remember { Random.nextInt(3) } // 0 confetti · 1 emoji · 2 both
 
     Box(
@@ -109,14 +141,14 @@ private fun FoundPanel(deviceName: String, onGotIt: () -> Unit, onKeepLooking: (
         Text(deviceName, style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink.copy(alpha = 0.6f))
         Spacer(Modifier.height(4.dp))
         Text(
-            "Right here?",
+            stringResource(Res.string.done_here),
             style = MaterialTheme.typography.displayLarge,
             color = BlepColors.Ink,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(6.dp))
         Text(
-            "You're right on top of it.",
+            stringResource(Res.string.done_on_top),
             style = MaterialTheme.typography.bodyLarge,
             color = BlepColors.Ink.copy(alpha = 0.7f),
             textAlign = TextAlign.Center,
@@ -126,10 +158,10 @@ private fun FoundPanel(deviceName: String, onGotIt: () -> Unit, onKeepLooking: (
             onClick = onGotIt,
             colors = ButtonDefaults.buttonColors(containerColor = BlepColors.Blue, contentColor = BlepColors.Cream),
             modifier = Modifier.fillMaxWidth().height(54.dp),
-        ) { Text("Got it 👍", style = MaterialTheme.typography.titleMedium) }
+        ) { Text(stringResource(Res.string.done_got_it), style = MaterialTheme.typography.titleMedium) }
         Spacer(Modifier.height(8.dp))
         TextButton(onClick = onKeepLooking, modifier = Modifier.fillMaxWidth()) {
-            Text("Keep looking", color = BlepColors.Ink.copy(alpha = 0.6f))
+            Text(stringResource(Res.string.done_keep_looking), color = BlepColors.Ink.copy(alpha = 0.6f))
         }
         Spacer(Modifier.height(8.dp))
     }
@@ -163,7 +195,7 @@ private fun CelebratePanel(headline: String, subline: String, onDonate: () -> Un
         )
         Spacer(Modifier.height(28.dp))
         Text(
-            "If blep saved you some time, a small tip keeps it going. ♥",
+            stringResource(Res.string.done_donate_blurb),
             style = MaterialTheme.typography.bodyLarge,
             color = BlepColors.Ink.copy(alpha = 0.7f),
             textAlign = TextAlign.Center,
@@ -173,10 +205,10 @@ private fun CelebratePanel(headline: String, subline: String, onDonate: () -> Un
             onClick = onDonate,
             colors = ButtonDefaults.buttonColors(containerColor = BlepColors.Blue, contentColor = BlepColors.Cream),
             modifier = Modifier.fillMaxWidth().height(54.dp),
-        ) { Text("♥  Help & donate", style = MaterialTheme.typography.titleMedium) }
+        ) { Text(stringResource(Res.string.done_donate_button), style = MaterialTheme.typography.titleMedium) }
         Spacer(Modifier.height(10.dp))
         OutlinedButton(onClick = onAnother, modifier = Modifier.fillMaxWidth().height(54.dp)) {
-            Text("Track another", style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink)
+            Text(stringResource(Res.string.done_track_another), style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink)
         }
     }
 }

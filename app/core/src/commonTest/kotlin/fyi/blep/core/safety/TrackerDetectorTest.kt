@@ -22,7 +22,7 @@ class TrackerDetectorTest {
         }
         val a = d.evaluate(6 * 60_000).first { it.kind == TrackerKind.FIND_MY }
         assertEquals(Severity.ALERT, a.severity)
-        assertTrue(a.title.contains("following"))
+        assertEquals(AlertReason.FOLLOWING, a.reason)
         assertTrue(a.trackingAddress != null) // hand-off to the finder
     }
 
@@ -46,7 +46,7 @@ class TrackerDetectorTest {
         val a = d.evaluate(6 * 60_000).single()
         assertEquals(Severity.WARN, a.severity)
         assertEquals(TrackerKind.UNKNOWN, a.kind)
-        assertTrue(a.detail.contains("rotating"))
+        assertEquals(AlertReason.ROTATION, a.reason)
     }
 
     @Test

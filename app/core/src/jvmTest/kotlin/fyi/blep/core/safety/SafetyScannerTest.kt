@@ -83,7 +83,7 @@ class SafetyScannerTest {
         val out = lastAlerts(SafetyScanner(scanner(adverts), TrackerDetector(tuning)))
         assertEquals(TrackerKind.UNKNOWN, out[0].kind)
         assertEquals(Severity.WARN, out[0].severity)
-        assertTrue(out[0].title.contains("reappearing"))
+        assertEquals(AlertReason.ROTATION, out[0].reason)
     }
 
     @Test
@@ -141,7 +141,7 @@ class SafetyScannerTest {
         val s = SafetyScanner(scanner(adverts), TrackerDetector(tuning), history, nowEpochMs = { now })
         val out = lastAlerts(s)
         assertEquals(Severity.ALERT, out[0].severity)
-        assertTrue(out[0].detail.contains("separate hours"))
+        assertEquals(3, out[0].crossSessionHours)
     }
 
     @Test

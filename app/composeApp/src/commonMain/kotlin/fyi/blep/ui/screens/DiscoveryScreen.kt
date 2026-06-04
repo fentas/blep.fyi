@@ -43,8 +43,31 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
+import fyi.blep.resources.Res
+import fyi.blep.resources.app_tagline
+import fyi.blep.resources.action_clear
+import fyi.blep.resources.action_save
+import fyi.blep.resources.avail_bluetooth_off
+import fyi.blep.resources.avail_location_off
+import fyi.blep.resources.avail_permission
+import fyi.blep.resources.avail_unsupported
+import fyi.blep.resources.dbm
+import fyi.blep.resources.discovery_empty_title
+import fyi.blep.resources.discovery_hint
+import fyi.blep.resources.hide_unnamed
+import fyi.blep.resources.nearby_count
+import fyi.blep.resources.rename_label
+import fyi.blep.resources.rename_title
+import fyi.blep.resources.safety_entry_subtitle
+import fyi.blep.resources.safety_entry_title
+import fyi.blep.resources.section_nearby
+import fyi.blep.resources.show_unnamed_many
+import fyi.blep.resources.show_unnamed_one
+import fyi.blep.resources.status_connected
+import fyi.blep.resources.status_paired
 import fyi.blep.ui.theme.BlepColors
 import fyi.blep.ui.theme.BlepLogo
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun DiscoveryScreen(
@@ -78,7 +101,7 @@ fun DiscoveryScreen(
         }
 
         if (devices.isNotEmpty()) {
-            SectionLabel("Nearby")
+            SectionLabel(stringResource(Res.string.section_nearby))
             Spacer(Modifier.height(10.dp))
         }
 
@@ -133,7 +156,7 @@ private fun Header(deviceCount: Int) {
         Column(Modifier.weight(1f)) {
             Text("blep", style = MaterialTheme.typography.displayLarge)
             Text(
-                "Tap a device to track it",
+                stringResource(Res.string.app_tagline),
                 style = MaterialTheme.typography.bodyLarge,
                 color = BlepColors.Ink.copy(alpha = 0.55f),
             )
@@ -141,7 +164,7 @@ private fun Header(deviceCount: Int) {
         if (deviceCount > 0) {
             Surface(color = BlepColors.Ink.copy(alpha = 0.06f), shape = RoundedCornerShape(999.dp)) {
                 Text(
-                    "$deviceCount nearby",
+                    stringResource(Res.string.nearby_count, deviceCount),
                     style = MaterialTheme.typography.labelLarge,
                     color = BlepColors.Ink.copy(alpha = 0.6f),
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -166,8 +189,8 @@ private fun SafetyEntry(onClick: () -> Unit) {
             Text("🛡️", style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text("Is something tracking you?", style = MaterialTheme.typography.titleSmall, color = BlepColors.Ink, fontWeight = FontWeight.SemiBold)
-                Text("Scan for unwanted AirTags & trackers", style = MaterialTheme.typography.bodySmall, color = BlepColors.Ink.copy(alpha = 0.55f))
+                Text(stringResource(Res.string.safety_entry_title), style = MaterialTheme.typography.titleSmall, color = BlepColors.Ink, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.safety_entry_subtitle), style = MaterialTheme.typography.bodySmall, color = BlepColors.Ink.copy(alpha = 0.55f))
             }
             Text("›", style = MaterialTheme.typography.titleLarge, color = BlepColors.Blue)
         }
@@ -221,13 +244,13 @@ private fun DeviceCard(
                             Spacer(Modifier.width(6.dp))
                         }
                         Text(
-                            "${device.rssi} dBm",
+                            stringResource(Res.string.dbm, device.rssi),
                             style = MaterialTheme.typography.labelLarge,
                             color = BlepColors.Ink.copy(alpha = 0.45f),
                         )
                     }
-                    device.isConnected -> StatusChip("Connected", showDot = true)
-                    else -> StatusChip("Paired", showDot = false)
+                    device.isConnected -> StatusChip(stringResource(Res.string.status_connected), showDot = true)
+                    else -> StatusChip(stringResource(Res.string.status_paired), showDot = false)
                 }
             }
             if (!device.rssiUnknown) {
@@ -320,8 +343,13 @@ private fun ShowMoreRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val label = if (expanded) "Hide unnamed devices"
-    else "Show $unnamedCount unnamed device" + if (unnamedCount == 1) "" else "s"
+    val label = if (expanded) {
+        stringResource(Res.string.hide_unnamed)
+    } else if (unnamedCount == 1) {
+        stringResource(Res.string.show_unnamed_one, unnamedCount)
+    } else {
+        stringResource(Res.string.show_unnamed_many, unnamedCount)
+    }
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(999.dp),
@@ -346,10 +374,10 @@ private fun EmptyState() {
         Modifier.fillMaxWidth().padding(top = 48.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("Looking around…", style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink.copy(alpha = 0.6f))
+        Text(stringResource(Res.string.discovery_empty_title), style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink.copy(alpha = 0.6f))
         Spacer(Modifier.height(6.dp))
         Text(
-            "Make sure the device is powered on and nearby.",
+            stringResource(Res.string.discovery_hint),
             style = MaterialTheme.typography.bodyLarge,
             color = BlepColors.Ink.copy(alpha = 0.45f),
         )
@@ -359,10 +387,10 @@ private fun EmptyState() {
 @Composable
 private fun AvailabilityBanner(availability: ScanAvailability) {
     val message = when (availability) {
-        ScanAvailability.BLUETOOTH_OFF -> "Turn on Bluetooth to scan"
-        ScanAvailability.PERMISSION_REQUIRED -> "Allow Bluetooth access to scan"
-        ScanAvailability.LOCATION_OFF -> "Turn on Location to scan (Android)"
-        ScanAvailability.UNSUPPORTED -> "Bluetooth LE isn't supported on this device"
+        ScanAvailability.BLUETOOTH_OFF -> stringResource(Res.string.avail_bluetooth_off)
+        ScanAvailability.PERMISSION_REQUIRED -> stringResource(Res.string.avail_permission)
+        ScanAvailability.LOCATION_OFF -> stringResource(Res.string.avail_location_off)
+        ScanAvailability.UNSUPPORTED -> stringResource(Res.string.avail_unsupported)
         ScanAvailability.READY -> return
     }
     Surface(
@@ -390,16 +418,16 @@ private fun RenameDialog(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Rename device") },
+        title = { Text(stringResource(Res.string.rename_title)) },
         text = {
             OutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
                 singleLine = true,
-                label = { Text("Name") },
+                label = { Text(stringResource(Res.string.rename_label)) },
             )
         },
-        confirmButton = { TextButton(onClick = { onConfirm(text.text) }) { Text("Save") } },
-        dismissButton = { TextButton(onClick = { onConfirm(null) }) { Text("Clear") } },
+        confirmButton = { TextButton(onClick = { onConfirm(text.text) }) { Text(stringResource(Res.string.action_save)) } },
+        dismissButton = { TextButton(onClick = { onConfirm(null) }) { Text(stringResource(Res.string.action_clear)) } },
     )
 }

@@ -12,6 +12,7 @@ import fyi.blep.core.safety.SafetyScanner
 import fyi.blep.core.safety.TrackerAlert
 import fyi.blep.core.safety.TrackerDetector
 import fyi.blep.core.safety.TrackerTuning
+import fyi.blep.core.spatial.GuidanceLine
 import fyi.blep.core.spatial.GuidanceStabilizer
 import fyi.blep.core.spatial.Haptic
 import fyi.blep.core.spatial.HapticCadence
@@ -92,7 +93,7 @@ class BlepController(
         private set
     /** Stabilised turn-by-turn line (commits to a direction in clean fields, stays
      *  reactive in noisy ones). Null until guidance is confident. */
-    var guidance by mutableStateOf<String?>(null)
+    var guidance by mutableStateOf<GuidanceLine?>(null)
         private set
     /** Whether the audible tracking tone is on (haptics stay regardless). */
     var soundOn by mutableStateOf(true)
@@ -209,11 +210,12 @@ class BlepController(
     /** Dismiss the "muted" undo affordance without undoing. */
     fun clearMuteUndo() { lastMuted = null }
 
-    /** Find a suspected tracker by handing its address to the normal hunt. */
-    fun findTracker(alert: TrackerAlert) {
+    /** Find a suspected tracker by handing its address to the normal hunt. The
+     *  display [name] is the localized alert title, resolved by the UI. */
+    fun findTracker(alert: TrackerAlert, name: String) {
         val addr = alert.trackingAddress ?: return
         safetyJob?.cancel(); safetyJob = null
-        track(BleDevice(id = addr, name = alert.title, rssi = alert.rssi))
+        track(BleDevice(id = addr, name = name, rssi = alert.rssi))
     }
 
     fun track(device: BleDevice) {
@@ -241,7 +243,7 @@ class BlepController(
                     latestMotion = sample
                     val snap = spatialTracker.update((lastRssi ?: FALLBACK_RSSI).toDouble(), sample)
                     spatial = snap
-                    guidance = guidanceStabilizer.guide(snap, spatialTuning)
+                    guidance = guidanceStabilizer.guideLine(snap, spatialTuning)
                     val sinceRssi = lastRssiMark?.elapsedNow()
                     val sinceStart = trackStartMark?.elapsedNow()
                     signalLost = (sinceRssi != null && sinceRssi > SIGNAL_LOST_AFTER) ||

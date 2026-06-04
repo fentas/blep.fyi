@@ -39,11 +39,25 @@ data class ArrowDirective(
     val scale: Float,
 )
 
-/** Human-facing guidance copy for a phase. */
+/**
+ * Stable key for each distinct guidance message — lets the UI localize the copy.
+ * The English [Guidance.title]/[Guidance.detail] remain the default (and are what
+ * the Wear + watchOS apps render); the phone maps [cue] to its own translations.
+ */
+enum class GuidanceCue {
+    NONE,
+    CALIBRATE,
+    SWEEP_START, SWEEP_WARMER, SWEEP_COLDER, SWEEP_FLAT,
+    WALK_WARMER, WALK_COLDER, WALK_FLAT, WALK_OVERSHOOT, WALK_FOUND,
+    REORIENT, PINPOINT, PINPOINT_LOST, COMPLETE,
+}
+
+/** Human-facing guidance copy for a phase (English) + a [cue] key for localization. */
 data class Guidance(
     val title: String,
     val detail: String,
     val tone: Tone,
+    val cue: GuidanceCue = GuidanceCue.NONE,
 )
 
 /**

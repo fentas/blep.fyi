@@ -21,14 +21,21 @@ data class TrackerSighting(
     val randomAddress: Boolean = false,
 )
 
-/** A suspected unwanted tracker to surface — and an address to hand the finder. */
+/** Why a tracker is being surfaced. The UI turns this (+ [TrackerAlert.kind] and the
+ *  params) into localized title/detail text — no English lives in the detector. */
+enum class AlertReason { FOLLOWING, SEPARATED_NEARBY, ROTATION }
+
+/** A suspected unwanted tracker to surface — and an address to hand the finder.
+ *  Structured (not pre-rendered text) so the UI can localize it. */
 data class TrackerAlert(
     val severity: Severity,
     val kind: TrackerKind,
-    val title: String,
-    val detail: String,
-    val rssi: Int,                 // strongest recent reading, for the "find it" step
-    val trackingAddress: String?,  // best current address to track down
+    val reason: AlertReason,
+    val rssi: Int,                    // strongest recent reading, for the "find it" step
+    val trackingAddress: String?,     // best current address to track down
+    val durationMs: Long = 0L,        // FOLLOWING: how long it's been near you
+    val distinctCount: Int = 0,       // ROTATION: number of anonymous IDs seen
+    val crossSessionHours: Int = 0,   // set when promoted by cross-session history
 )
 
 /** Thresholds for [TrackerDetector] (all overridable / unit-tunable). */
@@ -92,16 +99,10 @@ class TrackerDetector(private val tuning: TrackerTuning = TrackerTuning()) {
             val addr = ks.maxByOrNull { it.timeMs }?.address
             when {
                 durMs >= tuning.followingMs -> alerts += TrackerAlert(
-                    Severity.ALERT, kind,
-                    "${label(kind)} may be following you",
-                    "It's been near you for ${durLabel(durMs)}. If it isn't yours, find and disable it.",
-                    rssi, addr,
+                    Severity.ALERT, kind, AlertReason.FOLLOWING, rssi, addr, durationMs = durMs,
                 )
                 ks.any { it.separated } || durMs >= tuning.nearbyMs -> alerts += TrackerAlert(
-                    Severity.WARN, kind,
-                    "Unknown ${label(kind)} nearby",
-                    "A tracker that's separated from its owner is advertising close to you.",
-                    rssi, addr,
+                    Severity.WARN, kind, AlertReason.SEPARATED_NEARBY, rssi, addr,
                 )
             }
         }
@@ -111,10 +112,9 @@ class TrackerDetector(private val tuning: TrackerTuning = TrackerTuning()) {
         val distinct = unknown.map { it.address }.toHashSet().size
         if (distinct >= tuning.rotationMinDistinct && coverage(unknown, nowMs) >= tuning.rotationMinCoverage) {
             alerts += TrackerAlert(
-                Severity.WARN, TrackerKind.UNKNOWN,
-                "Something keeps reappearing near you",
-                "$distinct anonymous devices have shadowed you at close range — possibly one tracker rotating its ID.",
+                Severity.WARN, TrackerKind.UNKNOWN, AlertReason.ROTATION,
                 unknown.maxOf { it.rssi }, unknown.maxByOrNull { it.timeMs }?.address,
+                distinctCount = distinct,
             )
         }
         return alerts.sortedByDescending { it.severity.ordinal }
@@ -130,15 +130,4 @@ class TrackerDetector(private val tuning: TrackerTuning = TrackerTuning()) {
         val hit = sightings.map { ((nowMs - it.timeMs) / tuning.bucketMs).toInt() }.toHashSet().size
         return hit.toDouble() / buckets
     }
-
-    private fun label(kind: TrackerKind) = when (kind) {
-        TrackerKind.FIND_MY -> "Find My tracker"
-        TrackerKind.GOOGLE_FIND_MY -> "Find My Device tracker"
-        TrackerKind.TILE -> "Tile"
-        TrackerKind.SMARTTAG -> "SmartTag"
-        TrackerKind.DULT -> "tracker"
-        TrackerKind.UNKNOWN -> "device"
-    }
-
-    private fun durLabel(ms: Long) = if (ms < 60_000L) "a little while" else "${ms / 60_000} min"
 }

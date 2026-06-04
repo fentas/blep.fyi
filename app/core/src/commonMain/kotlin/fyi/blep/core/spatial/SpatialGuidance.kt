@@ -29,6 +29,14 @@ data class Cue(
  * stateless callers; a stateful caller runs [evaluate] → [GuidanceStabilizer] →
  * [phrase] so the cue commits to a direction instead of thrashing.
  */
+/** A structured turn-by-turn cue the phone localizes (Wear/watchOS use [SpatialGuidance.phrase]). */
+data class GuidanceLine(
+    val kind: CueKind,
+    val ahead: Boolean,
+    val turnDeg: Int,        // signed: + right, − left; 0 when [ahead]
+    val distanceM: Double?,  // present for CueKind.TARGET
+)
+
 object SpatialGuidance {
     fun instruction(snapshot: SpatialSnapshot, tuning: SpatialTuning = SpatialTuning()): String? {
         val cue = evaluate(snapshot, tuning) ?: return null
@@ -65,7 +73,8 @@ object SpatialGuidance {
         return null
     }
 
-    /** Renders a [cue] as a turn instruction relative to [headingRad]. */
+    /** Renders a [cue] as a turn instruction relative to [headingRad]. English —
+     *  used by Wear/watchOS. The phone localizes via [line] + the UI. */
     fun phrase(cue: Cue, headingRad: Double, tuning: SpatialTuning = SpatialTuning()): String {
         val aheadDeg = tuning.aheadDeg
         val deg = angleDelta(cue.worldBearingRad, headingRad) * 180.0 / PI
@@ -74,6 +83,15 @@ object SpatialGuidance {
             CueKind.SIGNAL -> if (abs(deg) < aheadDeg) "facing the signal" else "${turnPhrase(deg, aheadDeg)} to the signal"
             CueKind.TARGET -> "${turnPhrase(deg, aheadDeg)} · ${distanceWord(cue.distanceM ?: 0.0)}"
         }
+    }
+
+    /** Structured form of [phrase] for localization — the UI maps it to translated
+     *  text. [turnDeg] is signed (+ right, − left), 0 when [ahead]. */
+    fun line(cue: Cue, headingRad: Double, tuning: SpatialTuning = SpatialTuning()): GuidanceLine {
+        val deg = angleDelta(cue.worldBearingRad, headingRad) * 180.0 / PI
+        val ahead = abs(deg) < tuning.aheadDeg
+        val turn = if (ahead) 0 else roundTo5(abs(deg)) * if (deg > 0) 1 else -1
+        return GuidanceLine(cue.kind, ahead, turn, cue.distanceM)
     }
 
     private fun turnPhrase(deg: Double, aheadDeg: Double): String = when { // + = clockwise = right
@@ -146,6 +164,12 @@ class GuidanceStabilizer(
     fun guide(snapshot: SpatialSnapshot, tuning: SpatialTuning): String? {
         val cue = stabilize(SpatialGuidance.evaluate(snapshot, tuning), snapshot.signalVolatilityDb)
         return if (snapshot.headingKnown && cue != null) SpatialGuidance.phrase(cue, snapshot.headingRad, tuning) else null
+    }
+
+    /** Structured variant of [guide] for the localized phone UI. */
+    fun guideLine(snapshot: SpatialSnapshot, tuning: SpatialTuning): GuidanceLine? {
+        val cue = stabilize(SpatialGuidance.evaluate(snapshot, tuning), snapshot.signalVolatilityDb)
+        return if (snapshot.headingKnown && cue != null) SpatialGuidance.line(cue, snapshot.headingRad, tuning) else null
     }
 
     /** Folds the raw [cue] for this tick into the committed direction, given the
