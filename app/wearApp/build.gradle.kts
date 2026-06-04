@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
@@ -9,11 +11,37 @@ android {
     compileSdk = libs.versions.androidCompileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "fyi.blep.wear"
+        // Same applicationId as the phone app so Play serves both from ONE listing
+        // (the watch form factor is selected by the `android.hardware.type.watch`
+        // feature in the manifest). The code/resource package stays `fyi.blep.wear`
+        // via `namespace`, which is independent of the install identity.
+        applicationId = "fyi.blep"
         minSdk = 30 // Wear OS 3
         targetSdk = libs.versions.androidTargetSdk.get().toInt()
-        versionCode = 1
+        // Unique across the whole app: the phone bundles use 5/6, the watch uses
+        // its own band (10+) so the two never collide in a multi-bundle release.
+        versionCode = 10
         versionName = "0.1.0"
+    }
+
+    // Release signing from the same gitignored keystore.properties as the phone app.
+    // Absent → falls back to debug signing so dev/CI builds still work.
+    val keystoreProps = rootProject.file("keystore.properties").takeIf { it.exists() }
+        ?.let { f -> Properties().apply { f.inputStream().use { load(it) } } }
+    signingConfigs {
+        if (keystoreProps != null) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
