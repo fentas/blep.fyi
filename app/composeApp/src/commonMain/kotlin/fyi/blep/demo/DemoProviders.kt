@@ -94,7 +94,10 @@ private fun scriptedRssi(t: Double): Int {
 }
 
 /** Rotate on the spot through the sweep (so a real turn is detected), then walk
- *  a steady heading with a small wobble. */
+ *  the heading the signal peaked at — so guidance reads "facing the signal"
+ *  (on-course green) rather than a big correction. */
+private const val PEAK_HEADING = 2.1 // ≈ heading when RSSI peaks mid-sweep (t≈3.8 · 2.2, mod 2π)
+
 private fun scriptedHeading(t: Double): Double =
     if (t < 5.5) t * 2.2                          // keep turning through the sweep
-    else 0.0 + 0.1 * sin(t * 0.9)                 // walk a steady bearing
+    else PEAK_HEADING + 0.1 * sin(t * 0.9)        // walk toward where it peaked

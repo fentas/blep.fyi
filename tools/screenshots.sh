@@ -65,8 +65,8 @@ if [ "${1:-}" != "--compose" ]; then
   sleep 4
   adb exec-out screencap -p > "$RAW/01-discovery.png"
   adb shell input tap 540 547                 # tap the first device (Ford Kuga)
-  sleep 7;  adb exec-out screencap -p > "$RAW/02-tracking.png"
-  sleep 6;  adb exec-out screencap -p > "$RAW/03-found.png"     # "Right here?"
+  sleep 9;  adb exec-out screencap -p > "$RAW/02-tracking.png"  # mid-walk, on course
+  sleep 5;  adb exec-out screencap -p > "$RAW/03-found.png"     # "Right here?"
   adb shell input tap 540 2024                # "Got it" → celebration
   sleep 2;  adb exec-out screencap -p > "$RAW/04-celebrate.png"
 fi
