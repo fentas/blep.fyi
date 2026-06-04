@@ -61,12 +61,18 @@ Severity: a *separated tracker close by* → **WARN**; *close & present for minu
   `SafetyHistoryTest` (10, incl. mute round-trip), `SafetyScannerTest` (8 — full
   pipeline scenarios: following AirTag, brief Tile, rotation churn, far device,
   mute silences/keeps-others, cross-session promote/disabled).
+- **Emulator integration check** (`tools/ble-netsim/`). The Android emulator (33+/
+  API 31+) has a virtual Bluetooth stack via **netsim**; Bumble injects fake adverts
+  over its gRPC. Confirmed live that the *real* `AndroidBleScanner.advertisements()`
+  → classifier flags an injected Find My beacon ("Unknown Find My tracker nearby") —
+  i.e. the Android `ScanResult` parse path works, not just the hand-built `RawAdvert`.
 
 ## Remaining work
-- **On-device protocol validation.** The byte/UUID fingerprints (Find My `0x12`,
-  DULT `0xFD44`/`0xFEAA`, SmartTag `0xFD5A`) are marked "verify on-device" — confirm
-  against a real AirTag/Tile/SmartTag via the internal testing track (the emulator
-  has no BLE radio).
+- **Fingerprint-vs-real-hardware.** netsim/Bumble validates the *parse path* but not
+  the fingerprints themselves (it replays the same byte assumptions the classifier
+  holds). The Find My `0x12` / DULT `0xFD44`/`0xFEAA` / SmartTag `0xFD5A` patterns
+  still want one confirmation against a real AirTag/Tile/SmartTag (internal track)
+  or an authoritative published advertising spec.
 - **Continuous background scan — deferred past v1.** A true always-on background
   scan needs an Android foreground service + `ACCESS_BACKGROUND_LOCATION`, which
   triggers Play's background-location review (justification video, slower approval)

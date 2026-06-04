@@ -39,3 +39,7 @@ keystore.properties
 
 # Regenerable store screenshots (make screenshots)
 /screenshots/
+
+# BLE netsim test tooling
+tools/ble-netsim/venv/
+tools/ble-netsim/__pycache__/

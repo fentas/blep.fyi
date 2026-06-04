@@ -14,7 +14,7 @@ SYSIMG      ?= system-images;android-35;google_apis;x86_64
 .DEFAULT_GOAL := help
 .PHONY: help setup doctor test sim scenarios chaos robustness build apk aab \
         install install-wear run demo uninstall devices logcat \
-        emulator-setup emulator screenshots web web-build web-icons \
+        emulator-setup emulator screenshots ble-trackers web web-build web-icons \
         ci apple clean
 
 help: ## Show this help
@@ -96,9 +96,10 @@ logcat: ## Tail blep logs from the device (app must be running)
 	$(ADB) logcat --pid=$$($(ADB) shell pidof -s $(APP_ID))
 
 # ───────────────────────── app: emulator ──────────────────────────
-# Note: emulators have NO Bluetooth/motion sensors, so REAL tracking can't run
+# Note: the emulator has NO motion sensors, so REAL pointer tracking can't run
 # there — use a real phone for that. But `make demo`/`make screenshots` feed
-# scripted data, so every screen (incl. the radar) renders on the emulator.
+# scripted data, so every screen (incl. the radar) renders on the emulator. BLE
+# *advertisements* CAN be injected via netsim — see `make ble-trackers`.
 emulator-setup: ## Install emulator + system image and (re)create the AVD
 	yes | $(SDKMANAGER) "platform-tools" "emulator" "$(SYSIMG)"
 	echo "no" | $(AVDMANAGER) create avd -n $(AVD) -k "$(SYSIMG)" -d pixel_6 --force
@@ -108,6 +109,12 @@ emulator: ## Boot the blep emulator
 
 screenshots: ## Regenerate the captioned store screenshots from demo mode
 	tools/screenshots.sh
+
+ble-trackers: ## Inject fake AirTag/Tile/SmartTag adverts into the emulator (netsim+Bumble)
+	@test -x tools/ble-netsim/venv/bin/python || \
+		(python3 -m venv tools/ble-netsim/venv && tools/ble-netsim/venv/bin/pip install -q bumble)
+	@port=$$(sed -n 's/^grpc.port=//p' "$${TMPDIR:-/tmp}"/netsim.ini 2>/dev/null); \
+		tools/ble-netsim/venv/bin/python tools/ble-netsim/advertise.py $$port
 
 # ───────────────────────────── website ────────────────────────────
 web: ## Run the website dev server
