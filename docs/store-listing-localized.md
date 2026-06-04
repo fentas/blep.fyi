@@ -598,3 +598,234 @@ blep trouve les choses à portée Bluetooth (environ une pièce, un étage ou un
 Ce n'est pas un traceur GPS/cloud — il ne peut pas localiser une balise à l'autre bout
 de la ville comme un réseau Find My. Il te guide sur la dernière portion, par le signal.
 ```
+
+---
+
+## Simplified Chinese — zh-CN (also zh-Hans)
+
+**Short description (≤80):**
+```
+找回丢失的蓝牙物品——并发现跟踪你的追踪器。免费开源。
+```
+
+**Full description:**
+```
+blep 把你的手机变成一个冷热指针，引导你径直走向丢失的蓝牙物品——带标签的钥匙、耳机、手表、音箱，几乎任何会发出蓝牙信号的东西。
+
+没有地图，没有账户，无需设置。只需选择设备，跟着感觉走。
+
+工作原理
+1. 校准——把手机平贴在胸前。你的身体从背后屏蔽信号，使其具有方向性。
+2. 扫动并行走——慢慢转动，直到信号最强，然后向前走。大箭头和冷热颜色引导每一步。
+3. 精确定位——靠近时，blep 会庆祝你找到它的那一刻。
+
+它好在哪里
+• 凭信号指方向——指南针加信号的指针，而非模糊的雷达。
+• 在屏幕上显示你搜索过的轨迹，按信号强度着色。
+• “这边更暖”——如果你偏离，它会把你指回最强的位置。
+• 告诉你环境是干净还是嘈杂，以及何时完全没有信号。
+• 可选的声音和振动，越靠近脉动越快。
+
+有东西在跟踪你吗？
+点按“有东西在跟踪你吗？”，扫描跟着你的不需要的追踪器——AirTag、Tile、SmartTag，或有人可能塞进你包里、外套或车里的 Find My 信标。blep 还能识破其他应用错过的伎俩：一个不断更换蓝牙 ID 以保持匿名的追踪器，会因为一次次在相同近距离出现而暴露自己——不相关本身就是相关。而且因为 blep 是个查找器，它不仅警告——还把你带到它那里。开启“跨会话记住”，一个数小时内不断出现的标签就会被标记。（仅在设备上——任何信息都不会离开你的手机——可随时关闭。）
+
+注重隐私的设计
+没有账户。没有广告。没有分析。不收集数据。一切都在你的设备上进行——你的蓝牙扫描和运动感测从不离开手机。blep 免费且开源：https://github.com/fentas/blep.fyi
+
+须知
+blep 在蓝牙范围内查找物品（大约一个房间、一层楼或一个停车场）。它不是 GPS/云端追踪器——无法像 Find My 网络那样跨越城市定位标签。它凭信号引导你走完最后一段。
+```
+
+---
+
+## Japanese — ja-JP
+
+**Short description (≤80):**
+```
+なくした Bluetooth の物を見つけ、追跡するトラッカーも発見。無料・オープンソース。
+```
+
+**Full description:**
+```
+blep はあなたのスマホを冷暖ポインターに変え、なくした Bluetooth の物——タグ付きの鍵、イヤホン、時計、スピーカーなど、Bluetooth を発信するほとんどすべて——へまっすぐ案内します。
+
+地図なし、アカウントなし、設定なし。デバイスを選んで、感覚に従うだけ。
+
+使い方
+1. 較正——スマホを胸に平らに当てます。体が背後から信号を遮り、方向性を持たせます。
+2. スイープして歩く——一番温かくなるまでゆっくり回り、前へ歩きます。大きな矢印と冷暖の色が一歩ごとに案内します。
+3. ピンポイント——近づくと、blep が見つけた瞬間を祝います。
+
+優れている点
+• 信号で方向を——コンパスと信号のポインターで、ぼやけたレーダーではありません。
+• 探した場所の軌跡を画面に表示、信号強度で色分け。
+• 「こちらが暖かい」——逸れると、最も強い場所へ戻るよう示します。
+• 環境がクリーンか雑音まじりか、信号が全くないかを教えます。
+• 任意の音と振動が、近づくほど速く脈打ちます。
+
+誰かに追跡されていませんか？
+「誰かに追跡されていませんか？」をタップして、あなたと一緒に移動する不要なトラッカー——AirTag、Tile、SmartTag、または誰かがバッグ、コート、車に忍ばせた Find My ビーコン——をスキャンします。blep は他のアプリが見逃す手口も捉えます：匿名を保つために Bluetooth ID を変え続けるトラッカーは、同じ近距離に何度も現れることで自らを暴きます——無相関こそが相関です。そして blep は探知機なので、警告するだけでなく——そこへ案内します。「セッション間で記憶」をオンにすると、何時間も現れ続けるタグにフラグが立ちます。（デバイス上のみ——何もスマホから出ません——いつでもオフにできます。）
+
+プライバシー重視の設計
+アカウントなし。広告なし。分析なし。データ収集なし。すべてがあなたのデバイス上で行われ——Bluetooth スキャンと動きの検知はスマホから出ません。blep は無料・オープンソースです：https://github.com/fentas/blep.fyi
+
+知っておくと良いこと
+blep は Bluetooth の範囲内（おおよそ部屋、フロア、駐車場）で物を見つけます。GPS/クラウドのトラッカーではなく——Find My ネットワークのように街の向こうのタグを特定することはできません。信号で最後の道のりを案内します。
+```
+
+---
+
+## Croatian — hr
+
+**Short description (≤80):**
+```
+Pronađi izgubljene Bluetooth stvari – i uhvati nepoželjne pratitelje. Besplatno.
+```
+
+**Full description:**
+```
+blep pretvara tvoj telefon u topli/hladni pokazivač koji te vodi ravno do izgubljenih
+Bluetooth stvari — ključeva s oznakom, slušalica, sata, zvučnika, gotovo svega što
+emitira Bluetooth.
+
+Bez karte, bez računa, bez postavljanja. Samo odaberi uređaj i prati osjećaj.
+
+KAKO RADI
+1. Kalibriraj — drži telefon plosnato uz prsa. Tvoje tijelo zaklanja signal sa stražnje
+   strane, što ga čini usmjerenim.
+2. Zakreni i hodaj — okreći se polako dok nije najtoplije, zatim hodaj naprijed. Velika
+   strelica i topla/hladna boja vode svaki korak.
+3. Precizno lociraj — izbliza blep slavi trenutak kada ga pronađeš.
+
+ZAŠTO JE DOBAR
+• Smjer prema signalu — pokazivač s kompasom i signalom, a ne mutni radar.
+• Trag na zaslonu gdje si tražio, obojen prema jačini signala.
+• „Toplije ovuda" — ako zalutaš, usmjeri te natrag na najjaču točku.
+• Govori ti kada je okruženje čisto ili bučno i kada uopće nema signala.
+• Izborni zvuk i vibracije koje pulsiraju brže kako se približavaš.
+
+PRATI LI TE NEŠTO?
+Dodirni „Prati li te nešto?" da pretražiš nepoželjne pratitelje koji putuju s tobom —
+AirTag, Tile, SmartTag ili Find My odašiljač koji ti je netko možda podmetnuo u torbu,
+kaput ili auto. blep hvata i trik koji drugi propuštaju: pratitelj koji mijenja svoj
+Bluetooth ID da ostane anoniman odaje se ponovnim pojavljivanjem na istoj blizini, iznova
+i iznova — upravo je nepovezanost povezanost. I budući da je blep tragač, ne samo da
+upozorava — vodi te do njega. Uključi „Zapamti između sesija" i oznaka koja se satima
+ponavlja bit će označena. (Samo na uređaju — ništa ne napušta tvoj telefon — i može se
+isključiti u svakom trenutku.)
+
+PRIVATNOST OD TEMELJA
+Bez računa. Bez oglasa. Bez analitike. Bez prikupljanja podataka. Sve se događa na tvom
+uređaju — tvoja Bluetooth pretraživanja i očitavanje kretanja nikad ne napuštaju telefon.
+blep je besplatan i otvorenog koda: https://github.com/fentas/blep.fyi
+
+DOBRO JE ZNATI
+blep pronalazi stvari u dosegu Bluetootha (otprilike soba, kat ili parkiralište). Nije
+GPS/oblak tragač — ne može locirati oznaku preko grada kao Find My mreža. Vodi te zadnji
+dio puta, prema signalu.
+```
+
+---
+
+## Polish — pl-PL
+
+**Short description (≤80):**
+```
+Znajdź zgubione rzeczy Bluetooth – i wykryj śledzące lokalizatory. Bezpłatne.
+```
+
+**Full description:**
+```
+blep zamienia twój telefon we wskaźnik ciepło/zimno, który prowadzi cię prosto do
+zgubionych rzeczy Bluetooth — kluczy z lokalizatorem, słuchawek, zegarka, głośnika,
+niemal wszystkiego, co nadaje Bluetooth.
+
+Bez mapy, bez konta, bez konfiguracji. Po prostu wybierz urządzenie i podążaj za wyczuciem.
+
+JAK TO DZIAŁA
+1. Skalibruj — trzymaj telefon płasko przy piersi. Twoje ciało osłania sygnał od tyłu,
+   co czyni go kierunkowym.
+2. Obracaj i idź — obracaj się powoli, aż będzie najcieplej, potem idź naprzód. Duża
+   strzałka i kolor ciepło/zimno prowadzą każdy krok.
+3. Namierz — z bliska blep świętuje moment, w którym to znajdujesz.
+
+CO GO WYRÓŻNIA
+• Kierunek według sygnału — wskaźnik kompasu i sygnału, a nie rozmyty radar.
+• Ślad na ekranie, gdzie szukałeś, pokolorowany według siły sygnału.
+• „Cieplej tędy" — jeśli zboczysz, wskaże ci drogę z powrotem do najmocniejszego punktu.
+• Mówi ci, kiedy otoczenie jest czyste lub zakłócone i kiedy w ogóle nie ma sygnału.
+• Opcjonalny dźwięk i wibracje, które pulsują szybciej, im bliżej jesteś.
+
+CZY COŚ CIĘ ŚLEDZI?
+Dotknij „Czy coś cię śledzi?", aby wyszukać niechciane lokalizatory podróżujące z tobą —
+AirTag, Tile, SmartTag lub nadajnik Find My, który ktoś mógł wsunąć do twojej torby,
+płaszcza lub samochodu. blep wyłapuje też sztuczkę, którą inni pomijają: lokalizator,
+który zmienia swój identyfikator Bluetooth, aby pozostać anonimowym, zdradza się,
+pojawiając się raz za razem na tej samej bliskiej odległości — to właśnie brak korelacji
+jest korelacją. A ponieważ blep jest wyszukiwarką, nie tylko ostrzega — prowadzi cię do
+niego. Włącz „Pamiętaj między sesjami", a etykieta, która godzinami wciąż się pojawia,
+zostanie oznaczona. (Tylko na urządzeniu — nic nie opuszcza twojego telefonu — i można to
+wyłączyć w każdej chwili.)
+
+PRYWATNOŚĆ Z ZAŁOŻENIA
+Bez kont. Bez reklam. Bez analityki. Bez zbierania danych. Wszystko dzieje się na twoim
+urządzeniu — twoje skany Bluetooth i wykrywanie ruchu nigdy nie opuszczają telefonu.
+blep jest bezpłatny i open source: https://github.com/fentas/blep.fyi
+
+WARTO WIEDZIEĆ
+blep znajduje rzeczy w zasięgu Bluetooth (mniej więcej pokój, piętro lub parking). To nie
+jest lokalizator GPS/w chmurze — nie potrafi zlokalizować etykiety na drugim końcu miasta
+jak sieć Find My. Prowadzi cię przez ostatni odcinek, według sygnału.
+```
+
+---
+
+## Portuguese — pt-PT (also pt-BR with minor tweaks)
+
+**Short description (≤80):**
+```
+Encontra objetos Bluetooth perdidos e rastreadores que te seguem. Grátis.
+```
+
+**Full description:**
+```
+blep transforma o teu telemóvel num ponteiro quente/frio que te leva diretamente aos teus
+objetos Bluetooth perdidos — chaves com uma etiqueta, auriculares, um relógio, uma coluna,
+quase tudo o que emite Bluetooth.
+
+Sem mapa, sem conta, sem configuração. Basta escolher o dispositivo e seguir a sensação.
+
+COMO FUNCIONA
+1. Calibra — segura o telemóvel plano contra o peito. O teu corpo bloqueia o sinal por
+   trás, tornando-o direcional.
+2. Roda e anda — roda devagar até estar mais quente, depois anda em frente. Uma seta
+   grande e uma cor quente/fria guiam cada passo.
+3. Localiza — de perto, o blep celebra o momento em que o encontras.
+
+PORQUE É BOM
+• Direção pelo sinal — um ponteiro de bússola e sinal, não um radar difuso.
+• Um rasto no ecrã de onde procuraste, colorido pela intensidade do sinal.
+• „Mais quente por aqui" — se te desviares, aponta-te de volta ao ponto mais forte.
+• Diz-te quando o ambiente está limpo ou com ruído e quando não há sinal nenhum.
+• Som e vibração opcionais que pulsam mais depressa à medida que te aproximas.
+
+ALGO TE ESTÁ A SEGUIR?
+Toca em „Algo te está a seguir?" para procurar rastreadores indesejados que viajam contigo
+— um AirTag, Tile, SmartTag ou baliza Find My que alguém possa ter metido na tua mala,
+casaco ou carro. O blep também apanha o truque que os outros falham: um rastreador que
+muda o seu ID Bluetooth para se manter anónimo trai-se ao reaparecer à mesma curta
+distância, vezes sem conta — é precisamente a não correlação que faz a correlação. E como o
+blep é um localizador, não se limita a avisar — leva-te até ele. Ativa „Lembrar entre
+sessões" e uma etiqueta que continua a aparecer ao longo das horas é assinalada. (Apenas no
+dispositivo — nada sai do teu telemóvel — e podes desativar a qualquer momento.)
+
+PRIVADO POR CONCEÇÃO
+Sem contas. Sem anúncios. Sem análises. Sem recolha de dados. Tudo acontece no teu
+dispositivo — as tuas análises Bluetooth e a deteção de movimento nunca saem do telemóvel.
+O blep é gratuito e de código aberto: https://github.com/fentas/blep.fyi
+
+BOM SABER
+O blep encontra coisas dentro do alcance Bluetooth (aproximadamente uma sala, um piso ou
+um estacionamento). Não é um rastreador GPS/na nuvem — não consegue localizar uma etiqueta
+do outro lado da cidade como uma rede Find My. Guia-te no último trajeto, pelo sinal.
+```
