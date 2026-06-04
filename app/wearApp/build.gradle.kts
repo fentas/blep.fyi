@@ -20,7 +20,7 @@ android {
         targetSdk = libs.versions.androidTargetSdk.get().toInt()
         // Unique across the whole app: the phone bundles use 5/6, the watch uses
         // its own band (10+) so the two never collide in a multi-bundle release.
-        versionCode = 10
+        versionCode = 11
         versionName = "0.1.0"
     }
 
