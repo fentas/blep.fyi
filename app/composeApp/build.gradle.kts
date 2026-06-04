@@ -67,7 +67,7 @@ pluginManager.withPlugin("com.android.application") {
             applicationId = "fyi.blep"
             minSdk = libs.versions.androidMinSdk.get().toInt()
             targetSdk = libs.versions.androidTargetSdk.get().toInt()
-            versionCode = 4
+            versionCode = 5
             versionName = "1.0.0"
         }
         // Release signing from a gitignored keystore.properties (created locally, or
