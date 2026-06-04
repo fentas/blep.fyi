@@ -1,7 +1,9 @@
 package fyi.blep.core.ble
 
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.safety.RawAdvert
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 /**
  * Platform-agnostic BLE scanning surface.
@@ -22,6 +24,14 @@ interface BleScanner {
 
     /** Live RSSI stream (dBm) for a single device, used during tracking. */
     fun rssi(deviceId: String): Flow<Int>
+
+    /**
+     * Raw advertisement stream for the safety scan (unwanted-tracker detection),
+     * carrying manufacturer data / service UUIDs / address type so trackers can be
+     * recognised. Default is empty so platforms that don't surface raw records yet
+     * simply contribute nothing.
+     */
+    fun advertisements(): Flow<RawAdvert> = emptyFlow()
 }
 
 /** Why scanning may be unavailable — lets the UI prompt for the right fix. */
