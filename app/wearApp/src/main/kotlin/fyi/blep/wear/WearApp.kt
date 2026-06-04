@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.res.stringResource
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -36,9 +37,12 @@ import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.Text
-import fyi.blep.core.spatial.SpatialGuidance
+import fyi.blep.core.spatial.CueKind
+import fyi.blep.core.spatial.GuidanceLine
 import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.spatial.Vec2
+import fyi.blep.core.tracking.Guidance
+import fyi.blep.core.tracking.GuidanceCue
 import fyi.blep.core.tracking.TrackingStatus
 
 private val Ink = Color(0xFF27313B)
@@ -49,8 +53,64 @@ private val proximityStops = listOf(
     1.00f to Color(0xFFF4D58D),
 )
 
+// ── Localized formatters for the core-generated guidance (mirror the phone's
+//    TrackingScreen, but against the watch's Android string resources) ─────────
+
+@Composable
+private fun phaseTitle(g: Guidance): String = cueTitle(g.cue)?.let { stringResource(it) } ?: g.title
+
+private fun cueTitle(cue: GuidanceCue): Int? = when (cue) {
+    GuidanceCue.NONE -> null
+    GuidanceCue.CALIBRATE -> R.string.cue_calibrate_title
+    GuidanceCue.SWEEP_START -> R.string.cue_sweep_start_title
+    GuidanceCue.SWEEP_WARMER -> R.string.cue_sweep_warmer_title
+    GuidanceCue.SWEEP_COLDER -> R.string.cue_sweep_colder_title
+    GuidanceCue.SWEEP_FLAT -> R.string.cue_sweep_flat_title
+    GuidanceCue.WALK_WARMER -> R.string.cue_walk_warmer_title
+    GuidanceCue.WALK_COLDER -> R.string.cue_walk_colder_title
+    GuidanceCue.WALK_FLAT -> R.string.cue_walk_flat_title
+    GuidanceCue.WALK_OVERSHOOT -> R.string.cue_walk_overshoot_title
+    GuidanceCue.WALK_FOUND -> R.string.cue_walk_found_title
+    GuidanceCue.REORIENT -> R.string.cue_reorient_title
+    GuidanceCue.PINPOINT -> R.string.cue_pinpoint_title
+    GuidanceCue.PINPOINT_LOST -> R.string.cue_pinpoint_lost_title
+    GuidanceCue.COMPLETE -> R.string.cue_complete_title
+}
+
+@Composable
+private fun guidanceLineText(line: GuidanceLine): String {
+    val turn = turnText(line.ahead, line.turnDeg)
+    return when (line.kind) {
+        CueKind.SIGNAL ->
+            if (line.ahead) stringResource(R.string.line_facing_signal) else stringResource(R.string.line_turn_to_signal, turn)
+        CueKind.RECOVER ->
+            if (line.ahead) stringResource(R.string.line_ahead_warmer) else stringResource(R.string.line_turn_warmer, turn)
+        CueKind.TARGET -> stringResource(R.string.line_target, turn, distanceWord(line.distanceM ?: 0.0))
+    }
+}
+
+@Composable
+private fun turnText(ahead: Boolean, turnDeg: Int): String = when {
+    ahead -> stringResource(R.string.turn_ahead)
+    turnDeg > 0 -> stringResource(R.string.turn_right, turnDeg)
+    else -> stringResource(R.string.turn_left, -turnDeg)
+}
+
+@Composable
+private fun distanceWord(m: Double): String =
+    if (m < 1.5) stringResource(R.string.line_distance_almost) else stringResource(R.string.line_distance_m, m.roundToInt())
+
+/** Coarse fallback distance label (when there's no turn-by-turn line yet). */
+@Composable
 private fun wearDistanceLabel(meters: Double): String =
-    if (meters < 1.5) "almost on it" else "~${meters.roundToInt()} m away"
+    if (meters < 1.5) stringResource(R.string.distance_almost_on_it) else stringResource(R.string.distance_away, meters.roundToInt())
+
+@Composable
+private fun floorHint(delta: Int): String? = when {
+    delta > 0 -> stringResource(if (delta == 1) R.string.floor_up_one else R.string.floor_up_many, delta)
+    delta < 0 -> stringResource(if (delta == -1) R.string.floor_down_one else R.string.floor_down_many, -delta)
+    else -> null
+}
 
 private fun proximityColor(f: Float): Color {
     val x = f.coerceIn(0f, 1f)
@@ -85,7 +145,7 @@ private fun DiscoveryList(controller: WearController) {
                 onClick = { controller.track(device) },
                 colors = ChipDefaults.primaryChipColors(backgroundColor = Color(0xFF5F90C3)),
                 label = { Text(device.displayName) },
-                secondaryLabel = if (device.isConnected) ({ Text("Connected") }) else null,
+                secondaryLabel = if (device.isConnected) ({ Text(stringResource(R.string.status_connected)) }) else null,
                 modifier = Modifier.padding(horizontal = 8.dp),
             )
         }
@@ -93,7 +153,7 @@ private fun DiscoveryList(controller: WearController) {
 }
 
 @Composable
-private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialSnapshot?, guidanceLine: String?, onCancel: () -> Unit) {
+private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialSnapshot?, guidanceLine: GuidanceLine?, onCancel: () -> Unit) {
     val bg by animateColorAsState(proximityColor(status.proximity), tween(800), label = "wearBg")
     Box(
         modifier = Modifier.fillMaxSize().background(bg).clickable(onClick = onCancel),
@@ -103,12 +163,12 @@ private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialS
             // Spatial map when motion sensors feed it; otherwise the shape arrow.
             if (spatial != null) WearRadar(spatial) else WearArrow(status.arrow.curl, status.arrow.scale)
             Text(
-                status.guidance.title,
+                phaseTitle(status.guidance),
                 color = Ink,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
             )
-            val line = guidanceLine
+            val line = guidanceLine?.let { guidanceLineText(it) }
                 ?: spatial?.target?.takeIf { it.confidence >= 0.35f && it.distanceM != null }
                     ?.let { wearDistanceLabel(it.distanceM!!) }
             if (line != null) {
@@ -116,10 +176,12 @@ private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialS
                     line,
                     color = Ink.copy(alpha = 0.75f),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 2.dp),
+                    // Keep the line off the round screen's curved edge so longer
+                    // languages wrap instead of clipping.
+                    modifier = Modifier.padding(top = 2.dp, start = 24.dp, end = 24.dp),
                 )
             }
-            val floor = spatial?.floorDelta?.let { SpatialGuidance.floorHint(it) }
+            val floor = spatial?.floorDelta?.let { floorHint(it) }
             if (floor != null) {
                 Text(
                     floor,

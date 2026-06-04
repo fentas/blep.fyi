@@ -206,7 +206,7 @@ class TrackingSession(
         }
         return TrackingStatus(
             TrackingPhase.PINPOINT,
-            Guidance("Almost there", "Kneel down and search low, near the floor.", Tone.WARMER),
+            Guidance("Almost there", "Kneel down and search low, near the floor.", Tone.WARMER, GuidanceCue.PINPOINT),
             proximity,
             arrow(curl = 0.0f, proximity = proximity),
         )

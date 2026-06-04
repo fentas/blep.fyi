@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.spatial.GuidanceLine
 import fyi.blep.core.spatial.GuidanceStabilizer
 import fyi.blep.core.spatial.Haptic
 import fyi.blep.core.spatial.HapticCadence
@@ -46,8 +47,10 @@ class WearController(
         private set
     var spatial by mutableStateOf<SpatialSnapshot?>(null)
         private set
-    /** Stabilised turn-by-turn line (committed direction in clean fields). */
-    var guidance by mutableStateOf<String?>(null)
+    /** Stabilised turn-by-turn cue (committed direction in clean fields); the UI
+     *  localizes it. Structured rather than a pre-formatted String so the watch
+     *  can translate it the same way the phone does. */
+    var guidance by mutableStateOf<GuidanceLine?>(null)
         private set
 
     private var scanJob: Job? = null
@@ -98,7 +101,7 @@ class WearController(
                     latestMotion = sample
                     val snap = spatialTracker.update((lastRssi ?: -100).toDouble(), sample)
                     spatial = snap
-                    guidance = guidanceStabilizer.guide(snap, spatialTuning)
+                    guidance = guidanceStabilizer.guideLine(snap, spatialTuning)
                 }
             } catch (c: CancellationException) {
                 throw c
