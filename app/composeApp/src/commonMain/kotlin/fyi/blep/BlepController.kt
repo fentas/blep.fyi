@@ -83,6 +83,10 @@ class BlepController(
      *  reappearing near you over hours (the "is it following me?" signal). */
     var rememberEncounters by mutableStateOf(safetyHistory.enabled())
         private set
+    /** The tracker just muted via "It's mine", for the brief Undo affordance; null
+     *  once the snackbar is dismissed or undone. */
+    var lastMuted by mutableStateOf<TrackerAlert?>(null)
+        private set
     /** Live spatial picture (track + target estimate) when motion sensors feed it. */
     var spatial by mutableStateOf<SpatialSnapshot?>(null)
         private set
@@ -193,7 +197,17 @@ class BlepController(
         val addr = alert.trackingAddress ?: return
         safetyScanner.mute(addr)
         safetyAlerts = safetyAlerts.filterNot { it.trackingAddress == addr }
+        lastMuted = alert
     }
+
+    /** Undo the most recent [muteTracker] — the tracker is watched (and flagged) again. */
+    fun undoMute() {
+        lastMuted?.trackingAddress?.let { safetyScanner.unmute(it) }
+        lastMuted = null
+    }
+
+    /** Dismiss the "muted" undo affordance without undoing. */
+    fun clearMuteUndo() { lastMuted = null }
 
     /** Find a suspected tracker by handing its address to the normal hunt. */
     fun findTracker(alert: TrackerAlert) {

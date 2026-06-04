@@ -33,6 +33,12 @@ class SafetyScanner(
         history?.mute(address)
     }
 
+    /** Reverse a [mute] — the address is observed and alerted on again. */
+    fun unmute(address: String) {
+        muted -= address
+        history?.unmute(address)
+    }
+
     fun alerts(): Flow<List<TrackerAlert>> = flow {
         emit(emptyList())
         scanner.advertisements().collect { adv ->

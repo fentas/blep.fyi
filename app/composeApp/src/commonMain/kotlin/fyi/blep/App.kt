@@ -61,6 +61,9 @@ fun App(demo: Boolean = false) {
                     onToggleRemember = controller::toggleRememberEncounters,
                     onFind = controller::findTracker,
                     onMine = controller::muteTracker,
+                    lastMuted = controller.lastMuted,
+                    onUndoMute = controller::undoMute,
+                    onMuteUndoShown = controller::clearMuteUndo,
                     onBack = controller::startDiscovery,
                 )
 

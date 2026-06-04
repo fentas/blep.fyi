@@ -104,6 +104,17 @@ class SafetyScannerTest {
     }
 
     @Test
+    fun unmute_re_flags_a_previously_muted_address() = runTest {
+        val adverts = (0..4).map { findMy("AA:11", -60, it * 1_000L) }
+        val s = SafetyScanner(scanner(adverts), TrackerDetector(tuning))
+        s.mute("AA:11")
+        s.unmute("AA:11") // changed my mind / accidental tap
+        val out = lastAlerts(s)
+        assertEquals(1, out.size)
+        assertEquals("AA:11", out[0].trackingAddress)
+    }
+
+    @Test
     fun muting_one_tag_still_flags_a_different_one() = runTest {
         val adverts = (0..4).flatMap {
             listOf(findMy("AA:MINE", -60, it * 1_000L), findMy("AA:THREAT", -58, it * 1_000L))

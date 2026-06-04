@@ -28,13 +28,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,13 +62,29 @@ fun SafetyScreen(
     onToggleRemember: () -> Unit,
     onFind: (TrackerAlert) -> Unit,
     onMine: (TrackerAlert) -> Unit,
+    lastMuted: TrackerAlert?,
+    onUndoMute: () -> Unit,
+    onMuteUndoShown: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+  Box(modifier.fillMaxSize().background(BlepColors.Mist)) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    // Show a brief "Undo" when a tracker is marked mine — so an accidental tap (or
+    // a change of mind) is reversible instead of a permanent, invisible mute.
+    LaunchedEffect(lastMuted) {
+        val muted = lastMuted ?: return@LaunchedEffect
+        val result = snackbarHostState.showSnackbar(
+            message = "Marked as yours — won't flag it again",
+            actionLabel = "Undo",
+            duration = SnackbarDuration.Short,
+        )
+        if (result == SnackbarResult.ActionPerformed) onUndoMute() else onMuteUndoShown()
+    }
+
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
-            .background(BlepColors.Mist)
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(horizontal = 20.dp),
     ) {
@@ -94,6 +116,12 @@ fun SafetyScreen(
             Text("Done", color = BlepColors.Ink.copy(alpha = 0.6f))
         }
     }
+
+    SnackbarHost(
+        snackbarHostState,
+        modifier = Modifier.align(Alignment.BottomCenter).windowInsetsPadding(WindowInsets.safeDrawing),
+    )
+  }
 }
 
 @Composable
