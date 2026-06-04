@@ -67,7 +67,7 @@ pluginManager.withPlugin("com.android.application") {
             applicationId = "fyi.blep"
             minSdk = libs.versions.androidMinSdk.get().toInt()
             targetSdk = libs.versions.androidTargetSdk.get().toInt()
-            versionCode = 1
+            versionCode = 2
             versionName = "0.1.0"
         }
         // Release signing from a gitignored keystore.properties (created locally, or
@@ -88,10 +88,15 @@ pluginManager.withPlugin("com.android.application") {
         }
         buildTypes {
             getByName("release") {
-                // Off for the first release so R8 can't introduce an untested-in-CI
-                // crash; flip to true (and verify on a device) once we add a release
-                // smoke test. proguard-rules.pro is ready either way.
-                isMinifyEnabled = false
+                // R8 on: shrinks the app and produces the crash-mapping file (the AAB
+                // embeds it, so Play deobfuscates automatically). blep has no
+                // reflection/serialization that R8 would break (Compose + native BLE
+                // APIs; Kable is iOS-only), so keeps are minimal — but verify a
+                // minified build on a device via the internal track. If a screen
+                // crashes, add a keep to proguard-rules.pro from the (now readable)
+                // stack trace.
+                isMinifyEnabled = true
+                isShrinkResources = true
                 proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
                 signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
                 // Ship native debug symbols (Compose's Skiko .so) so Play can
