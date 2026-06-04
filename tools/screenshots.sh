@@ -8,7 +8,11 @@
 #   tools/screenshots.sh             # capture + compose
 #   tools/screenshots.sh --compose   # re-compose from existing raw captures
 #
-# Output: screenshots/raw/*.png (device frames) and screenshots/store/*.png.
+# Output (under screenshots/):
+#   raw/*.png               — device captures
+#   store/phone/*.png       — 1440×2560 (9:16) · Phone + 7" + 10" tablet slots
+#   store/chromebook/*.png  — 2560×1440 (16:9) · Chromebook slot
+#   store/icon-512.png · store/feature-1024x500.png
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -29,22 +33,42 @@ export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
 FONT_B="$(fc-match -f '%{file}' 'DejaVu Sans:bold' 2>/dev/null || true)"; FONT_B="${FONT_B:-DejaVu-Sans-Bold}"
 FONT_R="$(fc-match -f '%{file}' 'DejaVu Sans' 2>/dev/null || true)"; FONT_R="${FONT_R:-DejaVu-Sans}"
 
-caption() { # raw.png "Headline" "subtext" out.png
-  local src="$1" head="$2" sub="$3" out="$4"
-  local W=1080 H=2400 SHOT_W=840 R=40
-  local tmp; tmp="$(mktemp -d)"
-  # resize, round the corners with a generated mask, then drop a soft shadow
-  magick "$src" -resize ${SHOT_W}x "$tmp/s.png"
-  local w h; w=$(identify -format %w "$tmp/s.png"); h=$(identify -format %h "$tmp/s.png")
+# Round corners (mask) + soft shadow on a pre-sized PNG.
+frame() { # in out radius
+  local in="$1" out="$2" R="$3" tmp; tmp="$(mktemp -d)"
+  local w h; w=$(identify -format %w "$in"); h=$(identify -format %h "$in")
   magick -size ${w}x${h} xc:none -fill white -draw "roundrectangle 0,0,$((w-1)),$((h-1)),$R,$R" "$tmp/m.png"
-  magick "$tmp/s.png" "$tmp/m.png" -alpha set -compose DstIn -composite "$tmp/r.png"
-  magick "$tmp/r.png" \( +clone -background black -shadow 55x28+0+16 \) +swap -background none -layers merge +repage "$tmp/sh.png"
-  # canvas + caption + screenshot
-  magick -size ${W}x${H} xc:'#EEF2F6' \
-    -font "$FONT_B" -pointsize 64 -fill '#27313B' -gravity north -annotate +0+150 "$head" \
-    -font "$FONT_R" -pointsize 38 -fill '#566472' -gravity north -annotate +0+255 "$sub" \
-    "$tmp/sh.png" -gravity center -geometry +0+180 -composite \
-    "$out"
+  magick "$in" "$tmp/m.png" -alpha set -compose DstIn -composite "$tmp/r.png"
+  magick "$tmp/r.png" \( +clone -background black -shadow 55x28+0+16 \) +swap -background none -layers merge +repage "$out"
+  rm -rf "$tmp"
+}
+
+# 9:16 portrait (1440×2560): caption on top, phone mockup below. This single size
+# is valid for the Phone, 7-inch tablet AND 10-inch tablet slots (each side is
+# 1080–7680 px and the ratio is exactly 9:16, which Play accepts everywhere).
+cap_portrait() { # src head sub out
+  local tmp; tmp="$(mktemp -d)"
+  magick "$1" -resize 980x "$tmp/s.png"
+  frame "$tmp/s.png" "$tmp/sh.png" 44
+  magick -size 1440x2560 xc:'#EEF2F6' \
+    -font "$FONT_B" -pointsize 78 -fill '#27313B' -gravity north -annotate +0+150 "$2" \
+    -font "$FONT_R" -pointsize 44 -fill '#566472' -gravity north -annotate +0+270 "$3" \
+    "$tmp/sh.png" -gravity north -geometry +0+340 -composite \
+    "$4"
+  rm -rf "$tmp"
+}
+
+# 16:9 landscape (2560×1440): phone mockup on the right, caption beside it. For the
+# Chromebook slot (and usable for a tablet-landscape set if you want one).
+cap_landscape() { # src head sub out
+  local tmp; tmp="$(mktemp -d)"
+  magick "$1" -resize x1180 "$tmp/s.png"
+  frame "$tmp/s.png" "$tmp/sh.png" 40
+  magick -size 2560x1440 xc:'#EEF2F6' \
+    "$tmp/sh.png" -gravity east -geometry +240+0 -composite \
+    -font "$FONT_B" -pointsize 84 -fill '#27313B' -gravity west -annotate +150-48 "$2" \
+    -font "$FONT_R" -pointsize 42 -fill '#566472' -gravity west -annotate +150+56 "$3" \
+    "$4"
   rm -rf "$tmp"
 }
 
@@ -78,12 +102,24 @@ if [ "${1:-}" != "--compose" ]; then
   sleep 8;  adb exec-out screencap -p > "$RAW/05-safety.png"    # "Find My tracker may be following you"
 fi
 
-echo "› composing captioned store set…"
-caption "$RAW/01-discovery.png"  "Find what you lost"      "Every nearby Bluetooth thing, ranked by signal." "$STORE/01.png"
-caption "$RAW/02-tracking.png"   "Walk right to it"        "A warm/cold pointer guides every step — no map."  "$STORE/02.png"
-caption "$RAW/03-found.png"      "You're on top of it"     "Calibrate, sweep, walk, done."                    "$STORE/03.png"
-caption "$RAW/04-celebrate.png"  "Found it"                "Free & open source. No ads, no tracking."         "$STORE/04.png"
-caption "$RAW/05-safety.png"     "Is something tracking you?" "Spot unwanted AirTags & trackers — then find them." "$STORE/05.png"
+PHONE="$STORE/phone"; CHROME="$STORE/chromebook"
+mkdir -p "$PHONE" "$CHROME"
+
+# The captioned "continuous thread": one headline + sub per raw frame.
+frames=(01-discovery 02-tracking 03-found 04-celebrate 05-safety)
+heads=("Find what you lost" "Walk right to it" "You're on top of it" "Found it" "Is something tracking you?")
+subs=("Every nearby Bluetooth thing, ranked by signal." \
+      "A warm/cold pointer guides every step — no map." \
+      "Calibrate, sweep, walk, done." \
+      "Free & open source. No ads, no tracking." \
+      "Spot unwanted AirTags & trackers — then find them.")
+
+echo "› composing captioned sets (phone/tablet 9:16 + chromebook 16:9)…"
+for i in "${!frames[@]}"; do
+  n=$(printf "%02d" $((i + 1)))
+  cap_portrait  "$RAW/${frames[$i]}.png" "${heads[$i]}" "${subs[$i]}" "$PHONE/$n.png"
+  cap_landscape "$RAW/${frames[$i]}.png" "${heads[$i]}" "${subs[$i]}" "$CHROME/$n.png"
+done
 
 echo "› brand assets (Play hi-res icon + feature graphic)…"
 LOGO="$ROOT/logo.svg"
@@ -97,4 +133,8 @@ magick -size 1024x500 xc:'#EEF2F6' \
   -font "$FONT_R" -pointsize 34  -fill '#566472' -gravity west -annotate +505+66 "Find lost Bluetooth things" \
   "$STORE/feature-1024x500.png"
 rm -f "$STORE/.dog.png"
-echo "✓ $STORE/{01..05}.png · icon-512.png · feature-1024x500.png"
+echo ""
+echo "✓ Phone + 7\" + 10\" tablet  →  $PHONE/{01..05}.png   (1440×2560, 9:16)"
+echo "✓ Chromebook                →  $CHROME/{01..05}.png  (2560×1440, 16:9)"
+echo "✓ App icon                  →  $STORE/icon-512.png    (512×512)"
+echo "✓ Feature graphic           →  $STORE/feature-1024x500.png"
