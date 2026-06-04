@@ -64,11 +64,18 @@ if [ "${1:-}" != "--compose" ]; then
   adb shell am start -n "$PKG/.MainActivity" --ez demo true >/dev/null
   sleep 4
   adb exec-out screencap -p > "$RAW/01-discovery.png"
-  adb shell input tap 540 547                 # tap the first device (Ford Kuga)
+  adb shell input tap 540 721                 # tap the first device (Ford Kuga)
   sleep 9;  adb exec-out screencap -p > "$RAW/02-tracking.png"  # mid-walk, on course
   sleep 5;  adb exec-out screencap -p > "$RAW/03-found.png"     # "Right here?"
   adb shell input tap 540 2024                # "Got it" → celebration
   sleep 2;  adb exec-out screencap -p > "$RAW/04-celebrate.png"
+
+  echo "› capturing the safety scan (anti-stalking)…"
+  adb shell pm clear "$PKG" >/dev/null        # fresh state so the demo AirTag alerts (not muted)
+  adb shell am start -n "$PKG/.MainActivity" --ez demo true >/dev/null
+  sleep 4
+  adb shell input tap 420 460                 # open "Is something tracking you?"
+  sleep 8;  adb exec-out screencap -p > "$RAW/05-safety.png"    # "Find My tracker may be following you"
 fi
 
 echo "› composing captioned store set…"
@@ -76,6 +83,7 @@ caption "$RAW/01-discovery.png"  "Find what you lost"      "Every nearby Bluetoo
 caption "$RAW/02-tracking.png"   "Walk right to it"        "A warm/cold pointer guides every step — no map."  "$STORE/02.png"
 caption "$RAW/03-found.png"      "You're on top of it"     "Calibrate, sweep, walk, done."                    "$STORE/03.png"
 caption "$RAW/04-celebrate.png"  "Found it"                "Free & open source. No ads, no tracking."         "$STORE/04.png"
+caption "$RAW/05-safety.png"     "Is something tracking you?" "Spot unwanted AirTags & trackers — then find them." "$STORE/05.png"
 
 echo "› brand assets (Play hi-res icon + feature graphic)…"
 LOGO="$ROOT/logo.svg"
@@ -89,4 +97,4 @@ magick -size 1024x500 xc:'#EEF2F6' \
   -font "$FONT_R" -pointsize 34  -fill '#566472' -gravity west -annotate +505+66 "Find lost Bluetooth things" \
   "$STORE/feature-1024x500.png"
 rm -f "$STORE/.dog.png"
-echo "✓ $STORE/{01..04}.png · icon-512.png · feature-1024x500.png"
+echo "✓ $STORE/{01..05}.png · icon-512.png · feature-1024x500.png"
