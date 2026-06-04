@@ -94,6 +94,9 @@ pluginManager.withPlugin("com.android.application") {
                 isMinifyEnabled = false
                 proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
                 signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+                // Ship native debug symbols (Compose's Skiko .so) so Play can
+                // symbolicate crashes/ANRs — clears the "no debug symbols" warning.
+                ndk { debugSymbolLevel = "SYMBOL_TABLE" }
             }
         }
         compileOptions {
