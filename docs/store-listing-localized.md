@@ -185,7 +185,6 @@ WAS ES GUT MACHT
 • „Wärmer hier entlang" — wenn du abweichst, weist es dich zurück zum stärksten Punkt.
 • Sagt dir, wann das Umfeld sauber oder gestört ist und wann es gar kein Signal gibt.
 • Optionaler Ton + Vibration, die schneller pulsiert, je näher du kommst.
-• Begleit-Apps für Apple Watch und Wear OS.
 
 VERFOLGT DICH ETWAS?
 Tippe auf „Verfolgt dich etwas?", um nach unerwünschten Trackern zu suchen, die mit
@@ -245,7 +244,6 @@ ZAKAJ JE DOBER
 • „Topleje sem" — če zaideš, te usmeri nazaj k najmočnejši točki.
 • Pove ti, kdaj je okolje čisto ali moteno in kdaj signala sploh ni.
 • Izbirni zvok in vibracije, ki utripajo hitreje, ko se približuješ.
-• Spremljevalni aplikaciji za Apple Watch in Wear OS.
 
 TE KAJ ZASLEDUJE?
 Pritisni „Te kaj zasleduje?", da poiščeš neželene sledilnike, ki potujejo s teboj —
@@ -300,7 +298,6 @@ PERCHÉ È VALIDO
 • „Più caldo da questa parte" — se ti allontani, ti riporta al punto più forte.
 • Ti dice quando il campo è pulito o disturbato e quando non c'è segnale.
 • Suono e vibrazione opzionali che pulsano più veloci man mano che ti avvicini.
-• App companion per Apple Watch e Wear OS.
 
 QUALCOSA TI STA SEGUENDO?
 Tocca „Qualcosa ti sta seguendo?" per cercare tracker indesiderati che viaggiano con
@@ -362,7 +359,6 @@ WAT HET GOED MAAKT
 • „Warmer deze kant op" — als je afdwaalt, wijst het je terug naar het sterkste punt.
 • Vertelt je wanneer het veld schoon of verstoord is en wanneer er geen signaal is.
 • Optioneel geluid + trilling die sneller pulseert naarmate je dichterbij komt.
-• Begeleidende apps voor Apple Watch en Wear OS.
 
 WORD JE GEVOLGD?
 Tik op „Word je gevolgd?" om te scannen op ongewenste trackers die met je meereizen —
@@ -416,7 +412,6 @@ POR QUÉ ES BUENO
 • „Más caliente por aquí" — si te desvías, te devuelve al punto más fuerte.
 • Te dice cuándo el entorno está limpio o con interferencias y cuándo no hay señal.
 • Sonido y vibración opcionales que laten más rápido a medida que te acercas.
-• Apps complementarias para Apple Watch y Wear OS.
 
 ¿ALGO TE ESTÁ SIGUIENDO?
 Toca „¿Algo te está siguiendo?" para buscar rastreadores no deseados que viajan
@@ -472,7 +467,6 @@ la señal.
 • „Πιο ζεστά από εδώ" — αν ξεφύγεις, σε δείχνει πίσω στο πιο δυνατό σημείο.
 • Σου λέει πότε το περιβάλλον είναι καθαρό ή με παρεμβολές και πότε δεν υπάρχει σήμα.
 • Προαιρετικός ήχος και δόνηση που πάλλεται πιο γρήγορα καθώς πλησιάζεις.
-• Συνοδευτικές εφαρμογές για Apple Watch και Wear OS.
 
 ΣΕ ΠΑΡΑΚΟΛΟΥΘΕΙ ΚΑΤΙ;
 Πάτα „Σε παρακολουθεί κάτι;" για να σαρώσεις για ανεπιθύμητους ιχνηλάτες που ταξιδεύουν
@@ -527,7 +521,6 @@ MIKS SEE HEA ON
 • „Soojem siiapoole" — kui eksid, juhatab see sind tagasi tugevaima punkti juurde.
 • Ütleb, millal keskkond on puhas või häiritud ja millal signaali pole.
 • Valikuline heli ja vibratsioon, mis pulseerib kiiremini, mida lähemale jõuad.
-• Kaaslasrakendused Apple Watchile ja Wear OS-ile.
 
 KAS KEEGI JÄLGIB SIND?
 Puuduta „Kas keegi jälgib sind?", et otsida soovimatuid jälgijaid, kes sinuga kaasas
@@ -582,7 +575,6 @@ CE QUI LE REND BON
 • « Plus chaud par ici » — si tu t'écartes, il te ramène vers le point le plus fort.
 • Il te dit quand l'environnement est clair ou perturbé et quand il n'y a aucun signal.
 • Son et vibration en option, qui pulsent plus vite à mesure que tu t'approches.
-• Applications compagnons pour Apple Watch et Wear OS.
 
 QUELQUE CHOSE TE SUIT-IL ?
 Touche « Quelque chose te suit-il ? » pour rechercher des traceurs indésirables qui

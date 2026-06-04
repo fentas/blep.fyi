@@ -38,7 +38,6 @@ WHAT MAKES IT GOOD
 • "Warmer this way" — if you stray, it points you back to the strongest spot.
 • Tells you when the field is clean vs noisy, and when there's no signal at all.
 • Optional sound + haptics that pulse faster as you close in.
-• Companion apps for Apple Watch and Wear OS.
 
 IS SOMETHING TRACKING YOU?
 Tap "Is something tracking you?" to scan for unwanted trackers travelling with
