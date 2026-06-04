@@ -14,7 +14,7 @@ SYSIMG      ?= system-images;android-35;google_apis;x86_64
 .DEFAULT_GOAL := help
 .PHONY: help setup doctor test sim scenarios chaos robustness build apk aab \
         install install-wear run demo uninstall devices logcat \
-        emulator-setup emulator screenshots ble-trackers \
+        emulator-setup emulator screenshots promo ble-trackers \
         bridge bridge-motion bridge-rssi web web-build web-icons \
         ci apple clean
 
@@ -110,6 +110,9 @@ emulator: ## Boot the blep emulator
 
 screenshots: ## Regenerate the captioned store screenshots from demo mode
 	tools/screenshots.sh
+
+promo: ## Generate the branded promo video (screenshots/promo.mp4) for YouTube/Play
+	tools/promo-video.sh
 
 ble-trackers: ## Inject fake AirTag/Tile/SmartTag adverts into the emulator (netsim+Bumble)
 	@test -x tools/ble-netsim/venv/bin/python || \
