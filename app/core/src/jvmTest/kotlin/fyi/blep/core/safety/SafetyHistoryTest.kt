@@ -14,11 +14,9 @@ class SafetyHistoryTest {
     private fun history() = SafetyHistory(createKeyValueStore())
 
     @Test
-    fun disabled_by_default_and_records_nothing_until_enabled() {
+    fun enabled_by_default_with_an_empty_log() {
         val h = history()
-        assertFalse(h.enabled())
-        // even calling record persists data, but the scanner only records when enabled;
-        // crossSession reflects whatever was written:
+        assertTrue(h.enabled())
         assertNull(h.crossSession(TrackerKind.FIND_MY, 10 * hourMs))
     }
 

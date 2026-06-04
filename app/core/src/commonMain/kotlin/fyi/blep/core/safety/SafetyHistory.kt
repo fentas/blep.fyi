@@ -31,7 +31,9 @@ class SafetyHistory(
     private val minGapMs: Long = 5 * 60_000L,              // throttle: ≤1 record per kind / 5 min
     private val maxEntries: Int = 1000,                    // ~17 KB worst case; storage is a non-issue
 ) {
-    fun enabled(): Boolean = store.getBoolean(KEY_ENABLED, false)
+    // On by default — the log never leaves the device, so there's no privacy cost,
+    // and cross-session correlation is the feature's edge. Users can turn it off.
+    fun enabled(): Boolean = store.getBoolean(KEY_ENABLED, true)
     fun setEnabled(on: Boolean) {
         store.putBoolean(KEY_ENABLED, on)
         if (!on) clear()

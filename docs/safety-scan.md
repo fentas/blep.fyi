@@ -41,14 +41,15 @@ Severity: a *separated tracker close by* → **WARN**; *close & present for minu
     never exposes the MAC, so every identifier is an OS-scoped UUID marked RANDOM
     (the churn of distinct nearby identifiers *is* the rotation tell).
 - **Cross-session memory (v2 history).** `SafetyHistory` + `KeyValueStore`
-  (SharedPreferences / NSUserDefaults): opt-in, persists a rolling log of close
-  encounters (tracker *kind* + time only — no identity, no location), and promotes
-  a kind seen across **3+ separate hours** to a full ALERT. 7-day retention
-  (~17 KB cap; storage is a non-issue), throttled to ≤1 record/kind/5 min,
-  cleared when the toggle is turned off.
+  (SharedPreferences / NSUserDefaults): **on by default** (the log never leaves the
+  device, so there's no privacy cost — and it's the feature's edge; users can turn
+  it off, which clears it). Persists a rolling log of close encounters (tracker
+  *kind* + time only — no identity, no location), and promotes a kind seen across
+  **3+ separate hours** to a full ALERT. 7-day retention (~17 KB cap; storage is a
+  non-issue), throttled to ≤1 record/kind/5 min.
 - **UI.** Discovery "🛡️ Is something tracking you?" entry → `SafetyScreen`: live
   list of suspected trackers (kind, severity, signal) → **Find it** (reuses the
-  tracking engine) + the "Remember across sessions" opt-in toggle.
+  tracking engine) + the "Remember across sessions" toggle (on by default).
 - Tests: `TrackerDetectorTest` (6), `TrackerClassifierTest` (4),
   `SafetyHistoryTest` (7).
 
@@ -66,8 +67,9 @@ Severity: a *separated tracker close by* → **WARN**; *close & present for minu
   once v1 is live.
 - **"Across places" (location) correlation.** Cross-session is currently time-only
   (hours). Adding coarse location to distinguish "same tracker in different places"
-  would strengthen it but pulls in the location-permission/Play surface above — also
-  a v2 item, gated behind the same opt-in.
+  would strengthen it but pulls in the location-permission/Play surface above — a
+  v2 item, gated behind its own explicit location consent (location is privacy-
+  sensitive, unlike the time-only log which stays on by default).
 - **iOS** background BLE is heavily restricted and Find My is OS-reserved; iOS stays
   **foreground / on-open only** by design. The OS already does native unwanted-
   tracker alerts — blep still adds the *find-it* step + the manual/rotation scan.

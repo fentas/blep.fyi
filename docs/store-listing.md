@@ -48,7 +48,8 @@ that rotates its Bluetooth ID to stay anonymous gives itself away by reappearing
 at the same close range, again and again — the un-correlation is the correlation.
 And because blep is a finder, it doesn't just warn — it points you to it. Turn on
 "Remember across sessions" and a tag that keeps showing up over the hours gets
-flagged. (On-device only, opt-in, off by default.)
+flagged. (On-device only — nothing ever leaves your phone — and you can turn it
+off any time.)
 
 PRIVATE BY DESIGN
 No accounts. No ads. No analytics. No trackers. Everything happens on your
@@ -80,10 +81,11 @@ trackers following you — and points you to them. Free & open source, no tracki
   - blep processes Bluetooth scan results, approximate/precise location, and
     motion sensor readings **only on the device, in the moment**, to guide you.
     None of it is collected, stored off-device, transmitted, or shared.
-  - The opt-in safety "Remember across sessions" log stays **on-device** (a tracker
+  - The safety "Remember across sessions" log stays **on-device** (a tracker
     *type* + timestamp, no identity or location) and is never transmitted — so it
     is still "not collected" under Play's definition (data that never leaves the
-    device). It's off by default and cleared when switched off.
+    device). It's on by default (because it never leaves the phone), can be turned
+    off, and is cleared when switched off.
 - **Is all user data encrypted in transit?** → N/A (no data leaves the device).
 - **Do you provide a way to request data deletion?** → N/A (nothing is stored).
 
