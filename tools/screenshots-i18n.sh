@@ -86,11 +86,15 @@ cap_landscape() { local t; t="$(mktemp -d)"
     -font "$CFR" -pointsize 42 -fill '#566472' -gravity west -annotate +150+56 "$3" \
     "$4"; rm -rf "$t"; }
 
+# 1024×500 feature graphic: dog + wordmark + tagline. The tagline is rendered as a
+# word-wrapped caption (bounded to the free width right of the wordmark) so long
+# languages wrap to a second line instead of running off the right edge.
 feature() { rsvg-convert -w 360 -h 360 "$ROOT/logo.svg" -o /tmp/.bd.png
+  magick -background none -fill '#566472' -font "$CFR" -pointsize 32 -size 500x caption:"$1" /tmp/.cap.png
   magick -size 1024x500 xc:'#EEF2F6' /tmp/.bd.png -gravity west -geometry +90+0 -composite \
-    -font "$CFB" -pointsize 132 -fill '#27313B' -gravity west -annotate +500-36 "blep" \
-    -font "$CFR" -pointsize 32 -fill '#566472' -gravity west -annotate +505+70 "$1" \
-    "$2"; rm -f /tmp/.bd.png; }
+    -font "$CFB" -pointsize 132 -fill '#27313B' -gravity west -annotate +500-52 "blep" \
+    /tmp/.cap.png -gravity west -geometry +505+72 -composite \
+    "$2"; rm -f /tmp/.bd.png /tmp/.cap.png; }
 
 # Launch the demo, retrying — a zygote restart leaves the framework briefly
 # unready ("Activity does not exist") even though sys.boot_completed stays 1.
@@ -116,9 +120,16 @@ capture_set() { local raw="$1"
   adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
   adb shell input tap 420 460; sleep 8; adb exec-out screencap -p > "$raw/05.png"; }
 
-echo "› building + installing demo build…"
-( cd "$APP" && ./gradlew :composeApp:assembleDebug -q )
-adb install -r "$APP/composeApp/build/outputs/apk/debug/composeApp-debug.apk" >/dev/null
+# --feature-only: just re-composite the localized feature graphics (pure ImageMagick,
+# no emulator / no captures). Use it after tweaking the feature() layout or taglines.
+FEATURE_ONLY=0
+if [ "${1:-}" = "--feature-only" ]; then FEATURE_ONLY=1; shift; fi
+
+if [ "$FEATURE_ONLY" = 0 ]; then
+  echo "› building + installing demo build…"
+  ( cd "$APP" && ./gradlew :composeApp:assembleDebug -q )
+  adb install -r "$APP/composeApp/build/outputs/apk/debug/composeApp-debug.apk" >/dev/null
+fi
 
 WANT=("$@")
 # Read the locale table on FD 3 so adb/gradle inside the loop can't eat the rows.
@@ -127,8 +138,13 @@ while read -r folder lang country full cjk <&3; do
   if [ ${#WANT[@]} -gt 0 ] && [[ ! " ${WANT[*]} " == *" $folder "* ]]; then continue; fi
   echo "› $folder ($full)…"
   if [ "$cjk" = 1 ]; then CFB="$CJK_B"; CFR="$CJK_R"; else CFB="$DV_B"; CFR="$DV_R"; fi
-  set_locale "$lang" "$country" "$full"
   IFS='|' read -r h1 s1 h2 s2 h3 s3 h4 s4 h5 s5 tag <<< "$(caps "$lang")"
+  if [ "$FEATURE_ONLY" = 1 ]; then
+    mkdir -p "$STORE/$folder"
+    feature "$tag" "$STORE/$folder/feature-1024x500.png"
+    continue
+  fi
+  set_locale "$lang" "$country" "$full"
   raw="$(mktemp -d)"; capture_set "$raw"
   out="$STORE/$folder/phone"; tb="$STORE/$folder/tablet"; cr="$STORE/$folder/chromebook"; mkdir -p "$out" "$tb" "$cr"
   cap_portrait  "$raw/01.png" "$h1" "$s1" "$out/01.png"; cap_landscape "$raw/01.png" "$h1" "$s1" "$cr/01.png"
@@ -141,5 +157,5 @@ while read -r folder lang country full cjk <&3; do
   rm -rf "$raw"
 done 3<<< "$ROWS"
 
-set_locale en US en-US
+[ "$FEATURE_ONLY" = 1 ] || set_locale en US en-US
 echo "✓ localized sets in $STORE/<locale>/  (phone/ + chromebook/ 01–05.png + feature-1024x500.png)"
