@@ -16,8 +16,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        requestBlePermissions()
-        setContent { App() }
+        // `adb shell am start -n fyi.blep/.MainActivity --ez demo true` → scripted
+        // data for screenshots; no Bluetooth or permission prompt needed.
+        val demo = intent?.getBooleanExtra("demo", false) == true
+        if (!demo) requestBlePermissions()
+        setContent { App(demo = demo) }
     }
 
     private fun requestBlePermissions() {

@@ -10,6 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalUriHandler
 import fyi.blep.core.ble.createBleScanner
+import fyi.blep.demo.DemoBleScanner
+import fyi.blep.demo.DemoMotionProvider
 import fyi.blep.ui.screens.CompletionScreen
 import fyi.blep.ui.screens.DiscoveryScreen
 import fyi.blep.ui.screens.TrackingScreen
@@ -18,12 +20,16 @@ import fyi.blep.ui.theme.BlepTheme
 /** Where the in-app "Help & donate" button sends people (hosted by the website). */
 const val DONATE_URL: String = "https://blep.fyi/donate.html"
 
-/** Root composable shared by the Android and iOS phone apps. */
+/** Root composable shared by the Android and iOS phone apps. [demo] swaps in
+ *  scripted data sources (no Bluetooth/sensors needed) for screenshots/previews. */
 @Composable
-fun App() {
+fun App(demo: Boolean = false) {
     BlepTheme {
         val scope = rememberCoroutineScope()
-        val controller = remember(scope) { BlepController(createBleScanner(), scope) }
+        val controller = remember(scope) {
+            if (demo) BlepController(DemoBleScanner(), scope, DemoMotionProvider())
+            else BlepController(createBleScanner(), scope)
+        }
         val uriHandler = LocalUriHandler.current
 
         AnimatedContent(
