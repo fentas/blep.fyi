@@ -22,13 +22,24 @@ class SafetyScanner(
     private val history: SafetyHistory? = null,
     private val nowEpochMs: () -> Long = ::epochMillis,
 ) {
+    /** Addresses the user marked "it's mine" — never observed, never alerted. */
+    private val muted: MutableSet<String> = history?.mutedAddresses()?.toMutableSet() ?: mutableSetOf()
+
     fun reset() = detector.reset()
+
+    /** Mark a tracker as the user's own so it stops being flagged (persisted). */
+    fun mute(address: String) {
+        muted += address
+        history?.mute(address)
+    }
 
     fun alerts(): Flow<List<TrackerAlert>> = flow {
         emit(emptyList())
         scanner.advertisements().collect { adv ->
-            detector.observe(TrackerClassifier.classify(adv))
-            emit(enrich(detector.evaluate(adv.timeMs)))
+            // A muted address contributes to neither detection signal…
+            if (adv.address !in muted) detector.observe(TrackerClassifier.classify(adv))
+            // …and is filtered out of the result in case it was seen pre-mute.
+            emit(enrich(detector.evaluate(adv.timeMs)).filter { it.trackingAddress !in muted })
         }
     }
 

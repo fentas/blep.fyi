@@ -58,6 +58,27 @@ class SafetyHistory(
 
     fun clear() = store.putString(KEY_LOG, "")
 
+    // --- "It's mine" mute list ----------------------------------------------
+    // Persisted set of addresses the user marked as their own. Best-effort: a tag
+    // that rotates its address will reappear under a new one (that rotation is the
+    // very thing the detector exists to catch), so the UI says so. Works permanently
+    // for stable-MAC trackers (many Tiles, SmartTags, headphones, fixed beacons).
+
+    fun mutedAddresses(): Set<String> {
+        val raw = store.getString(KEY_MUTED)?.takeIf { it.isNotBlank() } ?: return emptySet()
+        return raw.split('\n').filter { it.isNotBlank() }.toHashSet()
+    }
+
+    fun mute(address: String) {
+        if (address.isBlank()) return
+        saveMuted(mutedAddresses() + address)
+    }
+
+    fun unmute(address: String) = saveMuted(mutedAddresses() - address)
+
+    private fun saveMuted(set: Set<String>) =
+        store.putString(KEY_MUTED, set.joinToString("\n"))
+
     private fun load(): List<Encounter> {
         val raw = store.getString(KEY_LOG)?.takeIf { it.isNotBlank() } ?: return emptyList()
         return raw.split('\n').mapNotNull { line ->
@@ -78,5 +99,6 @@ class SafetyHistory(
     private companion object {
         const val KEY_ENABLED = "safety.remember"
         const val KEY_LOG = "safety.encounters"
+        const val KEY_MUTED = "safety.muted"
     }
 }

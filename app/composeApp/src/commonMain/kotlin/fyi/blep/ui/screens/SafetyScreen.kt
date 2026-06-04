@@ -55,6 +55,7 @@ fun SafetyScreen(
     rememberOn: Boolean,
     onToggleRemember: () -> Unit,
     onFind: (TrackerAlert) -> Unit,
+    onMine: (TrackerAlert) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -83,7 +84,7 @@ fun SafetyScreen(
             AllClear(Modifier.weight(1f))
         } else {
             LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(alerts) { AlertCard(it, onFind) }
+                items(alerts) { AlertCard(it, onFind, onMine) }
             }
         }
 
@@ -125,7 +126,7 @@ private fun RememberToggle(on: Boolean, onToggle: () -> Unit) {
 }
 
 @Composable
-private fun AlertCard(alert: TrackerAlert, onFind: (TrackerAlert) -> Unit) {
+private fun AlertCard(alert: TrackerAlert, onFind: (TrackerAlert) -> Unit, onMine: (TrackerAlert) -> Unit) {
     val accent = when (alert.severity) {
         Severity.ALERT -> BlepColors.Pink
         Severity.WARN -> AMBER
@@ -156,6 +157,10 @@ private fun AlertCard(alert: TrackerAlert, onFind: (TrackerAlert) -> Unit) {
                     modifier = Modifier.weight(1f),
                 )
                 if (alert.trackingAddress != null) {
+                    TextButton(onClick = { onMine(alert) }) {
+                        Text("It's mine", color = BlepColors.Ink.copy(alpha = 0.55f))
+                    }
+                    Spacer(Modifier.width(4.dp))
                     Button(
                         onClick = { onFind(alert) },
                         colors = ButtonDefaults.buttonColors(containerColor = BlepColors.Blue, contentColor = BlepColors.Cream),

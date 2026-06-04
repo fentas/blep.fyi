@@ -187,6 +187,14 @@ class BlepController(
         rememberEncounters = on
     }
 
+    /** Mark a suspected tracker as the user's own — mutes it (persisted) and drops
+     *  it from the current list. Rotating tags may reappear under a new address. */
+    fun muteTracker(alert: TrackerAlert) {
+        val addr = alert.trackingAddress ?: return
+        safetyScanner.mute(addr)
+        safetyAlerts = safetyAlerts.filterNot { it.trackingAddress == addr }
+    }
+
     /** Find a suspected tracker by handing its address to the normal hunt. */
     fun findTracker(alert: TrackerAlert) {
         val addr = alert.trackingAddress ?: return

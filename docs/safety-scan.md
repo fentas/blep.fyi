@@ -47,11 +47,20 @@ Severity: a *separated tracker close by* → **WARN**; *close & present for minu
   *kind* + time only — no identity, no location), and promotes a kind seen across
   **3+ separate hours** to a full ALERT. 7-day retention (~17 KB cap; storage is a
   non-issue), throttled to ≤1 record/kind/5 min.
+- **"It's mine" mute.** Each alert offers *It's mine* → persists the address to a
+  mute list (`SafetyHistory`); the scanner then feeds neither detection signal from
+  it and filters it out of results. Permanent for stable-MAC trackers; a tag that
+  *rotates* its address reappears under a new one (that rotation is the very thing
+  the detector catches), so the copy is honest about it. The mute list survives the
+  "Remember" toggle being turned off.
 - **UI.** Discovery "🛡️ Is something tracking you?" entry → `SafetyScreen`: live
   list of suspected trackers (kind, severity, signal) → **Find it** (reuses the
-  tracking engine) + the "Remember across sessions" toggle (on by default).
-- Tests: `TrackerDetectorTest` (6), `TrackerClassifierTest` (4),
-  `SafetyHistoryTest` (7).
+  tracking engine) + **It's mine** (mute) + the "Remember across sessions" toggle
+  (on by default).
+- Tests (28): `TrackerDetectorTest` (6), `TrackerClassifierTest` (4),
+  `SafetyHistoryTest` (10, incl. mute round-trip), `SafetyScannerTest` (8 — full
+  pipeline scenarios: following AirTag, brief Tile, rotation churn, far device,
+  mute silences/keeps-others, cross-session promote/disabled).
 
 ## Remaining work
 - **On-device protocol validation.** The byte/UUID fingerprints (Find My `0x12`,

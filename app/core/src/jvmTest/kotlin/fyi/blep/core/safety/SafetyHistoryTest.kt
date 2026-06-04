@@ -87,4 +87,35 @@ class SafetyHistoryTest {
         h.record(TrackerKind.UNKNOWN, 8 * hourMs)
         assertNull(h.crossSession(TrackerKind.UNKNOWN, 8 * hourMs))
     }
+
+    @Test
+    fun mute_list_round_trips_and_is_independent_per_address() {
+        val h = history()
+        assertTrue(h.mutedAddresses().isEmpty())
+        h.mute("AA:11")
+        h.mute("BB:22")
+        assertEquals(setOf("AA:11", "BB:22"), h.mutedAddresses())
+        h.unmute("AA:11")
+        assertEquals(setOf("BB:22"), h.mutedAddresses())
+    }
+
+    @Test
+    fun mute_ignores_blank_and_dedupes() {
+        val h = history()
+        h.mute("")
+        h.mute("AA:11")
+        h.mute("AA:11")
+        assertEquals(setOf("AA:11"), h.mutedAddresses())
+    }
+
+    @Test
+    fun mute_list_survives_the_remember_toggle() {
+        // Turning history off clears the encounter log but must NOT forget "it's mine".
+        val h = history()
+        h.setEnabled(true)
+        h.mute("AA:11")
+        h.record(TrackerKind.FIND_MY, 8 * hourMs)
+        h.setEnabled(false)
+        assertEquals(setOf("AA:11"), h.mutedAddresses())
+    }
 }

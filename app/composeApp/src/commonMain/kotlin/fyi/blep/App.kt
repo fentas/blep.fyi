@@ -60,6 +60,7 @@ fun App(demo: Boolean = false) {
                     rememberOn = controller.rememberEncounters,
                     onToggleRemember = controller::toggleRememberEncounters,
                     onFind = controller::findTracker,
+                    onMine = controller::muteTracker,
                     onBack = controller::startDiscovery,
                 )
 
