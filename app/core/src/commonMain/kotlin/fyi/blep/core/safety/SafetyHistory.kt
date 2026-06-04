@@ -27,9 +27,9 @@ data class CrossSession(
  */
 class SafetyHistory(
     private val store: KeyValueStore,
-    private val retentionMs: Long = 24 * 60 * 60_000L, // a day of memory
-    private val minGapMs: Long = 5 * 60_000L,          // throttle: ≤1 record per kind / 5 min
-    private val maxEntries: Int = 400,
+    private val retentionMs: Long = 7 * 24 * 60 * 60_000L, // a week — stalking plays out across days
+    private val minGapMs: Long = 5 * 60_000L,              // throttle: ≤1 record per kind / 5 min
+    private val maxEntries: Int = 1000,                    // ~17 KB worst case; storage is a non-issue
 ) {
     fun enabled(): Boolean = store.getBoolean(KEY_ENABLED, false)
     fun setEnabled(on: Boolean) {

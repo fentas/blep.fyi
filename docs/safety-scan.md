@@ -43,8 +43,9 @@ Severity: a *separated tracker close by* → **WARN**; *close & present for minu
 - **Cross-session memory (v2 history).** `SafetyHistory` + `KeyValueStore`
   (SharedPreferences / NSUserDefaults): opt-in, persists a rolling log of close
   encounters (tracker *kind* + time only — no identity, no location), and promotes
-  a kind seen across **3+ separate hours** to a full ALERT. Day retention,
-  throttled, cleared when the toggle is turned off.
+  a kind seen across **3+ separate hours** to a full ALERT. 7-day retention
+  (~17 KB cap; storage is a non-issue), throttled to ≤1 record/kind/5 min,
+  cleared when the toggle is turned off.
 - **UI.** Discovery "🛡️ Is something tracking you?" entry → `SafetyScreen`: live
   list of suspected trackers (kind, severity, signal) → **Find it** (reuses the
   tracking engine) + the "Remember across sessions" opt-in toggle.
