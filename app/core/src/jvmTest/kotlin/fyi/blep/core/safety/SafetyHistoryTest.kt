@@ -1,0 +1,92 @@
+package fyi.blep.core.safety
+
+import fyi.blep.core.platform.createKeyValueStore
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+
+class SafetyHistoryTest {
+
+    private val hourMs = 3_600_000L
+
+    private fun history() = SafetyHistory(createKeyValueStore())
+
+    @Test
+    fun disabled_by_default_and_records_nothing_until_enabled() {
+        val h = history()
+        assertFalse(h.enabled())
+        // even calling record persists data, but the scanner only records when enabled;
+        // crossSession reflects whatever was written:
+        assertNull(h.crossSession(TrackerKind.FIND_MY, 10 * hourMs))
+    }
+
+    @Test
+    fun seen_across_separate_hours_is_persistent() {
+        val h = history()
+        h.setEnabled(true)
+        // Same Find My tag close at 8:00, 11:00, 15:00 — three separate hours.
+        h.record(TrackerKind.FIND_MY, 8 * hourMs)
+        h.record(TrackerKind.FIND_MY, 11 * hourMs)
+        h.record(TrackerKind.FIND_MY, 15 * hourMs)
+        val cs = h.crossSession(TrackerKind.FIND_MY, 15 * hourMs)!!
+        assertEquals(3, cs.distinctHours)
+        assertTrue(cs.persistent)
+    }
+
+    @Test
+    fun bursts_within_one_hour_count_once() {
+        val h = history()
+        h.setEnabled(true)
+        // Many records inside the same hour (throttling also caps these) ⇒ one hour.
+        h.record(TrackerKind.TILE, 9 * hourMs)
+        h.record(TrackerKind.TILE, 9 * hourMs + 6 * 60_000L)
+        h.record(TrackerKind.TILE, 9 * hourMs + 12 * 60_000L)
+        val cs = h.crossSession(TrackerKind.TILE, 9 * hourMs + 12 * 60_000L)!!
+        assertEquals(1, cs.distinctHours)
+        assertFalse(cs.persistent)
+    }
+
+    @Test
+    fun throttle_drops_records_within_the_min_gap() {
+        val h = SafetyHistory(createKeyValueStore(), minGapMs = 5 * 60_000L)
+        h.setEnabled(true)
+        h.record(TrackerKind.SMARTTAG, 0)
+        h.record(TrackerKind.SMARTTAG, 60_000L) // 1 min later — dropped
+        // both land in hour 0 regardless, so assert via a second hour
+        h.record(TrackerKind.SMARTTAG, hourMs)
+        val cs = h.crossSession(TrackerKind.SMARTTAG, hourMs)!!
+        assertEquals(2, cs.distinctHours)
+    }
+
+    @Test
+    fun old_encounters_age_out_of_the_window() {
+        val h = SafetyHistory(createKeyValueStore(), retentionMs = 24 * hourMs)
+        h.setEnabled(true)
+        h.record(TrackerKind.FIND_MY, 0)
+        // 30 hours later, the old one is past retention; only the new one remains.
+        val now = 30 * hourMs
+        h.record(TrackerKind.FIND_MY, now)
+        val cs = h.crossSession(TrackerKind.FIND_MY, now)!!
+        assertEquals(1, cs.distinctHours)
+    }
+
+    @Test
+    fun turning_off_clears_the_log() {
+        val h = history()
+        h.setEnabled(true)
+        h.record(TrackerKind.FIND_MY, 8 * hourMs)
+        h.setEnabled(false)
+        h.setEnabled(true)
+        assertNull(h.crossSession(TrackerKind.FIND_MY, 8 * hourMs))
+    }
+
+    @Test
+    fun unknown_kind_is_never_recorded() {
+        val h = history()
+        h.setEnabled(true)
+        h.record(TrackerKind.UNKNOWN, 8 * hourMs)
+        assertNull(h.crossSession(TrackerKind.UNKNOWN, 8 * hourMs))
+    }
+}

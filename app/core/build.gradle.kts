@@ -14,6 +14,10 @@ if (enableAndroid) {
 }
 
 kotlin {
+    // The safety persistence layer uses an expect/actual class (KeyValueStore);
+    // that language feature is stable in practice but still flagged "Beta".
+    compilerOptions { freeCompilerArgs.add("-Xexpect-actual-classes") }
+
     jvm() // pure-logic test target — no platform deps
 
     if (enableAndroid) {

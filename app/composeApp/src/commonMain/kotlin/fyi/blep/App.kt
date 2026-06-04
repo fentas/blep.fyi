@@ -57,6 +57,8 @@ fun App(demo: Boolean = false) {
 
                 is Screen.Safety -> SafetyScreen(
                     alerts = controller.safetyAlerts,
+                    rememberOn = controller.rememberEncounters,
+                    onToggleRemember = controller::toggleRememberEncounters,
                     onFind = controller::findTracker,
                     onBack = controller::startDiscovery,
                 )

@@ -29,6 +29,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,6 +52,8 @@ private val AMBER = Color(0xFFE8A33D)
 @Composable
 fun SafetyScreen(
     alerts: List<TrackerAlert>,
+    rememberOn: Boolean,
+    onToggleRemember: () -> Unit,
     onFind: (TrackerAlert) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -83,8 +87,39 @@ fun SafetyScreen(
             }
         }
 
+        RememberToggle(rememberOn, onToggleRemember)
+
         TextButton(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
             Text("Done", color = BlepColors.Ink.copy(alpha = 0.6f))
+        }
+    }
+}
+
+@Composable
+private fun RememberToggle(on: Boolean, onToggle: () -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = Color.White.copy(alpha = 0.6f),
+        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("Remember across sessions", style = MaterialTheme.typography.titleSmall, color = BlepColors.Ink)
+                Text(
+                    "Logs only the tracker type + time — no identity, no location — so a tag that keeps reappearing over hours gets flagged.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = BlepColors.Ink.copy(alpha = 0.55f),
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Switch(
+                checked = on,
+                onCheckedChange = { onToggle() },
+                colors = SwitchDefaults.colors(checkedTrackColor = BlepColors.Blue),
+            )
         }
     }
 }

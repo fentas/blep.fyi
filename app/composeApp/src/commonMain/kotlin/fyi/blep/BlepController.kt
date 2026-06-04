@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.platform.createKeyValueStore
+import fyi.blep.core.safety.SafetyHistory
 import fyi.blep.core.safety.SafetyScanner
 import fyi.blep.core.safety.TrackerAlert
 import fyi.blep.core.safety.TrackerDetector
@@ -52,6 +54,7 @@ class BlepController(
     private val motionProvider: MotionProvider = createMotionProvider(),
     private val haptic: Haptic = createHaptic(),
     safetyTuning: TrackerTuning = TrackerTuning(),
+    private val safetyHistory: SafetyHistory = SafetyHistory(createKeyValueStore()),
 ) {
     var screen by mutableStateOf<Screen>(Screen.Discovery)
         private set
@@ -75,6 +78,10 @@ class BlepController(
         private set
     /** Suspected unwanted trackers from the safety scan, strongest threat first. */
     var safetyAlerts by mutableStateOf<List<TrackerAlert>>(emptyList())
+        private set
+    /** Opt-in: remember tracker encounters across sessions to catch one that keeps
+     *  reappearing near you over hours (the "is it following me?" signal). */
+    var rememberEncounters by mutableStateOf(safetyHistory.enabled())
         private set
     /** Live spatial picture (track + target estimate) when motion sensors feed it. */
     var spatial by mutableStateOf<SpatialSnapshot?>(null)
@@ -104,7 +111,7 @@ class BlepController(
     private val spatialTuning = SpatialTuning()
     private val spatialTracker = SpatialTracker(spatialTuning)
     private val guidanceStabilizer = GuidanceStabilizer()
-    private val safetyScanner = SafetyScanner(scanner, TrackerDetector(safetyTuning))
+    private val safetyScanner = SafetyScanner(scanner, TrackerDetector(safetyTuning), safetyHistory)
     private var safetyJob: Job? = null
     // Latest motion sample; both flows run on the same (Main) dispatcher, so a
     // plain var is safe to share between the RSSI and motion collectors.
@@ -171,6 +178,13 @@ class BlepController(
                 // Radio unavailable — leave the list empty.
             }
         }
+    }
+
+    /** Toggle cross-session memory for the safety scan (clears the log when turned off). */
+    fun toggleRememberEncounters() {
+        val on = !rememberEncounters
+        safetyHistory.setEnabled(on)
+        rememberEncounters = on
     }
 
     /** Find a suspected tracker by handing its address to the normal hunt. */
