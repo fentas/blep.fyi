@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -68,6 +69,32 @@ pluginManager.withPlugin("com.android.application") {
             targetSdk = libs.versions.androidTargetSdk.get().toInt()
             versionCode = 1
             versionName = "0.1.0"
+        }
+        // Release signing from a gitignored keystore.properties (created locally, or
+        // written from secrets in CI). Absent → release falls back to debug signing
+        // so dev/CI builds still work; only a real upload key yields a Play-uploadable
+        // bundle. Keys: storeFile, storePassword, keyAlias, keyPassword.
+        val keystoreProps = rootProject.file("keystore.properties").takeIf { it.exists() }
+            ?.let { f -> Properties().apply { f.inputStream().use { load(it) } } }
+        signingConfigs {
+            if (keystoreProps != null) {
+                create("release") {
+                    storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+                    storePassword = keystoreProps.getProperty("storePassword")
+                    keyAlias = keystoreProps.getProperty("keyAlias")
+                    keyPassword = keystoreProps.getProperty("keyPassword")
+                }
+            }
+        }
+        buildTypes {
+            getByName("release") {
+                // Off for the first release so R8 can't introduce an untested-in-CI
+                // crash; flip to true (and verify on a device) once we add a release
+                // smoke test. proguard-rules.pro is ready either way.
+                isMinifyEnabled = false
+                proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+                signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+            }
         }
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_11

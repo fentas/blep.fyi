@@ -31,3 +31,8 @@ web/node_modules/
 web/dist/
 web/.vite/
 web/dev-dist/
+
+# Android release signing — never commit the keystore or its passwords
+keystore.properties
+*.jks
+*.keystore
