@@ -37,6 +37,12 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import fyi.blep.core.spatial.SpatialGuidance
@@ -126,7 +132,14 @@ fun TrackingScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                Text(text, style = MaterialTheme.typography.displaySmall, color = BlepColors.Ink, textAlign = TextAlign.Center)
+                Text(
+                    text,
+                    style = MaterialTheme.typography.displaySmall,
+                    color = BlepColors.Ink,
+                    textAlign = TextAlign.Center,
+                    // announce each new turn-by-turn cue to screen readers
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                )
                 if (detail != null) {
                     Text(detail, style = MaterialTheme.typography.bodyLarge, color = BlepColors.Ink.copy(alpha = 0.7f), textAlign = TextAlign.Center)
                 }
@@ -194,6 +207,7 @@ private fun MuteToggle(soundOn: Boolean, onToggle: () -> Unit, modifier: Modifie
         modifier = modifier
             .clip(RoundedCornerShape(50))
             .clickable(onClick = onToggle)
+            .semantics { contentDescription = if (soundOn) "Mute sound" else "Unmute sound"; role = Role.Button }
             .padding(10.dp)
             .size(26.dp),
     ) {
