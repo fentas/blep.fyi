@@ -125,7 +125,7 @@ class TrackerDetector(private val tuning: TrackerTuning = TrackerTuning()) {
     private fun coverage(sightings: List<TrackerSighting>, nowMs: Long): Double {
         if (sightings.isEmpty()) return 0.0
         val span = nowMs - sightings.minOf { it.timeMs }
-        if (span < tuning.bucketMs) return if (sightings.isNotEmpty()) 1.0 else 0.0
+        if (span < tuning.bucketMs) return 1.0 // all within one bucket ⇒ fully covered
         val buckets = (span / tuning.bucketMs).toInt() + 1
         val hit = sightings.map { ((nowMs - it.timeMs) / tuning.bucketMs).toInt() }.toHashSet().size
         return hit.toDouble() / buckets

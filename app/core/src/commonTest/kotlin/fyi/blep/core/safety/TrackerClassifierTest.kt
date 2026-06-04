@@ -39,4 +39,22 @@ class TrackerClassifierTest {
         assertTrue(TrackerClassifier.classify(adv(type = AddressType.RANDOM)).randomAddress)
         assertFalse(TrackerClassifier.classify(adv(type = AddressType.PUBLIC)).randomAddress)
     }
+
+    @Test
+    fun dult_service_uuids_are_recognised_as_separated() {
+        // The cross-vendor DULT "accessory not with owner" / Find My Device network UUIDs.
+        for (uuid in listOf("fd44", "feaa")) {
+            val s = TrackerClassifier.classify(adv(svc = listOf(uuid)))
+            assertEquals(TrackerKind.DULT, s.kind, "uuid=$uuid")
+            assertTrue(s.separated, "uuid=$uuid")
+        }
+    }
+
+    @Test
+    fun apple_with_empty_manufacturer_payload_is_not_a_tracker() {
+        // No payload byte to inspect ⇒ must not be misread as offline-finding.
+        val s = TrackerClassifier.classify(adv(mfg = mapOf(0x004C to byteArrayOf())))
+        assertEquals(TrackerKind.UNKNOWN, s.kind)
+        assertFalse(s.separated)
+    }
 }

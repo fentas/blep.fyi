@@ -57,10 +57,11 @@ Severity: a *separated tracker close by* → **WARN**; *close & present for minu
   list of suspected trackers (kind, severity, signal) → **Find it** (reuses the
   tracking engine) + **It's mine** (mute) + the "Remember across sessions" toggle
   (on by default).
-- Tests (28): `TrackerDetectorTest` (6), `TrackerClassifierTest` (4),
-  `SafetyHistoryTest` (10, incl. mute round-trip), `SafetyScannerTest` (8 — full
-  pipeline scenarios: following AirTag, brief Tile, rotation churn, far device,
-  mute silences/keeps-others, cross-session promote/disabled).
+- Tests (37): `TrackerDetectorTest` (9), `TrackerClassifierTest` (6),
+  `SafetyHistoryTest` (13 — incl. mute round-trip/cap, corrupt-log tolerance,
+  entry-cap), `SafetyScannerTest` (9 — full pipeline scenarios: following AirTag,
+  brief Tile, rotation churn, far device, mute silences/unmute re-flags/keeps-others,
+  cross-session promote/disabled).
 - **Emulator integration check** (`tools/ble-netsim/`). The Android emulator (33+/
   API 31+) has a virtual Bluetooth stack via **netsim**; Bumble injects fake adverts
   over its gRPC. Confirmed live that the *real* `AndroidBleScanner.advertisements()`

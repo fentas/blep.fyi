@@ -5,6 +5,7 @@ import com.juul.kable.Scanner
 import fyi.blep.core.model.BleDevice
 import fyi.blep.core.safety.AddressType
 import fyi.blep.core.safety.RawAdvert
+import fyi.blep.core.safety.shortServiceUuid
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -85,9 +86,5 @@ internal class KableScanner(
         }
     }
 }
-
-/** Bluetooth-base 128-bit UUIDs collapse to their 16-bit short form ("0000feed-…" → "feed"). */
-private fun shortServiceUuid(uuid: String): String =
-    if (uuid.length == 36 && uuid.endsWith("-0000-1000-8000-00805f9b34fb")) uuid.substring(4, 8) else uuid
 
 actual fun createBleScanner(): BleScanner = KableScanner()

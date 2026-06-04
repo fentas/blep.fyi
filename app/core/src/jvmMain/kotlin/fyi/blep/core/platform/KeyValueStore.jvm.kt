@@ -12,5 +12,6 @@ actual class KeyValueStore {
 
 actual fun createKeyValueStore(): KeyValueStore = KeyValueStore()
 
-private var clock = 0L
-actual fun epochMillis(): Long = ++clock
+// Real wall-clock — honours the expect contract. Tests that need determinism inject
+// their own clock via SafetyScanner(nowEpochMs = …) / SafetyHistory.record(nowEpochMs).
+actual fun epochMillis(): Long = System.currentTimeMillis()

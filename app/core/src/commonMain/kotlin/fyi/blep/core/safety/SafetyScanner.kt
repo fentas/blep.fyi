@@ -50,16 +50,16 @@ class SafetyScanner(
     }
 
     private fun enrich(alerts: List<TrackerAlert>): List<TrackerAlert> {
-        val h = history?.takeIf { it.enabled() } ?: return alerts
+        val log = history?.takeIf { it.enabled() } ?: return alerts
         val now = nowEpochMs()
         return alerts.map { alert ->
-            h.record(alert.kind, now)
-            val cs = h.crossSession(alert.kind, now)
-            if (cs != null && cs.persistent) {
+            log.record(alert.kind, now)
+            val cross = log.crossSession(alert.kind, now)
+            if (cross != null && cross.persistent) {
                 alert.copy(
                     severity = Severity.ALERT,
                     detail = alert.detail +
-                        " It's shown up near you across ${cs.distinctHours} separate hours — a strong sign it's travelling with you.",
+                        " It's shown up near you across ${cross.distinctHours} separate hours — a strong sign it's travelling with you.",
                 )
             } else {
                 alert

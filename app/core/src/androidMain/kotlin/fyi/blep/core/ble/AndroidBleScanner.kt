@@ -16,6 +16,7 @@ import android.os.SystemClock
 import fyi.blep.core.model.BleDevice
 import fyi.blep.core.safety.AddressType
 import fyi.blep.core.safety.RawAdvert
+import fyi.blep.core.safety.shortServiceUuid
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -216,12 +217,6 @@ private fun ScanResult.toRawAdvert(timeMs: Long): RawAdvert {
         manufacturerData = mfg,
     )
 }
-
-/** Bluetooth-base 128-bit UUIDs collapse to their 16-bit short form ("0000feed-…" → "feed"). */
-private const val BT_BASE_SUFFIX = "-0000-1000-8000-00805f9b34fb"
-
-private fun shortServiceUuid(uuid: String): String =
-    if (uuid.length == 36 && uuid.endsWith(BT_BASE_SUFFIX)) uuid.substring(4, 8) else uuid
 
 /**
  * Best-effort BLE address-type from the two most-significant bits of the address —

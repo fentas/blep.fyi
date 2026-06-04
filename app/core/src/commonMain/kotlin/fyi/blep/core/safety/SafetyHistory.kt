@@ -30,6 +30,7 @@ class SafetyHistory(
     private val retentionMs: Long = 7 * 24 * 60 * 60_000L, // a week — stalking plays out across days
     private val minGapMs: Long = 5 * 60_000L,              // throttle: ≤1 record per kind / 5 min
     private val maxEntries: Int = 1000,                    // ~17 KB worst case; storage is a non-issue
+    private val maxMuted: Int = 200,                       // bound the "it's mine" list (rotating tags churn it)
 ) {
     // On by default — the log never leaves the device, so there's no privacy cost,
     // and cross-session correlation is the feature's edge. Users can turn it off.
@@ -59,40 +60,39 @@ class SafetyHistory(
     fun clear() = store.putString(KEY_LOG, "")
 
     // --- "It's mine" mute list ----------------------------------------------
-    // Persisted set of addresses the user marked as their own. Best-effort: a tag
-    // that rotates its address will reappear under a new one (that rotation is the
-    // very thing the detector exists to catch), so the UI says so. Works permanently
+    // Persisted addresses the user marked as their own — note these *are* device
+    // identifiers (the user's own trackers), unlike the identity-free encounter log;
+    // they stay on-device and are bounded. Best-effort: a tag that rotates its
+    // address reappears under a new one (that rotation is the very thing the detector
+    // exists to catch, and is why the list is capped), so the UI says so. Permanent
     // for stable-MAC trackers (many Tiles, SmartTags, headphones, fixed beacons).
 
-    fun mutedAddresses(): Set<String> {
-        val raw = store.getString(KEY_MUTED)?.takeIf { it.isNotBlank() } ?: return emptySet()
-        return raw.split('\n').filter { it.isNotBlank() }.toHashSet()
-    }
+    fun mutedAddresses(): Set<String> = readLines(KEY_MUTED).toCollection(LinkedHashSet())
 
     fun mute(address: String) {
         if (address.isBlank()) return
-        saveMuted(mutedAddresses() + address)
+        // Newest-wins, capped — a rotating tag the user keeps re-muting can't grow it unbounded.
+        writeLines(KEY_MUTED, (mutedAddresses() + address).toList().takeLast(maxMuted))
     }
 
-    fun unmute(address: String) = saveMuted(mutedAddresses() - address)
+    fun unmute(address: String) = writeLines(KEY_MUTED, (mutedAddresses() - address).toList())
 
-    private fun saveMuted(set: Set<String>) =
-        store.putString(KEY_MUTED, set.joinToString("\n"))
-
-    private fun load(): List<Encounter> {
-        val raw = store.getString(KEY_LOG)?.takeIf { it.isNotBlank() } ?: return emptyList()
-        return raw.split('\n').mapNotNull { line ->
-            val p = line.split(':')
-            if (p.size != 2) return@mapNotNull null
-            val ord = p[0].toIntOrNull() ?: return@mapNotNull null
-            val ms = p[1].toLongOrNull() ?: return@mapNotNull null
-            TrackerKind.entries.getOrNull(ord)?.let { Encounter(it, ms) }
-        }
+    private fun load(): List<Encounter> = readLines(KEY_LOG).mapNotNull { line ->
+        val p = line.split(':')
+        if (p.size != 2) return@mapNotNull null
+        val ord = p[0].toIntOrNull() ?: return@mapNotNull null
+        val ms = p[1].toLongOrNull() ?: return@mapNotNull null
+        TrackerKind.entries.getOrNull(ord)?.let { Encounter(it, ms) }
     }
 
-    private fun save(list: List<Encounter>) {
-        store.putString(KEY_LOG, list.joinToString("\n") { "${it.kind.ordinal}:${it.epochMs}" })
-    }
+    private fun save(list: List<Encounter>) =
+        writeLines(KEY_LOG, list.map { "${it.kind.ordinal}:${it.epochMs}" })
+
+    /** Newline-delimited string codec shared by the encounter log and the mute list. */
+    private fun readLines(key: String): List<String> =
+        store.getString(key)?.takeIf { it.isNotBlank() }?.split('\n')?.filter { it.isNotBlank() }.orEmpty()
+
+    private fun writeLines(key: String, lines: List<String>) = store.putString(key, lines.joinToString("\n"))
 
     private data class Encounter(val kind: TrackerKind, val epochMs: Long)
 

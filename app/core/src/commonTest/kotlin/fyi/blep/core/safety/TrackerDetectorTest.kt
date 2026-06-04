@@ -75,6 +75,45 @@ class TrackerDetectorTest {
         // Two different people's phones pass close, briefly — not a continuous shadow.
         d.observe(TrackerSighting("p1", rssi = -60, timeMs = 1000, randomAddress = true))
         d.observe(TrackerSighting("p2", rssi = -60, timeMs = 2000, randomAddress = true))
-        assertNull(d.evaluate(3000).firstOrNull())
+        assertTrue(d.evaluate(3000).isEmpty())
+    }
+
+    @Test
+    fun a_separated_findmy_present_past_nearby_but_under_following_is_a_warning() {
+        val d = TrackerDetector()
+        // A non-rotating separated tag, close for ~45 s — past `nearbyMs`, under
+        // `followingMs`: the duration trigger (not just `separated`) should WARN.
+        feed(d, 0, 45_000, 5_000) { t ->
+            TrackerSighting("stable", rssi = -60, timeMs = t, kind = TrackerKind.FIND_MY, separated = false)
+        }
+        val a = d.evaluate(45_000).single()
+        assertEquals(Severity.WARN, a.severity)
+        assertEquals(TrackerKind.FIND_MY, a.kind)
+    }
+
+    @Test
+    fun churn_of_non_private_addresses_does_not_trip_the_rotation_heuristic() {
+        val d = TrackerDetector()
+        // Many distinct close UNKNOWN addresses, but PUBLIC (randomAddress=false) —
+        // the rotation tell keys on rotating *private* MACs, so this must not fire.
+        feed(d, 0, 6 * 60_000, 20_000) { t ->
+            TrackerSighting("pub-${t / 60_000}", rssi = -65, timeMs = t,
+                kind = TrackerKind.UNKNOWN, randomAddress = false)
+        }
+        assertTrue(d.evaluate(6 * 60_000).isEmpty())
+    }
+
+    @Test
+    fun rapid_rotation_inside_a_single_bucket_still_trips() {
+        // Distinct private addresses churning fast (sub-bucket span) — coverage's
+        // short-span path should treat it as fully present, not divide-by-near-zero.
+        val d = TrackerDetector(TrackerTuning(bucketMs = 60_000))
+        listOf(0L, 1_000, 2_000, 3_000).forEach { t ->
+            d.observe(TrackerSighting("anon-$t", rssi = -60, timeMs = t,
+                kind = TrackerKind.UNKNOWN, randomAddress = true))
+        }
+        val a = d.evaluate(3_000).single()
+        assertEquals(Severity.WARN, a.severity)
+        assertEquals(TrackerKind.UNKNOWN, a.kind)
     }
 }

@@ -22,6 +22,14 @@ data class RawAdvert(
     val manufacturerData: Map<Int, ByteArray> = emptyMap(),
 )
 
+private const val BT_BASE_SUFFIX = "-0000-1000-8000-00805f9b34fb"
+
+/** Collapse a Bluetooth-base 128-bit UUID to its 16-bit short form ("0000feed-…" →
+ *  "feed"); anything else is returned unchanged. Shared by the platform scanners so
+ *  the [TrackerClassifier]'s service-UUID matching sees one consistent form. */
+fun shortServiceUuid(uuid: String): String =
+    if (uuid.length == 36 && uuid.endsWith(BT_BASE_SUFFIX)) uuid.substring(4, 8) else uuid
+
 /**
  * Recognises separated-tracker protocols from a [RawAdvert]. Conservative: only the
  * well-established fingerprints are matched; everything else stays UNKNOWN and is

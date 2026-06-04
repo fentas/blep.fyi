@@ -109,6 +109,32 @@ class SafetyHistoryTest {
     }
 
     @Test
+    fun load_tolerates_a_corrupt_or_truncated_encounter_log() {
+        // A partially-written / garbage log must not crash or poison crossSession —
+        // only the well-formed "ordinal:epochMs" lines should survive.
+        val store = createKeyValueStore()
+        store.putString("safety.encounters", "garbage\n\n0:${8 * hourMs}\nbad:line\n99:123\n7:notanumber")
+        val h = SafetyHistory(store)
+        val cs = h.crossSession(TrackerKind.FIND_MY, 8 * hourMs)!! // ordinal 0 = FIND_MY
+        assertEquals(1, cs.distinctHours)
+    }
+
+    @Test
+    fun the_encounter_log_is_capped_at_maxEntries() {
+        val h = SafetyHistory(createKeyValueStore(), maxEntries = 3)
+        (1..5).forEach { h.record(TrackerKind.FIND_MY, it * hourMs) } // 5 separate hours
+        val cs = h.crossSession(TrackerKind.FIND_MY, 5 * hourMs)!!
+        assertEquals(3, cs.distinctHours) // only the newest 3 survive the cap
+    }
+
+    @Test
+    fun the_mute_list_is_capped_newest_wins() {
+        val h = SafetyHistory(createKeyValueStore(), maxMuted = 3)
+        listOf("a", "b", "c", "d", "e").forEach { h.mute(it) }
+        assertEquals(setOf("c", "d", "e"), h.mutedAddresses())
+    }
+
+    @Test
     fun mute_list_survives_the_remember_toggle() {
         // Turning history off clears the encounter log but must NOT forget "it's mine".
         val h = history()

@@ -68,60 +68,60 @@ fun SafetyScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-  Box(modifier.fillMaxSize().background(BlepColors.Mist)) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    // Show a brief "Undo" when a tracker is marked mine — so an accidental tap (or
-    // a change of mind) is reversible instead of a permanent, invisible mute.
-    LaunchedEffect(lastMuted) {
-        val muted = lastMuted ?: return@LaunchedEffect
-        val result = snackbarHostState.showSnackbar(
-            message = "Marked as yours — won't flag it again",
-            actionLabel = "Undo",
-            duration = SnackbarDuration.Short,
-        )
-        if (result == SnackbarResult.ActionPerformed) onUndoMute() else onMuteUndoShown()
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(horizontal = 20.dp),
-    ) {
-        Spacer(Modifier.height(12.dp))
-        Text("Is anything tracking you?", style = MaterialTheme.typography.headlineMedium, color = BlepColors.Ink)
-        Spacer(Modifier.height(4.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            ScanningDot()
-            Spacer(Modifier.width(8.dp))
-            Text(
-                "Scanning nearby Bluetooth for unwanted trackers…",
-                style = MaterialTheme.typography.bodyLarge,
-                color = BlepColors.Ink.copy(alpha = 0.55f),
+    Box(modifier.fillMaxSize().background(BlepColors.Mist)) {
+        val snackbarHostState = remember { SnackbarHostState() }
+        // Show a brief "Undo" when a tracker is marked mine — so an accidental tap (or
+        // a change of mind) is reversible instead of a permanent, invisible mute.
+        LaunchedEffect(lastMuted) {
+            if (lastMuted == null) return@LaunchedEffect
+            val result = snackbarHostState.showSnackbar(
+                message = "Marked as yours — won't flag it again",
+                actionLabel = "Undo",
+                duration = SnackbarDuration.Short,
             )
+            if (result == SnackbarResult.ActionPerformed) onUndoMute() else onMuteUndoShown()
         }
-        Spacer(Modifier.height(16.dp))
 
-        if (alerts.isEmpty()) {
-            AllClear(Modifier.weight(1f))
-        } else {
-            LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(alerts) { AlertCard(it, onFind, onMine) }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .padding(horizontal = 20.dp),
+        ) {
+            Spacer(Modifier.height(12.dp))
+            Text("Is anything tracking you?", style = MaterialTheme.typography.headlineMedium, color = BlepColors.Ink)
+            Spacer(Modifier.height(4.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ScanningDot()
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "Scanning nearby Bluetooth for unwanted trackers…",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = BlepColors.Ink.copy(alpha = 0.55f),
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+
+            if (alerts.isEmpty()) {
+                AllClear(Modifier.weight(1f))
+            } else {
+                LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(alerts) { AlertCard(it, onFind, onMine) }
+                }
+            }
+
+            RememberToggle(rememberOn, onToggleRemember)
+
+            TextButton(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                Text("Done", color = BlepColors.Ink.copy(alpha = 0.6f))
             }
         }
 
-        RememberToggle(rememberOn, onToggleRemember)
-
-        TextButton(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-            Text("Done", color = BlepColors.Ink.copy(alpha = 0.6f))
-        }
+        SnackbarHost(
+            snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).windowInsetsPadding(WindowInsets.safeDrawing),
+        )
     }
-
-    SnackbarHost(
-        snackbarHostState,
-        modifier = Modifier.align(Alignment.BottomCenter).windowInsetsPadding(WindowInsets.safeDrawing),
-    )
-  }
 }
 
 @Composable

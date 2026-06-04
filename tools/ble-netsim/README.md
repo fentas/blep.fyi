@@ -22,6 +22,9 @@ and skip the actual Android `ScanResult` parsing).
 
 ## Run
 
+`make ble-trackers` wraps the steps below (creates the venv, finds the gRPC port,
+runs the advertiser). To do it by hand:
+
 ```bash
 make emulator                 # boot the blep AVD (API 31+)
 python3 -m venv tools/ble-netsim/venv

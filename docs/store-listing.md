@@ -78,9 +78,11 @@ trackers following you — and points you to them. Free & open source, no tracki
 
 ### Data safety form
 - **Does your app collect or share any required user data?** → **No.**
-  - blep processes Bluetooth scan results, approximate/precise location, and
-    motion sensor readings **only on the device, in the moment**, to guide you.
-    None of it is collected, stored off-device, transmitted, or shared.
+  - blep processes Bluetooth scan results and motion sensor readings **only on the
+    device, in the moment**, to guide you. None of it is collected, stored
+    off-device, transmitted, or shared. (On Android 12+ the scan declares
+    `neverForLocation` and no location is accessed; on Android ≤11, location
+    permission is required by the OS to scan at all, used on-device only.)
   - The safety "Remember across sessions" log stays **on-device** (a tracker
     *type* + timestamp, no identity or location) and is never transmitted — so it
     is still "not collected" under Play's definition (data that never leaves the
@@ -103,9 +105,10 @@ trackers following you — and points you to them. Free & open source, no tracki
 ### Permissions justification (if asked)
 - **Bluetooth (scan/connect):** core function — scanning for and ranging the
   device you're finding.
-- **Location:** Android requires location permission to perform any Bluetooth
-  scan; blep also uses it to sharpen direction. Used on-device only, never
-  stored or transmitted (covered in the privacy policy).
+- **Location (Android ≤11 only):** older Android requires location permission to
+  perform any Bluetooth scan. On Android 12+ blep declares `BLUETOOTH_SCAN` with
+  `neverForLocation` and accesses no location at all. Direction is derived from the
+  motion sensors, not location. Used on-device only, never stored or transmitted.
 
 ---
 
