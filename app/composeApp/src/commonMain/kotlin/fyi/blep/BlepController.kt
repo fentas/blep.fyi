@@ -64,6 +64,9 @@ class BlepController(
      *  lets the UI show a "no signal" hint instead of guiding on a stale reading. */
     var signalLost by mutableStateOf(false)
         private set
+    /** Seconds since the target was last heard (for the "last heard Xs ago" hint). */
+    var signalAgeSec by mutableStateOf(0)
+        private set
     /** Live spatial picture (track + target estimate) when motion sensors feed it. */
     var spatial by mutableStateOf<SpatialSnapshot?>(null)
         private set
@@ -109,6 +112,7 @@ class BlepController(
         status = null
         lastRssi = null
         signalLost = false
+        signalAgeSec = 0
         lastRssiMark = null
         trackStartMark = null
         spatial = null
@@ -151,6 +155,7 @@ class BlepController(
         trackStartMark = TimeSource.Monotonic.markNow()
         lastRssiMark = null
         signalLost = false
+        signalAgeSec = 0
 
         // Spatial track: drive the SpatialTracker from the motion stream (a single
         // time base), tagging each sample with the latest RSSI. Emits nothing on
@@ -167,6 +172,7 @@ class BlepController(
                     val sinceStart = trackStartMark?.elapsedNow()
                     signalLost = (sinceRssi != null && sinceRssi > SIGNAL_LOST_AFTER) ||
                         (sinceRssi == null && sinceStart != null && sinceStart > NO_SIGNAL_GRACE)
+                    signalAgeSec = (sinceRssi ?: sinceStart)?.inWholeSeconds?.toInt() ?: 0
                 }
             } catch (c: CancellationException) {
                 throw c
@@ -180,7 +186,14 @@ class BlepController(
             while (isActive) {
                 val p = status?.proximity ?: 0f
                 val interval = HapticCadence.intervalMs(p)
-                if (interval == null) delay(250) else { haptic.pulse(p); delay(interval) }
+                if (interval == null) {
+                    delay(250)
+                } else {
+                    haptic.pulse(p)
+                    // A distinct double-tap when you're basically on top of it.
+                    if (p >= VERY_CLOSE) { delay(55); haptic.pulse(p) }
+                    delay(interval)
+                }
             }
         }
 
@@ -246,5 +259,7 @@ class BlepController(
         val SIGNAL_LOST_AFTER = 4.seconds
         /** No RSSI at all for this long after starting = never acquired / device off. */
         val NO_SIGNAL_GRACE = 6.seconds
+        /** Proximity at/above which the haptic adds a distinct "right here" double-tap. */
+        const val VERY_CLOSE = 0.92f
     }
 }

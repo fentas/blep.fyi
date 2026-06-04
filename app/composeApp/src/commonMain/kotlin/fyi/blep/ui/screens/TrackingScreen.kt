@@ -56,6 +56,7 @@ fun TrackingScreen(
     spatial: SpatialSnapshot?,
     guidanceLine: String?,
     signalLost: Boolean,
+    signalAgeSec: Int,
     soundOn: Boolean,
     onToggleSound: () -> Unit,
     onCancel: () -> Unit,
@@ -111,7 +112,8 @@ fun TrackingScreen(
         // No fresh signal trumps everything — don't guide on a stale reading.
         val headline = if (signalLost) "No signal" else instruction ?: status.guidance.title
         val detail = when {
-            signalLost -> "Out of range, or the device is off"
+            signalLost -> "Out of range, or off" +
+                (if (signalAgeSec > 0) " · last heard ${signalAgeSec}s ago" else "")
             instruction != null -> null
             else -> status.guidance.detail
         }

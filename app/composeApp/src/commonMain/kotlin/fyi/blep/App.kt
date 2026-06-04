@@ -56,6 +56,7 @@ fun App(demo: Boolean = false) {
                         spatial = controller.spatial,
                         guidanceLine = controller.guidance,
                         signalLost = controller.signalLost,
+                        signalAgeSec = controller.signalAgeSec,
                         soundOn = controller.soundOn,
                         onToggleSound = controller::toggleSound,
                         onCancel = controller::startDiscovery,
