@@ -19,10 +19,19 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        requestBlePermissions()
+        // `--ez demo true` swaps in the scripted hunt (store screenshots/previews);
+        // off in normal use, where it requests BLE permissions and scans for real.
+        val demo = intent?.getBooleanExtra("demo", false) == true
+        if (!demo) requestBlePermissions()
         setContent {
             val scope = rememberCoroutineScope()
-            val controller = remember(scope) { WearController(createBleScanner(), scope) }
+            val controller = remember(scope) {
+                if (demo) {
+                    WearController(DemoWearScanner(), scope, motionProvider = DemoWearMotion())
+                } else {
+                    WearController(createBleScanner(), scope)
+                }
+            }
             WearApp(controller)
         }
     }

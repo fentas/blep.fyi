@@ -7,7 +7,10 @@ kable = "0.35.0"
 androidxActivity = "1.9.3"
 androidxLifecycle = "2.8.4"
 androidxComposeBom = "2024.12.01"
-wearCompose = "1.4.0"
+# 1.4.1+ fixes a launch crash on Wear OS 5 (API 34+): foundation read the
+# restricted `reduce_motion` setting, which throws SecurityException for apps
+# targeting SDK > 34 (https://issuetracker.google.com/issues/345244761).
+wearCompose = "1.4.1"
 androidxCoreSplashscreen = "1.0.1"
 androidMinSdk = "26"
 androidCompileSdk = "35"
