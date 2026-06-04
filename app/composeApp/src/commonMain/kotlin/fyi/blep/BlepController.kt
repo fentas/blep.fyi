@@ -25,6 +25,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
 /** Top-level navigation destinations. */
@@ -58,6 +60,10 @@ class BlepController(
     /** Latest raw RSSI (dBm) of the device being tracked, for display. */
     var lastRssi by mutableStateOf<Int?>(null)
         private set
+    /** True when no fresh RSSI has arrived recently (target out of range or off) —
+     *  lets the UI show a "no signal" hint instead of guiding on a stale reading. */
+    var signalLost by mutableStateOf(false)
+        private set
     /** Live spatial picture (track + target estimate) when motion sensors feed it. */
     var spatial by mutableStateOf<SpatialSnapshot?>(null)
         private set
@@ -89,6 +95,8 @@ class BlepController(
     // Latest motion sample; both flows run on the same (Main) dispatcher, so a
     // plain var is safe to share between the RSSI and motion collectors.
     private var latestMotion: MotionSample? = null
+    private var lastRssiMark: TimeMark? = null   // when the last RSSI arrived
+    private var trackStartMark: TimeMark? = null // when this tracking session began
 
     init {
         startDiscovery()
@@ -100,6 +108,9 @@ class BlepController(
         hapticJob?.cancel(); hapticJob = null
         status = null
         lastRssi = null
+        signalLost = false
+        lastRssiMark = null
+        trackStartMark = null
         spatial = null
         guidance = null
         latestMotion = null
@@ -137,10 +148,14 @@ class BlepController(
         spatial = null
         guidance = null
         latestMotion = null
+        trackStartMark = TimeSource.Monotonic.markNow()
+        lastRssiMark = null
+        signalLost = false
 
         // Spatial track: drive the SpatialTracker from the motion stream (a single
         // time base), tagging each sample with the latest RSSI. Emits nothing on
         // platforms without motion sensors, so `spatial` simply stays null there.
+        // The motion stream ticks steadily, so it also re-evaluates signal freshness.
         motionJob = scope.launch {
             try {
                 motionProvider.motion().collect { sample ->
@@ -148,6 +163,10 @@ class BlepController(
                     val snap = spatialTracker.update((lastRssi ?: FALLBACK_RSSI).toDouble(), sample)
                     spatial = snap
                     guidance = guidanceStabilizer.guide(snap, spatialTuning)
+                    val sinceRssi = lastRssiMark?.elapsedNow()
+                    val sinceStart = trackStartMark?.elapsedNow()
+                    signalLost = (sinceRssi != null && sinceRssi > SIGNAL_LOST_AFTER) ||
+                        (sinceRssi == null && sinceStart != null && sinceStart > NO_SIGNAL_GRACE)
                 }
             } catch (c: CancellationException) {
                 throw c
@@ -170,6 +189,7 @@ class BlepController(
             try {
                 scanner.rssi(device.id).collect { rssi ->
                     lastRssi = rssi
+                    lastRssiMark = TimeSource.Monotonic.markNow()
                     // Ignore RSSI swings while the phone is being rotated/tilted —
                     // those are antenna/body geometry, not the target moving.
                     if (latestMotion?.reorienting != true) {
@@ -222,5 +242,9 @@ class BlepController(
     private companion object {
         /** Stand-in RSSI for spatial samples taken before the first real reading. */
         const val FALLBACK_RSSI = -100
+        /** No RSSI for this long after having one = signal lost. */
+        val SIGNAL_LOST_AFTER = 4.seconds
+        /** No RSSI at all for this long after starting = never acquired / device off. */
+        val NO_SIGNAL_GRACE = 6.seconds
     }
 }

@@ -54,6 +54,7 @@ fun TrackingScreen(
     rssi: Int?,
     spatial: SpatialSnapshot?,
     guidanceLine: String?,
+    signalLost: Boolean,
     soundOn: Boolean,
     onToggleSound: () -> Unit,
     onCancel: () -> Unit,
@@ -93,7 +94,7 @@ fun TrackingScreen(
 
         // The spatial map is the hero; a compact arrow keeps the immediate cue.
         Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            RadarView(snapshot = spatial, pulse = pulse, modifier = Modifier.fillMaxSize())
+            RadarView(snapshot = spatial, pulse = pulse, signalLost = signalLost, modifier = Modifier.fillMaxSize())
             if (spatial == null) {
                 VectorArrow(curl = status.arrow.curl, scale = status.arrow.scale, tint = arrowTint)
             }
@@ -105,8 +106,13 @@ fun TrackingScreen(
         val instruction = guidanceLine
             ?: spatial?.target?.takeIf { it.confidence >= 0.35f && it.distanceM != null }
                 ?.let { distanceLabel(it.distanceM!!) }
-        val headline = instruction ?: status.guidance.title
-        val detail = if (instruction != null) null else status.guidance.detail
+        // No fresh signal trumps everything — don't guide on a stale reading.
+        val headline = if (signalLost) "No signal" else instruction ?: status.guidance.title
+        val detail = when {
+            signalLost -> "Out of range, or the device is off"
+            instruction != null -> null
+            else -> status.guidance.detail
+        }
         AnimatedContent(
             targetState = headline,
             transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(200)) },
@@ -136,11 +142,14 @@ fun TrackingScreen(
 
         // RSSI + which environment the tracker thinks it's in (from signal jitter).
         Text(
-            text = buildString {
-                append(rssi?.let { "$it dBm" } ?: "scanning…")
-                spatial?.signalVolatilityDb?.takeIf { it > 0.0 }?.let { v ->
-                    val tag = if (v >= NOISY_FIELD_DB) "noisy" else "clean"
-                    append("  ·  $tag field ${(v * 10).roundToInt() / 10.0} dB")
+            text = when {
+                signalLost -> "no signal"
+                else -> buildString {
+                    append(rssi?.let { "$it dBm" } ?: "scanning…")
+                    spatial?.signalVolatilityDb?.takeIf { it > 0.0 }?.let { v ->
+                        val tag = if (v >= NOISY_FIELD_DB) "noisy" else "clean"
+                        append("  ·  $tag field ${(v * 10).roundToInt() / 10.0} dB")
+                    }
                 }
             },
             style = MaterialTheme.typography.labelLarge,

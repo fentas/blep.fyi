@@ -67,8 +67,8 @@ pluginManager.withPlugin("com.android.application") {
             applicationId = "fyi.blep"
             minSdk = libs.versions.androidMinSdk.get().toInt()
             targetSdk = libs.versions.androidTargetSdk.get().toInt()
-            versionCode = 2
-            versionName = "0.1.0"
+            versionCode = 3
+            versionName = "0.1.1"
         }
         // Release signing from a gitignored keystore.properties (created locally, or
         // written from secrets in CI). Absent → release falls back to debug signing

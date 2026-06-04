@@ -13,11 +13,21 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.spatial.Vec2
 import fyi.blep.ui.theme.BlepColors
 import kotlin.math.cos
+import kotlin.math.floor
+import kotlin.math.log10
 import kotlin.math.max
+import kotlin.math.pow
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /**
@@ -31,8 +41,11 @@ import kotlin.math.sin
 fun RadarView(
     snapshot: SpatialSnapshot?,
     pulse: Float,          // 0..1 looping, for the target glow
+    signalLost: Boolean = false, // no fresh RSSI from the target right now
     modifier: Modifier = Modifier,
 ) {
+    val measurer = rememberTextMeasurer()
+    val labelStyle = TextStyle(color = BlepColors.Ink.copy(alpha = 0.55f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
     Canvas(modifier = modifier.fillMaxSize()) {
         val cx = size.width / 2f
         val cy = size.height / 2f
@@ -57,10 +70,18 @@ fun RadarView(
             y = cy - ((v.y - midY) * scale).toFloat(),   // invert: +north is up
         )
 
-        // ── range rings (scale reference, no map) ────────────────────────────
-        val ring = BlepColors.Ink.copy(alpha = 0.10f)
-        listOf(span / 6.0, span / 3.0).forEach { r ->
-            drawCircle(ring, radius = (r * scale).toFloat(), center = toScreen(here), style = Stroke(width = 2.5f))
+        // ── range rings: distance from you, snapped to round metres + labelled ──
+        val ringColor = BlepColors.Ink.copy(alpha = if (signalLost) 0.10f else 0.20f)
+        val r1 = niceMeters(span / 6.0)
+        val r2 = niceMeters(span / 3.0).let { if (it <= r1) r1 * 2.0 else it }
+        listOf(r1, r2).forEach { rm ->
+            val rPx = (rm * scale).toFloat()
+            val c = toScreen(here)
+            drawCircle(ringColor, radius = rPx, center = c, style = Stroke(width = 3.5f))
+            val label = if (rm < 1.0) "${(rm * 100).roundToInt()} cm" else "${rm.roundToInt()} m"
+            val layout = measurer.measure(label, labelStyle)
+            // sit the label just above the top of its ring
+            drawText(layout, topLeft = Offset(c.x - layout.size.width / 2f, c.y - rPx - layout.size.height - 1f))
         }
 
         // ── signal fog: soft warm discs at strong samples ────────────────────
@@ -154,34 +175,52 @@ fun RadarView(
             )
         }
 
-        // ── you: position dot + heading wedge ────────────────────────────────
+        // ── you: a big, high-contrast heading arrow ──────────────────────────
+        // On-course feedback: green toward target, red away. When the bearing is
+        // unknown it's drawn in Ink (dark) — NOT brand blue, which vanished against
+        // the blue background. A cream outline keeps it crisp on any colour.
         if (snapshot != null) {
             val hp = toScreen(here)
             val heading = snapshot.headingRad
-            // On-course feedback: green toward target, red away, neutral if unknown.
-            val wedgeColor = when {
-                snapshot.target.bearingRad == null -> BlepColors.Blue
-                snapshot.onCourse > 0.25f -> Color(0xFF8FCB7A)
-                snapshot.onCourse < -0.25f -> Color(0xFFE0907F)
-                else -> BlepColors.Blue
+            val arrowColor = when {
+                snapshot.target.bearingRad == null -> BlepColors.Ink
+                snapshot.onCourse > 0.25f -> Color(0xFF4FA85E)
+                snapshot.onCourse < -0.25f -> Color(0xFFD4694F)
+                else -> BlepColors.Ink
             }
             val dir = Offset(sin(heading).toFloat(), -cos(heading).toFloat())
             val perp = Offset(-dir.y, dir.x)
-            val tip = hp + dir * 32f
-            val base = hp - dir * 6f
+            val tip = hp + dir * 48f
+            val base = hp - dir * 10f
             val wedge = Path().apply {
                 moveTo(tip.x, tip.y)
-                lineTo((base + perp * 13f).x, (base + perp * 13f).y)
-                lineTo((base - perp * 13f).x, (base - perp * 13f).y)
+                lineTo((base + perp * 22f).x, (base + perp * 22f).y)
+                lineTo(hp.x, hp.y)                                   // notched tail = a chevron
+                lineTo((base - perp * 22f).x, (base - perp * 22f).y)
                 close()
             }
-            drawPath(wedge, wedgeColor.copy(alpha = 0.9f))
-            drawCircle(BlepColors.Ink, radius = 9f, center = hp)
-            drawCircle(BlepColors.Cream, radius = 5f, center = hp)
+            drawPath(wedge, BlepColors.Cream, style = Stroke(width = 6f)) // outline for contrast
+            drawPath(wedge, arrowColor)
+            // pivot hub
+            drawCircle(BlepColors.Cream, radius = 12f, center = hp)
+            drawCircle(arrowColor, radius = 7f, center = hp)
         } else {
-            // No motion yet: just the start marker, centred.
-            drawCircle(BlepColors.Ink, radius = 9f, center = Offset(cx, cy))
+            drawCircle(BlepColors.Cream, radius = 12f, center = Offset(cx, cy))
+            drawCircle(BlepColors.Ink, radius = 7f, center = Offset(cx, cy))
         }
+    }
+}
+
+/** Snaps a distance to a friendly round value (1, 2, 5, 10 … m) for ring labels. */
+private fun niceMeters(x: Double): Double {
+    if (x <= 0.0) return 1.0
+    val p = 10.0.pow(floor(log10(x)))
+    val n = x / p
+    return p * when {
+        n < 1.5 -> 1.0
+        n < 3.5 -> 2.0
+        n < 7.5 -> 5.0
+        else -> 10.0
     }
 }
 
