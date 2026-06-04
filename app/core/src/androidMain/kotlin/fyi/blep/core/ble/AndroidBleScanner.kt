@@ -14,6 +14,8 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.os.SystemClock
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.safety.AddressType
+import fyi.blep.core.safety.RawAdvert
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -136,6 +138,31 @@ internal class AndroidBleScanner : BleScanner {
         awaitClose { runCatching { scanner.stopScan(callback) } }
     }
 
+    /**
+     * Raw advertisements for the safety scan — every nearby device, unfiltered, with
+     * the manufacturer data / service UUIDs / address-type the tracker classifier needs.
+     * Runs on its own (the safety screen isn't scanning for a pointer target at the
+     * same time), so it can take the whole low-latency radio for itself.
+     */
+    @SuppressLint("MissingPermission")
+    override fun advertisements(): Flow<RawAdvert> = callbackFlow {
+        val scanner = adapter?.bluetoothLeScanner ?: throw IllegalStateException("Bluetooth permission/adapter")
+        val callback = object : ScanCallback() {
+            override fun onScanResult(callbackType: Int, result: ScanResult) {
+                trySend(result.toRawAdvert(now()))
+            }
+            override fun onScanFailed(errorCode: Int) {
+                close(IllegalStateException("BLE scan failed: $errorCode"))
+            }
+        }
+        val settings = ScanSettings.Builder()
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+            .setReportDelay(0)
+            .build()
+        scanner.startScan(emptyList<ScanFilter>(), settings, callback)
+        awaitClose { runCatching { scanner.stopScan(callback) } }
+    }
+
     /** RSSI for a connected/bonded device via our own GATT connection + polling. */
     @SuppressLint("MissingPermission")
     private fun gattRssi(deviceId: String): Flow<Int> = callbackFlow {
@@ -170,3 +197,43 @@ internal class AndroidBleScanner : BleScanner {
 }
 
 actual fun createBleScanner(): BleScanner = AndroidBleScanner()
+
+/** Maps a raw [ScanResult] into the platform-neutral [RawAdvert] the classifier reads. */
+@SuppressLint("MissingPermission")
+private fun ScanResult.toRawAdvert(timeMs: Long): RawAdvert {
+    val record = scanRecord
+    val mfg = HashMap<Int, ByteArray>()
+    record?.manufacturerSpecificData?.let { sa ->
+        for (i in 0 until sa.size()) mfg[sa.keyAt(i)] = sa.valueAt(i)
+    }
+    val uuids = record?.serviceUuids?.map { shortServiceUuid(it.uuid.toString()) }.orEmpty()
+    return RawAdvert(
+        address = device.address,
+        rssi = rssi,
+        timeMs = timeMs,
+        addressType = addressTypeOf(device.address),
+        serviceUuids = uuids,
+        manufacturerData = mfg,
+    )
+}
+
+/** Bluetooth-base 128-bit UUIDs collapse to their 16-bit short form ("0000feed-…" → "feed"). */
+private const val BT_BASE_SUFFIX = "-0000-1000-8000-00805f9b34fb"
+
+private fun shortServiceUuid(uuid: String): String =
+    if (uuid.length == 36 && uuid.endsWith(BT_BASE_SUFFIX)) uuid.substring(4, 8) else uuid
+
+/**
+ * Best-effort BLE address-type from the two most-significant bits of the address —
+ * the standard random-address scheme. We only need to know whether it's a *rotating
+ * privacy* address (resolvable/non-resolvable private), which is the rotation tell;
+ * IEEE-assigned public addresses don't follow this scheme, so they fall through to
+ * PUBLIC. (Some OEMs hide the real type; validate against a real tracker on-device.)
+ */
+private fun addressTypeOf(address: String): AddressType {
+    val msb = address.substringBefore(':').toIntOrNull(16) ?: return AddressType.UNKNOWN
+    return when (msb and 0xC0) {
+        0x40, 0x00, 0xC0 -> AddressType.RANDOM // resolvable / non-resolvable / static random
+        else -> AddressType.PUBLIC
+    }
+}
