@@ -41,9 +41,12 @@ the Android sensor/BLE glue the JVM `TrackingSimulationTest` bypasses:
 
 - `make bridge-rssi` (`check_rssi_bridge.sh`) — injects a peripheral, drives blep to
   the tracking screen, asserts `AndroidBleScanner.rssi()` streams a reading to the UI.
-- `make bridge-motion` — runs `:core:connectedDebugAndroidTest`
-  (`AndroidMotionProviderBridgeTest`): the real fused rotation-vector sensor →
-  heading transform produces well-formed samples on-device.
+- `make bridge-motion` — two layers: (1) `:core:connectedDebugAndroidTest`
+  (`AndroidMotionProviderBridgeTest`) checks the fused rotation-vector → heading
+  transform produces well-formed samples on-device; (2) `check_motion_bridge.sh`
+  injects four 90° yaw steps via `adb emu sensor set` and asserts the heading
+  *tracks* them (~90°/step, consistent sign) — catching remap/scale/sign bugs the
+  smoke test can't see.
 - `make bridge` — both.
 
 These are **plumbing** checks, not path-finding. netsim assigns a single static BLE

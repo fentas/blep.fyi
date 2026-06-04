@@ -120,8 +120,9 @@ ble-trackers: ## Inject fake AirTag/Tile/SmartTag adverts into the emulator (net
 # On-device "bridge" checks: validate the real Android sensor/BLE glue the JVM
 # sims bypass. Need a running emulator (`make emulator`). Path-finding *logic*
 # stays in `make sim` — netsim has no RSSI gradient, so the hunt can't be e2e'd.
-bridge-motion: ## Motion bridge: real fused sensors → heading (instrumented test)
+bridge-motion: ## Motion bridge: fused sensors → heading (smoke + injected-yaw tracking)
 	cd app && $(GRADLE) :core:connectedDebugAndroidTest
+	tools/ble-netsim/check_motion_bridge.sh
 
 bridge-rssi: ## RSSI bridge: netsim advert → AndroidBleScanner.rssi() → tracking screen
 	@test -x tools/ble-netsim/venv/bin/python || \
