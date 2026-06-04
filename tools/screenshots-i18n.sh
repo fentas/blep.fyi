@@ -3,8 +3,9 @@
 #
 # For each locale it switches the emulator's system language (so the app UI
 # renders translated), captures the scripted demo, and composites the captioned
-# 9:16 phone set + a localized 1024×500 feature graphic. Output goes to
-# screenshots/store/i18n/<play-locale>/ — upload each to that listing language.
+# 9:16 phone set, a 16:9 Chromebook set, and a localized 1024×500 feature graphic.
+# Output: screenshots/store/i18n/<play-locale>/{phone,chromebook}/ — upload each
+# to that listing language.
 # (Play falls back to the default English graphics for any locale you skip.)
 #
 #   tools/screenshots-i18n.sh            # all locales
@@ -76,6 +77,14 @@ cap_portrait() { local t; t="$(mktemp -d)"
     -font "$CFR" -pointsize 44 -fill '#566472' -gravity north -annotate +0+270 "$3" \
     "$t/sh.png" -gravity north -geometry +0+340 -composite "$4"; rm -rf "$t"; }
 
+cap_landscape() { local t; t="$(mktemp -d)"
+  magick "$1" -resize x1180 "$t/s.png"; frame "$t/s.png" "$t/sh.png" 40
+  magick -size 2560x1440 xc:'#EEF2F6' \
+    "$t/sh.png" -gravity east -geometry +240+0 -composite \
+    -font "$CFB" -pointsize 84 -fill '#27313B' -gravity west -annotate +150-48 "$2" \
+    -font "$CFR" -pointsize 42 -fill '#566472' -gravity west -annotate +150+56 "$3" \
+    "$4"; rm -rf "$t"; }
+
 feature() { rsvg-convert -w 360 -h 360 "$ROOT/logo.svg" -o /tmp/.bd.png
   magick -size 1024x500 xc:'#EEF2F6' /tmp/.bd.png -gravity west -geometry +90+0 -composite \
     -font "$CFB" -pointsize 132 -fill '#27313B' -gravity west -annotate +500-36 "blep" \
@@ -109,15 +118,15 @@ while read -r folder lang country full cjk <&3; do
   set_locale "$lang" "$country" "$full"
   IFS='|' read -r h1 s1 h2 s2 h3 s3 h4 s4 h5 s5 tag <<< "$(caps "$lang")"
   raw="$(mktemp -d)"; capture_set "$raw"
-  out="$STORE/$folder/phone"; mkdir -p "$out"
-  cap_portrait "$raw/01.png" "$h1" "$s1" "$out/01.png"
-  cap_portrait "$raw/02.png" "$h2" "$s2" "$out/02.png"
-  cap_portrait "$raw/03.png" "$h3" "$s3" "$out/03.png"
-  cap_portrait "$raw/04.png" "$h4" "$s4" "$out/04.png"
-  cap_portrait "$raw/05.png" "$h5" "$s5" "$out/05.png"
+  out="$STORE/$folder/phone"; cr="$STORE/$folder/chromebook"; mkdir -p "$out" "$cr"
+  cap_portrait  "$raw/01.png" "$h1" "$s1" "$out/01.png"; cap_landscape "$raw/01.png" "$h1" "$s1" "$cr/01.png"
+  cap_portrait  "$raw/02.png" "$h2" "$s2" "$out/02.png"; cap_landscape "$raw/02.png" "$h2" "$s2" "$cr/02.png"
+  cap_portrait  "$raw/03.png" "$h3" "$s3" "$out/03.png"; cap_landscape "$raw/03.png" "$h3" "$s3" "$cr/03.png"
+  cap_portrait  "$raw/04.png" "$h4" "$s4" "$out/04.png"; cap_landscape "$raw/04.png" "$h4" "$s4" "$cr/04.png"
+  cap_portrait  "$raw/05.png" "$h5" "$s5" "$out/05.png"; cap_landscape "$raw/05.png" "$h5" "$s5" "$cr/05.png"
   feature "$tag" "$STORE/$folder/feature-1024x500.png"
   rm -rf "$raw"
 done 3<<< "$ROWS"
 
 set_locale en US en-US
-echo "✓ localized sets in $STORE/<locale>/  (phone/01–05.png + feature-1024x500.png)"
+echo "✓ localized sets in $STORE/<locale>/  (phone/ + chromebook/ 01–05.png + feature-1024x500.png)"
