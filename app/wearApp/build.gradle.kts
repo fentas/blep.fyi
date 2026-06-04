@@ -40,7 +40,16 @@ android {
     }
     buildTypes {
         getByName("release") {
+            // R8 on (parity with the phone): shrinks the app and emits the crash
+            // mapping.txt, which the AAB embeds so Play deobfuscates automatically.
+            // Plain Compose + :core (no reflection/serialization) → minimal keeps in
+            // proguard-rules.pro. Smoke-test a minified build on the Wear emulator.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+            // Package native debug symbols so Play can symbolicate crashes/ANRs.
+            ndk { debugSymbolLevel = "SYMBOL_TABLE" }
         }
     }
     compileOptions {
