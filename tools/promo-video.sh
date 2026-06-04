@@ -41,15 +41,19 @@ if [ "${1:-}" != "--compose" ]; then
 
   echo "› recording the demo hunt (English)…"
   adb shell "setprop persist.sys.locale en-US; setprop persist.sys.language en; setprop persist.sys.country US" || true
+  adb shell "su 0 setprop ctl.restart zygote" 2>/dev/null || true   # apply the locale to the running UI
+  until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ]; do sleep 2; done
+  sleep 3
   adb shell pm clear "$PKG" >/dev/null
-  adb shell screenrecord --time-limit 26 --bit-rate 10000000 /sdcard/promo-rec.mp4 &
+  adb shell screenrecord --time-limit 22 --bit-rate 10000000 /sdcard/promo-rec.mp4 &
+  recpid=$!
   sleep 1
   adb shell am start -n "$PKG/.MainActivity" --ez demo true >/dev/null
   sleep 5                              # discovery
-  adb shell input tap 540 721          # → tracking (first device)
+  adb shell input tap 540 721          # → tracking (first device: Keys)
   sleep 11                             # the hunt → "Right here?"
   adb shell input tap 540 2024         # "Got it" → celebration
-  sleep 5                              # celebration + let screenrecord finalize
+  wait "$recpid"                       # let screenrecord hit its time-limit + finalize the mp4
   adb pull /sdcard/promo-rec.mp4 "$REC" >/dev/null
 fi
 
