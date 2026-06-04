@@ -1,4 +1,4 @@
-# Store listing — localized (de · de-AT · sl · it · nl · es · el · et)
+# Store listing — localized (de · sl · it · nl · es · el · et · fr · zh · ja · hr · pl · pt)
 
 Translations of the English listing in `store-listing.md`. **blep** stays
 untranslated (it's the brand). Locale-code note for Play Console:
@@ -22,7 +22,8 @@ untranslated (it's the brand). Locale-code note for Play Console:
 ## Release notes — paste-ready (the multi-language box)
 
 Play's release-notes field takes all languages at once, wrapped in locale tags.
-Paste this block (drop `<de-AT>` if Play doesn't offer it):
+Paste this whole block. Regional/script variants (de-AT, de-CH, zh-Hans) are **not**
+separate Play locales and are rejected — de-DE and zh-CN cover them, so they're omitted.
 
 ```
 <en-US>
@@ -36,18 +37,6 @@ von der Signalstärke. Kalibrieren, schwenken, gehen, fertig. Plus ein Sicherhei
 Scan, der unerwünschte Tracker aufspürt, die dir folgen — und dich zu ihnen führt.
 Kostenlos & quelloffen, kein Tracking.
 </de-DE>
-<de-AT>
-Erste öffentliche Version von blep 🐾 — finde verlorene Bluetooth-Geräte, geführt
-von der Signalstärke. Kalibrieren, schwenken, gehen, fertig. Plus ein Sicherheits-
-Scan, der unerwünschte Tracker aufspürt, die dir folgen — und dich zu ihnen führt.
-Kostenlos & quelloffen, kein Tracking.
-</de-AT>
-<de-CH>
-Erste öffentliche Version von blep 🐾 — finde verlorene Bluetooth-Geräte, geführt
-von der Signalstärke. Kalibrieren, schwenken, gehen, fertig. Plus ein Sicherheits-
-Scan, der unerwünschte Tracker aufspürt, die dir folgen — und dich zu ihnen führt.
-Kostenlos & quelloffen, kein Tracking.
-</de-CH>
 <sl>
 Prva javna različica aplikacije blep 🐾 — najdi izgubljene naprave Bluetooth s
 pomočjo moči signala. Umeri, zanihaj, pojdi, končano. Poleg tega varnostni pregled
@@ -107,8 +96,8 @@ Primeira versão pública do blep 🐾 — encontra os teus objetos Bluetooth pe
 </pt-PT>
 ```
 
-> Paste only the tags for languages you actually added in Play. `zh-Hans` has no
-> separate Play code — Simplified Chinese is `zh-CN` (the block above covers it).
+> Only languages added to your store listing are accepted. de-AT, de-CH and zh-Hans
+> aren't separate Play locales (de-DE / zh-CN cover them), so they're left out here.
 
 ---
 
