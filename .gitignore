@@ -36,3 +36,6 @@ web/dev-dist/
 keystore.properties
 *.jks
 *.keystore
+
+# Regenerable store screenshots (make screenshots)
+/screenshots/

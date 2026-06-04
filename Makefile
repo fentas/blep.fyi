@@ -12,8 +12,9 @@ AVD         ?= blep
 SYSIMG      ?= system-images;android-35;google_apis;x86_64
 
 .DEFAULT_GOAL := help
-.PHONY: help setup doctor test build apk install install-wear run uninstall \
-        devices logcat emulator-setup emulator web web-build web-icons \
+.PHONY: help setup doctor test sim scenarios chaos robustness build apk aab \
+        install install-wear run demo uninstall devices logcat \
+        emulator-setup emulator screenshots web web-build web-icons \
         ci apple clean
 
 help: ## Show this help
@@ -35,12 +36,35 @@ doctor: ## Print tool versions and connected devices
 test: ## Run core unit tests on the JVM (no Android SDK needed)
 	cd app && $(GRADLE) :core:jvmTest -Pblep.android=false
 
+# Pull the println'd table out of a sim test's captured stdout.
+define print_sim
+	@python3 -c "import re,glob; f=sorted(glob.glob('app/core/build/test-results/jvmTest/*TrackingSimulation*.xml'))[-1]; s=open(f).read(); m=re.search(r'CDATA\[(.*?)\]\]',s,re.S); print(m.group(1).strip() if m else '(no output)')"
+endef
+
+sim: ## Run the closed-loop tracking simulation + print the scenario table
+	-cd app && $(GRADLE) :core:jvmTest --tests '*TrackingSimulationTest.simulation*' -Pblep.android=false --rerun-tasks -q
+	$(print_sim)
+
+scenarios: sim ## Alias for `sim`
+
+chaos: ## Random-search every tuning knob (CHAOS_N=60, override on the CLI)
+	-cd app && CHAOS_N=$${CHAOS_N:-60} $(GRADLE) :core:jvmTest --tests '*TrackingSimulationTest.chaos*' -Pblep.android=false --rerun-tasks -q
+	$(print_sim)
+
+robustness: ## Held-out generalisation over random worlds (ROBUST_N, ROBUST_SEED)
+	-cd app && $(GRADLE) :core:jvmTest --tests '*TrackingSimulationTest.robustness*' -Pblep.android=false --rerun-tasks -q
+	$(print_sim)
+
 build: ## Build the phone + Wear debug APKs
 	cd app && $(GRADLE) :composeApp:assembleDebug :wearApp:assembleDebug
 	@echo "APKs:"
 	@find app -path '*outputs/apk/debug/*.apk'
 
 apk: build ## Alias for `build`
+
+aab: ## Build the signed release AAB for Play (needs app/keystore.properties)
+	cd app && $(GRADLE) :composeApp:bundleRelease
+	@echo "AAB: app/composeApp/build/outputs/bundle/release/composeApp-release.aab"
 
 clean: ## Clean Gradle + web build outputs
 	cd app && $(GRADLE) clean
@@ -60,6 +84,11 @@ run: install ## Install and launch blep on the phone
 install-wear: ## Build + install the Wear OS app (needs a watch/Wear device)
 	cd app && $(GRADLE) :wearApp:installDebug
 
+demo: ## Install + launch the app in demo mode (scripted data, no BLE needed)
+	cd app && $(GRADLE) :composeApp:assembleDebug -q
+	$(ADB) install -r app/composeApp/build/outputs/apk/debug/composeApp-debug.apk
+	$(ADB) shell am start -n $(APP_ID)/.MainActivity --ez demo true
+
 uninstall: ## Remove blep from the connected device
 	-$(ADB) uninstall $(APP_ID)
 
@@ -67,14 +96,18 @@ logcat: ## Tail blep logs from the device (app must be running)
 	$(ADB) logcat --pid=$$($(ADB) shell pidof -s $(APP_ID))
 
 # ───────────────────────── app: emulator ──────────────────────────
-# Note: emulators have NO Bluetooth, so tracking can't run there — use a real
-# phone for that. The emulator is handy for the UI / discovery layout only.
+# Note: emulators have NO Bluetooth/motion sensors, so REAL tracking can't run
+# there — use a real phone for that. But `make demo`/`make screenshots` feed
+# scripted data, so every screen (incl. the radar) renders on the emulator.
 emulator-setup: ## Install emulator + system image and (re)create the AVD
 	yes | $(SDKMANAGER) "platform-tools" "emulator" "$(SYSIMG)"
 	echo "no" | $(AVDMANAGER) create avd -n $(AVD) -k "$(SYSIMG)" -d pixel_6 --force
 
-emulator: ## Boot the blep emulator (UI only — no BLE)
+emulator: ## Boot the blep emulator
 	ANDROID_HOME=$(ANDROID_HOME) ANDROID_SDK_ROOT=$(ANDROID_HOME) $(EMULATOR) -avd $(AVD) -netdelay none -netspeed full
+
+screenshots: ## Regenerate the captioned store screenshots from demo mode
+	tools/screenshots.sh
 
 # ───────────────────────────── website ────────────────────────────
 web: ## Run the website dev server
