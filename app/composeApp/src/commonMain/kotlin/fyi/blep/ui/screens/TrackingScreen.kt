@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import fyi.blep.core.spatial.SpatialGuidance
 import fyi.blep.core.spatial.SpatialSnapshot
 import fyi.blep.core.tracking.TrackingStatus
+import fyi.blep.ui.KeepScreenOn
 import fyi.blep.ui.components.RadarView
 import fyi.blep.ui.components.VectorArrow
 import fyi.blep.ui.theme.BlepColors
@@ -60,6 +61,7 @@ fun TrackingScreen(
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    KeepScreenOn() // don't let the display sleep mid-hunt
     val background by animateColorAsState(
         targetValue = BlepColors.proximity(status.proximity),
         animationSpec = tween(durationMillis = 800),

@@ -175,6 +175,30 @@ fun RadarView(
             )
         }
 
+        // ── "warmer this way": point back to the strongest spot you stood in,
+        //    whenever you've strayed off it (recovering) or lost the signal ───────
+        val warmBearing = snapshot?.warmestBearingRad
+        if (snapshot != null && warmBearing != null && (snapshot.recovering || signalLost)) {
+            val hp = toScreen(here)
+            val wdir = Offset(sin(warmBearing).toFloat(), -cos(warmBearing).toFloat())
+            val wtip = hp + wdir * (size.minDimension * 0.30f)
+            val amber = Color(0xFFE8A33D)
+            drawLine(amber, hp, wtip, strokeWidth = 7f, cap = StrokeCap.Round)
+            val wperp = Offset(-wdir.y, wdir.x)
+            val wback = wtip - wdir * 18f
+            drawPath(
+                Path().apply {
+                    moveTo(wtip.x, wtip.y)
+                    lineTo((wback + wperp * 11f).x, (wback + wperp * 11f).y)
+                    lineTo((wback - wperp * 11f).x, (wback - wperp * 11f).y)
+                    close()
+                },
+                amber,
+            )
+            val warmLabel = measurer.measure("warmer", TextStyle(color = amber, fontSize = 12.sp, fontWeight = FontWeight.Bold))
+            drawText(warmLabel, topLeft = Offset(wtip.x - warmLabel.size.width / 2f, wtip.y - warmLabel.size.height - 4f))
+        }
+
         // ── you: a big, high-contrast heading arrow ──────────────────────────
         // On-course feedback: green toward target, red away. When the bearing is
         // unknown it's drawn in Ink (dark) — NOT brand blue, which vanished against
