@@ -90,7 +90,25 @@ par la force du signal. Calibre, balaie, marche, terminé. Plus une analyse de
 sécurité qui repère les traceurs indésirables qui te suivent — et t'y conduit.
 Gratuit et open source, sans pistage.
 </fr-FR>
+<zh-CN>
+blep 首个公开版本 🐾 —— 借助信号强度找回丢失的蓝牙物品。校准、扫动、行走、完成。还有一项安全扫描，可发现跟踪你的不需要的追踪器，并引导你找到它们。免费开源，无跟踪。
+</zh-CN>
+<ja-JP>
+blep の初の公開版 🐾 — 信号強度を頼りに、なくした Bluetooth の物を見つけます。較正、スイープ、歩く、完了。さらに、あなたを追跡する不要なトラッカーを見つけ、そこへ案内する安全スキャンも。無料・オープンソース、追跡なし。
+</ja-JP>
+<hr>
+Prva javna verzija blepa 🐾 — pronađi izgubljene Bluetooth stvari uz pomoć jačine signala. Kalibriraj, zakreni, hodaj, gotovo. Uz to, sigurnosno skeniranje pronalazi neželjene pratitelje koji te slijede — i vodi te do njih. Besplatno i otvorenog koda, bez praćenja.
+</hr>
+<pl-PL>
+Pierwsza publiczna wersja blep 🐾 — znajdź zgubione rzeczy Bluetooth dzięki sile sygnału. Skalibruj, obróć, idź, gotowe. Do tego skan bezpieczeństwa znajduje niechciane lokalizatory, które cię śledzą — i prowadzi cię do nich. Bezpłatne i open source, bez śledzenia.
+</pl-PL>
+<pt-PT>
+Primeira versão pública do blep 🐾 — encontra os teus objetos Bluetooth perdidos, guiado pela intensidade do sinal. Calibra, roda, anda, concluído. Além disso, uma análise de segurança encontra rastreadores indesejados que te seguem — e leva-te até eles. Gratuito e de código aberto, sem rastreio.
+</pt-PT>
 ```
+
+> Paste only the tags for languages you actually added in Play. `zh-Hans` has no
+> separate Play code — Simplified Chinese is `zh-CN` (the block above covers it).
 
 ---
 
