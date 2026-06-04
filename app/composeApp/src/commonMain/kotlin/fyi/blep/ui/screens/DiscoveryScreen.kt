@@ -55,6 +55,7 @@ fun DiscoveryScreen(
     onToggleUnnamed: () -> Unit,
     onSelect: (BleDevice) -> Unit,
     onRename: (BleDevice, String?) -> Unit,
+    onSafetyScan: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var renaming by remember { mutableStateOf<BleDevice?>(null) }
@@ -68,6 +69,8 @@ fun DiscoveryScreen(
     ) {
         Spacer(Modifier.height(12.dp))
         Header(deviceCount = devices.size)
+        Spacer(Modifier.height(14.dp))
+        SafetyEntry(onSafetyScan)
         Spacer(Modifier.height(16.dp))
 
         AnimatedVisibility(availability != ScanAvailability.READY) {
@@ -144,6 +147,29 @@ private fun Header(deviceCount: Int) {
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun SafetyEntry(onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = BlepColors.Blue.copy(alpha = 0.10f),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("🛡️", style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text("Is something tracking you?", style = MaterialTheme.typography.titleSmall, color = BlepColors.Ink, fontWeight = FontWeight.SemiBold)
+                Text("Scan for unwanted AirTags & trackers", style = MaterialTheme.typography.bodySmall, color = BlepColors.Ink.copy(alpha = 0.55f))
+            }
+            Text("›", style = MaterialTheme.typography.titleLarge, color = BlepColors.Blue)
         }
     }
 }

@@ -3,6 +3,8 @@ package fyi.blep.demo
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.safety.AddressType
+import fyi.blep.core.safety.RawAdvert
 import fyi.blep.core.spatial.MotionProvider
 import fyi.blep.core.spatial.MotionSample
 import kotlinx.coroutines.delay
@@ -49,6 +51,23 @@ class DemoBleScanner : BleScanner {
             val t = t0.elapsedNow().inWholeMilliseconds / 1000.0
             emit(scriptedRssi(t))
             delay(300)
+        }
+    }
+
+    // Scripted raw adverts for the Safety scan: a separated AirTag shadowing you
+    // (rotating its id), a churn of anonymous close devices (the rotation pattern),
+    // and a benign far device.
+    override fun advertisements(): Flow<RawAdvert> = flow {
+        val t0 = TimeSource.Monotonic.markNow()
+        var i = 0
+        while (true) {
+            val ms = t0.elapsedNow().inWholeMilliseconds
+            emit(RawAdvert("airtag-${ms / 30_000}", rssi = -57 + (i % 3 - 1), timeMs = ms,
+                addressType = AddressType.RANDOM, manufacturerData = mapOf(0x004C to byteArrayOf(0x12, 0x19, 0x00))))
+            emit(RawAdvert("anon-${ms / 18_000}", rssi = -66, timeMs = ms, addressType = AddressType.RANDOM))
+            emit(RawAdvert("speaker", rssi = -84, timeMs = ms, addressType = AddressType.PUBLIC))
+            i++
+            delay(600)
         }
     }
 }

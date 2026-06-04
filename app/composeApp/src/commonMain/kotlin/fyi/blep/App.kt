@@ -10,10 +10,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalUriHandler
 import fyi.blep.core.ble.createBleScanner
+import fyi.blep.core.safety.TrackerTuning
 import fyi.blep.demo.DemoBleScanner
 import fyi.blep.demo.DemoMotionProvider
 import fyi.blep.ui.screens.CompletionScreen
 import fyi.blep.ui.screens.DiscoveryScreen
+import fyi.blep.ui.screens.SafetyScreen
 import fyi.blep.ui.screens.TrackingScreen
 import fyi.blep.ui.theme.BlepTheme
 
@@ -27,7 +29,11 @@ fun App(demo: Boolean = false) {
     BlepTheme {
         val scope = rememberCoroutineScope()
         val controller = remember(scope) {
-            if (demo) BlepController(DemoBleScanner(), scope, DemoMotionProvider())
+            if (demo) BlepController(
+                DemoBleScanner(), scope, DemoMotionProvider(),
+                // fast thresholds so the demo safety scan escalates within seconds
+                safetyTuning = TrackerTuning(nearbyMs = 1_000, followingMs = 6_000, rotationMinDistinct = 3, bucketMs = 4_000),
+            )
             else BlepController(createBleScanner(), scope)
         }
         val uriHandler = LocalUriHandler.current
@@ -46,6 +52,13 @@ fun App(demo: Boolean = false) {
                     onToggleUnnamed = controller::toggleUnnamed,
                     onSelect = controller::track,
                     onRename = controller::rename,
+                    onSafetyScan = controller::openSafetyScan,
+                )
+
+                is Screen.Safety -> SafetyScreen(
+                    alerts = controller.safetyAlerts,
+                    onFind = controller::findTracker,
+                    onBack = controller::startDiscovery,
                 )
 
                 is Screen.Tracking -> controller.status?.let { status ->

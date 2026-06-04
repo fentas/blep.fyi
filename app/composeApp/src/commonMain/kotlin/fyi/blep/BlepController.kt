@@ -6,6 +6,10 @@ import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.safety.SafetyScanner
+import fyi.blep.core.safety.TrackerAlert
+import fyi.blep.core.safety.TrackerDetector
+import fyi.blep.core.safety.TrackerTuning
 import fyi.blep.core.spatial.GuidanceStabilizer
 import fyi.blep.core.spatial.Haptic
 import fyi.blep.core.spatial.HapticCadence
@@ -32,6 +36,7 @@ import kotlin.time.TimeSource
 /** Top-level navigation destinations. */
 sealed interface Screen {
     data object Discovery : Screen
+    data object Safety : Screen // "is something tracking me?" scan
     data class Tracking(val device: BleDevice) : Screen
     data class Done(val device: BleDevice) : Screen
 }
@@ -46,6 +51,7 @@ class BlepController(
     private val scope: CoroutineScope,
     private val motionProvider: MotionProvider = createMotionProvider(),
     private val haptic: Haptic = createHaptic(),
+    safetyTuning: TrackerTuning = TrackerTuning(),
 ) {
     var screen by mutableStateOf<Screen>(Screen.Discovery)
         private set
@@ -66,6 +72,9 @@ class BlepController(
         private set
     /** Seconds since the target was last heard (for the "last heard Xs ago" hint). */
     var signalAgeSec by mutableStateOf(0)
+        private set
+    /** Suspected unwanted trackers from the safety scan, strongest threat first. */
+    var safetyAlerts by mutableStateOf<List<TrackerAlert>>(emptyList())
         private set
     /** Live spatial picture (track + target estimate) when motion sensors feed it. */
     var spatial by mutableStateOf<SpatialSnapshot?>(null)
@@ -95,6 +104,8 @@ class BlepController(
     private val spatialTuning = SpatialTuning()
     private val spatialTracker = SpatialTracker(spatialTuning)
     private val guidanceStabilizer = GuidanceStabilizer()
+    private val safetyScanner = SafetyScanner(scanner, TrackerDetector(safetyTuning))
+    private var safetyJob: Job? = null
     // Latest motion sample; both flows run on the same (Main) dispatcher, so a
     // plain var is safe to share between the RSSI and motion collectors.
     private var latestMotion: MotionSample? = null
@@ -109,6 +120,8 @@ class BlepController(
         trackJob?.cancel(); trackJob = null
         motionJob?.cancel(); motionJob = null
         hapticJob?.cancel(); hapticJob = null
+        safetyJob?.cancel(); safetyJob = null
+        safetyAlerts = emptyList()
         status = null
         lastRssi = null
         signalLost = false
@@ -140,6 +153,31 @@ class BlepController(
         val clean = alias?.trim().orEmpty()
         if (clean.isEmpty()) aliases.remove(device.id) else aliases[device.id] = clean
         devices = devices.map { if (it.id == device.id) it.copy(alias = aliases[it.id]) else it }
+    }
+
+    /** Start the "is something tracking me?" scan and show its screen. */
+    fun openSafetyScan() {
+        scanJob?.cancel(); scanJob = null
+        safetyScanner.reset()
+        safetyAlerts = emptyList()
+        screen = Screen.Safety
+        safetyJob?.cancel()
+        safetyJob = scope.launch {
+            try {
+                safetyScanner.alerts().collect { safetyAlerts = it }
+            } catch (c: CancellationException) {
+                throw c
+            } catch (_: Throwable) {
+                // Radio unavailable — leave the list empty.
+            }
+        }
+    }
+
+    /** Find a suspected tracker by handing its address to the normal hunt. */
+    fun findTracker(alert: TrackerAlert) {
+        val addr = alert.trackingAddress ?: return
+        safetyJob?.cancel(); safetyJob = null
+        track(BleDevice(id = addr, name = alert.title, rssi = alert.rssi))
     }
 
     fun track(device: BleDevice) {

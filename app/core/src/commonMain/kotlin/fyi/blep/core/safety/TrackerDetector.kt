@@ -93,8 +93,8 @@ class TrackerDetector(private val tuning: TrackerTuning = TrackerTuning()) {
             when {
                 durMs >= tuning.followingMs -> alerts += TrackerAlert(
                     Severity.ALERT, kind,
-                    "A ${label(kind)} may be following you",
-                    "It has been near you for ${durMs / 60_000} min. If it isn't yours, find and disable it.",
+                    "${label(kind)} may be following you",
+                    "It's been near you for ${durLabel(durMs)}. If it isn't yours, find and disable it.",
                     rssi, addr,
                 )
                 ks.any { it.separated } || durMs >= tuning.nearbyMs -> alerts += TrackerAlert(
@@ -132,11 +132,13 @@ class TrackerDetector(private val tuning: TrackerTuning = TrackerTuning()) {
     }
 
     private fun label(kind: TrackerKind) = when (kind) {
-        TrackerKind.FIND_MY -> "AirTag / Find My tracker"
+        TrackerKind.FIND_MY -> "Find My tracker"
         TrackerKind.GOOGLE_FIND_MY -> "Find My Device tracker"
         TrackerKind.TILE -> "Tile"
         TrackerKind.SMARTTAG -> "SmartTag"
         TrackerKind.DULT -> "tracker"
         TrackerKind.UNKNOWN -> "device"
     }
+
+    private fun durLabel(ms: Long) = if (ms < 60_000L) "a little while" else "${ms / 60_000} min"
 }
