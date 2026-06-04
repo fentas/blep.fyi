@@ -102,8 +102,8 @@ if [ "${1:-}" != "--compose" ]; then
   sleep 8;  adb exec-out screencap -p > "$RAW/05-safety.png"    # "Find My tracker may be following you"
 fi
 
-PHONE="$STORE/phone"; CHROME="$STORE/chromebook"
-mkdir -p "$PHONE" "$CHROME"
+PHONE="$STORE/phone"; TAB="$STORE/tablet"; CHROME="$STORE/chromebook"
+mkdir -p "$PHONE" "$TAB" "$CHROME"
 
 # The captioned "continuous thread": one headline + sub per raw frame.
 frames=(01-discovery 02-tracking 03-found 04-celebrate 05-safety)
@@ -120,6 +120,8 @@ for i in "${!frames[@]}"; do
   cap_portrait  "$RAW/${frames[$i]}.png" "${heads[$i]}" "${subs[$i]}" "$PHONE/$n.png"
   cap_landscape "$RAW/${frames[$i]}.png" "${heads[$i]}" "${subs[$i]}" "$CHROME/$n.png"
 done
+# The 9:16 phone set is also valid for the 7"/10" tablet slots — mirror it.
+cp -f "$PHONE"/*.png "$TAB"/
 
 echo "› brand assets (Play hi-res icon + feature graphic)…"
 LOGO="$ROOT/logo.svg"
@@ -134,7 +136,8 @@ magick -size 1024x500 xc:'#EEF2F6' \
   "$STORE/feature-1024x500.png"
 rm -f "$STORE/.dog.png"
 echo ""
-echo "✓ Phone + 7\" + 10\" tablet  →  $PHONE/{01..05}.png   (1440×2560, 9:16)"
+echo "✓ Phone                     →  $PHONE/{01..05}.png   (1440×2560, 9:16)"
+echo "✓ 7\" + 10\" tablet           →  $TAB/{01..05}.png    (same 9:16 set — valid for tablet)"
 echo "✓ Chromebook                →  $CHROME/{01..05}.png  (2560×1440, 16:9)"
 echo "✓ App icon                  →  $STORE/icon-512.png    (512×512)"
 echo "✓ Feature graphic           →  $STORE/feature-1024x500.png"

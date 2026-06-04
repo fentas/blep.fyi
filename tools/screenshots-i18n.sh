@@ -3,9 +3,9 @@
 #
 # For each locale it switches the emulator's system language (so the app UI
 # renders translated), captures the scripted demo, and composites the captioned
-# 9:16 phone set, a 16:9 Chromebook set, and a localized 1024×500 feature graphic.
-# Output: screenshots/store/i18n/<play-locale>/{phone,chromebook}/ — upload each
-# to that listing language.
+# 9:16 phone set (mirrored to tablet/), a 16:9 Chromebook set, and a localized
+# 1024×500 feature graphic. Output: screenshots/store/i18n/<play-locale>/
+# {phone,tablet,chromebook}/ — upload each to that listing language.
 # (Play falls back to the default English graphics for any locale you skip.)
 #
 #   tools/screenshots-i18n.sh            # all locales
@@ -118,12 +118,13 @@ while read -r folder lang country full cjk <&3; do
   set_locale "$lang" "$country" "$full"
   IFS='|' read -r h1 s1 h2 s2 h3 s3 h4 s4 h5 s5 tag <<< "$(caps "$lang")"
   raw="$(mktemp -d)"; capture_set "$raw"
-  out="$STORE/$folder/phone"; cr="$STORE/$folder/chromebook"; mkdir -p "$out" "$cr"
+  out="$STORE/$folder/phone"; tb="$STORE/$folder/tablet"; cr="$STORE/$folder/chromebook"; mkdir -p "$out" "$tb" "$cr"
   cap_portrait  "$raw/01.png" "$h1" "$s1" "$out/01.png"; cap_landscape "$raw/01.png" "$h1" "$s1" "$cr/01.png"
   cap_portrait  "$raw/02.png" "$h2" "$s2" "$out/02.png"; cap_landscape "$raw/02.png" "$h2" "$s2" "$cr/02.png"
   cap_portrait  "$raw/03.png" "$h3" "$s3" "$out/03.png"; cap_landscape "$raw/03.png" "$h3" "$s3" "$cr/03.png"
   cap_portrait  "$raw/04.png" "$h4" "$s4" "$out/04.png"; cap_landscape "$raw/04.png" "$h4" "$s4" "$cr/04.png"
   cap_portrait  "$raw/05.png" "$h5" "$s5" "$out/05.png"; cap_landscape "$raw/05.png" "$h5" "$s5" "$cr/05.png"
+  cp -f "$out"/*.png "$tb"/                         # 9:16 phone set is valid for tablet too
   feature "$tag" "$STORE/$folder/feature-1024x500.png"
   rm -rf "$raw"
 done 3<<< "$ROWS"
