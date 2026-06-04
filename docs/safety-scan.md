@@ -27,26 +27,49 @@ people who lost something.
 Severity: a *separated tracker close by* → **WARN**; *close & present for minutes*
 → **ALERT** ("may be following you"), with an address to hand the finder.
 
-## What's built
+## What's built (v1)
 - `core/.../safety/TrackerDetector.kt` — pure, deterministic detector + tunables
   (close dBm, "nearby"/"following" durations, rotation churn/coverage thresholds).
-- `core/.../safety/TrackerDetectorTest.kt` — 6 scenarios (following AirTag,
-  brief separated tag, rotating churn, stable earbuds, far devices, passers-by).
+- `core/.../safety/Advert.kt` — `RawAdvert` + `TrackerClassifier` (manufacturer
+  data + service UUIDs → `TrackerKind`/`separated`; `addressType` → `randomAddress`).
+- `core/.../safety/SafetyScanner.kt` — raw-advert stream → classify → detect →
+  `Flow<List<TrackerAlert>>`; enriches alerts with cross-session context.
+- **Platform scan plumbing.** `BleScanner.advertisements(): Flow<RawAdvert>`:
+  - **Android** (`AndroidBleScanner`) — unfiltered low-latency scan; maps the
+    `ScanResult` (manufacturer data, short service UUIDs, best-effort address type).
+  - **iOS** (`KableScanner`, CoreBluetooth via Kable) — foreground/on-open; Apple
+    never exposes the MAC, so every identifier is an OS-scoped UUID marked RANDOM
+    (the churn of distinct nearby identifiers *is* the rotation tell).
+- **Cross-session memory (v2 history).** `SafetyHistory` + `KeyValueStore`
+  (SharedPreferences / NSUserDefaults): opt-in, persists a rolling log of close
+  encounters (tracker *kind* + time only — no identity, no location), and promotes
+  a kind seen across **3+ separate hours** to a full ALERT. Day retention,
+  throttled, cleared when the toggle is turned off.
+- **UI.** Discovery "🛡️ Is something tracking you?" entry → `SafetyScreen`: live
+  list of suspected trackers (kind, severity, signal) → **Find it** (reuses the
+  tracking engine) + the "Remember across sessions" opt-in toggle.
+- Tests: `TrackerDetectorTest` (6), `TrackerClassifierTest` (4),
+  `SafetyHistoryTest` (7).
 
 ## Remaining work
-- **Platform scan plumbing.** Extend the scanner to surface a `TrackerSighting`
-  stream from raw advertisements: parse manufacturer data + service UUIDs into a
-  `TrackerKind`/`separated`, and set `randomAddress` from the BLE address type.
-  - **Android:** full support — reads raw adv data; foreground + opt-in periodic/
-    background scan feasible (battery-aware).
-  - **iOS:** background BLE is heavily restricted and Find My is OS-reserved, so
-    **foreground / on-open only**; the OS already does native unwanted-tracker
-    alerts, but blep still adds the *find-it* step + a manual scan.
-- **UI.** A "Safety scan" entry → live list of suspected trackers (kind, severity,
-  signal) → **tap to find** (reuses the tracking engine). Clear, non-alarmist copy.
-- **v2 — "watch for followers".** Opt-in: persist a seen-list with timestamps (+
-  optional coarse location); on app open and/or an Android background scan, flag a
-  tracker seen across multiple places/hours. iOS = on-open only.
+- **On-device protocol validation.** The byte/UUID fingerprints (Find My `0x12`,
+  DULT `0xFD44`/`0xFEAA`, SmartTag `0xFD5A`) are marked "verify on-device" — confirm
+  against a real AirTag/Tile/SmartTag via the internal testing track (the emulator
+  has no BLE radio).
+- **Continuous background scan — deferred past v1.** A true always-on background
+  scan needs an Android foreground service + `ACCESS_BACKGROUND_LOCATION`, which
+  triggers Play's background-location review (justification video, slower approval)
+  and a stronger privacy disclosure. To keep the first release shippable, v1 does
+  **on-open cross-session correlation only** (re-evaluates the persisted log every
+  time the scan is opened). The background service is the clear fast-follow; revisit
+  once v1 is live.
+- **"Across places" (location) correlation.** Cross-session is currently time-only
+  (hours). Adding coarse location to distinguish "same tracker in different places"
+  would strengthen it but pulls in the location-permission/Play surface above — also
+  a v2 item, gated behind the same opt-in.
+- **iOS** background BLE is heavily restricted and Find My is OS-reserved; iOS stays
+  **foreground / on-open only** by design. The OS already does native unwanted-
+  tracker alerts — blep still adds the *find-it* step + the manual/rotation scan.
 
 ## Notes
 - This is a **safety** feature: strictly local/on-device, no new data leaves the
