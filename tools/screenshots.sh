@@ -76,4 +76,17 @@ caption "$RAW/01-discovery.png"  "Find what you lost"      "Every nearby Bluetoo
 caption "$RAW/02-tracking.png"   "Walk right to it"        "A warm/cold pointer guides every step — no map."  "$STORE/02.png"
 caption "$RAW/03-found.png"      "You're on top of it"     "Calibrate, sweep, walk, done."                    "$STORE/03.png"
 caption "$RAW/04-celebrate.png"  "Found it"                "Free & open source. No ads, no tracking."         "$STORE/04.png"
-echo "✓ $STORE/{01..04}.png"
+
+echo "› brand assets (Play hi-res icon + feature graphic)…"
+LOGO="$ROOT/logo.svg"
+# 512² listing icon: the dog on brand Mist, opaque
+rsvg-convert -w 360 -h 360 "$LOGO" -o "$STORE/.dog.png"
+magick -size 512x512 xc:'#EEF2F6' "$STORE/.dog.png" -gravity center -composite -alpha off -depth 8 "$STORE/icon-512.png"
+# 1024×500 feature graphic: dog + wordmark + tagline
+magick -size 1024x500 xc:'#EEF2F6' \
+  "$STORE/.dog.png" -gravity west -geometry +90+0 -composite \
+  -font "$FONT_B" -pointsize 132 -fill '#27313B' -gravity west -annotate +500-36 "blep" \
+  -font "$FONT_R" -pointsize 34  -fill '#566472' -gravity west -annotate +505+66 "Find lost Bluetooth things" \
+  "$STORE/feature-1024x500.png"
+rm -f "$STORE/.dog.png"
+echo "✓ $STORE/{01..04}.png · icon-512.png · feature-1024x500.png"
