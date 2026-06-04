@@ -10,7 +10,8 @@
 #
 #   tools/screenshots-i18n.sh            # all locales
 #   tools/screenshots-i18n.sh de-DE sl   # only the named Play locales
-set -euo pipefail
+# (No `set -e`: a transient adb hiccup on one locale must not abort the whole run.)
+set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STORE="$ROOT/screenshots/store/i18n"
@@ -91,17 +92,28 @@ feature() { rsvg-convert -w 360 -h 360 "$ROOT/logo.svg" -o /tmp/.bd.png
     -font "$CFR" -pointsize 32 -fill '#566472' -gravity west -annotate +505+70 "$1" \
     "$2"; rm -f /tmp/.bd.png; }
 
+# Launch the demo, retrying — a zygote restart leaves the framework briefly
+# unready ("Activity does not exist") even though sys.boot_completed stays 1.
+launch_demo() { local i=0
+  until adb shell am start -n "$PKG/.MainActivity" --ez demo true 2>&1 | grep -qiv "error\|does not exist"; do
+    sleep 2; i=$((i + 1)); [ $i -gt 20 ] && break
+  done; }
+
 set_locale() { adb shell "setprop persist.sys.locale $3; setprop persist.sys.language $1; setprop persist.sys.country $2" >/dev/null
   adb shell "su 0 setprop ctl.restart zygote" 2>/dev/null || true
-  until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ]; do sleep 2; done; sleep 3; }
+  # boot_completed stays 1 across a zygote restart, so wait for the package
+  # manager to come back instead (resolves our app), then settle.
+  sleep 5
+  local i=0; until adb shell pm path "$PKG" >/dev/null 2>&1; do sleep 2; i=$((i + 1)); [ $i -gt 40 ] && break; done
+  sleep 3; }
 
 capture_set() { local raw="$1"
-  adb shell pm clear "$PKG" >/dev/null; adb shell am start -n "$PKG/.MainActivity" --ez demo true >/dev/null; sleep 4
+  adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
   adb exec-out screencap -p > "$raw/01.png"
   adb shell input tap 540 721; sleep 9; adb exec-out screencap -p > "$raw/02.png"
   sleep 5; adb exec-out screencap -p > "$raw/03.png"
   adb shell input tap 540 2024; sleep 2; adb exec-out screencap -p > "$raw/04.png"
-  adb shell pm clear "$PKG" >/dev/null; adb shell am start -n "$PKG/.MainActivity" --ez demo true >/dev/null; sleep 4
+  adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
   adb shell input tap 420 460; sleep 8; adb exec-out screencap -p > "$raw/05.png"; }
 
 echo "› building + installing demo build…"
