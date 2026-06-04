@@ -14,7 +14,7 @@ blep — Bluetooth Finder
 
 ### Short description (max 80)
 ```
-Find your lost Bluetooth things — guided by signal strength. Free & open source.
+Find lost Bluetooth things — and catch unwanted trackers following you. Free.
 ```
 
 ### Full description (max 4000)
@@ -52,8 +52,8 @@ flagged. (On-device only — nothing ever leaves your phone — and you can turn
 off any time.)
 
 PRIVATE BY DESIGN
-No accounts. No ads. No analytics. No trackers. Everything happens on your
-device — your Bluetooth scans, location and motion never leave the phone.
+No accounts. No ads. No analytics. No data collection. Everything happens on
+your device — your Bluetooth scans and motion sensing never leave the phone.
 blep is free and open source: https://github.com/fentas/blep.fyi
 
 GOOD TO KNOW
@@ -88,6 +88,9 @@ trackers following you — and points you to them. Free & open source, no tracki
     is still "not collected" under Play's definition (data that never leaves the
     device). It's on by default (because it never leaves the phone), can be turned
     off, and is cleared when switched off.
+  - The "It's mine" mute list stores the addresses of trackers the user marked as
+    their own — also **on-device only**, bounded, never transmitted (so likewise
+    "not collected"). No location data is stored anywhere.
 - **Is all user data encrypted in transit?** → N/A (no data leaves the device).
 - **Do you provide a way to request data deletion?** → N/A (nothing is stored).
 
