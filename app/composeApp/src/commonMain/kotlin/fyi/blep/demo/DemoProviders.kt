@@ -26,10 +26,10 @@ import kotlin.time.TimeSource
 private const val DEMO_TOTAL = 20.0
 
 private val DEMO_DEVICES = listOf(
-    BleDevice(id = "car", name = "Ford Kuga", rssi = -58),
+    BleDevice(id = "keys", name = "Keys", rssi = -58),
     BleDevice(id = "buds", name = "AirPods Pro", rssi = -71),
     BleDevice(id = "watch", name = "Galaxy Watch", rssi = -64, isPaired = true),
-    BleDevice(id = "keys", name = "Keys Tag", rssi = -83),
+    BleDevice(id = "wallet", name = "Wallet", rssi = -83),
 )
 
 class DemoBleScanner : BleScanner {

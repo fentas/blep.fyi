@@ -88,7 +88,7 @@ if [ "${1:-}" != "--compose" ]; then
   adb shell am start -n "$PKG/.MainActivity" --ez demo true >/dev/null
   sleep 4
   adb exec-out screencap -p > "$RAW/01-discovery.png"
-  adb shell input tap 540 721                 # tap the first device (Ford Kuga)
+  adb shell input tap 540 721                 # tap the first device (Keys)
   sleep 9;  adb exec-out screencap -p > "$RAW/02-tracking.png"  # mid-walk, on course
   sleep 5;  adb exec-out screencap -p > "$RAW/03-found.png"     # "Right here?"
   adb shell input tap 540 2024                # "Got it" → celebration
