@@ -49,6 +49,14 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }
+        // On-device "bridge" tests: validate the real Android sensor/BLE glue that
+        // the JVM sims bypass. Run with `:core:connectedDebugAndroidTest`.
+        androidInstrumentedTest.dependencies {
+            implementation(libs.androidx.test.runner)
+            implementation(libs.androidx.test.ext.junit)
+            implementation(libs.androidx.test.core)
+            implementation(libs.kotlinx.coroutines.test)
+        }
 
         // iOS uses Kable (CoreBluetooth). Android has its own raw-Android scanner
         // (low-latency scanning + bonded/connected devices + GATT RSSI), so it
@@ -69,6 +77,7 @@ pluginManager.withPlugin("com.android.library") {
         compileSdk = libs.versions.androidCompileSdk.get().toInt()
         defaultConfig {
             minSdk = libs.versions.androidMinSdk.get().toInt()
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_11

@@ -34,6 +34,22 @@ Then open blep on the device in **real mode** (not `make demo`) →
 *"Is something tracking you?"*. You should see the injected fakes flagged
 (e.g. *"Unknown Find My tracker nearby"*).
 
+## Bridge checks (the tracking platform glue)
+
+The same virtual-radio setup powers the "bridge" checks for the *tracking* path —
+the Android sensor/BLE glue the JVM `TrackingSimulationTest` bypasses:
+
+- `make bridge-rssi` (`check_rssi_bridge.sh`) — injects a peripheral, drives blep to
+  the tracking screen, asserts `AndroidBleScanner.rssi()` streams a reading to the UI.
+- `make bridge-motion` — runs `:core:connectedDebugAndroidTest`
+  (`AndroidMotionProviderBridgeTest`): the real fused rotation-vector sensor →
+  heading transform produces well-formed samples on-device.
+- `make bridge` — both.
+
+These are **plumbing** checks, not path-finding. netsim assigns a single static BLE
+RSSI (no warmer/colder gradient) and the emulator has no controlled orientation, so
+"does it walk me to the target?" stays in the deterministic JVM sim (`make sim`).
+
 Notes:
 - netsim reports a non-physical RSSI (often a positive value); it still sits above
   the detector's "close" threshold, so detection fires.

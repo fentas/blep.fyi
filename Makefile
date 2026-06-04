@@ -14,7 +14,8 @@ SYSIMG      ?= system-images;android-35;google_apis;x86_64
 .DEFAULT_GOAL := help
 .PHONY: help setup doctor test sim scenarios chaos robustness build apk aab \
         install install-wear run demo uninstall devices logcat \
-        emulator-setup emulator screenshots ble-trackers web web-build web-icons \
+        emulator-setup emulator screenshots ble-trackers \
+        bridge bridge-motion bridge-rssi web web-build web-icons \
         ci apple clean
 
 help: ## Show this help
@@ -115,6 +116,19 @@ ble-trackers: ## Inject fake AirTag/Tile/SmartTag adverts into the emulator (net
 		(python3 -m venv tools/ble-netsim/venv && tools/ble-netsim/venv/bin/pip install -q bumble)
 	@port=$$(sed -n 's/^grpc.port=//p' "$${TMPDIR:-/tmp}"/netsim.ini 2>/dev/null); \
 		tools/ble-netsim/venv/bin/python tools/ble-netsim/advertise.py $$port
+
+# On-device "bridge" checks: validate the real Android sensor/BLE glue the JVM
+# sims bypass. Need a running emulator (`make emulator`). Path-finding *logic*
+# stays in `make sim` — netsim has no RSSI gradient, so the hunt can't be e2e'd.
+bridge-motion: ## Motion bridge: real fused sensors → heading (instrumented test)
+	cd app && $(GRADLE) :core:connectedDebugAndroidTest
+
+bridge-rssi: ## RSSI bridge: netsim advert → AndroidBleScanner.rssi() → tracking screen
+	@test -x tools/ble-netsim/venv/bin/python || \
+		(python3 -m venv tools/ble-netsim/venv && tools/ble-netsim/venv/bin/pip install -q bumble)
+	tools/ble-netsim/check_rssi_bridge.sh
+
+bridge: bridge-motion bridge-rssi ## Run both on-device bridge checks
 
 # ───────────────────────────── website ────────────────────────────
 web: ## Run the website dev server
