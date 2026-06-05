@@ -16,7 +16,7 @@
     <string name="avail_bluetooth_off">Turn on Bluetooth to scan</string>
     <string name="avail_permission">Allow Bluetooth access to scan</string>
     <string name="avail_location_off">Turn on Location to scan (Android)</string>
-    <string name="avail_unsupported">Bluetooth LE isn\'t supported on this device</string>
+    <string name="avail_unsupported">Bluetooth LE isn't supported on this device</string>
     <string name="rename_title">Rename device</string>
     <string name="rename_label">Name</string>
     <string name="action_save">Save</string>
@@ -31,8 +31,8 @@
     <string name="safety_all_clear">All clear</string>
     <string name="safety_all_clear_body">No unwanted trackers near you right now. Keep this open for a minute while you move — a tracker following you will show up.</string>
     <string name="safety_find_it">Find it</string>
-    <string name="safety_its_mine">It\'s mine</string>
-    <string name="safety_muted_undo">Marked as yours — won\'t flag it again</string>
+    <string name="safety_its_mine">It's mine</string>
+    <string name="safety_muted_undo">Marked as yours — won't flag it again</string>
     <string name="action_undo">Undo</string>
     <string name="action_done">Done</string>
     <string name="safety_remember_title">Remember across sessions</string>
@@ -51,12 +51,12 @@
     <string name="severity_warn">WARN</string>
     <string name="severity_info">INFO</string>
     <string name="alert_following_title">%1$s may be following you</string>
-    <string name="alert_following_detail">It\'s been near you for %1$s. If it isn\'t yours, find and disable it.</string>
+    <string name="alert_following_detail">It's been near you for %1$s. If it isn't yours, find and disable it.</string>
     <string name="alert_nearby_title">Unknown %1$s nearby</string>
-    <string name="alert_nearby_detail">A tracker that\'s separated from its owner is advertising close to you.</string>
+    <string name="alert_nearby_detail">A tracker that's separated from its owner is advertising close to you.</string>
     <string name="alert_rotation_title">Something keeps reappearing near you</string>
     <string name="alert_rotation_detail">%1$d anonymous devices have shadowed you at close range — possibly one tracker rotating its ID.</string>
-    <string name="alert_cross_session">It\'s shown up near you across %1$d separate hours — a strong sign it\'s travelling with you.</string>
+    <string name="alert_cross_session">It's shown up near you across %1$d separate hours — a strong sign it's travelling with you.</string>
     <string name="dur_a_little_while">a little while</string>
     <string name="dur_minutes">%1$d min</string>
 
@@ -81,9 +81,9 @@
     <string name="cue_calibrate_title">Hold at your chest</string>
     <string name="cue_calibrate_detail">Keep the phone flat against your chest and stay still.</string>
     <string name="cue_sweep_start_title">Now turn slowly</string>
-    <string name="cue_sweep_start_detail">Rotate on the spot. I\'ll tell you when you\'re facing it.</string>
+    <string name="cue_sweep_start_detail">Rotate on the spot. I'll tell you when you're facing it.</string>
     <string name="cue_sweep_warmer_title">Keep turning</string>
-    <string name="cue_sweep_warmer_detail">Warmer — you\'re facing it more.</string>
+    <string name="cue_sweep_warmer_detail">Warmer — you're facing it more.</string>
     <string name="cue_sweep_colder_title">Turn back</string>
     <string name="cue_sweep_colder_detail">Colder — go the other way.</string>
     <string name="cue_sweep_flat_title">Turn slowly</string>
@@ -123,7 +123,7 @@
 
     <!-- Completion -->
     <string name="done_here">Right here?</string>
-    <string name="done_on_top">You\'re right on top of it.</string>
+    <string name="done_on_top">You're right on top of it.</string>
     <string name="done_got_it">Got it 👍</string>
     <string name="done_donate_blurb">If blep saved you some time, a small tip keeps it going. ♥</string>
     <string name="done_donate_button">♥  Help &amp; donate</string>
@@ -141,13 +141,13 @@
     <string name="celebrate_10">Bingo! 🎉</string>
     <string name="celebrate_11">Recovered! ✨</string>
     <string name="celebrate_12">Sweet success!</string>
-    <string name="subline_1">That\'s one less thing to worry about.</string>
+    <string name="subline_1">That's one less thing to worry about.</string>
     <string name="subline_2">Back where it belongs. ✨</string>
     <string name="subline_3">Phew — saved you a hunt.</string>
     <string name="subline_4">Crisis averted. 🙌</string>
     <string name="subline_5">Nice teamwork. 🐾</string>
-    <string name="subline_6">Right where blep said it\'d be.</string>
-    <string name="subline_7">Hope it wasn\'t hiding too long.</string>
+    <string name="subline_6">Right where blep said it'd be.</string>
+    <string name="subline_7">Hope it wasn't hiding too long.</string>
     <string name="subline_8">Another one found.</string>
     <string name="paired_button">Paired (%1$d)</string>
     <string name="paired_sheet_title">All paired</string>
