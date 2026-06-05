@@ -10,7 +10,11 @@ kept strictly separate:
   screenshots/store/i18n/<locale>/feature-1024x500.png -> featureGraphic
   screenshots/store/wear/<locale>/*.png            -> wearScreenshots   (Wear OS only — never mixed)
 
-  (chromebook/ has no Play image slot in the API and is skipped.)
+chromebook/ is intentionally skipped: the Publisher API v3 imageType enum has no
+chromebookScreenshots slot (the Console web UI added one, the API never did, and
+Fastlane supply has the same gap). It's not lost coverage — Play serves the
+tenInchScreenshots set to Chromebooks by fallback, and we upload tablet/ there.
+Set Chromebook-specific shots by hand in the Console if you ever want them.
 
 Prereq (one-time, only you can do it): create a Google Cloud service account,
 download its JSON key, then in Play Console -> Users & permissions invite that
