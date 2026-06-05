@@ -11,10 +11,25 @@ APP_ID      := fyi.blep
 AVD         ?= blep
 SYSIMG      ?= system-images;android-35;google_apis;x86_64
 
+# ── Play publishing ──────────────────────────────────────────────────────────
+# Service-account key (gitignored) + the tracks each form factor releases to.
+# Override on the CLI, e.g. `make ship PLAY_COMMIT=1 PLAY_KEY=~/secrets/sa.json`.
+PLAY_KEY           ?= sa.json
+PLAY_PHONE_TRACK   ?= alpha       # phone closed-test track (the one with testers)
+PLAY_WEAR_TRACK    ?= wear:blep   # Wear OS form-factor track (API prefixes it `wear:`)
+PLAY_PHONE_VERSION ?= 1.0.0
+PLAY_WEAR_VERSION  ?= 0.1.0
+PHONE_AAB          := app/composeApp/build/outputs/bundle/release/composeApp-release.aab
+WEAR_AAB           := app/wearApp/build/outputs/bundle/release/wearApp-release.aab
+PUBLISH_PY         := .venv-publish/bin/python
+# Dry-run unless PLAY_COMMIT is set (so a bare `make publish-*` only prints the plan).
+COMMIT_FLAG        := $(if $(PLAY_COMMIT),--commit,)
+
 .DEFAULT_GOAL := help
 .PHONY: help setup doctor test sim scenarios chaos robustness build apk aab \
         install install-wear run demo uninstall devices logcat \
-        emulator-setup emulator screenshots screenshots-i18n promo ble-trackers \
+        emulator-setup emulator screenshots screenshots-i18n screenshots-wear promo \
+        publish-setup publish-listing release-build publish-release ship ble-trackers \
         bridge bridge-motion bridge-rssi web web-build web-icons \
         ci apple clean
 
@@ -114,8 +129,38 @@ screenshots: ## Regenerate the captioned store screenshots from demo mode
 promo: ## Generate the branded promo video (screenshots/promo.mp4) for YouTube/Play
 	tools/promo-video.sh
 
-screenshots-i18n: ## Localized screenshots + feature graphic per app language
+screenshots-i18n: ## Localized phone screenshots + feature graphic per app language
 	tools/screenshots-i18n.sh
+
+screenshots-wear: ## Localized Wear OS screenshots per app language
+	tools/screenshots-wear.sh
+
+# ───────────────────────────── Play publishing ─────────────────────────────
+# All publish targets are DRY-RUN by default — they print the plan and upload
+# nothing. Set PLAY_COMMIT=1 to actually push. Needs the venv (`make publish-setup`)
+# and a service-account key (PLAY_KEY, gitignored). See store/listing/README.md.
+
+publish-setup: ## Create the Python venv for the Play publishing tools
+	python3 -m venv .venv-publish && .venv-publish/bin/pip install -q -r tools/requirements-publish.txt
+
+publish-listing: ## Push store text + screenshots to Play (PLAY_COMMIT=1 to apply)
+	$(PUBLISH_PY) tools/publish-listing.py --key $(PLAY_KEY) $(COMMIT_FLAG)
+
+release-build: ## Build the signed phone + Wear release AABs
+	cd app && $(GRADLE) :composeApp:bundleRelease :wearApp:bundleRelease
+
+publish-release: release-build ## Upload + release both AABs to their tracks (PLAY_COMMIT=1 to apply)
+	$(PUBLISH_PY) tools/publish-release.py --key $(PLAY_KEY) --aab $(PHONE_AAB) \
+		--track $(PLAY_PHONE_TRACK) --version-name $(PLAY_PHONE_VERSION) $(COMMIT_FLAG)
+	$(PUBLISH_PY) tools/publish-release.py --key $(PLAY_KEY) --aab $(WEAR_AAB) \
+		--track $(PLAY_WEAR_TRACK) --version-name $(PLAY_WEAR_VERSION) $(COMMIT_FLAG)
+
+ship: ## Full release: regen screenshots → push listing+images → build → upload+release (PLAY_COMMIT=1 to apply; needs a running emulator)
+	$(MAKE) screenshots-i18n
+	$(MAKE) screenshots-wear
+	$(MAKE) publish-listing
+	$(MAKE) publish-release
+	@echo "✓ ship done$(if $(PLAY_COMMIT),, (dry run — set PLAY_COMMIT=1 to push for real))"
 
 ble-trackers: ## Inject fake AirTag/Tile/SmartTag adverts into the emulator (netsim+Bumble)
 	@test -x tools/ble-netsim/venv/bin/python || \
