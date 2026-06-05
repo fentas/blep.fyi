@@ -1,0 +1,40 @@
+blep verandert je telefoon in een warm/koud-aanwijzer die je rechtstreeks naar je
+verloren Bluetooth-spullen leidt — sleutels met een tag, oortjes, een horloge, een
+speaker, je auto, vrijwel alles wat Bluetooth uitzendt.
+
+Geen kaart, geen account, geen installatie. Kies gewoon het apparaat en volg het gevoel.
+
+HOE HET WERKT
+1. Kalibreren — houd de telefoon plat tegen je borst. Je lichaam schermt het signaal
+   van achteren af, waardoor het richtinggevoelig wordt.
+2. Zwenken & lopen — draai langzaam tot het het warmst is, loop dan vooruit. Een grote
+   pijl en een warm/koud-kleur leiden elke stap.
+3. Lokaliseren — van dichtbij viert blep het moment waarop je het vindt.
+
+WAT HET GOED MAAKT
+• Richting via signaal — een kompas-en-signaal-aanwijzer, geen vaag radarbeeld.
+• Een spoor op het scherm van waar je hebt gezocht, gekleurd naar signaalsterkte.
+• „Warmer deze kant op" — als je afdwaalt, wijst het je terug naar het sterkste punt.
+• Vertelt je wanneer het veld schoon of verstoord is en wanneer er geen signaal is.
+• Optioneel geluid + trilling die sneller pulseert naarmate je dichterbij komt.
+
+WORD JE GEVOLGD?
+Tik op „Word je gevolgd?" om te scannen op ongewenste trackers die met je meereizen —
+een AirTag, Tile, SmartTag of Find My-baken dat iemand in je tas, jas of auto kan
+hebben gestopt. blep ziet ook de truc die anderen missen: een tracker die zijn
+Bluetooth-ID wisselt om anoniem te blijven, verraadt zich door telkens weer op
+dezelfde korte afstand op te duiken — juist de niet-correlatie is de correlatie. En
+omdat blep een zoeker is, waarschuwt het niet alleen — het brengt je erheen. Zet
+„Onthouden tussen sessies" aan en een tag die urenlang blijft opduiken, wordt
+gemarkeerd. (Alleen op het apparaat — niets verlaat je telefoon — en op elk moment
+uit te zetten.)
+
+PRIVÉ VAN ONTWERP
+Geen accounts. Geen advertenties. Geen analyse. Geen gegevensverzameling. Alles
+gebeurt op je apparaat — je Bluetooth-scans en bewegingen verlaten nooit de telefoon.
+blep is gratis en open source: https://github.com/fentas/blep.fyi
+
+GOED OM TE WETEN
+blep vindt dingen binnen Bluetooth-bereik (ongeveer een kamer, een verdieping of een
+parkeerplaats). Het is geen GPS-/cloudtracker — het kan een tag niet door de stad heen
+lokaliseren zoals een Find My-netwerk. Het leidt je het laatste stuk, via het signaal.

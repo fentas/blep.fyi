@@ -1,0 +1,40 @@
+blep verwandelt dein Handy in einen Warm/Kalt-Zeiger, der dich direkt zu deinen
+verlorenen Bluetooth-Dingen führt — Schlüssel mit Anhänger, Kopfhörer, eine Uhr,
+ein Lautsprecher, dein Auto, fast alles, was Bluetooth aussendet.
+
+Keine Karte, kein Konto, keine Einrichtung. Wähl einfach das Gerät und folge dem Gefühl.
+
+SO FUNKTIONIERT'S
+1. Kalibrieren — halte das Handy flach an die Brust. Dein Körper schirmt das Signal
+   von hinten ab und macht es so richtungsabhängig.
+2. Schwenken & gehen — dreh dich langsam, bis es am wärmsten ist, dann geh vorwärts.
+   Ein großer Pfeil und eine Warm/Kalt-Farbe leiten jeden Schritt.
+3. Orten — aus der Nähe feiert blep den Moment, in dem du es findest.
+
+WAS ES GUT MACHT
+• Richtung per Signal — ein Kompass-und-Signal-Zeiger, kein verschwommenes Radar.
+• Eine Spur auf dem Bildschirm, wo du gesucht hast, eingefärbt nach Signalstärke.
+• „Wärmer hier entlang" — wenn du abweichst, weist es dich zurück zum stärksten Punkt.
+• Sagt dir, wann das Umfeld sauber oder gestört ist und wann es gar kein Signal gibt.
+• Optionaler Ton + Vibration, die schneller pulsiert, je näher du kommst.
+
+VERFOLGT DICH ETWAS?
+Tippe auf „Verfolgt dich etwas?", um nach unerwünschten Trackern zu suchen, die mit
+dir reisen — ein AirTag, Tile, SmartTag oder Find-My-Sender, den jemand in deine
+Tasche, Jacke oder dein Auto geschmuggelt haben könnte. blep erkennt auch den Trick,
+den andere übersehen: Ein Tracker, der seine Bluetooth-ID wechselt, um anonym zu
+bleiben, verrät sich, indem er immer wieder im gleichen Nahbereich auftaucht — die
+fehlende Zuordnung ist die Zuordnung. Und weil blep ein Finder ist, warnt es nicht
+nur — es führt dich hin. Aktiviere „Über Sitzungen merken", und ein Tracker, der
+über Stunden immer wieder auftaucht, wird markiert. (Nur auf dem Gerät — nichts
+verlässt dein Handy — und jederzeit abschaltbar.)
+
+PRIVAT VON GRUND AUF
+Keine Konten. Keine Werbung. Keine Analyse. Keine Datenerfassung. Alles passiert auf
+deinem Gerät — deine Bluetooth-Scans und Bewegungsdaten verlassen das Handy nie.
+blep ist kostenlos und quelloffen: https://github.com/fentas/blep.fyi
+
+GUT ZU WISSEN
+blep findet Dinge in Bluetooth-Reichweite (etwa ein Zimmer, eine Etage oder ein
+Parkplatz). Es ist kein GPS-/Cloud-Tracker — es kann einen Anhänger nicht quer durch
+die Stadt orten wie ein Find-My-Netzwerk. Es führt dich das letzte Stück, per Signal.

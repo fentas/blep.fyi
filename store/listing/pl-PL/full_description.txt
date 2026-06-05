@@ -1,0 +1,40 @@
+blep zamienia twój telefon we wskaźnik ciepło/zimno, który prowadzi cię prosto do
+zgubionych rzeczy Bluetooth — kluczy z lokalizatorem, słuchawek, zegarka, głośnika,
+niemal wszystkiego, co nadaje Bluetooth.
+
+Bez mapy, bez konta, bez konfiguracji. Po prostu wybierz urządzenie i podążaj za wyczuciem.
+
+JAK TO DZIAŁA
+1. Skalibruj — trzymaj telefon płasko przy piersi. Twoje ciało osłania sygnał od tyłu,
+   co czyni go kierunkowym.
+2. Obracaj i idź — obracaj się powoli, aż będzie najcieplej, potem idź naprzód. Duża
+   strzałka i kolor ciepło/zimno prowadzą każdy krok.
+3. Namierz — z bliska blep świętuje moment, w którym to znajdujesz.
+
+CO GO WYRÓŻNIA
+• Kierunek według sygnału — wskaźnik kompasu i sygnału, a nie rozmyty radar.
+• Ślad na ekranie, gdzie szukałeś, pokolorowany według siły sygnału.
+• „Cieplej tędy" — jeśli zboczysz, wskaże ci drogę z powrotem do najmocniejszego punktu.
+• Mówi ci, kiedy otoczenie jest czyste lub zakłócone i kiedy w ogóle nie ma sygnału.
+• Opcjonalny dźwięk i wibracje, które pulsują szybciej, im bliżej jesteś.
+
+CZY COŚ CIĘ ŚLEDZI?
+Dotknij „Czy coś cię śledzi?", aby wyszukać niechciane lokalizatory podróżujące z tobą —
+AirTag, Tile, SmartTag lub nadajnik Find My, który ktoś mógł wsunąć do twojej torby,
+płaszcza lub samochodu. blep wyłapuje też sztuczkę, którą inni pomijają: lokalizator,
+który zmienia swój identyfikator Bluetooth, aby pozostać anonimowym, zdradza się,
+pojawiając się raz za razem na tej samej bliskiej odległości — to właśnie brak korelacji
+jest korelacją. A ponieważ blep jest wyszukiwarką, nie tylko ostrzega — prowadzi cię do
+niego. Włącz „Pamiętaj między sesjami", a etykieta, która godzinami wciąż się pojawia,
+zostanie oznaczona. (Tylko na urządzeniu — nic nie opuszcza twojego telefonu — i można to
+wyłączyć w każdej chwili.)
+
+PRYWATNOŚĆ Z ZAŁOŻENIA
+Bez kont. Bez reklam. Bez analityki. Bez zbierania danych. Wszystko dzieje się na twoim
+urządzeniu — twoje skany Bluetooth i wykrywanie ruchu nigdy nie opuszczają telefonu.
+blep jest bezpłatny i open source: https://github.com/fentas/blep.fyi
+
+WARTO WIEDZIEĆ
+blep znajduje rzeczy w zasięgu Bluetooth (mniej więcej pokój, piętro lub parking). To nie
+jest lokalizator GPS/w chmurze — nie potrafi zlokalizować etykiety na drugim końcu miasta
+jak sieć Find My. Prowadzi cię przez ostatni odcinek, według sygnału.

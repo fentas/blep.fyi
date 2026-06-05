@@ -1,0 +1,39 @@
+blep spremeni tvoj telefon v topel/hladen kazalnik, ki te pripelje naravnost do
+izgubljenih naprav Bluetooth — ključev z obeskom, slušalk, ure, zvočnika, avtomobila,
+skoraj česar koli, kar oddaja Bluetooth.
+
+Brez zemljevida, brez računa, brez nastavljanja. Samo izberi napravo in sledi občutku.
+
+KAKO DELUJE
+1. Umeritev — telefon ploščato prisloni na prsi. Tvoje telo zakrije signal od zadaj
+   in ga naredi usmerjenega.
+2. Zanihaj in pojdi — počasi se obračaj, dokler ni najtopleje, nato pojdi naprej.
+   Velika puščica in topla/hladna barva vodita vsak korak.
+3. Natančna določitev — od blizu blep proslavi trenutek, ko jo najdeš.
+
+ZAKAJ JE DOBER
+• Smer prek signala — kazalnik s kompasom in signalom, ne meglen radar.
+• Sled na zaslonu, kje si že iskal, obarvana po moči signala.
+• „Topleje sem" — če zaideš, te usmeri nazaj k najmočnejši točki.
+• Pove ti, kdaj je okolje čisto ali moteno in kdaj signala sploh ni.
+• Izbirni zvok in vibracije, ki utripajo hitreje, ko se približuješ.
+
+TE KAJ ZASLEDUJE?
+Pritisni „Te kaj zasleduje?", da poiščeš neželene sledilnike, ki potujejo s teboj —
+AirTag, Tile, SmartTag ali oddajnik Find My, ki ti ga je morda kdo podtaknil v torbo,
+jakno ali avto. blep zazna tudi trik, ki ga drugi spregledajo: sledilnik, ki menja
+svoj Bluetooth ID, da ostane anonimen, se izda tako, da se znova in znova pojavlja na
+enaki bližini — prav nepovezanost je povezava. In ker je blep iskalnik, ne le opozori
+— pripelje te do njega. Vklopi „Zapomni si med sejami" in sledilnik, ki se skozi ure
+vedno znova pojavlja, bo označen. (Samo na napravi — nič ne zapusti telefona — in
+kadar koli izklopljivo.)
+
+ZASNOVANO ZASEBNO
+Brez računov. Brez oglasov. Brez analitike. Brez zbiranja podatkov. Vse se dogaja na
+tvoji napravi — tvoji pregledi Bluetooth in gibanje nikoli ne zapustijo telefona.
+blep je brezplačen in odprtokoden: https://github.com/fentas/blep.fyi
+
+DOBRO JE VEDETI
+blep najde stvari v dosegu Bluetooth (približno soba, nadstropje ali parkirišče). Ni
+sledilnik GPS/v oblaku — obeska ne more najti čez mesto kot omrežje Find My. Vodi te
+zadnji del poti, prek signala.

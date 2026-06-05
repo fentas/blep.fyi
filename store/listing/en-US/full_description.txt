@@ -1,0 +1,40 @@
+blep turns your phone into a warm/cold pointer that walks you right to your lost
+Bluetooth things — keys with a tag, earbuds, a watch, a speaker, your car, almost
+anything that advertises Bluetooth.
+
+No map, no account, no setup. Just pick the device and follow the feel.
+
+HOW IT WORKS
+1. Calibrate — hold the phone flat to your chest. Your body shields the signal
+   from behind, which makes it directional.
+2. Sweep & walk — turn slowly until it's warmest, then walk forward. A big arrow
+   and a warm/cold colour guide every step.
+3. Pinpoint — up close, blep celebrates the moment you find it.
+
+WHAT MAKES IT GOOD
+• Direction by signal — a compass-and-signal pointer, not a fuzzy radar.
+• An on-screen trail of where you've searched, coloured by signal strength.
+• "Warmer this way" — if you stray, it points you back to the strongest spot.
+• Tells you when the field is clean vs noisy, and when there's no signal at all.
+• Optional sound + haptics that pulse faster as you close in.
+
+IS SOMETHING TRACKING YOU?
+Tap "Is something tracking you?" to scan for unwanted trackers travelling with
+you — an AirTag, Tile, SmartTag or Find My beacon someone may have slipped into
+your bag, coat or car. blep also catches the trick the others miss: a tracker
+that rotates its Bluetooth ID to stay anonymous gives itself away by reappearing
+at the same close range, again and again — the un-correlation is the correlation.
+And because blep is a finder, it doesn't just warn — it points you to it. Turn on
+"Remember across sessions" and a tag that keeps showing up over the hours gets
+flagged. (On-device only — nothing ever leaves your phone — and you can turn it
+off any time.)
+
+PRIVATE BY DESIGN
+No accounts. No ads. No analytics. No data collection. Everything happens on
+your device — your Bluetooth scans and motion sensing never leave the phone.
+blep is free and open source: https://github.com/fentas/blep.fyi
+
+GOOD TO KNOW
+blep finds things within Bluetooth range (roughly a room, a floor, or a parking
+lot). It is not a GPS/cloud tracker — it can't locate a tag across town the way a
+Find My network does. It guides you the last stretch, by signal.

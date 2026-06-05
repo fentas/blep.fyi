@@ -1,0 +1,42 @@
+blep transforme ton téléphone en un pointeur chaud/froid qui te conduit droit à tes
+objets Bluetooth perdus — des clés avec une balise, des écouteurs, une montre, une
+enceinte, ta voiture, presque tout ce qui émet du Bluetooth.
+
+Pas de carte, pas de compte, pas de configuration. Choisis simplement l'appareil et
+suis la sensation.
+
+COMMENT ÇA MARCHE
+1. Calibre — tiens le téléphone à plat contre ta poitrine. Ton corps masque le signal
+   par l'arrière, ce qui le rend directionnel.
+2. Balaie et marche — tourne lentement jusqu'à ce que ce soit le plus chaud, puis
+   avance. Une grande flèche et une couleur chaud/froid guident chaque pas.
+3. Localise — de près, blep célèbre le moment où tu le trouves.
+
+CE QUI LE REND BON
+• Direction par le signal — un pointeur boussole-et-signal, pas un radar flou.
+• Une trace à l'écran de l'endroit où tu as cherché, colorée selon la force du signal.
+• « Plus chaud par ici » — si tu t'écartes, il te ramène vers le point le plus fort.
+• Il te dit quand l'environnement est clair ou perturbé et quand il n'y a aucun signal.
+• Son et vibration en option, qui pulsent plus vite à mesure que tu t'approches.
+
+QUELQUE CHOSE TE SUIT-IL ?
+Touche « Quelque chose te suit-il ? » pour rechercher des traceurs indésirables qui
+voyagent avec toi — un AirTag, un Tile, un SmartTag ou une balise Find My que quelqu'un
+aurait pu glisser dans ton sac, ton manteau ou ta voiture. blep repère aussi l'astuce
+que les autres manquent : un traceur qui change son identifiant Bluetooth pour rester
+anonyme se trahit en réapparaissant encore et encore à la même courte distance — c'est
+précisément la non-corrélation qui fait la corrélation. Et comme blep est un chercheur,
+il ne se contente pas d'avertir — il t'y conduit. Active « Mémoriser entre les
+sessions » et une balise qui ne cesse de réapparaître au fil des heures est signalée.
+(Uniquement sur l'appareil — rien ne quitte ton téléphone — et désactivable à tout
+moment.)
+
+PRIVÉ PAR CONCEPTION
+Pas de comptes. Pas de publicités. Pas d'analyses. Aucune collecte de données. Tout se
+passe sur ton appareil — tes analyses Bluetooth et tes mouvements ne quittent jamais le
+téléphone. blep est gratuit et open source : https://github.com/fentas/blep.fyi
+
+BON À SAVOIR
+blep trouve les choses à portée Bluetooth (environ une pièce, un étage ou un parking).
+Ce n'est pas un traceur GPS/cloud — il ne peut pas localiser une balise à l'autre bout
+de la ville comme un réseau Find My. Il te guide sur la dernière portion, par le signal.

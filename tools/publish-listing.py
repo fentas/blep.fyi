@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
-"""Push localized store screenshots + feature graphics to Google Play.
+"""Push localized store listing text + screenshots + feature graphics to Google Play.
 
-Uses the Google Play Android Publisher API v3 (edits.images): opens an edit,
-replaces each image slot per locale, and commits. The two screenshot trees are
-kept strictly separate:
+Uses the Google Play Android Publisher API v3 (edits.listings + edits.images):
+opens an edit, replaces each locale's title/short/full description and each image
+slot, and commits.
+
+Listing text — one canonical, fastlane-compatible source tree (committed):
+
+  store/listing/<locale>/title.txt              -> Listing.title              (<= 30)
+  store/listing/<locale>/short_description.txt  -> Listing.shortDescription   (<= 80)
+  store/listing/<locale>/full_description.txt   -> Listing.fullDescription    (<= 4000)
+
+Screenshots — the two image trees are kept strictly separate:
 
   screenshots/store/i18n/<locale>/phone/*.png      -> phoneScreenshots
   screenshots/store/i18n/<locale>/tablet/*.png     -> sevenInchScreenshots + tenInchScreenshots
@@ -40,6 +48,35 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # imageType -> True when only a single image is allowed in that slot.
 SINGLE = {"featureGraphic", "icon", "promoGraphic", "tvBanner"}
 MAX_SCREENSHOTS = 8  # Play's per-type cap
+
+# Listing.<field> -> filename, and Play's character limit for it.
+LISTING_FIELDS = {
+    "title": ("title.txt", 30),
+    "shortDescription": ("short_description.txt", 80),
+    "fullDescription": ("full_description.txt", 4000),
+}
+
+
+def build_listing_plan(listing_dir, only_locales):
+    """Return [(locale, {title, shortDescription, fullDescription}), ...]."""
+    plan = []
+    if not os.path.isdir(listing_dir):
+        return plan
+    for locale in sorted(os.listdir(listing_dir)):
+        base = os.path.join(listing_dir, locale)
+        if not os.path.isdir(base):
+            continue
+        if only_locales and locale not in only_locales:
+            continue
+        body = {}
+        for field, (fname, _) in LISTING_FIELDS.items():
+            path = os.path.join(base, fname)
+            if os.path.isfile(path):
+                with open(path, encoding="utf-8") as f:
+                    body[field] = f.read().strip()
+        if body:
+            plan.append((locale, body))
+    return plan
 
 
 def build_plan(store_dir, want_types):
@@ -85,8 +122,9 @@ def main():
     ap.add_argument("--package", default="fyi.blep", help="applicationId (default: fyi.blep)")
     ap.add_argument("--key", help="service-account JSON key (required for --commit)")
     ap.add_argument("--store-dir", default=os.path.join(ROOT, "screenshots", "store"))
-    ap.add_argument("--types", default="phone,tablet,wear,feature",
-                    help="comma list of: phone,tablet,wear,feature")
+    ap.add_argument("--listing-dir", default=os.path.join(ROOT, "store", "listing"))
+    ap.add_argument("--types", default="listing,phone,tablet,wear,feature",
+                    help="comma list of: listing,phone,tablet,wear,feature")
     ap.add_argument("--locales", default="", help="comma list to restrict to (default: all found)")
     ap.add_argument("--commit", action="store_true", help="actually open an edit, upload and commit")
     ap.add_argument("--no-review", action="store_true",
@@ -99,12 +137,31 @@ def main():
     plan = build_plan(args.store_dir, want_types)
     if only_locales:
         plan = [p for p in plan if p[0] in only_locales]
-    if not plan:
-        print("Nothing to upload (no matching screenshots found).", file=sys.stderr)
+
+    listing_plan = build_listing_plan(args.listing_dir, only_locales) if "listing" in want_types else []
+
+    if not plan and not listing_plan:
+        print("Nothing to upload (no matching listing text or screenshots found).", file=sys.stderr)
         return 1
 
-    # Validate caps and print the plan.
     print(f"Package: {args.package}\n")
+
+    # Listing text — print each field's length and flag anything over Play's limit.
+    over_limit = False
+    if listing_plan:
+        print("Listing text:")
+        for locale, body in listing_plan:
+            for field, (_, limit) in LISTING_FIELDS.items():
+                if field not in body:
+                    continue
+                n = len(body[field])
+                bad = n > limit
+                over_limit = over_limit or bad
+                flag = f"  !! {n} > {limit}" if bad else ""
+                print(f"  {locale:<7} {field:<16} {n:>4}/{limit}{flag}")
+        print()
+
+    # Screenshots — print files and flag over-cap slots.
     for locale, image_type, files in plan:
         flag = ""
         if image_type not in SINGLE and len(files) > MAX_SCREENSHOTS:
@@ -113,7 +170,14 @@ def main():
         for f in files:
             print(f"            {os.path.relpath(f, ROOT)}")
     n_imgs = sum(len(f) for _, _, f in plan)
-    print(f"\nTotal: {len(plan)} slot(s), {n_imgs} image(s) across {len({p[0] for p in plan})} locale(s).")
+    locales = {p[0] for p in plan} | {p[0] for p in listing_plan}
+    print(f"\nTotal: {len(listing_plan)} listing(s), {len(plan)} image slot(s), "
+          f"{n_imgs} image(s) across {len(locales)} locale(s).")
+
+    if over_limit:
+        print("\nRefusing to continue: some listing fields exceed Play's limits (see !! above).",
+              file=sys.stderr)
+        return 4
 
     if not args.commit:
         print("\nDry run — nothing uploaded. Re-run with --commit (and --key sa.json) to apply.")
@@ -139,6 +203,11 @@ def main():
     edit_id = edits.insert(packageName=args.package, body={}).execute()["id"]
     print(f"\nOpened edit {edit_id}")
     try:
+        for locale, body in listing_plan:
+            edits.listings().update(
+                packageName=args.package, editId=edit_id,
+                language=locale, body=body).execute()
+            print(f"  ✓ {locale} listing ({', '.join(body)})")
         for locale, image_type, files in plan:
             edits.images().deleteall(
                 packageName=args.package, editId=edit_id,

@@ -1,0 +1,40 @@
+blep muudab su telefoni sooja/külma osutiks, mis juhatab sind otse kadunud
+Bluetooth-asjadeni — sildiga võtmed, kõrvaklapid, kell, kõlar, su auto, peaaegu kõik,
+mis Bluetoothi edastab.
+
+Ei kaarti, ei kontot, ei seadistust. Lihtsalt vali seade ja järgi tunnet.
+
+KUIDAS SEE TÖÖTAB
+1. Kalibreeri — hoia telefoni lapiti vastu rinda. Su keha varjab signaali tagant,
+   muutes selle suunatundlikuks.
+2. Pööra ja kõnni — pööra aeglaselt, kuni on kõige soojem, siis kõnni edasi. Suur nool
+   ja soe/külm värv juhivad iga sammu.
+3. Täpne asukoht — lähedalt tähistab blep hetke, mil selle leiad.
+
+MIKS SEE HEA ON
+• Suund signaali järgi — kompassi ja signaali osuti, mitte hägune radar.
+• Ekraanil jälg sellest, kus oled otsinud, värvitud signaalitugevuse järgi.
+• „Soojem siiapoole" — kui eksid, juhatab see sind tagasi tugevaima punkti juurde.
+• Ütleb, millal keskkond on puhas või häiritud ja millal signaali pole.
+• Valikuline heli ja vibratsioon, mis pulseerib kiiremini, mida lähemale jõuad.
+
+KAS KEEGI JÄLGIB SIND?
+Puuduta „Kas keegi jälgib sind?", et otsida soovimatuid jälgijaid, kes sinuga kaasas
+reisivad — AirTag, Tile, SmartTag või Find My majakas, mille keegi võis su kotti, jope
+või autosse pista. blep märkab ka trikki, mille teised jätavad kahe silma vahele:
+jälgija, mis vahetab oma Bluetoothi ID-d, et jääda anonüümseks, reedab end sellega, et
+ilmub ikka ja jälle samale lähedusele — just korrelatsiooni puudumine ongi
+korrelatsioon. Ja kuna blep on otsija, ei hoiata see ainult — see viib su kohale. Lülita
+sisse „Pea seansside vahel meeles" ja silt, mis tundide jooksul aina uuesti ilmub,
+märgistatakse. (Ainult seadmes — miski ei lahku su telefonist — ja igal ajal välja
+lülitatav.)
+
+PRIVAATNE JUBA DISAINILT
+Ei kontosid. Ei reklaame. Ei analüütikat. Ei andmete kogumist. Kõik toimub su seadmes —
+su Bluetooth-skannid ja liikumine ei lahku kunagi telefonist. blep on tasuta ja avatud
+lähtekoodiga: https://github.com/fentas/blep.fyi
+
+HEA TEADA
+blep leiab asju Bluetoothi levialas (umbes tuba, korrus või parkla). See ei ole
+GPS-/pilvejälgija — see ei suuda silti üle linna leida nagu Find My võrk. See juhatab
+sind viimase otsa, signaali järgi.

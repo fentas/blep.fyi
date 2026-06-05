@@ -1,5 +1,11 @@
 # Store listing — localized (de · sl · it · nl · es · el · et · fr · zh · ja · hr · pl · pt)
 
+> **⚠️ Canonical source moved.** The title / short / full descriptions now live in
+> [`store/listing/<locale>/`](../store/listing/) and are pushed to Play with
+> `tools/publish-listing.py`. **Edit them there** — the per-language blocks below
+> are a read-only snapshot. This file is kept for the release-notes paste block
+> and the locale-code notes only.
+
 Translations of the English listing in `store-listing.md`. **blep** stays
 untranslated (it's the brand). Locale-code note for Play Console:
 

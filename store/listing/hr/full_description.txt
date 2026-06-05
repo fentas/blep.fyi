@@ -1,0 +1,39 @@
+blep pretvara tvoj telefon u topli/hladni pokazivač koji te vodi ravno do izgubljenih
+Bluetooth stvari — ključeva s oznakom, slušalica, sata, zvučnika, gotovo svega što
+emitira Bluetooth.
+
+Bez karte, bez računa, bez postavljanja. Samo odaberi uređaj i prati osjećaj.
+
+KAKO RADI
+1. Kalibriraj — drži telefon plosnato uz prsa. Tvoje tijelo zaklanja signal sa stražnje
+   strane, što ga čini usmjerenim.
+2. Zakreni i hodaj — okreći se polako dok nije najtoplije, zatim hodaj naprijed. Velika
+   strelica i topla/hladna boja vode svaki korak.
+3. Precizno lociraj — izbliza blep slavi trenutak kada ga pronađeš.
+
+ZAŠTO JE DOBAR
+• Smjer prema signalu — pokazivač s kompasom i signalom, a ne mutni radar.
+• Trag na zaslonu gdje si tražio, obojen prema jačini signala.
+• „Toplije ovuda" — ako zalutaš, usmjeri te natrag na najjaču točku.
+• Govori ti kada je okruženje čisto ili bučno i kada uopće nema signala.
+• Izborni zvuk i vibracije koje pulsiraju brže kako se približavaš.
+
+PRATI LI TE NEŠTO?
+Dodirni „Prati li te nešto?" da pretražiš nepoželjne pratitelje koji putuju s tobom —
+AirTag, Tile, SmartTag ili Find My odašiljač koji ti je netko možda podmetnuo u torbu,
+kaput ili auto. blep hvata i trik koji drugi propuštaju: pratitelj koji mijenja svoj
+Bluetooth ID da ostane anoniman odaje se ponovnim pojavljivanjem na istoj blizini, iznova
+i iznova — upravo je nepovezanost povezanost. I budući da je blep tragač, ne samo da
+upozorava — vodi te do njega. Uključi „Zapamti između sesija" i oznaka koja se satima
+ponavlja bit će označena. (Samo na uređaju — ništa ne napušta tvoj telefon — i može se
+isključiti u svakom trenutku.)
+
+PRIVATNOST OD TEMELJA
+Bez računa. Bez oglasa. Bez analitike. Bez prikupljanja podataka. Sve se događa na tvom
+uređaju — tvoja Bluetooth pretraživanja i očitavanje kretanja nikad ne napuštaju telefon.
+blep je besplatan i otvorenog koda: https://github.com/fentas/blep.fyi
+
+DOBRO JE ZNATI
+blep pronalazi stvari u dosegu Bluetootha (otprilike soba, kat ili parkiralište). Nije
+GPS/oblak tragač — ne može locirati oznaku preko grada kao Find My mreža. Vodi te zadnji
+dio puta, prema signalu.

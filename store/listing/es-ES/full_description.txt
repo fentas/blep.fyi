@@ -1,0 +1,41 @@
+blep convierte tu teléfono en un puntero frío/caliente que te lleva directamente a tus
+cosas Bluetooth perdidas — llaves con una etiqueta, auriculares, un reloj, un altavoz,
+tu coche, casi cualquier cosa que emita Bluetooth.
+
+Sin mapa, sin cuenta, sin configuración. Solo elige el dispositivo y sigue la sensación.
+
+CÓMO FUNCIONA
+1. Calibra — sostén el teléfono plano contra el pecho. Tu cuerpo bloquea la señal por
+   detrás, lo que la hace direccional.
+2. Gira y camina — gira despacio hasta que esté más caliente, luego camina hacia
+   adelante. Una flecha grande y un color frío/caliente guían cada paso.
+3. Localiza — de cerca, blep celebra el momento en que lo encuentras.
+
+POR QUÉ ES BUENO
+• Dirección por señal — un puntero de brújula y señal, no un radar borroso.
+• Un rastro en pantalla de dónde has buscado, coloreado según la intensidad de la señal.
+• „Más caliente por aquí" — si te desvías, te devuelve al punto más fuerte.
+• Te dice cuándo el entorno está limpio o con interferencias y cuándo no hay señal.
+• Sonido y vibración opcionales que laten más rápido a medida que te acercas.
+
+¿ALGO TE ESTÁ SIGUIENDO?
+Toca „¿Algo te está siguiendo?" para buscar rastreadores no deseados que viajan
+contigo — un AirTag, Tile, SmartTag o baliza Find My que alguien podría haber metido en
+tu bolso, abrigo o coche. blep también detecta el truco que a otros se les escapa: un
+rastreador que cambia su ID Bluetooth para permanecer anónimo se delata al reaparecer
+una y otra vez a la misma corta distancia — precisamente la no correlación es la
+correlación. Y como blep es un buscador, no solo avisa — te lleva hasta él. Activa
+„Recordar entre sesiones" y una etiqueta que sigue apareciendo durante horas queda
+marcada. (Solo en el dispositivo — nada sale de tu teléfono — y se puede desactivar en
+cualquier momento.)
+
+PRIVADO POR DISEÑO
+Sin cuentas. Sin anuncios. Sin analíticas. Sin recopilación de datos. Todo ocurre en tu
+dispositivo — tus escaneos Bluetooth y tu movimiento nunca salen del teléfono. blep es
+gratis y de código abierto: https://github.com/fentas/blep.fyi
+
+BUENO SABERLO
+blep encuentra cosas dentro del alcance Bluetooth (aproximadamente una habitación, una
+planta o un aparcamiento). No es un rastreador GPS/en la nube — no puede localizar una
+etiqueta al otro lado de la ciudad como una red Find My. Te guía el último tramo, por
+la señal.
