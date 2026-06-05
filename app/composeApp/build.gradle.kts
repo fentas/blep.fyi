@@ -67,7 +67,11 @@ pluginManager.withPlugin("com.android.application") {
             applicationId = "fyi.blep"
             minSdk = libs.versions.androidMinSdk.get().toInt()
             targetSdk = libs.versions.androidTargetSdk.get().toInt()
-            versionCode = 7
+            // versionCode is banded by form factor so the phone and watch bundles
+            // (which share applicationId and so must have globally-unique codes)
+            // never collide: phone = 1xxx, Wear OS = 2xxx (see :wearApp). Bump within
+            // the band. 1000 clears the early phone uploads (5/6/7).
+            versionCode = 1000
             versionName = "1.0.0"
         }
         // Release signing from a gitignored keystore.properties (created locally, or

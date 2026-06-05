@@ -18,9 +18,11 @@ android {
         applicationId = "fyi.blep"
         minSdk = 30 // Wear OS 3
         targetSdk = libs.versions.androidTargetSdk.get().toInt()
-        // Unique across the whole app: the phone bundles use 5/6, the watch uses
-        // its own band (10+) so the two never collide in a multi-bundle release.
-        versionCode = 11
+        // versionCode is banded by form factor (phone = 1xxx in :composeApp,
+        // Wear OS = 2xxx here) so the two bundles — same applicationId, so codes
+        // must be globally unique — never collide. Bump within the band. 2000
+        // clears the early watch uploads (10/11).
+        versionCode = 2000
         versionName = "0.1.0"
     }
 
