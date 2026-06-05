@@ -37,6 +37,11 @@ keystore.properties
 *.jks
 *.keystore
 
+# Google Play Publisher API service-account key — private key, never commit
+sa.json
+*-sa.json
+*.sa.json
+
 # Regenerable store screenshots (make screenshots)
 /screenshots/
 
