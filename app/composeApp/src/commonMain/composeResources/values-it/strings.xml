@@ -132,4 +132,8 @@
     <string name="subline_6">Proprio dove blep aveva detto.</string>
     <string name="subline_7">Spero non si sia nascosto troppo a lungo.</string>
     <string name="subline_8">Un altro trovato.</string>
+    <string name="paired_button">Associati (%1$d)</string>
+    <string name="paired_sheet_title">Tutti gli associati</string>
+    <string name="paired_sheet_hint">Aggiungi una stella per fissarli in cima all\'elenco.</string>
+    <string name="paired_sheet_empty">Nessun dispositivo associato.</string>
 </resources>

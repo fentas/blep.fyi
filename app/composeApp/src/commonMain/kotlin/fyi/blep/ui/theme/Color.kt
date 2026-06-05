@@ -13,6 +13,7 @@ object BlepColors {
     val Cream = Color(0xFFF4F5F0)
     val Ink = Color(0xFF27313B)
     val Mist = Color(0xFFEEF2F6)
+    val Gold = Color(0xFFE0A93B) // favourite star — warm accent off the proximity amber
 
     // Proximity gradient stops: far → close ends on a soft pastel green.
     private val proximityStops = listOf(

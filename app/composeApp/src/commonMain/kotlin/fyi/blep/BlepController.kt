@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
+import fyi.blep.core.ble.DeviceFavorites
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
 import fyi.blep.core.platform.createKeyValueStore
@@ -56,6 +57,7 @@ class BlepController(
     private val haptic: Haptic = createHaptic(),
     safetyTuning: TrackerTuning = TrackerTuning(),
     private val safetyHistory: SafetyHistory = SafetyHistory(createKeyValueStore()),
+    private val favorites: DeviceFavorites = DeviceFavorites(createKeyValueStore()),
 ) {
     var screen by mutableStateOf<Screen>(Screen.Discovery)
         private set
@@ -99,15 +101,41 @@ class BlepController(
     var soundOn by mutableStateOf(true)
         private set
 
-    /** Devices shown in the list, honouring the unnamed toggle. */
+    /**
+     * The main discovery list: things that are genuinely **nearby** (a live signal)
+     * plus the user's **favourites** (always, even when not advertising — they're
+     * tappable via GATT). Silent non-favourite bonded devices are intentionally left
+     * out so a long paired list doesn't bury what's actually in range; they live in
+     * [pairedDevices] (the "all paired" manager). Favourites pin to the top.
+     */
     val visibleDevices: List<BleDevice>
-        get() = if (includeUnnamed) devices else devices.filter { it.isNamed }
+        get() = devices
+            .filter { it.isFavorite || !it.rssiUnknown }                 // favourites always; others must be live
+            .filter { it.isFavorite || includeUnnamed || it.isNamed }    // unnamed toggle applies to non-favourites
+            .sortedWith(
+                compareByDescending<BleDevice> { it.isFavorite }
+                    .thenByDescending { it.isConnected }
+                    .thenByDescending { it.rssi },
+            )
 
-    /** How many discovered devices are currently hidden as unnamed. */
+    /** How many *nearby* unnamed devices are hidden (favourites/silent excluded —
+     *  they're never gated by the unnamed toggle). */
     val unnamedCount: Int
-        get() = devices.count { !it.isNamed }
+        get() = devices.count { !it.isNamed && !it.rssiUnknown && !it.isFavorite }
+
+    /** Every bonded/paired device, for the "all paired" manager where favourites are
+     *  curated. Favourites and connected devices first, then by name. */
+    val pairedDevices: List<BleDevice>
+        get() = devices.filter { it.isPaired }
+            .sortedWith(
+                compareByDescending<BleDevice> { it.isFavorite }
+                    .thenByDescending { it.isConnected }
+                    .thenByDescending { it.isNamed }
+                    .thenBy { it.displayName.lowercase() },
+            )
 
     private val aliases = mutableMapOf<String, String>()
+    private var favoriteIds: Set<String> = favorites.ids()
     private var scanJob: Job? = null
     private var trackJob: Job? = null
     private var motionJob: Job? = null
@@ -165,6 +193,13 @@ class BlepController(
         val clean = alias?.trim().orEmpty()
         if (clean.isEmpty()) aliases.remove(device.id) else aliases[device.id] = clean
         devices = devices.map { if (it.id == device.id) it.copy(alias = aliases[it.id]) else it }
+    }
+
+    /** Star/unstar a device so it always shows in the main list (persisted). */
+    fun toggleFavorite(device: BleDevice) {
+        val nowFavorite = favorites.toggle(device.id)
+        favoriteIds = favorites.ids()
+        devices = devices.map { if (it.id == device.id) it.copy(isFavorite = nowFavorite) else it }
     }
 
     /** Start the "is something tracking me?" scan and show its screen. */
@@ -314,7 +349,9 @@ class BlepController(
                 try {
                     scanner.devices(includeUnnamed = true).collect { list ->
                         availability = ScanAvailability.READY
-                        devices = list.map { it.copy(alias = aliases[it.id] ?: it.alias) }
+                        devices = list.map {
+                            it.copy(alias = aliases[it.id] ?: it.alias, isFavorite = it.id in favoriteIds)
+                        }
                     }
                 } catch (c: CancellationException) {
                     throw c

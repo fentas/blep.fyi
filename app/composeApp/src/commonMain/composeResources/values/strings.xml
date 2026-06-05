@@ -149,4 +149,8 @@
     <string name="subline_6">Right where blep said it\'d be.</string>
     <string name="subline_7">Hope it wasn\'t hiding too long.</string>
     <string name="subline_8">Another one found.</string>
+    <string name="paired_button">Paired (%1$d)</string>
+    <string name="paired_sheet_title">All paired</string>
+    <string name="paired_sheet_hint">Star devices to pin them to the top of your list.</string>
+    <string name="paired_sheet_empty">No paired devices yet.</string>
 </resources>

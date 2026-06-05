@@ -132,4 +132,8 @@
     <string name="subline_6">Just seal, kus blep ütles.</string>
     <string name="subline_7">Loodetavasti ei peitnud see end liiga kaua.</string>
     <string name="subline_8">Veel üks leitud.</string>
+    <string name="paired_button">Seotud (%1$d)</string>
+    <string name="paired_sheet_title">Kõik seotud</string>
+    <string name="paired_sheet_hint">Märgi tärniga, et kinnitada need loendi etteotsa.</string>
+    <string name="paired_sheet_empty">Seotud seadmeid veel pole.</string>
 </resources>

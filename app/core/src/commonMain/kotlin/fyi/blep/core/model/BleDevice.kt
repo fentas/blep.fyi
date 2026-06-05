@@ -10,6 +10,8 @@ package fyi.blep.core.model
  * @property isPaired whether the device is bonded/paired (e.g. a watch) — it may
  *   not advertise, so it's tracked via a GATT connection rather than scan RSSI.
  * @property alias user-assigned rename, takes precedence over [name] for display.
+ * @property isFavorite user-starred — pinned into the main list even when the
+ *   device isn't advertising (overlaid by the app, not the scanner).
  */
 data class BleDevice(
     val id: String,
@@ -18,6 +20,7 @@ data class BleDevice(
     val isConnected: Boolean = false,
     val isPaired: Boolean = false,
     val alias: String? = null,
+    val isFavorite: Boolean = false,
 ) {
     /** True when no live advertisement RSSI is available (bonded, not advertising). */
     val rssiUnknown: Boolean get() = rssi == RSSI_UNKNOWN

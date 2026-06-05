@@ -46,12 +46,14 @@ fun App(demo: Boolean = false) {
             when (screen) {
                 is Screen.Discovery -> DiscoveryScreen(
                     devices = controller.visibleDevices,
+                    pairedDevices = controller.pairedDevices,
                     unnamedCount = controller.unnamedCount,
                     availability = controller.availability,
                     includeUnnamed = controller.includeUnnamed,
                     onToggleUnnamed = controller::toggleUnnamed,
                     onSelect = controller::track,
                     onRename = controller::rename,
+                    onToggleFavorite = controller::toggleFavorite,
                     onSafetyScan = controller::openSafetyScan,
                 )
 

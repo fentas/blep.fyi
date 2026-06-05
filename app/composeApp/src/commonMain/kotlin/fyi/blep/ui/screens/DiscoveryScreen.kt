@@ -22,12 +22,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +59,10 @@ import fyi.blep.resources.discovery_empty_title
 import fyi.blep.resources.discovery_hint
 import fyi.blep.resources.hide_unnamed
 import fyi.blep.resources.nearby_count
+import fyi.blep.resources.paired_button
+import fyi.blep.resources.paired_sheet_empty
+import fyi.blep.resources.paired_sheet_hint
+import fyi.blep.resources.paired_sheet_title
 import fyi.blep.resources.rename_label
 import fyi.blep.resources.rename_title
 import fyi.blep.resources.safety_entry_subtitle
@@ -72,16 +79,19 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun DiscoveryScreen(
     devices: List<BleDevice>,
+    pairedDevices: List<BleDevice>,
     unnamedCount: Int,
     availability: ScanAvailability,
     includeUnnamed: Boolean,
     onToggleUnnamed: () -> Unit,
     onSelect: (BleDevice) -> Unit,
     onRename: (BleDevice, String?) -> Unit,
+    onToggleFavorite: (BleDevice) -> Unit,
     onSafetyScan: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var renaming by remember { mutableStateOf<BleDevice?>(null) }
+    var showPaired by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -100,8 +110,13 @@ fun DiscoveryScreen(
             AvailabilityBanner(availability)
         }
 
-        if (devices.isNotEmpty()) {
-            SectionLabel(stringResource(Res.string.section_nearby))
+        if (devices.isNotEmpty() || pairedDevices.isNotEmpty()) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                SectionLabel(stringResource(Res.string.section_nearby), Modifier.weight(1f))
+                if (pairedDevices.isNotEmpty()) {
+                    PairedPill(count = pairedDevices.size, onClick = { showPaired = true })
+                }
+            }
             Spacer(Modifier.height(10.dp))
         }
 
@@ -117,6 +132,7 @@ fun DiscoveryScreen(
                     device = device,
                     onClick = { onSelect(device) },
                     onRename = { renaming = device },
+                    onToggleFavorite = { onToggleFavorite(device) },
                     modifier = Modifier.animateItem(),
                 )
             }
@@ -140,6 +156,66 @@ fun DiscoveryScreen(
             onDismiss = { renaming = null },
             onConfirm = { alias -> onRename(device, alias); renaming = null },
         )
+    }
+
+    if (showPaired) {
+        PairedSheet(
+            devices = pairedDevices,
+            onDismiss = { showPaired = false },
+            onSelect = { showPaired = false; onSelect(it) },
+            onToggleFavorite = onToggleFavorite,
+        )
+    }
+}
+
+/** The "all paired" manager: every bonded device, where favourites are curated.
+ *  This is the only place silent (non-advertising) paired devices appear, so the
+ *  main list can stay genuinely nearby. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PairedSheet(
+    devices: List<BleDevice>,
+    onDismiss: () -> Unit,
+    onSelect: (BleDevice) -> Unit,
+    onToggleFavorite: (BleDevice) -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = BlepColors.Mist,
+    ) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
+            Text(
+                stringResource(Res.string.paired_sheet_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = BlepColors.Ink,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                stringResource(Res.string.paired_sheet_hint),
+                style = MaterialTheme.typography.bodyMedium,
+                color = BlepColors.Ink.copy(alpha = 0.55f),
+            )
+            Spacer(Modifier.height(14.dp))
+            if (devices.isEmpty()) {
+                Text(
+                    stringResource(Res.string.paired_sheet_empty),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = BlepColors.Ink.copy(alpha = 0.45f),
+                    modifier = Modifier.padding(vertical = 24.dp),
+                )
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(devices, key = { it.id }) { device ->
+                        DeviceCard(
+                            device = device,
+                            onClick = { onSelect(device) },
+                            onToggleFavorite = { onToggleFavorite(device) },
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -198,21 +274,39 @@ private fun SafetyEntry(onClick: () -> Unit) {
 }
 
 @Composable
-private fun SectionLabel(text: String) {
+private fun SectionLabel(text: String, modifier: Modifier = Modifier) {
     Text(
         text.uppercase(),
         style = MaterialTheme.typography.labelLarge,
         color = BlepColors.Ink.copy(alpha = 0.4f),
-        modifier = Modifier.padding(start = 4.dp),
+        modifier = modifier.padding(start = 4.dp),
     )
+}
+
+/** Touchable pill beside the NEARBY label that opens the all-paired manager. */
+@Composable
+private fun PairedPill(count: Int, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(999.dp),
+        color = BlepColors.Blue.copy(alpha = 0.10f),
+    ) {
+        Text(
+            stringResource(Res.string.paired_button, count),
+            style = MaterialTheme.typography.labelLarge,
+            color = BlepColors.Blue,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+        )
+    }
 }
 
 @Composable
 private fun DeviceCard(
     device: BleDevice,
     onClick: () -> Unit,
-    onRename: () -> Unit,
+    onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier,
+    onRename: (() -> Unit)? = null,
 ) {
     Surface(
         onClick = onClick,
@@ -257,8 +351,25 @@ private fun DeviceCard(
                 SignalDots(rssi = device.rssi)
                 Spacer(Modifier.width(10.dp))
             }
-            RenameButton(onRename)
+            FavoriteButton(isFavorite = device.isFavorite, onClick = onToggleFavorite)
+            if (onRename != null) RenameButton(onRename)
         }
+    }
+}
+
+/** Star toggle: filled gold when starred, hollow otherwise. Starred devices pin to
+ *  the top of the main list even when not advertising. */
+@Composable
+private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit) {
+    Box(
+        Modifier.size(30.dp).clip(CircleShape).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            if (isFavorite) "★" else "☆",
+            style = MaterialTheme.typography.titleMedium,
+            color = if (isFavorite) BlepColors.Gold else BlepColors.Ink.copy(alpha = 0.35f),
+        )
     }
 }
 
