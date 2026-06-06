@@ -136,4 +136,13 @@
     <string name="paired_sheet_title">Kõik seotud</string>
     <string name="paired_sheet_hint">Märgi tärniga, et kinnitada need loendi etteotsa.</string>
     <string name="paired_sheet_empty">Seotud seadmeid veel pole.</string>
+    <string name="settings_title">Seaded</string>
+    <string name="settings_connected_signal_title">Mõõda ühendatud seadmete signaali</string>
+    <string name="settings_connected_signal_desc">Päri ühendatud seadmeid GATT kaudu, et näidata reaalajas ribasid. Kulutab rohkem akut.</string>
+    <string name="settings_sound_title">Otsinguheli</string>
+    <string name="settings_sound_desc">Esita heli otsimise ajal.</string>
+    <string name="settings_unnamed_title">Näita nimeta seadmeid</string>
+    <string name="settings_unnamed_desc">Kaasa seadmed, mis ei avalda nime.</string>
+    <string name="settings_remember_title">Jäta jälitajad seansside vahel meelde</string>
+    <string name="settings_remember_desc">Märgib jälitaja, mis tundide jooksul su lähedal korduvalt ilmub. Ainult seadmes.</string>
 </resources>

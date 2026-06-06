@@ -24,7 +24,7 @@ class FakeBleScanner : BleScanner {
 
     override val availability: Flow<ScanAvailability> = flowOf(ScanAvailability.READY)
 
-    override fun devices(includeUnnamed: Boolean): Flow<List<BleDevice>> = flow {
+    override fun devices(includeUnnamed: Boolean, measureConnectedSignal: Boolean): Flow<List<BleDevice>> = flow {
         val table = DeviceTable()
         catalog.forEach { table.upsert(it.id, it.name, it.rssi, it.isConnected) }
         emit(table.snapshot(includeUnnamed))

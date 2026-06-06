@@ -136,4 +136,13 @@
     <string name="paired_sheet_title">Alle gekoppelde</string>
     <string name="paired_sheet_hint">Geef apparaten een ster om ze bovenaan vast te zetten.</string>
     <string name="paired_sheet_empty">Nog geen gekoppelde apparaten.</string>
+    <string name="settings_title">Instellingen</string>
+    <string name="settings_connected_signal_title">Signaal van verbonden apparaten meten</string>
+    <string name="settings_connected_signal_desc">Verbonden apparaten via GATT uitlezen voor live balkjes. Kost meer batterij.</string>
+    <string name="settings_sound_title">Zoekgeluid</string>
+    <string name="settings_sound_desc">Speel het hoorbare geluid tijdens het zoeken.</string>
+    <string name="settings_unnamed_title">Naamloze apparaten tonen</string>
+    <string name="settings_unnamed_desc">Ook apparaten zonder aangekondigde naam tonen.</string>
+    <string name="settings_remember_title">Trackers onthouden tussen sessies</string>
+    <string name="settings_remember_desc">Markeert een tracker die urenlang steeds dichtbij opduikt. Alleen op het apparaat.</string>
 </resources>

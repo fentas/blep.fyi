@@ -136,4 +136,13 @@
     <string name="paired_sheet_title">Όλες οι συζευγμένες</string>
     <string name="paired_sheet_hint">Βάλε αστέρι για να τις καρφιτσώσεις στην κορυφή.</string>
     <string name="paired_sheet_empty">Καμία συζευγμένη συσκευή ακόμη.</string>
+    <string name="settings_title">Ρυθμίσεις</string>
+    <string name="settings_connected_signal_title">Μέτρηση σήματος συνδεδεμένων συσκευών</string>
+    <string name="settings_connected_signal_desc">Ερώτηση συνδεδεμένων συσκευών μέσω GATT για ζωντανές μπάρες. Καταναλώνει περισσότερη μπαταρία.</string>
+    <string name="settings_sound_title">Ήχος αναζήτησης</string>
+    <string name="settings_sound_desc">Αναπαραγωγή του ήχου κατά την αναζήτηση.</string>
+    <string name="settings_unnamed_title">Εμφάνιση ανώνυμων συσκευών</string>
+    <string name="settings_unnamed_desc">Συμπερίληψη συσκευών που δεν διαφημίζουν όνομα.</string>
+    <string name="settings_remember_title">Απομνημόνευση ιχνηλατών μεταξύ συνεδριών</string>
+    <string name="settings_remember_desc">Επισημαίνει έναν ιχνηλάτη που εμφανίζεται κοντά σου επί ώρες. Μόνο στη συσκευή.</string>
 </resources>

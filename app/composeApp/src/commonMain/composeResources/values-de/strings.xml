@@ -137,4 +137,13 @@
     <string name="paired_sheet_title">Alle gekoppelten</string>
     <string name="paired_sheet_hint">Markiere Geräte mit einem Stern, um sie oben anzuheften.</string>
     <string name="paired_sheet_empty">Noch keine gekoppelten Geräte.</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_connected_signal_title">Signal verbundener Geräte messen</string>
+    <string name="settings_connected_signal_desc">Verbundene Geräte per GATT abfragen, um Live-Balken zu zeigen. Mehr Akkuverbrauch.</string>
+    <string name="settings_sound_title">Suchton</string>
+    <string name="settings_sound_desc">Den hörbaren Ton während der Suche abspielen.</string>
+    <string name="settings_unnamed_title">Unbenannte Geräte zeigen</string>
+    <string name="settings_unnamed_desc">Auch Geräte ohne angekündigten Namen einbeziehen.</string>
+    <string name="settings_remember_title">Tracker sitzungsübergreifend merken</string>
+    <string name="settings_remember_desc">Markiert einen Tracker, der über Stunden immer wieder nahe auftaucht. Nur auf dem Gerät.</string>
 </resources>

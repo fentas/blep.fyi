@@ -136,4 +136,13 @@
     <string name="paired_sheet_title">Wszystkie sparowane</string>
     <string name="paired_sheet_hint">Oznacz gwiazdką, aby przypiąć je na górze listy.</string>
     <string name="paired_sheet_empty">Brak sparowanych urządzeń.</string>
+    <string name="settings_title">Ustawienia</string>
+    <string name="settings_connected_signal_title">Mierz sygnał połączonych urządzeń</string>
+    <string name="settings_connected_signal_desc">Odpytuj połączone urządzenia przez GATT, aby pokazać paski na żywo. Zużywa więcej baterii.</string>
+    <string name="settings_sound_title">Dźwięk wyszukiwania</string>
+    <string name="settings_sound_desc">Odtwarzaj dźwięk podczas wyszukiwania.</string>
+    <string name="settings_unnamed_title">Pokaż urządzenia bez nazwy</string>
+    <string name="settings_unnamed_desc">Uwzględnij urządzenia, które nie rozgłaszają nazwy.</string>
+    <string name="settings_remember_title">Pamiętaj lokalizatory między sesjami</string>
+    <string name="settings_remember_desc">Oznacza lokalizator, który przez godziny wciąż pojawia się blisko ciebie. Tylko na urządzeniu.</string>
 </resources>

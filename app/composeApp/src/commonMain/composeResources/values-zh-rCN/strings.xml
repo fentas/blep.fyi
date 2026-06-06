@@ -137,4 +137,13 @@
     <string name="paired_sheet_title">所有已配对设备</string>
     <string name="paired_sheet_hint">为设备加星标，将其固定在列表顶部。</string>
     <string name="paired_sheet_empty">还没有已配对的设备。</string>
+    <string name="settings_title">设置</string>
+    <string name="settings_connected_signal_title">测量已连接设备的信号</string>
+    <string name="settings_connected_signal_desc">通过 GATT 查询已连接设备以显示实时信号条。更耗电。</string>
+    <string name="settings_sound_title">搜索提示音</string>
+    <string name="settings_sound_desc">搜索时播放提示音。</string>
+    <string name="settings_unnamed_title">显示未命名设备</string>
+    <string name="settings_unnamed_desc">包含不广播名称的设备。</string>
+    <string name="settings_remember_title">跨会话记住追踪器</string>
+    <string name="settings_remember_desc">标记数小时内反复出现在你附近的追踪器。仅在设备本地。</string>
 </resources>

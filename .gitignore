@@ -48,3 +48,6 @@ sa.json
 # BLE netsim test tooling
 tools/ble-netsim/venv/
 tools/ble-netsim/__pycache__/
+
+# local venv for tools/publish-listing.py
+.venv-publish/

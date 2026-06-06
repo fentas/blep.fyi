@@ -41,6 +41,7 @@ import kotlin.time.TimeSource
 sealed interface Screen {
     data object Discovery : Screen
     data object Safety : Screen // "is something tracking me?" scan
+    data object Settings : Screen
     data class Tracking(val device: BleDevice) : Screen
     data class Done(val device: BleDevice) : Screen
 }
@@ -58,6 +59,7 @@ class BlepController(
     safetyTuning: TrackerTuning = TrackerTuning(),
     private val safetyHistory: SafetyHistory = SafetyHistory(createKeyValueStore()),
     private val favorites: DeviceFavorites = DeviceFavorites(createKeyValueStore()),
+    private val settings: AppSettings = AppSettings(),
 ) {
     var screen by mutableStateOf<Screen>(Screen.Discovery)
         private set
@@ -65,7 +67,7 @@ class BlepController(
         private set
     var availability by mutableStateOf(ScanAvailability.READY)
         private set
-    var includeUnnamed by mutableStateOf(false)
+    var includeUnnamed by mutableStateOf(settings.showUnnamed())
         private set
     var status by mutableStateOf<TrackingStatus?>(null)
         private set
@@ -98,7 +100,11 @@ class BlepController(
     var guidance by mutableStateOf<GuidanceLine?>(null)
         private set
     /** Whether the audible tracking tone is on (haptics stay regardless). */
-    var soundOn by mutableStateOf(true)
+    var soundOn by mutableStateOf(settings.trackingSound())
+        private set
+    /** Range connected devices via GATT so they show a live signal in the list
+     *  (they don't advertise). Persisted; default on. */
+    var measureConnectedSignal by mutableStateOf(settings.measureConnectedSignal())
         private set
 
     /**
@@ -159,6 +165,7 @@ class BlepController(
     private var trackStartMark: TimeMark? = null // when this tracking session began
 
     init {
+        haptic.setSoundEnabled(soundOn) // apply the persisted sound preference
         startDiscovery()
     }
 
@@ -186,12 +193,25 @@ class BlepController(
     fun toggleUnnamed() {
         // The scan always collects everything; this only flips what's shown.
         includeUnnamed = !includeUnnamed
+        settings.setShowUnnamed(includeUnnamed)
     }
 
     /** Mute/unmute the audible tracking tone (the Geiger tick); haptics stay on. */
     fun toggleSound() {
         soundOn = !soundOn
         haptic.setSoundEnabled(soundOn)
+        settings.setTrackingSound(soundOn)
+    }
+
+    fun openSettings() { screen = Screen.Settings }
+
+    /** Toggle GATT ranging of connected devices; persisted, re-runs discovery so
+     *  the change takes effect immediately. */
+    fun toggleConnectedSignal(on: Boolean) {
+        if (on == measureConnectedSignal) return
+        measureConnectedSignal = on
+        settings.setMeasureConnectedSignal(on)
+        if (screen is Screen.Discovery) restartScan()
     }
 
     /** User-assigned rename, overlaid on scan results. */
@@ -353,7 +373,7 @@ class BlepController(
             // populating the moment the user taps "Allow".
             while (isActive) {
                 try {
-                    scanner.devices(includeUnnamed = true).collect { list ->
+                    scanner.devices(includeUnnamed = true, measureConnectedSignal = measureConnectedSignal).collect { list ->
                         availability = ScanAvailability.READY
                         devices = list.map {
                             it.copy(alias = aliases[it.id] ?: it.alias, isFavorite = it.id in favoriteIds)

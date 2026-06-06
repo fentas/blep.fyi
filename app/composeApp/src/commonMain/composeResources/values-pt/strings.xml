@@ -136,4 +136,13 @@
     <string name="paired_sheet_title">Todos os emparelhados</string>
     <string name="paired_sheet_hint">Marca com estrela para fixar no topo da lista.</string>
     <string name="paired_sheet_empty">Ainda não há dispositivos emparelhados.</string>
+    <string name="settings_title">Definições</string>
+    <string name="settings_connected_signal_title">Medir o sinal de dispositivos ligados</string>
+    <string name="settings_connected_signal_desc">Consultar dispositivos ligados via GATT para mostrar barras ao vivo. Gasta mais bateria.</string>
+    <string name="settings_sound_title">Som de procura</string>
+    <string name="settings_sound_desc">Reproduzir o som durante a procura.</string>
+    <string name="settings_unnamed_title">Mostrar dispositivos sem nome</string>
+    <string name="settings_unnamed_desc">Incluir dispositivos que não anunciam um nome.</string>
+    <string name="settings_remember_title">Lembrar rastreadores entre sessões</string>
+    <string name="settings_remember_desc">Sinaliza um rastreador que reaparece perto de ti durante horas. Apenas no dispositivo.</string>
 </resources>

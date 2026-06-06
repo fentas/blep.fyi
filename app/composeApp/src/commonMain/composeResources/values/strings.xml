@@ -153,4 +153,13 @@
     <string name="paired_sheet_title">All paired</string>
     <string name="paired_sheet_hint">Star devices to pin them to the top of your list.</string>
     <string name="paired_sheet_empty">No paired devices yet.</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_connected_signal_title">Measure connected devices' signal</string>
+    <string name="settings_connected_signal_desc">Range connected devices over GATT to show live bars. Uses more battery.</string>
+    <string name="settings_sound_title">Tracking sound</string>
+    <string name="settings_sound_desc">Play the audible tone while hunting.</string>
+    <string name="settings_unnamed_title">Show unnamed devices</string>
+    <string name="settings_unnamed_desc">Include devices that don't advertise a name.</string>
+    <string name="settings_remember_title">Remember trackers across sessions</string>
+    <string name="settings_remember_desc">Flag a tracker that keeps reappearing near you over hours. On-device only.</string>
 </resources>

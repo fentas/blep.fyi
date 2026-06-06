@@ -37,7 +37,7 @@ class SafetyScannerTest {
     /** Emits a fixed advertisement script, then completes (so `alerts()` completes). */
     private class ScriptedScanner(private val adverts: List<RawAdvert>) : BleScanner {
         override val availability: Flow<ScanAvailability> = flowOf(ScanAvailability.READY)
-        override fun devices(includeUnnamed: Boolean): Flow<List<BleDevice>> = flowOf(emptyList())
+        override fun devices(includeUnnamed: Boolean, measureConnectedSignal: Boolean): Flow<List<BleDevice>> = flowOf(emptyList())
         override fun rssi(deviceId: String): Flow<Int> = emptyFlow()
         override fun advertisements(): Flow<RawAdvert> = adverts.asFlow()
     }

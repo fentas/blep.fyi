@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.flowOf
  */
 internal class UnsupportedBleScanner : BleScanner {
     override val availability: Flow<ScanAvailability> = flowOf(ScanAvailability.UNSUPPORTED)
-    override fun devices(includeUnnamed: Boolean): Flow<List<BleDevice>> = flowOf(emptyList())
+    override fun devices(includeUnnamed: Boolean, measureConnectedSignal: Boolean): Flow<List<BleDevice>> = flowOf(emptyList())
     override fun rssi(deviceId: String): Flow<Int> = emptyFlow()
 }
 

@@ -89,6 +89,7 @@ fun DiscoveryScreen(
     onRename: (BleDevice, String?) -> Unit,
     onToggleFavorite: (BleDevice) -> Unit,
     onSafetyScan: () -> Unit,
+    onSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var renaming by remember { mutableStateOf<BleDevice?>(null) }
@@ -102,7 +103,7 @@ fun DiscoveryScreen(
             .padding(horizontal = 20.dp),
     ) {
         Spacer(Modifier.height(12.dp))
-        Header(deviceCount = nearbyCount)
+        Header(deviceCount = nearbyCount, onSettings = onSettings)
         Spacer(Modifier.height(14.dp))
         SafetyEntry(onSafetyScan)
         Spacer(Modifier.height(16.dp))
@@ -221,7 +222,7 @@ private fun PairedSheet(
 }
 
 @Composable
-private fun Header(deviceCount: Int) {
+private fun Header(deviceCount: Int, onSettings: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
             painter = rememberVectorPainter(BlepLogo),
@@ -248,6 +249,16 @@ private fun Header(deviceCount: Int) {
                 )
             }
         }
+        Text(
+            "⚙",
+            style = MaterialTheme.typography.titleLarge,
+            color = BlepColors.Ink.copy(alpha = 0.5f),
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .clip(CircleShape)
+                .clickable(onClick = onSettings)
+                .padding(8.dp),
+        )
     }
 }
 

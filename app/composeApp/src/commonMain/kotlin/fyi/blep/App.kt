@@ -16,6 +16,7 @@ import fyi.blep.demo.DemoMotionProvider
 import fyi.blep.ui.screens.CompletionScreen
 import fyi.blep.ui.screens.DiscoveryScreen
 import fyi.blep.ui.screens.SafetyScreen
+import fyi.blep.ui.screens.SettingsScreen
 import fyi.blep.ui.AppBackHandler
 import fyi.blep.ui.screens.TrackingScreen
 import fyi.blep.ui.theme.BlepTheme
@@ -63,6 +64,19 @@ fun App(demo: Boolean = false) {
                     onRename = controller::rename,
                     onToggleFavorite = controller::toggleFavorite,
                     onSafetyScan = controller::openSafetyScan,
+                    onSettings = controller::openSettings,
+                )
+
+                is Screen.Settings -> SettingsScreen(
+                    measureConnectedSignal = controller.measureConnectedSignal,
+                    onToggleConnectedSignal = controller::toggleConnectedSignal,
+                    soundOn = controller.soundOn,
+                    onToggleSound = { controller.toggleSound() },
+                    showUnnamed = controller.includeUnnamed,
+                    onToggleUnnamed = { controller.toggleUnnamed() },
+                    rememberTrackers = controller.rememberEncounters,
+                    onToggleRemember = { controller.toggleRememberEncounters() },
+                    onBack = controller::startDiscovery,
                 )
 
                 is Screen.Safety -> SafetyScreen(

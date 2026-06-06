@@ -19,8 +19,12 @@ interface BleScanner {
     /**
      * Continuously updated discovery list.
      * @param includeUnnamed surface devices with no advertised name.
+     * @param measureConnectedSignal open a GATT connection to each *connected*
+     *   device to read its live RSSI (connected peripherals don't advertise, so a
+     *   scan can't range them). Costs battery; off unless the user enables it.
+     *   Platforms that don't support it ignore the flag.
      */
-    fun devices(includeUnnamed: Boolean = false): Flow<List<BleDevice>>
+    fun devices(includeUnnamed: Boolean = false, measureConnectedSignal: Boolean = false): Flow<List<BleDevice>>
 
     /** Live RSSI stream (dBm) for a single device, used during tracking. */
     fun rssi(deviceId: String): Flow<Int>

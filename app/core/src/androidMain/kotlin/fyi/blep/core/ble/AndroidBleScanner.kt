@@ -17,6 +17,7 @@ import fyi.blep.core.model.BleDevice
 import fyi.blep.core.safety.AddressType
 import fyi.blep.core.safety.RawAdvert
 import fyi.blep.core.safety.shortServiceUuid
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -59,10 +60,43 @@ internal class AndroidBleScanner : BleScanner {
     }
 
     @SuppressLint("MissingPermission")
-    override fun devices(includeUnnamed: Boolean): Flow<List<BleDevice>> = channelFlow {
+    override fun devices(includeUnnamed: Boolean, measureConnectedSignal: Boolean): Flow<List<BleDevice>> = channelFlow {
         val adapter = adapter ?: throw IllegalStateException("Bluetooth unavailable")
         val scanner = adapter.bluetoothLeScanner ?: throw IllegalStateException("Bluetooth permission/adapter")
         val table = DeviceTable()
+
+        // Optional: range *connected* devices (which don't advertise) by holding a
+        // GATT connection and polling readRemoteRssi. One connection per connected
+        // device, started/stopped from the seed ticker; all closed on cancel.
+        val rssiPolls = mutableMapOf<String, BluetoothGatt>()
+        fun startRssiPoll(address: String) {
+            val ctx = context ?: return
+            if (address in rssiPolls) return
+            val device = runCatching { adapter.getRemoteDevice(address) }.getOrNull() ?: return
+            var poller: Job? = null
+            val cb = object : BluetoothGattCallback() {
+                override fun onConnectionStateChange(g: BluetoothGatt, status: Int, newState: Int) {
+                    if (newState == BluetoothProfile.STATE_CONNECTED) {
+                        poller = launch { while (isActive) { runCatching { g.readRemoteRssi() }; delay(2000) } }
+                    } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                        poller?.cancel()
+                    }
+                }
+                override fun onReadRemoteRssi(g: BluetoothGatt, rssi: Int, status: Int) {
+                    if (status == BluetoothGatt.GATT_SUCCESS) {
+                        table.upsert(
+                            id = address, name = runCatching { device.name }.getOrNull(),
+                            rssi = rssi, isConnected = true, seenAtMs = now(), isPaired = true,
+                        )
+                        trySend(table.snapshot(includeUnnamed))
+                    }
+                }
+            }
+            rssiPolls[address] = device.connectGatt(ctx, /* autoConnect = */ false, cb, BluetoothDevice.TRANSPORT_LE)
+        }
+        fun stopRssiPoll(address: String) {
+            rssiPolls.remove(address)?.let { runCatching { it.disconnect() }; runCatching { it.close() } }
+        }
 
         // Bonded/connected devices don't advertise — seed them in on a ticker.
         val seed = launch {
@@ -74,6 +108,10 @@ internal class AndroidBleScanner : BleScanner {
                         id = d.address, name = d.name, rssi = BleDevice.RSSI_UNKNOWN,
                         isConnected = d.address in connected, seenAtMs = now(), isPaired = true,
                     )
+                }
+                if (measureConnectedSignal) {
+                    connected.forEach { startRssiPoll(it) }                       // range newly-connected
+                    rssiPolls.keys.toList().forEach { if (it !in connected) stopRssiPoll(it) } // drop gone
                 }
                 table.prune(nowMs = now(), ttlMs = 12_000)
                 trySend(table.snapshot(includeUnnamed))
@@ -108,6 +146,8 @@ internal class AndroidBleScanner : BleScanner {
         awaitClose {
             runCatching { scanner.stopScan(callback) }
             seed.cancel()
+            rssiPolls.values.forEach { runCatching { it.disconnect() }; runCatching { it.close() } }
+            rssiPolls.clear()
         }
     }
 

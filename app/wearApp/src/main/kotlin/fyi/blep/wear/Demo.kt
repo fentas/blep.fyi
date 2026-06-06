@@ -28,7 +28,7 @@ private val DEMO_DEVICES = listOf(
 class DemoWearScanner : BleScanner {
     override val availability: Flow<ScanAvailability> = flow { emit(ScanAvailability.READY) }
 
-    override fun devices(includeUnnamed: Boolean): Flow<List<BleDevice>> = flow {
+    override fun devices(includeUnnamed: Boolean, measureConnectedSignal: Boolean): Flow<List<BleDevice>> = flow {
         var i = 0
         while (true) {
             emit(DEMO_DEVICES.map { it.copy(rssi = it.rssi + ((i + it.id.length) % 3 - 1)) })

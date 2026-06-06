@@ -136,4 +136,13 @@
     <string name="paired_sheet_title">Tutti gli associati</string>
     <string name="paired_sheet_hint">Aggiungi una stella per fissarli in cima all'elenco.</string>
     <string name="paired_sheet_empty">Nessun dispositivo associato.</string>
+    <string name="settings_title">Impostazioni</string>
+    <string name="settings_connected_signal_title">Misura il segnale dei dispositivi connessi</string>
+    <string name="settings_connected_signal_desc">Interroga i dispositivi connessi via GATT per mostrare le barre dal vivo. Consuma più batteria.</string>
+    <string name="settings_sound_title">Suono di ricerca</string>
+    <string name="settings_sound_desc">Riproduci il suono durante la ricerca.</string>
+    <string name="settings_unnamed_title">Mostra dispositivi senza nome</string>
+    <string name="settings_unnamed_desc">Includi i dispositivi che non annunciano un nome.</string>
+    <string name="settings_remember_title">Ricorda i tracker tra le sessioni</string>
+    <string name="settings_remember_desc">Segnala un tracker che riappare vicino a te per ore. Solo sul dispositivo.</string>
 </resources>

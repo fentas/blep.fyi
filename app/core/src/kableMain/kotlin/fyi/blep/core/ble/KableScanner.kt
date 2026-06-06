@@ -36,7 +36,7 @@ internal class KableScanner(
             else ScanAvailability.BLUETOOTH_OFF
         }
 
-    override fun devices(includeUnnamed: Boolean): Flow<List<BleDevice>> = flow {
+    override fun devices(includeUnnamed: Boolean, measureConnectedSignal: Boolean): Flow<List<BleDevice>> = flow {
         val table = DeviceTable()
         val clock = TimeSource.Monotonic.markNow()
         scanner.advertisements.collect { adv ->

@@ -35,7 +35,7 @@ private val DEMO_DEVICES = listOf(
 class DemoBleScanner : BleScanner {
     override val availability: Flow<ScanAvailability> = flow { emit(ScanAvailability.READY) }
 
-    override fun devices(includeUnnamed: Boolean): Flow<List<BleDevice>> = flow {
+    override fun devices(includeUnnamed: Boolean, measureConnectedSignal: Boolean): Flow<List<BleDevice>> = flow {
         var i = 0
         while (true) {
             // gentle live jitter so the list feels alive

@@ -136,4 +136,13 @@
     <string name="paired_sheet_title">Vse seznanjene</string>
     <string name="paired_sheet_hint">Označi naprave z zvezdico, da jih pripneš na vrh.</string>
     <string name="paired_sheet_empty">Še ni seznanjenih naprav.</string>
+    <string name="settings_title">Nastavitve</string>
+    <string name="settings_connected_signal_title">Izmeri signal povezanih naprav</string>
+    <string name="settings_connected_signal_desc">Povezane naprave preveri prek GATT za prikaz črtic v živo. Več porabe baterije.</string>
+    <string name="settings_sound_title">Zvok iskanja</string>
+    <string name="settings_sound_desc">Predvajaj zvok med iskanjem.</string>
+    <string name="settings_unnamed_title">Pokaži neimenovane naprave</string>
+    <string name="settings_unnamed_desc">Vključi naprave brez objavljenega imena.</string>
+    <string name="settings_remember_title">Pomni sledilnike med sejami</string>
+    <string name="settings_remember_desc">Označi sledilnik, ki se v urah znova pojavlja blizu tebe. Samo na napravi.</string>
 </resources>

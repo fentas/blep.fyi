@@ -136,4 +136,13 @@
     <string name="paired_sheet_title">Tous les associés</string>
     <string name="paired_sheet_hint">Mets une étoile pour les épingler en haut de la liste.</string>
     <string name="paired_sheet_empty">Aucun appareil associé pour l'instant.</string>
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_connected_signal_title">Mesurer le signal des appareils connectés</string>
+    <string name="settings_connected_signal_desc">Interroger les appareils connectés via GATT pour afficher des barres en direct. Consomme plus de batterie.</string>
+    <string name="settings_sound_title">Son de recherche</string>
+    <string name="settings_sound_desc">Jouer le son pendant la recherche.</string>
+    <string name="settings_unnamed_title">Afficher les appareils sans nom</string>
+    <string name="settings_unnamed_desc">Inclure les appareils qui n'annoncent pas de nom.</string>
+    <string name="settings_remember_title">Mémoriser les traceurs entre les sessions</string>
+    <string name="settings_remember_desc">Signale un traceur qui réapparaît près de toi pendant des heures. Sur l'appareil uniquement.</string>
 </resources>
