@@ -53,13 +53,14 @@ fun SensitivitySelector(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { expanded = !expanded }
-                .padding(horizontal = 4.dp, vertical = 10.dp),
+                .padding(horizontal = 4.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 stringResource(Res.string.sensitivity_title),
-                style = MaterialTheme.typography.labelLarge,
-                color = BlepColors.Ink.copy(alpha = 0.6f),
+                style = MaterialTheme.typography.titleSmall,
+                color = BlepColors.Ink,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f),
             )
             Text(

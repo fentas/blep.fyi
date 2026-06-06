@@ -49,8 +49,11 @@ import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
 import fyi.blep.resources.Res
 import fyi.blep.resources.app_tagline
+import fyi.blep.resources.action_cancel
 import fyi.blep.resources.action_clear
 import fyi.blep.resources.action_save
+import fyi.blep.resources.done_donate_blurb
+import fyi.blep.resources.done_donate_button
 import fyi.blep.resources.avail_bluetooth_off
 import fyi.blep.resources.avail_location_off
 import fyi.blep.resources.avail_permission
@@ -91,15 +94,17 @@ fun DiscoveryScreen(
     onToggleFavorite: (BleDevice) -> Unit,
     onSafetyScan: () -> Unit,
     onSettings: () -> Unit,
+    onDonate: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var renaming by remember { mutableStateOf<BleDevice?>(null) }
     var showPaired by remember { mutableStateOf(false) }
+    var showDonate by remember { mutableStateOf(false) }
 
+    Box(modifier.fillMaxSize().background(BlepColors.Mist)) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
-            .background(BlepColors.Mist)
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(horizontal = 20.dp),
     ) {
@@ -153,6 +158,15 @@ fun DiscoveryScreen(
         Spacer(Modifier.height(16.dp))
     }
 
+        DonateHeart(
+            onClick = { showDonate = true },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .windowInsetsPadding(WindowInsets.safeDrawing)
+                .padding(20.dp),
+        )
+    }
+
     renaming?.let { device ->
         RenameDialog(
             device = device,
@@ -168,6 +182,45 @@ fun DiscoveryScreen(
             onSelect = { showPaired = false; onSelect(it) },
             onToggleFavorite = onToggleFavorite,
         )
+    }
+
+    if (showDonate) {
+        AlertDialog(
+            onDismissRequest = { showDonate = false },
+            icon = { Text("♥", style = MaterialTheme.typography.headlineMedium, color = BlepColors.Pink) },
+            text = {
+                Text(
+                    stringResource(Res.string.done_donate_blurb),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = BlepColors.Ink,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showDonate = false; onDonate() }) {
+                    Text(stringResource(Res.string.done_donate_button), color = BlepColors.Blue)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDonate = false }) {
+                    Text(stringResource(Res.string.action_cancel), color = BlepColors.Ink.copy(alpha = 0.6f))
+                }
+            },
+        )
+    }
+}
+
+/** Flat 2-D floating heart (no shadow/elevation) that invites a donation. */
+@Composable
+private fun DonateHeart(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .size(52.dp)
+            .clip(CircleShape)
+            .background(BlepColors.Pink)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text("♥", style = MaterialTheme.typography.titleLarge, color = Color.White)
     }
 }
 

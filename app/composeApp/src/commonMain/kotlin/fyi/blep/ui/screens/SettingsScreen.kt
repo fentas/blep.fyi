@@ -2,6 +2,8 @@ package fyi.blep.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -120,7 +122,12 @@ fun SettingsScreen(
         }
         Spacer(Modifier.height(16.dp))
 
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             SettingRow(
                 title = stringResource(Res.string.settings_connected_signal_title),
                 desc = stringResource(Res.string.settings_connected_signal_desc),
@@ -146,6 +153,12 @@ fun SettingsScreen(
                 onToggle = onToggleRemember,
             )
 
+            SettingRow(
+                title = stringResource(Res.string.settings_location_title),
+                desc = stringResource(Res.string.settings_location_desc),
+                checked = locationAware,
+                onToggle = { on -> if (on) requestLocation(); onToggleLocation(on) },
+            )
             Surface(
                 shape = RoundedCornerShape(16.dp),
                 color = Color.White.copy(alpha = 0.6f),
@@ -156,12 +169,6 @@ fun SettingsScreen(
                     Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
                 )
             }
-            SettingRow(
-                title = stringResource(Res.string.settings_location_title),
-                desc = stringResource(Res.string.settings_location_desc),
-                checked = locationAware,
-                onToggle = { on -> if (on) requestLocation(); onToggleLocation(on) },
-            )
 
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -193,6 +200,7 @@ fun SettingsScreen(
                 intervalMinutes = intervalMinutes,
                 onIntervalChange = onIntervalChange,
             )
+            Spacer(Modifier.height(16.dp))
         }
     }
 

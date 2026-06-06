@@ -65,6 +65,7 @@ fun App(demo: Boolean = false) {
                     onToggleFavorite = controller::toggleFavorite,
                     onSafetyScan = controller::openSafetyScan,
                     onSettings = controller::openSettings,
+                    onDonate = { uriHandler.openUri(DONATE_URL) },
                 )
 
                 is Screen.Settings -> SettingsScreen(
