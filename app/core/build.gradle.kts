@@ -29,7 +29,8 @@ kotlin {
     // Apple targets: phone (ios*) and watch (watchos*). Both back the BLE
     // scanner with CoreBluetooth via Kable, shared through `appleMain`.
     listOf(
-        iosX64(), iosArm64(), iosSimulatorArm64(),
+        // iosX64 (Intel simulator) dropped — Compose MP 1.11 is Apple-silicon only.
+        iosArm64(), iosSimulatorArm64(),
         watchosArm64(), watchosSimulatorArm64(),
     ).forEach { appleTarget ->
         appleTarget.binaries.framework {

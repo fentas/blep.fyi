@@ -1,23 +1,23 @@
 [versions]
-kotlin = "2.1.0"
-agp = "8.7.3"
-composeMultiplatform = "1.7.3"
-coroutines = "1.9.0"
-kable = "0.35.0"
-androidxActivity = "1.9.3"
-androidxLifecycle = "2.8.4"
-androidxComposeBom = "2024.12.01"
+kotlin = "2.4.0"
+agp = "9.2.1"
+composeMultiplatform = "1.11.1"
+coroutines = "1.11.0"
+kable = "0.43.0"
+androidxActivity = "1.13.0"
+androidxLifecycle = "2.10.0"
+androidxComposeBom = "2026.05.01"
 # 1.4.1+ fixes a launch crash on Wear OS 5 (API 34+): foundation read the
 # restricted `reduce_motion` setting, which throws SecurityException for apps
 # targeting SDK > 34 (https://issuetracker.google.com/issues/345244761).
-wearCompose = "1.4.1"
-androidxCoreSplashscreen = "1.0.1"
+wearCompose = "1.6.2"
+androidxCoreSplashscreen = "1.2.0"
 androidMinSdk = "26"
-androidCompileSdk = "35"
-androidTargetSdk = "35"
-androidxTestRunner = "1.6.2"
-androidxTestExtJunit = "1.2.1"
-androidxTestCore = "1.6.1"
+androidCompileSdk = "36"
+androidTargetSdk = "36"
+androidxTestRunner = "1.7.0"
+androidxTestExtJunit = "1.3.0"
+androidxTestCore = "1.7.0"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }

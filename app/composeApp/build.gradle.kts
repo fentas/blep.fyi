@@ -22,7 +22,9 @@ kotlin {
         }
     }
 
-    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach { iosTarget ->
+    // Compose Multiplatform 1.11 dropped iosX64 (Intel simulator); Apple-silicon
+    // simulator + device only.
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
