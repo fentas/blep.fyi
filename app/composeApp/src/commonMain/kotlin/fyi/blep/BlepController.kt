@@ -102,15 +102,16 @@ class BlepController(
         private set
 
     /**
-     * The main discovery list: things that are genuinely **nearby** (a live signal)
-     * plus the user's **favourites** (always, even when not advertising — they're
-     * tappable via GATT). Silent non-favourite bonded devices are intentionally left
-     * out so a long paired list doesn't bury what's actually in range; they live in
-     * [pairedDevices] (the "all paired" manager). Favourites pin to the top.
+     * The main discovery list: everything genuinely **nearby** ([BleDevice.isPresent]
+     * — a live signal or an active connection, paired or not) plus the user's
+     * **favourites** (always, even when absent — still GATT-trackable). Silent,
+     * non-favourite, unconnected bonded devices are left out so a long paired list
+     * doesn't bury what's in range; they live in [pairedDevices] (the manager).
+     * Favourites pin to the top.
      */
     val visibleDevices: List<BleDevice>
         get() = devices
-            .filter { it.isFavorite || !it.rssiUnknown }                 // favourites always; others must be live
+            .filter { it.isPresent || it.isFavorite }                    // nearby (incl. connected) or starred
             .filter { it.isFavorite || includeUnnamed || it.isNamed }    // unnamed toggle applies to non-favourites
             .sortedWith(
                 compareByDescending<BleDevice> { it.isFavorite }
@@ -118,10 +119,15 @@ class BlepController(
                     .thenByDescending { it.rssi },
             )
 
-    /** How many *nearby* unnamed devices are hidden (favourites/silent excluded —
-     *  they're never gated by the unnamed toggle). */
+    /** Count for the "N nearby" badge — only genuinely-present devices, so a
+     *  favourite that's pinned but absent never inflates it. */
+    val nearbyCount: Int
+        get() = devices.count { it.isPresent && (includeUnnamed || it.isNamed) }
+
+    /** How many *nearby* unnamed devices are hidden (favourites excluded — they're
+     *  never gated by the unnamed toggle). */
     val unnamedCount: Int
-        get() = devices.count { !it.isNamed && !it.rssiUnknown && !it.isFavorite }
+        get() = devices.count { !it.isNamed && it.isPresent && !it.isFavorite }
 
     /** Every bonded/paired device, for the "all paired" manager where favourites are
      *  curated. Favourites and connected devices first, then by name. */

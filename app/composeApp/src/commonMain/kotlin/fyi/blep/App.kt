@@ -16,6 +16,7 @@ import fyi.blep.demo.DemoMotionProvider
 import fyi.blep.ui.screens.CompletionScreen
 import fyi.blep.ui.screens.DiscoveryScreen
 import fyi.blep.ui.screens.SafetyScreen
+import fyi.blep.ui.AppBackHandler
 import fyi.blep.ui.screens.TrackingScreen
 import fyi.blep.ui.theme.BlepTheme
 
@@ -38,6 +39,12 @@ fun App(demo: Boolean = false) {
         }
         val uriHandler = LocalUriHandler.current
 
+        // System back on any sub-screen returns to discovery; on discovery it's
+        // disabled so the OS handles it (exit). The paired sheet handles its own.
+        AppBackHandler(enabled = controller.screen !is Screen.Discovery) {
+            controller.startDiscovery()
+        }
+
         AnimatedContent(
             targetState = controller.screen,
             transitionSpec = { fadeIn(tween(350)) togetherWith fadeOut(tween(250)) },
@@ -47,6 +54,7 @@ fun App(demo: Boolean = false) {
                 is Screen.Discovery -> DiscoveryScreen(
                     devices = controller.visibleDevices,
                     pairedDevices = controller.pairedDevices,
+                    nearbyCount = controller.nearbyCount,
                     unnamedCount = controller.unnamedCount,
                     availability = controller.availability,
                     includeUnnamed = controller.includeUnnamed,

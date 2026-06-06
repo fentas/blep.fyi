@@ -80,6 +80,7 @@ import org.jetbrains.compose.resources.stringResource
 fun DiscoveryScreen(
     devices: List<BleDevice>,
     pairedDevices: List<BleDevice>,
+    nearbyCount: Int,
     unnamedCount: Int,
     availability: ScanAvailability,
     includeUnnamed: Boolean,
@@ -101,7 +102,7 @@ fun DiscoveryScreen(
             .padding(horizontal = 20.dp),
     ) {
         Spacer(Modifier.height(12.dp))
-        Header(deviceCount = devices.size)
+        Header(deviceCount = nearbyCount)
         Spacer(Modifier.height(14.dp))
         SafetyEntry(onSafetyScan)
         Spacer(Modifier.height(16.dp))

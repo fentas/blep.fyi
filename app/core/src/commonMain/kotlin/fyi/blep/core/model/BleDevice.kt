@@ -24,6 +24,12 @@ data class BleDevice(
 ) {
     /** True when no live advertisement RSSI is available (bonded, not advertising). */
     val rssiUnknown: Boolean get() = rssi == RSSI_UNKNOWN
+
+    /** Detectable as *nearby* right now: either a live advertisement signal, or an
+     *  active connection to the phone (connected ⇒ in range, even without an advert).
+     *  A bonded device that's neither is unknowable, so it stays out of the nearby
+     *  list and lives only in the "all paired" manager. */
+    val isPresent: Boolean get() = !rssiUnknown || isConnected
     /** True when the device advertises a non-blank name. */
     val isNamed: Boolean get() = !name.isNullOrBlank()
 
