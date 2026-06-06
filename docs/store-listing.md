@@ -9,8 +9,10 @@ in sync with the app; regenerate screenshots with `make screenshots`.
 
 ### App name (max 30)
 ```
-blep — Bluetooth Finder
+blep
 ```
+(The published listing title is just **blep**; the "Bluetooth finder" framing
+lives in the short description and the feature graphic.)
 
 ### Short description (max 80)
 ```
@@ -45,14 +47,20 @@ you — an AirTag, Tile, SmartTag or Find My beacon someone may have slipped int
 your bag, coat or car. blep also catches the trick the others miss: a tracker
 that rotates its Bluetooth ID to stay anonymous gives itself away by reappearing
 at the same close range, again and again — the un-correlation is the correlation.
-And because blep is a finder, it doesn't just warn — it points you to it. Turn on
-"Remember across sessions" and a tag that keeps showing up over the hours gets
-flagged. (On-device only — nothing ever leaves your phone — and you can turn it
-off any time.)
+And because blep is a finder, it doesn't just warn — it points you to it.
+• Remember across sessions — a tag that keeps showing up over the hours (and, if
+  you allow coarse location, across separate places) gets flagged.
+• Watch in the background — let blep keep an eye out while it's closed and notify
+  you, on a battery-friendly schedule.
+• Sensitivity — Relaxed, Balanced or Strict, to tune how eagerly it flags.
+On-device only — nothing ever leaves your phone — and you can turn it all off any
+time.
 
 PRIVATE BY DESIGN
 No accounts. No ads. No analytics. No data collection. Everything happens on
 your device — your Bluetooth scans and motion sensing never leave the phone.
+Location is off by default; switch it on and it stays coarse and on-device, used
+only to count the distinct places a tracker follows you across.
 blep is free and open source: https://github.com/fentas/blep.fyi
 
 GOOD TO KNOW
@@ -63,10 +71,13 @@ Find My network does. It guides you the last stretch, by signal.
 
 ### Release notes (What's new)
 ```
-First public build of blep 🐾 — find your lost Bluetooth things, guided by signal
-strength. Calibrate, sweep, walk, done. Plus a safety scan that finds unwanted
-trackers following you — and points you to them. Free & open source, no tracking.
+blep 🐾 — find your lost Bluetooth things, guided by signal strength. Calibrate,
+sweep, walk, done. The safety scan finds unwanted trackers following you and
+points you to them — now with optional background watching, Relaxed/Balanced/
+Strict sensitivity, and opt-in coarse-location "distinct places" detection. New
+Settings page and favourites/paired manager. Free & open source, no tracking.
 ```
+(Per-release note; trim to the actual changes when shipping a specific version.)
 
 ### Other listing fields
 - **Category:** Tools
@@ -77,19 +88,27 @@ trackers following you — and points you to them. Free & open source, no tracki
 
 ### Data safety form
 - **Does your app collect or share any required user data?** → **No.**
+  (Under Play's definition, "collect" means transmitted off-device; everything
+  blep touches stays on the phone, so nothing is *collected* even though some of
+  it — including optional location — is *accessed* on-device.)
   - blep processes Bluetooth scan results and motion sensor readings **only on the
     device, in the moment**, to guide you. None of it is collected, stored
-    off-device, transmitted, or shared. (On Android 12+ the scan declares
-    `neverForLocation` and no location is accessed; on Android ≤11, location
-    permission is required by the OS to scan at all, used on-device only.)
+    off-device, transmitted, or shared. (The scan declares `neverForLocation` on
+    Android 12+; on Android ≤11, location permission is required by the OS to scan
+    at all, used on-device only.)
+  - **Optional location (off by default):** if the user turns on location-aware
+    detection, blep reads a **coarse** fix and buckets it into a ~2 km grid cell
+    so it can count the distinct *places* a tracker follows the user across. It is
+    used **on-device only**, never stored as raw coordinates, never transmitted —
+    so still "not collected" under Play's definition. It is opt-in and can be
+    turned off any time. (Location is *not* used for the finder — only detection.)
   - The safety "Remember across sessions" log stays **on-device** (a tracker
-    *type* + timestamp, no identity or location) and is never transmitted — so it
-    is still "not collected" under Play's definition (data that never leaves the
-    device). It's on by default (because it never leaves the phone), can be turned
-    off, and is cleared when switched off.
+    *kind* + timestamp, plus the coarse place cell when location is on — no
+    identity, no raw coordinates) and is never transmitted — so still "not
+    collected." It's opt-in, can be turned off, and is cleared when switched off.
   - The "It's mine" mute list stores the addresses of trackers the user marked as
     their own — also **on-device only**, bounded, never transmitted (so likewise
-    "not collected"). No location data is stored anywhere.
+    "not collected").
 - **Is all user data encrypted in transit?** → N/A (no data leaves the device).
 - **Do you provide a way to request data deletion?** → N/A (nothing is stored).
 
@@ -107,10 +126,13 @@ trackers following you — and points you to them. Free & open source, no tracki
 ### Permissions justification (if asked)
 - **Bluetooth (scan/connect):** core function — scanning for and ranging the
   device you're finding.
-- **Location (Android ≤11 only):** older Android requires location permission to
-  perform any Bluetooth scan. On Android 12+ blep declares `BLUETOOTH_SCAN` with
-  `neverForLocation` and accesses no location at all. Direction is derived from the
-  motion sensors, not location. Used on-device only, never stored or transmitted.
+- **Location (coarse):** two distinct reasons. (1) Older Android (≤11) requires
+  location permission to perform any Bluetooth scan; on Android 12+ blep declares
+  `BLUETOOTH_SCAN` with `neverForLocation` for scanning. (2) The **opt-in,
+  off-by-default** location-aware detection reads a coarse fix to count the
+  distinct places a tracker follows the user across — used on-device only, bucketed
+  to a ~2 km cell, never stored as raw coordinates, never transmitted. Finder
+  direction is derived from motion sensors, never location.
 
 ---
 
@@ -118,7 +140,7 @@ trackers following you — and points you to them. Free & open source, no tracki
 
 ### Name (max 30)
 ```
-blep — Bluetooth Finder
+blep
 ```
 
 ### Subtitle (max 30)

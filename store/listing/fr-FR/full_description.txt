@@ -26,15 +26,24 @@ aurait pu glisser dans ton sac, ton manteau ou ta voiture. blep repère aussi l'
 que les autres manquent : un traceur qui change son identifiant Bluetooth pour rester
 anonyme se trahit en réapparaissant encore et encore à la même courte distance — c'est
 précisément la non-corrélation qui fait la corrélation. Et comme blep est un chercheur,
-il ne se contente pas d'avertir — il t'y conduit. Active « Mémoriser entre les
-sessions » et une balise qui ne cesse de réapparaître au fil des heures est signalée.
-(Uniquement sur l'appareil — rien ne quitte ton téléphone — et désactivable à tout
-moment.)
+il ne se contente pas d'avertir — il t'y conduit.
+• Mémoriser entre les sessions — une balise qui ne cesse de réapparaître au fil des
+  heures (et, si tu autorises la localisation approximative, à travers différents
+  endroits) est signalée.
+• Surveiller en arrière-plan — laisse blep rester à l'affût même fermé et te
+  prévenir, selon un rythme qui ménage la batterie.
+• Sensibilité — Détendue, Équilibrée ou Stricte, pour régler l'empressement à
+  signaler.
+Uniquement sur l'appareil — rien ne quitte ton téléphone — et tu peux tout désactiver
+à tout moment.
 
 PRIVÉ PAR CONCEPTION
 Pas de comptes. Pas de publicités. Pas d'analyses. Aucune collecte de données. Tout se
 passe sur ton appareil — tes analyses Bluetooth et tes mouvements ne quittent jamais le
-téléphone. blep est gratuit et open source : https://github.com/fentas/blep.fyi
+téléphone. La localisation est désactivée par défaut ; active-la et elle reste
+approximative et sur l'appareil, utilisée uniquement pour compter les différents
+endroits où un traceur te suit. blep est gratuit et open source :
+https://github.com/fentas/blep.fyi
 
 BON À SAVOIR
 blep trouve les choses à portée Bluetooth (environ une pièce, un étage ou un parking).

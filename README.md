@@ -9,6 +9,8 @@
   ·
   <a href="#-how-it-works--the-body-shielding-technique">How it works</a>
   ·
+  <a href="#-is-something-following-you">Anti-stalking</a>
+  ·
   <a href="#-building">Build</a>
   ·
   <a href="https://blep.fyi/#donate">Donate</a>
@@ -24,7 +26,7 @@
 	<a href="https://blep.fyi">
 		<img alt="Site" src="https://img.shields.io/github/actions/workflow/status/fentas/blep.fyi/deploy.yml?branch=main&style=for-the-badge&logo=githubpages&label=blep.fyi&color=89DCEB&logoColor=D9E0EE&labelColor=302D41"></a>
 	<a href="https://kotlinlang.org/docs/multiplatform.html">
-		<img alt="Kotlin Multiplatform" src="https://img.shields.io/badge/Kotlin-2.1-CBA6F7?style=for-the-badge&logo=kotlin&logoColor=D9E0EE&labelColor=302D41"></a>
+		<img alt="Kotlin Multiplatform" src="https://img.shields.io/badge/Kotlin-2.4-CBA6F7?style=for-the-badge&logo=kotlin&logoColor=D9E0EE&labelColor=302D41"></a>
 </p>
 
 <p align="center">
@@ -46,9 +48,15 @@ Bluetooth Low Energy devices already around you. Pick a device and blep walks
 you to it: a single animated arrow and a background colour that shifts from cool
 to warm as you close in. No extra hardware, no maps, no accounts.
 
+The same scan runs the other way too: blep watches for **unwanted trackers**
+travelling with you — an AirTag, Tile or SmartTag someone may have slipped into
+your bag — and, because it's a finder, doesn't just warn but **points you to
+it**. ([Anti-stalking ↓](#-is-something-following-you))
+
 It's a minimalist, cross-platform [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html)
 app (iOS, Android, Apple Watch, Wear OS) plus a small static PWA landing page at
-[blep.fyi](https://blep.fyi).
+[blep.fyi](https://blep.fyi). Everything runs **on-device** — no accounts, no
+analytics, no data collection.
 
 </p>
 
@@ -108,6 +116,38 @@ It all lives in [`core/spatial`](app/core/src/commonMain/kotlin/fyi/blep/core/sp
 
 &nbsp;
 
+### 🛡 Is something following you?
+
+A finder run in reverse is a tracker detector. Tap **"Is something tracking
+you?"** and blep watches the same advertisements for a tag that's travelling
+*with you*:
+
+- **Known tracker kinds** — Find My (AirTag), Tile, Samsung SmartTag and other
+  beacons are recognised by their manufacturer data / service UUIDs, including a
+  Find My device advertising in **separated-from-owner** mode near you.
+- **Address-rotation correlation** — a privacy tracker rotates its BLE address to
+  stay anonymous, but gives itself away by **reappearing at the same close range
+  again and again**. The un-correlation *is* the correlation — the trick AirTag
+  detectors that key on a stable address miss.
+- **Cross-session memory** (opt-in) — a small on-device log of close encounters
+  by tracker *kind* + time. A tag that keeps showing up across separate hours —
+  and, if you allow coarse location, across separate **places** — gets flagged as
+  likely following you.
+- **Background watch** (opt-in) — a foreground service / periodic worker keeps an
+  eye out while the app is closed and notifies you, with a battery-minded
+  interval (it skips actively ranging your *own* paired devices).
+- **Sensitivity profiles** — Relaxed / Balanced / Strict retune the thresholds;
+  surfaced both in Settings and on the safety screen.
+
+Because blep is a finder, every alert is **actionable**: hit *Find* and it walks
+you to the tag with the same warm/cold guidance. Everything stays **on-device**;
+location is **opt-in, coarse, and never leaves the phone**. It lives in
+[`core/safety`](app/core/src/commonMain/kotlin/fyi/blep/core/safety)
+(`SafetyScanner` · `TrackerDetector` · `SafetyHistory`) — pure and unit-tested.
+Design notes: [`docs/detection.md`](docs/detection.md).
+
+&nbsp;
+
 ### 🗂 Repository layout
 
 ```
@@ -118,11 +158,15 @@ It all lives in [`core/spatial`](app/core/src/commonMain/kotlin/fyi/blep/core/sp
 │   │       ├── commonMain/   RssiFilter · SignalTrend · DeviceTable ·
 │   │       │                 TrackingSession · BleScanner (expect) ·
 │   │       │                 spatial/ (DeadReckoner · ParticleTargetEstimator ·
-│   │       │                 StepCounter · PathLossCalibrator · MotionProvider)
+│   │       │                 StepCounter · PathLossCalibrator · MotionProvider) ·
+│   │       │                 safety/ (SafetyScanner · TrackerDetector ·
+│   │       │                 SafetyHistory · TrackerTuning)
 │   │       ├── commonTest/   JVM-runnable unit tests
 │   │       ├── kableMain/    Kable scanner (Android + Apple share this)
 │   │       └── jvmMain/      Fake scanner for tests/preview
-│   ├── composeApp/           Compose Multiplatform phone UI (Android + iOS)
+│   ├── composeApp/           Compose Multiplatform phone UI (Android + iOS):
+│   │                         Discovery (favorites + paired) · Tracking ·
+│   │                         Safety · Settings · background-scan service
 │   ├── wearApp/              Wear OS app (Wear Compose)
 │   ├── iosApp/               SwiftUI shell for iPhone (XcodeGen)
 │   └── watchApp/             SwiftUI watchOS app (uses shared BlepCore)
@@ -251,7 +295,9 @@ the full tracking state machine (calibration → … → completion, plus re-aim
 stale-eviction edge cases), and the whole **spatial layer** — dead reckoning,
 particle-filter localisation (target found to within a few metres, follows a
 moving target, 3-D floor detection), path-loss calibration, step counting, haptic
-cadence and turn-by-turn guidance, all on synthetic walks.
+cadence and turn-by-turn guidance, all on synthetic walks — plus the **safety
+layer** (tracker-kind recognition, address-rotation correlation, cross-session
+history).
 [CI](.github/workflows/ci.yml) additionally compiles the Android, iOS and watchOS
 Kotlin targets **and builds the SwiftUI iOS + watchOS apps** (XcodeGen +
 `xcodebuild`) so the Swift glue is verified too.

@@ -24,14 +24,19 @@ reisivad — AirTag, Tile, SmartTag või Find My majakas, mille keegi võis su k
 või autosse pista. blep märkab ka trikki, mille teised jätavad kahe silma vahele:
 jälgija, mis vahetab oma Bluetoothi ID-d, et jääda anonüümseks, reedab end sellega, et
 ilmub ikka ja jälle samale lähedusele — just korrelatsiooni puudumine ongi
-korrelatsioon. Ja kuna blep on otsija, ei hoiata see ainult — see viib su kohale. Lülita
-sisse „Pea seansside vahel meeles" ja silt, mis tundide jooksul aina uuesti ilmub,
-märgistatakse. (Ainult seadmes — miski ei lahku su telefonist — ja igal ajal välja
-lülitatav.)
+korrelatsioon. Ja kuna blep on otsija, ei hoiata see ainult — see viib su kohale.
+• Pea seansside vahel meeles — silt, mis tundide jooksul aina uuesti ilmub (ja, kui
+  lubad ligikaudse asukoha, ka eri kohtades), märgistatakse.
+• Jälgi taustal — lase blepil suletuna silma peal hoida ja sind teavitada, akusõbralikus
+  ajakavas.
+• Tundlikkus — Lõdvem, Tasakaalus või Range, et timmida, kui agaralt ta märgistab.
+Ainult seadmes — miski ei lahku su telefonist — ja kõik on igal ajal välja lülitatav.
 
 PRIVAATNE JUBA DISAINILT
 Ei kontosid. Ei reklaame. Ei analüütikat. Ei andmete kogumist. Kõik toimub su seadmes —
-su Bluetooth-skannid ja liikumine ei lahku kunagi telefonist. blep on tasuta ja avatud
+su Bluetooth-skannid ja liikumine ei lahku kunagi telefonist. Asukoht on vaikimisi väljas;
+lülita see sisse ja see jääb ligikaudseks ning seadmesse, kasutatuna ainult selleks, et
+lugeda eri kohti, kus jälgija sind taga ajab. blep on tasuta ja avatud
 lähtekoodiga: https://github.com/fentas/blep.fyi
 
 HEA TEADA

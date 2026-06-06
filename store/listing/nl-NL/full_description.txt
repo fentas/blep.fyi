@@ -24,14 +24,22 @@ een AirTag, Tile, SmartTag of Find My-baken dat iemand in je tas, jas of auto ka
 hebben gestopt. blep ziet ook de truc die anderen missen: een tracker die zijn
 Bluetooth-ID wisselt om anoniem te blijven, verraadt zich door telkens weer op
 dezelfde korte afstand op te duiken — juist de niet-correlatie is de correlatie. En
-omdat blep een zoeker is, waarschuwt het niet alleen — het brengt je erheen. Zet
-„Onthouden tussen sessies" aan en een tag die urenlang blijft opduiken, wordt
-gemarkeerd. (Alleen op het apparaat — niets verlaat je telefoon — en op elk moment
-uit te zetten.)
+omdat blep een zoeker is, waarschuwt het niet alleen — het brengt je erheen.
+• Onthouden tussen sessies — een tag die urenlang blijft opduiken (en, als je
+  grove locatie toestaat, op verschillende plekken) wordt gemarkeerd.
+• Op de achtergrond bewaken — laat blep ook gesloten een oogje in het zeil houden
+  en je waarschuwen, op een accuvriendelijk schema.
+• Gevoeligheid — Ontspannen, Gebalanceerd of Streng, om af te stellen hoe gretig
+  het markeert.
+Alleen op het apparaat — niets verlaat je telefoon — en je kunt het op elk moment
+helemaal uitzetten.
 
 PRIVÉ VAN ONTWERP
 Geen accounts. Geen advertenties. Geen analyse. Geen gegevensverzameling. Alles
 gebeurt op je apparaat — je Bluetooth-scans en bewegingen verlaten nooit de telefoon.
+Locatie staat standaard uit; zet je het aan, dan blijft het grof en op het apparaat,
+en wordt het alleen gebruikt om te tellen op hoeveel verschillende plekken een tracker
+je volgt.
 blep is gratis en open source: https://github.com/fentas/blep.fyi
 
 GOED OM TE WETEN

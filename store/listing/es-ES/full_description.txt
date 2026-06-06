@@ -24,15 +24,22 @@ contigo — un AirTag, Tile, SmartTag o baliza Find My que alguien podría haber
 tu bolso, abrigo o coche. blep también detecta el truco que a otros se les escapa: un
 rastreador que cambia su ID Bluetooth para permanecer anónimo se delata al reaparecer
 una y otra vez a la misma corta distancia — precisamente la no correlación es la
-correlación. Y como blep es un buscador, no solo avisa — te lleva hasta él. Activa
-„Recordar entre sesiones" y una etiqueta que sigue apareciendo durante horas queda
-marcada. (Solo en el dispositivo — nada sale de tu teléfono — y se puede desactivar en
-cualquier momento.)
+correlación. Y como blep es un buscador, no solo avisa — te lleva hasta él.
+• Recordar entre sesiones — una etiqueta que sigue apareciendo durante horas (y, si
+  permites la ubicación aproximada, en distintos lugares) queda marcada.
+• Vigilar en segundo plano — deja que blep esté atento mientras está cerrado y te
+  avise, con una frecuencia que cuida la batería.
+• Sensibilidad — Relajada, Equilibrada o Estricta, para ajustar con qué facilidad
+  marca algo.
+Solo en el dispositivo — nada sale de tu teléfono — y se puede desactivar todo en
+cualquier momento.
 
 PRIVADO POR DISEÑO
 Sin cuentas. Sin anuncios. Sin analíticas. Sin recopilación de datos. Todo ocurre en tu
-dispositivo — tus escaneos Bluetooth y tu movimiento nunca salen del teléfono. blep es
-gratis y de código abierto: https://github.com/fentas/blep.fyi
+dispositivo — tus escaneos Bluetooth y tu movimiento nunca salen del teléfono. La
+ubicación está desactivada por defecto; al activarla se mantiene aproximada y en el
+dispositivo, y solo sirve para contar los distintos lugares por los que un rastreador
+te sigue. blep es gratis y de código abierto: https://github.com/fentas/blep.fyi
 
 BUENO SABERLO
 blep encuentra cosas dentro del alcance Bluetooth (aproximadamente una habitación, una

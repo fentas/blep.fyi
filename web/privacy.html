@@ -27,7 +27,7 @@
     <main class="mx-auto max-w-2xl px-6 pb-24 pt-6">
       <section class="rounded-[28px] bg-card p-8 shadow-sm sm:p-10">
         <h1 class="font-display text-3xl font-bold tracking-tight sm:text-4xl">Privacy Policy</h1>
-        <p class="mt-2 text-sm text-ink/55">Last updated: 3 June 2026</p>
+        <p class="mt-2 text-sm text-ink/55">Last updated: 6 June 2026</p>
 
         <p class="mt-6 text-ink/80">
           blep is a free, open-source Bluetooth (BLE) pointer &amp; tracker. It is built to
@@ -50,10 +50,14 @@
             results are processed live on your device and are not recorded or sent anywhere.
           </li>
           <li>
-            <strong>Location.</strong> On Android, the operating system requires location
-            permission to perform any Bluetooth scan. blep may also use your device's GPS to
-            improve direction and distance while tracking. Your location is used only on the
-            device, in the moment, to guide you — it is never stored, logged, or transmitted.
+            <strong>Location (optional).</strong> On older Android the operating system requires
+            location permission to perform any Bluetooth scan at all. Separately, the anti-stalking
+            safety scan has an <strong>opt-in, off-by-default</strong> setting that reads a
+            <em>coarse</em> location so it can tell a tracker that follows you across different
+            <em>places</em> from the familiar devices around you day to day. When enabled, the
+            coarse location is bucketed to an approximate area and used only on the device — never
+            stored as exact coordinates, never logged off-device, never transmitted. The finder
+            itself derives direction from your motion sensors, <strong>not</strong> from GPS.
           </li>
           <li>
             <strong>Motion sensors.</strong> blep reads the compass, accelerometer, and (where

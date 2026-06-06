@@ -27,14 +27,23 @@ nella borsa, nel cappotto o in auto. blep coglie anche il trucco che gli altri s
 perdono: un tracker che cambia il suo ID Bluetooth per restare anonimo si tradisce
 riapparendo alla stessa breve distanza, ancora e ancora — è proprio la non-correlazione
 a fare la correlazione. E poiché blep è un cercatore, non si limita ad avvisarti — ti
-ci porta. Attiva „Ricorda tra le sessioni" e un tag che continua a comparire nel corso
-delle ore viene segnalato. (Solo sul dispositivo — nulla lascia il telefono — e
-disattivabile in qualsiasi momento.)
+ci porta.
+• Ricorda tra le sessioni — un tag che continua a comparire nel corso delle ore (e,
+  se consenti la posizione approssimativa, in luoghi diversi) viene segnalato.
+• Sorveglia in background — lascia che blep tenga d'occhio mentre è chiuso e ti
+  avvisi, con una pianificazione che rispetta la batteria.
+• Sensibilità — Rilassata, Bilanciata o Rigorosa, per regolare quanto facilmente
+  segnala.
+Solo sul dispositivo — nulla lascia il telefono — e puoi disattivare tutto in
+qualsiasi momento.
 
 PRIVATO PER PROGETTAZIONE
 Nessun account. Nessuna pubblicità. Nessuna analisi. Nessuna raccolta dati. Tutto
 avviene sul tuo dispositivo — le scansioni Bluetooth e il movimento non lasciano mai
-il telefono. blep è gratuito e open source: https://github.com/fentas/blep.fyi
+il telefono. La posizione è disattivata per impostazione predefinita; se la attivi
+resta approssimativa e sul dispositivo, usata solo per contare i diversi luoghi in
+cui un tracker ti segue. blep è gratuito e open source:
+https://github.com/fentas/blep.fyi
 
 BUONO A SAPERSI
 blep trova le cose nel raggio Bluetooth (circa una stanza, un piano o un parcheggio).

@@ -24,14 +24,20 @@ you — an AirTag, Tile, SmartTag or Find My beacon someone may have slipped int
 your bag, coat or car. blep also catches the trick the others miss: a tracker
 that rotates its Bluetooth ID to stay anonymous gives itself away by reappearing
 at the same close range, again and again — the un-correlation is the correlation.
-And because blep is a finder, it doesn't just warn — it points you to it. Turn on
-"Remember across sessions" and a tag that keeps showing up over the hours gets
-flagged. (On-device only — nothing ever leaves your phone — and you can turn it
-off any time.)
+And because blep is a finder, it doesn't just warn — it points you to it.
+• Remember across sessions — a tag that keeps showing up over the hours (and, if
+  you allow coarse location, across separate places) gets flagged.
+• Watch in the background — let blep keep an eye out while it's closed and notify
+  you, on a battery-friendly schedule.
+• Sensitivity — Relaxed, Balanced or Strict, to tune how eagerly it flags.
+On-device only — nothing ever leaves your phone — and you can turn it all off any
+time.
 
 PRIVATE BY DESIGN
 No accounts. No ads. No analytics. No data collection. Everything happens on
 your device — your Bluetooth scans and motion sensing never leave the phone.
+Location is off by default; switch it on and it stays coarse and on-device, used
+only to count the distinct places a tracker follows you across.
 blep is free and open source: https://github.com/fentas/blep.fyi
 
 GOOD TO KNOW

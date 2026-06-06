@@ -24,13 +24,21 @@ Toca em „Algo te está a seguir?" para procurar rastreadores indesejados que v
 casaco ou carro. O blep também apanha o truque que os outros falham: um rastreador que
 muda o seu ID Bluetooth para se manter anónimo trai-se ao reaparecer à mesma curta
 distância, vezes sem conta — é precisamente a não correlação que faz a correlação. E como o
-blep é um localizador, não se limita a avisar — leva-te até ele. Ativa „Lembrar entre
-sessões" e uma etiqueta que continua a aparecer ao longo das horas é assinalada. (Apenas no
-dispositivo — nada sai do teu telemóvel — e podes desativar a qualquer momento.)
+blep é um localizador, não se limita a avisar — leva-te até ele.
+• Lembrar entre sessões — uma etiqueta que continua a aparecer ao longo das horas (e,
+  se permitires localização aproximada, em vários sítios distintos) é assinalada.
+• Vigiar em segundo plano — deixa o blep de olho atento mesmo fechado e notificar-te,
+  num horário que poupa bateria.
+• Sensibilidade — Relaxada, Equilibrada ou Estrita, para afinar a vontade com que
+  assinala.
+Apenas no dispositivo — nada sai do teu telemóvel — e podes desativar tudo a qualquer
+momento.
 
 PRIVADO POR CONCEÇÃO
 Sem contas. Sem anúncios. Sem análises. Sem recolha de dados. Tudo acontece no teu
 dispositivo — as tuas análises Bluetooth e a deteção de movimento nunca saem do telemóvel.
+A localização está desativada por predefinição; se a ativares, mantém-se aproximada e no
+dispositivo, usada apenas para contar os sítios distintos por onde um rastreador te segue.
 O blep é gratuito e de código aberto: https://github.com/fentas/blep.fyi
 
 BOM SABER

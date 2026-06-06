@@ -4,13 +4,22 @@ Working notes on how blep decides "something may be following you," what it does
 today, where it gets false positives, and what profiles/heuristics could help.
 This is a thinking document, not a spec.
 
-## Hard constraint: no location
+## Location: off by default, opt-in and coarse
 
-blep deliberately scans with `neverForLocation` and stores nothing off-device.
-So everything below correlates by **time, sessions, movement, and co-presence —
-never GPS**. Where other apps (AirGuard, Apple Tracker Detect) say "this tag was
-near you at these *places*," blep can only say "across these *separated times /
-movement segments*." That shapes every heuristic here.
+blep's BLE scan itself always runs with `neverForLocation` and stores nothing
+off-device. By default everything below correlates by **time, sessions, movement,
+and co-presence — no GPS at all**; where other apps (AirGuard, Apple Tracker
+Detect) say "this tag was near you at these *places*," default blep only says
+"across these *separated times / movement segments*."
+
+Since then we added **opt-in, coarse, strictly-on-device location** for the
+detection side only: when the user turns it on, `coarsePlaceCell()` buckets the
+last-known *coarse* fix into a ~2 km grid cell, so a tracker can be counted across
+distinct **places**, not just distinct hours (`CrossSession.distinctPlaces`).
+It's off unless enabled, never fed to the finder (see `finding.md` — GPS is
+net-negative there), never leaves the phone, and degrades to the time-only logic
+when unavailable. The constraint that *shaped* every heuristic here was "no
+location"; the place dimension is an additive bonus on top, not a replacement.
 
 ## What we detect today
 
@@ -23,10 +32,12 @@ movement segments*." That shapes every heuristic here.
 3. **Address-rotation correlation** — a privacy tracker rotates its BLE address
    (RPA) to stay anonymous; it gives itself away by **reappearing at the same
    close range again and again**. The un-correlation *is* the correlation.
-4. **Cross-session memory** (opt-in) — a small on-device log of close encounters
-   by tracker *kind* + time (no identity, no location). If a kind shows up close
-   "across N separate clock-hours," that's flagged as likely travelling with you
-   (`CrossSession.persistent` at ≥3 distinct hours).
+4. **Cross-session memory** (on by default, clearable) — a small on-device log of
+   close encounters by tracker *kind* + time (no identity, no raw coordinates;
+   plus a coarse place cell when location-aware detection is opted in). If a kind
+   shows up close "across N separate clock-hours" — or, with location on, across
+   distinct **places** — that's flagged as likely travelling with you
+   (`CrossSession.persistent` at ≥3 distinct hours; `multiPlace` across places).
 
 Severity escalates: nearby → separated-nearby → following (sustained) → rotation.
 

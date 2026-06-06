@@ -44,9 +44,25 @@ Severity: a *separated tracker close by* → **WARN**; *close & present for minu
   (SharedPreferences / NSUserDefaults): **on by default** (the log never leaves the
   device, so there's no privacy cost — and it's the feature's edge; users can turn
   it off, which clears it). Persists a rolling log of close encounters (tracker
-  *kind* + time only — no identity, no location), and promotes a kind seen across
-  **3+ separate hours** to a full ALERT. 7-day retention (~17 KB cap; storage is a
-  non-issue), throttled to ≤1 record/kind/5 min.
+  *kind* + time, plus a **coarse place cell** when location-aware detection is on —
+  no identity, no raw coordinates), and promotes a kind seen across **3+ separate
+  hours** — and, with location on, across **distinct places** (`distinctPlaces` /
+  `CrossSession.multiPlace`) — to a full ALERT. 7-day retention (~17 KB cap; storage
+  is a non-issue), throttled to ≤1 record/kind/5 min.
+- **Background watching (opt-in, off by default).** `AppSettings` exposes a
+  **foreground service** (keep the scan alive when you leave the app) and a
+  **periodic WorkManager scan** while the app is closed (interval 15–240 min,
+  default 30), both wired through `BackgroundScan` (`expect`/`actual`) with a
+  notification on a new alert. Background passes deliberately **don't actively
+  range your own paired devices** (battery). Permission (notifications / location)
+  is requested on activation.
+- **Sensitivity profiles.** `ScanSensitivity` (RELAXED / BALANCED / STRICT) maps to
+  `TrackerTuning` presets, surfaced both in Settings and on the safety screen via a
+  tap-to-expand selector.
+- **Location-aware detection (opt-in, off by default).** `coarsePlaceCell()`
+  (`PlaceProvider`, `expect`/`actual`) buckets a coarse last-known fix into a ~2 km
+  grid cell, feeding the distinct-places promotion above. Strictly on-device,
+  permission-gated, never the finder (GPS is net-negative there — see `finding.md`).
 - **"It's mine" mute.** Each alert offers *It's mine* → persists the address to a
   mute list (`SafetyHistory`); the scanner then feeds neither detection signal from
   it and filters it out of results. Permanent for stable-MAC trackers; a tag that
@@ -74,18 +90,17 @@ Severity: a *separated tracker close by* → **WARN**; *close & present for minu
   holds). The Find My `0x12` / DULT `0xFD44`/`0xFEAA` / SmartTag `0xFD5A` patterns
   still want one confirmation against a real AirTag/Tile/SmartTag (internal track)
   or an authoritative published advertising spec.
-- **Continuous background scan — deferred past v1.** A true always-on background
-  scan needs an Android foreground service + `ACCESS_BACKGROUND_LOCATION`, which
-  triggers Play's background-location review (justification video, slower approval)
-  and a stronger privacy disclosure. To keep the first release shippable, v1 does
-  **on-open cross-session correlation only** (re-evaluates the persisted log every
-  time the scan is opened). The background service is the clear fast-follow; revisit
-  once v1 is live.
-- **"Across places" (location) correlation.** Cross-session is currently time-only
-  (hours). Adding coarse location to distinguish "same tracker in different places"
-  would strengthen it but pulls in the location-permission/Play surface above — a
-  v2 item, gated behind its own explicit location consent (location is privacy-
-  sensitive, unlike the time-only log which stays on by default).
+- **Continuous background scan — DONE (opt-in).** Shipped as a foreground service +
+  periodic WorkManager scan (see "What's built"). Kept off by default and permission-
+  gated to avoid forcing Play's background-location review on users who don't want
+  it; the coarse-location path uses foreground/`ACCESS_COARSE_LOCATION` rather than
+  `ACCESS_BACKGROUND_LOCATION`. Remaining: measure detection quality in the periodic
+  (short-window) mode vs. the continuous foreground service — motion signal differs.
+- **"Across places" (location) correlation — DONE (opt-in).** Cross-session now
+  counts distinct **coarse places** alongside hours (see "What's built"), gated
+  behind its own explicit, off-by-default location consent. Remaining: the richer
+  context-diversity model in `detection.md` (movement segments × co-present-set
+  fingerprint), beyond the simple ~2 km place cell.
 - **iOS** background BLE is heavily restricted and Find My is OS-reserved; iOS stays
   **foreground / on-open only** by design. The OS already does native unwanted-
   tracker alerts — blep still adds the *find-it* step + the manual/rotation scan.

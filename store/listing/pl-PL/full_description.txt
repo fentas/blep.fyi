@@ -25,13 +25,20 @@ płaszcza lub samochodu. blep wyłapuje też sztuczkę, którą inni pomijają: 
 który zmienia swój identyfikator Bluetooth, aby pozostać anonimowym, zdradza się,
 pojawiając się raz za razem na tej samej bliskiej odległości — to właśnie brak korelacji
 jest korelacją. A ponieważ blep jest wyszukiwarką, nie tylko ostrzega — prowadzi cię do
-niego. Włącz „Pamiętaj między sesjami", a etykieta, która godzinami wciąż się pojawia,
-zostanie oznaczona. (Tylko na urządzeniu — nic nie opuszcza twojego telefonu — i można to
-wyłączyć w każdej chwili.)
+niego.
+• Pamiętaj między sesjami — etykieta, która godzinami wciąż się pojawia (a jeśli
+  pozwolisz na przybliżoną lokalizację, także w różnych miejscach), zostanie oznaczona.
+• Czuwaj w tle — pozwól blepowi mieć oko na otoczenie, gdy jest zamknięty, i powiadamiać
+  cię według harmonogramu oszczędnego dla baterii.
+• Czułość — Łagodna, Zrównoważona lub Surowa, aby dostroić, jak chętnie oznacza.
+Tylko na urządzeniu — nic nie opuszcza twojego telefonu — i można to wszystko wyłączyć
+w każdej chwili.
 
 PRYWATNOŚĆ Z ZAŁOŻENIA
 Bez kont. Bez reklam. Bez analityki. Bez zbierania danych. Wszystko dzieje się na twoim
 urządzeniu — twoje skany Bluetooth i wykrywanie ruchu nigdy nie opuszczają telefonu.
+Lokalizacja jest domyślnie wyłączona; włącz ją, a pozostanie przybliżona i na urządzeniu,
+używana tylko do liczenia odrębnych miejsc, w których lokalizator za tobą podąża.
 blep jest bezpłatny i open source: https://github.com/fentas/blep.fyi
 
 WARTO WIEDZIEĆ

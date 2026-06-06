@@ -24,13 +24,21 @@ AirTag, Tile, SmartTag ili Find My odašiljač koji ti je netko možda podmetnuo
 kaput ili auto. blep hvata i trik koji drugi propuštaju: pratitelj koji mijenja svoj
 Bluetooth ID da ostane anoniman odaje se ponovnim pojavljivanjem na istoj blizini, iznova
 i iznova — upravo je nepovezanost povezanost. I budući da je blep tragač, ne samo da
-upozorava — vodi te do njega. Uključi „Zapamti između sesija" i oznaka koja se satima
-ponavlja bit će označena. (Samo na uređaju — ništa ne napušta tvoj telefon — i može se
-isključiti u svakom trenutku.)
+upozorava — vodi te do njega.
+• Zapamti između sesija — oznaka koja se satima ponavlja (a, ako dopustiš grubu
+  lokaciju, i na više različitih mjesta) bit će označena.
+• Prati u pozadini — neka blep pazi i dok je zatvoren te te obavijesti, po
+  rasporedu nježnom prema bateriji.
+• Osjetljivost — Opušteno, Uravnoteženo ili Strogo, za podešavanje koliko revno
+  označava.
+Samo na uređaju — ništa ne napušta tvoj telefon — i sve to možeš isključiti u
+svakom trenutku.
 
 PRIVATNOST OD TEMELJA
 Bez računa. Bez oglasa. Bez analitike. Bez prikupljanja podataka. Sve se događa na tvom
 uređaju — tvoja Bluetooth pretraživanja i očitavanje kretanja nikad ne napuštaju telefon.
+Lokacija je prema zadanome isključena; uključiš li je, ostaje gruba i na uređaju,
+korištena samo za brojanje različitih mjesta na kojima te pratitelj slijedi.
 blep je besplatan i otvorenog koda: https://github.com/fentas/blep.fyi
 
 DOBRO JE ZNATI

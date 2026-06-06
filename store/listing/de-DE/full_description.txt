@@ -25,13 +25,22 @@ Tasche, Jacke oder dein Auto geschmuggelt haben könnte. blep erkennt auch den T
 den andere übersehen: Ein Tracker, der seine Bluetooth-ID wechselt, um anonym zu
 bleiben, verrät sich, indem er immer wieder im gleichen Nahbereich auftaucht — die
 fehlende Zuordnung ist die Zuordnung. Und weil blep ein Finder ist, warnt es nicht
-nur — es führt dich hin. Aktiviere „Über Sitzungen merken", und ein Tracker, der
-über Stunden immer wieder auftaucht, wird markiert. (Nur auf dem Gerät — nichts
-verlässt dein Handy — und jederzeit abschaltbar.)
+nur — es führt dich hin.
+• Über Sitzungen merken — ein Tracker, der über Stunden immer wieder auftaucht
+  (und, wenn du grobe Standortdaten erlaubst, an verschiedenen Orten), wird markiert.
+• Im Hintergrund überwachen — lass blep auch geschlossen ein Auge darauf haben und
+  dich benachrichtigen, in einem akkuschonenden Rhythmus.
+• Empfindlichkeit — Entspannt, Ausgewogen oder Streng, um einzustellen, wie
+  bereitwillig es markiert.
+Nur auf dem Gerät — nichts verlässt dein Handy — und du kannst alles jederzeit
+abschalten.
 
 PRIVAT VON GRUND AUF
 Keine Konten. Keine Werbung. Keine Analyse. Keine Datenerfassung. Alles passiert auf
 deinem Gerät — deine Bluetooth-Scans und Bewegungsdaten verlassen das Handy nie.
+Standortdaten sind standardmäßig aus; schaltest du sie ein, bleiben sie grob und auf
+dem Gerät und dienen nur dazu, die verschiedenen Orte zu zählen, an denen dir ein
+Tracker folgt.
 blep ist kostenlos und quelloffen: https://github.com/fentas/blep.fyi
 
 GUT ZU WISSEN
