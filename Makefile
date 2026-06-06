@@ -25,7 +25,7 @@ PUBLISH_PY         := .venv-publish/bin/python
 COMMIT_FLAG        := $(if $(PLAY_COMMIT),--commit,)
 
 .DEFAULT_GOAL := help
-.PHONY: help setup doctor test sim scenarios chaos robustness build apk aab \
+.PHONY: help setup doctor test sim sim-gps scenarios chaos robustness build apk aab \
         install install-wear run demo uninstall devices logcat \
         emulator-setup emulator screenshots screenshots-i18n screenshots-wear promo \
         publish-setup publish-listing publish-store bump-version release-build publish-release release ship ble-trackers \
@@ -57,10 +57,14 @@ define print_sim
 endef
 
 sim: ## Run the closed-loop tracking simulation + print the scenario table
-	-cd app && $(GRADLE) :core:jvmTest --tests '*TrackingSimulationTest.simulation*' -Pblep.android=false --rerun-tasks -q
+	-cd app && $(GRADLE) :core:jvmTest --tests '*TrackingSimulationTest.simulation_suite' -Pblep.android=false --rerun-tasks -q
 	$(print_sim)
 
 scenarios: sim ## Alias for `sim`
+
+sim-gps: ## GPS-fusion reference: mean closest-approach by drift × GPS accuracy
+	-cd app && $(GRADLE) :core:jvmTest --tests '*TrackingSimulationTest.simulation_gps_suite' -Pblep.android=false --rerun-tasks -q
+	$(print_sim)
 
 chaos: ## Random-search every tuning knob (CHAOS_N=60, override on the CLI)
 	-cd app && CHAOS_N=$${CHAOS_N:-60} $(GRADLE) :core:jvmTest --tests '*TrackingSimulationTest.chaos*' -Pblep.android=false --rerun-tasks -q

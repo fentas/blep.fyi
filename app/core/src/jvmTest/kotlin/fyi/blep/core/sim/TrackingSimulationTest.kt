@@ -100,6 +100,16 @@ class TrackingSimulationTest {
         return (SWEEP_DEG * PI / 180.0) to 0.0 // no direction yet → keep turning to search
     }
 
+    /** Per-run conditions: dead-reckoning error + optional GPS, so a scenario can be
+     *  run with realistic IMU drift and with / without a GPS fix. Defaults to none,
+     *  so the headline suite stays the pristine no-drift baseline. */
+    private data class Env(
+        val headingBiasDeg: Double = 0.0,      // constant compass bias (mostly cancels in the loop)
+        val headingWanderDeg: Double = 0.0,    // slow, non-cancelling heading wander — real drift
+        val stepScale: Double = 1.0,           // step-length error (1.1 = 10% too long)
+        val gpsAccuracyM: Double = Double.NaN, // NaN = no GPS; else reported fix accuracy (m)
+    )
+
     private data class Result(
         val name: String, val initialM: Double, val minDistanceM: Double, val reachTick: Int,
         val walkedToReachM: Double, val walkedM: Double, val volatilityDb: Double = 0.0,
@@ -115,6 +125,7 @@ class TrackingSimulationTest {
         name: String, world: World,
         tuning: TrackingTuning = TrackingTuning(),
         spatialTuning: SpatialTuning = SpatialTuning(),
+        env: Env = Env(),
     ): Result {
         val session = TrackingSession(tuning)
         val spatial = SpatialTracker(spatialTuning)
@@ -125,10 +136,24 @@ class TrackingSimulationTest {
 
         for (tick in 0 until MAX_TICKS) {
             val rssi = world.rssi()
+            // Drift: the phone reports a biased heading + mis-scaled step, so dead
+            // reckoning diverges from truth (the world still moves by the real values).
+            val biasRad = (env.headingBiasDeg + env.headingWanderDeg * sin(tick * 0.03)) * PI / 180.0
+            // GPS: a noisy absolute fix (deterministic noise bounded by its accuracy).
+            val gpsPos = if (!env.gpsAccuracyM.isNaN()) {
+                Vec2(
+                    world.x + env.gpsAccuracyM * 0.5 * sin(tick * 0.9 + 2.0),
+                    world.y + env.gpsAccuracyM * 0.5 * cos(tick * 0.7 + 1.0),
+                )
+            } else {
+                null
+            }
             val motion = MotionSample(
                 timeMs = t,
-                headingRad = world.heading + 0.035 * sin(tick * 0.7), // ~2° compass jitter
-                stepDistanceM = lastStep,
+                position = gpsPos,
+                positionAccuracyM = if (gpsPos != null) env.gpsAccuracyM else Double.NaN,
+                headingRad = world.heading + biasRad + 0.035 * sin(tick * 0.7), // bias + ~2° jitter
+                stepDistanceM = lastStep * env.stepScale,
                 moving = lastStep > 0.0,
                 relativeAltitudeM = world.z,
             )
@@ -216,6 +241,42 @@ class TrackingSimulationTest {
         // regression that spares the trivial case still fails the build (only the
         // structurally-unsolvable "one floor up" is expected to miss).
         assertTrue(clean >= CLEAN_FLOOR, "tracking regressed: only $clean/${results.size} clean (floor $CLEAN_FLOOR)")
+    }
+
+    /**
+     * GPS fusion, before/after: the same drift-prone outdoor walks run with realistic
+     * dead-reckoning drift, GPS off vs a typical phone fix. Shows whether folding GPS
+     * into the local frame steadies the estimate (closest approach) on larger walks —
+     * it should never make the no-drift indoor cases worse (those don't run here).
+     */
+    @Test
+    fun simulation_gps_suite() {
+        val cases: List<() -> World> = listOf(
+            { World(10.0, 10.0) },                                   // diagonal 14 m
+            { World(0.0, 20.0) },                                    // far 20 m
+            { World(0.0, 35.0) },                                    // extra-far 35 m
+            { World(0.0, 12.0, canopyDb = 6.0, noiseDb = 2.5) },     // forest 12 m
+        )
+        // Mean closest-approach (true metres) over the cases for a given Env.
+        fun meanClosest(env: Env) = cases.map { run("gps", it(), env = env).minDistanceM }.average()
+
+        val drifts = listOf(
+            "none" to Env(),
+            "moderate" to Env(headingBiasDeg = 6.0, headingWanderDeg = 8.0, stepScale = 1.08),
+            "heavy" to Env(headingBiasDeg = 10.0, headingWanderDeg = 18.0, stepScale = 1.15),
+        )
+        val gpsAccs = listOf("off" to Double.NaN, "3 m" to 3.0, "8 m" to 8.0, "15 m" to 15.0)
+
+        println("\n── GPS fusion · mean closest-approach (m) by drift × GPS accuracy ──")
+        println("drift      " + gpsAccs.joinToString("  ") { "%7s".format("GPS ${it.first}") })
+        drifts.forEach { (dn, d) ->
+            val row = gpsAccs.joinToString("  ") { (_, acc) ->
+                "%7.1f".format(meanClosest(d.copy(gpsAccuracyM = acc)))
+            }
+            println("%-9s  %s".format(dn, row))
+        }
+        println("──  lower = better; GPS only helps where its value beats the RSSI+IMU loop  ──")
+        println()
     }
 
     /**
