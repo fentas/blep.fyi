@@ -103,7 +103,7 @@ fun DiscoveryScreen(
             .padding(horizontal = 20.dp),
     ) {
         Spacer(Modifier.height(12.dp))
-        Header(deviceCount = nearbyCount, onSettings = onSettings)
+        Header(deviceCount = nearbyCount)
         Spacer(Modifier.height(14.dp))
         SafetyEntry(onSafetyScan)
         Spacer(Modifier.height(16.dp))
@@ -112,15 +112,15 @@ fun DiscoveryScreen(
             AvailabilityBanner(availability)
         }
 
-        if (devices.isNotEmpty() || pairedDevices.isNotEmpty()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                SectionLabel(stringResource(Res.string.section_nearby), Modifier.weight(1f))
-                if (pairedDevices.isNotEmpty()) {
-                    PairedPill(count = pairedDevices.size, onClick = { showPaired = true })
-                }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            SectionLabel(stringResource(Res.string.section_nearby), Modifier.weight(1f))
+            if (pairedDevices.isNotEmpty()) {
+                PairedPill(count = pairedDevices.size, onClick = { showPaired = true })
+                Spacer(Modifier.width(8.dp))
             }
-            Spacer(Modifier.height(10.dp))
+            SettingsButton(onClick = onSettings)
         }
+        Spacer(Modifier.height(10.dp))
 
         LazyColumn(
             modifier = Modifier.weight(1f),
@@ -222,7 +222,7 @@ private fun PairedSheet(
 }
 
 @Composable
-private fun Header(deviceCount: Int, onSettings: () -> Unit) {
+private fun Header(deviceCount: Int) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
             painter = rememberVectorPainter(BlepLogo),
@@ -249,17 +249,21 @@ private fun Header(deviceCount: Int, onSettings: () -> Unit) {
                 )
             }
         }
-        Text(
-            "⚙",
-            style = MaterialTheme.typography.titleLarge,
-            color = BlepColors.Ink.copy(alpha = 0.5f),
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .clip(CircleShape)
-                .clickable(onClick = onSettings)
-                .padding(8.dp),
-        )
     }
+}
+
+/** Gear that opens Settings — sits in the section row, right of the Paired pill. */
+@Composable
+private fun SettingsButton(onClick: () -> Unit) {
+    Text(
+        "⚙",
+        style = MaterialTheme.typography.titleLarge,
+        color = BlepColors.Ink.copy(alpha = 0.5f),
+        modifier = Modifier
+            .clip(CircleShape)
+            .clickable(onClick = onClick)
+            .padding(6.dp),
+    )
 }
 
 @Composable
