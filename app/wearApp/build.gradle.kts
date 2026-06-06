@@ -1,9 +1,16 @@
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.kotlinCompose)
+}
+
+// AGP 9 / Kotlin 2.4 removed android { kotlinOptions { } } — set the JVM target on
+// the Kotlin plugin's compilerOptions instead.
+kotlin {
+    compilerOptions { jvmTarget.set(JvmTarget.JVM_11) }
 }
 
 android {
@@ -22,8 +29,8 @@ android {
         // Wear OS = 2xxx here) so the two bundles — same applicationId, so codes
         // must be globally unique — never collide. Bump within the band. 2000
         // clears the early watch uploads (10/11).
-        versionCode = 2000
-        versionName = "0.1.0"
+        versionCode = 2001
+        versionName = "0.2.0"
     }
 
     // Release signing from the same gitignored keystore.properties as the phone app.
@@ -58,7 +65,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions { jvmTarget = "11" }
     buildFeatures { compose = true }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
 }

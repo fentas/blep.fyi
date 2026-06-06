@@ -22,7 +22,9 @@ kotlin {
         }
     }
 
-    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach { iosTarget ->
+    // Compose Multiplatform 1.11 dropped iosX64 (Intel simulator); Apple-silicon
+    // simulator + device only.
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
@@ -71,8 +73,8 @@ pluginManager.withPlugin("com.android.application") {
             // (which share applicationId and so must have globally-unique codes)
             // never collide: phone = 1xxx, Wear OS = 2xxx (see :wearApp). Bump within
             // the band. 1000 clears the early phone uploads (5/6/7).
-            versionCode = 1000
-            versionName = "1.0.0"
+            versionCode = 1001
+            versionName = "1.1.0"
         }
         // Release signing from a gitignored keystore.properties (created locally, or
         // written from secrets in CI). Absent → release falls back to debug signing
