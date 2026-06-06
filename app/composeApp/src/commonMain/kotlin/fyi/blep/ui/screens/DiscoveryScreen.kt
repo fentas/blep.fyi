@@ -78,6 +78,7 @@ import fyi.blep.resources.status_connected
 import fyi.blep.resources.status_paired
 import fyi.blep.ui.theme.BlepColors
 import fyi.blep.ui.theme.BlepLogo
+import fyi.blep.ui.theme.HeartIcon
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -216,11 +217,16 @@ private fun DonateHeart(onClick: () -> Unit, modifier: Modifier = Modifier) {
         modifier = modifier
             .size(52.dp)
             .clip(CircleShape)
-            .background(BlepColors.Pink)
+            .background(Color(0xFFE6E7EA)) // light gray
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text("♥", style = MaterialTheme.typography.titleLarge, color = Color.White)
+        Icon(
+            painter = rememberVectorPainter(HeartIcon),
+            contentDescription = null,
+            tint = BlepColors.Pink, // mild pastel
+            modifier = Modifier.size(26.dp),
+        )
     }
 }
 
