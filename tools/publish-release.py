@@ -25,18 +25,24 @@ import sys
 import zipfile
 
 
-def aab_version_code(path):
-    """Read versionCode from the bundle's protobuf manifest without uploading."""
-    with zipfile.ZipFile(path) as z:
-        data = z.read("base/manifest/AndroidManifest.xml")
-    i = data.find(b"versionCode")
+def _manifest_attr(data, name):
+    """The source string value following an attribute name token in the AAB's
+    protobuf-encoded manifest (e.g. versionCode -> '1001', versionName -> '1.1.0')."""
+    i = data.find(name.encode())
     if i < 0:
         return None
-    j = data.find(b"\x1a", i, i + 30)  # next length-delimited string = the source value
+    j = data.find(b"\x1a", i, i + 30)  # next length-delimited string = the value
     if j < 0:
         return None
     ln = data[j + 1]
     return data[j + 2:j + 2 + ln].decode("latin1")
+
+
+def aab_versions(path):
+    """(versionCode, versionName) read from the bundle's manifest without uploading."""
+    with zipfile.ZipFile(path) as z:
+        data = z.read("base/manifest/AndroidManifest.xml")
+    return _manifest_attr(data, "versionCode"), _manifest_attr(data, "versionName")
 
 
 def read_notes(notes_dir):
@@ -56,7 +62,7 @@ def main():
     ap.add_argument("--key", help="service-account JSON (required for --commit)")
     ap.add_argument("--aab", required=True, help="path to the signed .aab")
     ap.add_argument("--track", required=True, help="track id, e.g. alpha / internal / wear:blep")
-    ap.add_argument("--version-name", default="", help="human release name (defaults to versionCode)")
+    ap.add_argument("--version-name", default="", help="release name (default: versionName from the AAB)")
     ap.add_argument("--notes-dir", help="dir of <locale>.txt release notes (optional)")
     ap.add_argument("--draft", action="store_true", help="stage as draft instead of releasing")
     ap.add_argument("--commit", action="store_true", help="actually upload + release")
@@ -65,9 +71,10 @@ def main():
     if not os.path.isfile(args.aab):
         print(f"AAB not found: {args.aab}", file=sys.stderr)
         return 1
-    vc = aab_version_code(args.aab)
+    vc, vn = aab_versions(args.aab)
+    vn = args.version_name or vn
     status = "draft" if args.draft else "completed"
-    name = f"{args.version_name} ({vc})" if args.version_name else f"{vc}"
+    name = f"{vn} ({vc})" if vn else f"{vc}"
     notes = read_notes(args.notes_dir)
 
     size = os.path.getsize(args.aab) / 1e6

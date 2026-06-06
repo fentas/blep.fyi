@@ -17,8 +17,6 @@ SYSIMG      ?= system-images;android-35;google_apis;x86_64
 PLAY_KEY           ?= sa.json
 PLAY_PHONE_TRACK   ?= alpha       # phone closed-test track (the one with testers)
 PLAY_WEAR_TRACK    ?= wear:blep   # Wear OS form-factor track (API prefixes it `wear:`)
-PLAY_PHONE_VERSION ?= 1.0.0
-PLAY_WEAR_VERSION  ?= 0.1.0
 PHONE_AAB          := app/composeApp/build/outputs/bundle/release/composeApp-release.aab
 WEAR_AAB           := app/wearApp/build/outputs/bundle/release/wearApp-release.aab
 PUBLISH_PY         := .venv-publish/bin/python
@@ -29,7 +27,7 @@ COMMIT_FLAG        := $(if $(PLAY_COMMIT),--commit,)
 .PHONY: help setup doctor test sim scenarios chaos robustness build apk aab \
         install install-wear run demo uninstall devices logcat \
         emulator-setup emulator screenshots screenshots-i18n screenshots-wear promo \
-        publish-setup publish-listing release-build publish-release ship ble-trackers \
+        publish-setup publish-listing publish-store bump-version release-build publish-release release ship ble-trackers \
         bridge bridge-motion bridge-rssi web web-build web-icons \
         ci apple clean
 
@@ -146,21 +144,32 @@ publish-setup: ## Create the Python venv for the Play publishing tools
 publish-listing: ## Push store text + screenshots to Play (PLAY_COMMIT=1 to apply)
 	$(PUBLISH_PY) tools/publish-listing.py --key $(PLAY_KEY) $(COMMIT_FLAG)
 
-release-build: ## Build the signed phone + Wear release AABs
-	cd app && $(GRADLE) :composeApp:bundleRelease :wearApp:bundleRelease
-
-publish-release: release-build ## Upload + release both AABs to their tracks (PLAY_COMMIT=1 to apply)
-	$(PUBLISH_PY) tools/publish-release.py --key $(PLAY_KEY) --aab $(PHONE_AAB) \
-		--track $(PLAY_PHONE_TRACK) --version-name $(PLAY_PHONE_VERSION) $(COMMIT_FLAG)
-	$(PUBLISH_PY) tools/publish-release.py --key $(PLAY_KEY) --aab $(WEAR_AAB) \
-		--track $(PLAY_WEAR_TRACK) --version-name $(PLAY_WEAR_VERSION) $(COMMIT_FLAG)
-
-ship: ## Full release: regen screenshots → push listing+images → build → upload+release (PLAY_COMMIT=1 to apply; needs a running emulator)
+# ── Target A: regenerate screenshots, then update the whole store listing ──
+publish-store: ## Regen localized screenshots, then push listing text + images (PLAY_COMMIT=1 to apply; needs a running emulator)
 	$(MAKE) screenshots-i18n
 	$(MAKE) screenshots-wear
 	$(MAKE) publish-listing
+	@echo "✓ store updated$(if $(PLAY_COMMIT),, (dry run — set PLAY_COMMIT=1 to push))"
+
+bump-version: ## Increment each module's versionCode (phone 1xxx, wear 2xxx band)
+	tools/bump-version.sh
+
+release-build: ## Build the signed phone + Wear release AABs
+	cd app && $(GRADLE) :composeApp:bundleRelease :wearApp:bundleRelease
+
+publish-release: release-build ## Upload + release the built AABs to their tracks (no bump; PLAY_COMMIT=1 to apply)
+	$(PUBLISH_PY) tools/publish-release.py --key $(PLAY_KEY) --aab $(PHONE_AAB) --track $(PLAY_PHONE_TRACK) $(COMMIT_FLAG)
+	$(PUBLISH_PY) tools/publish-release.py --key $(PLAY_KEY) --aab $(WEAR_AAB)  --track $(PLAY_WEAR_TRACK)  $(COMMIT_FLAG)
+
+# ── Target B: bump build numbers, build, upload, release ──
+release: ## Bump versionCode → build signed AABs → upload + release to tracks (PLAY_COMMIT=1 to apply)
+	$(MAKE) bump-version
 	$(MAKE) publish-release
-	@echo "✓ ship done$(if $(PLAY_COMMIT),, (dry run — set PLAY_COMMIT=1 to push for real))"
+	@echo "✓ release done$(if $(PLAY_COMMIT),, (dry run — versionCodes bumped, nothing uploaded; set PLAY_COMMIT=1 to ship))"
+
+ship: ## Everything: publish-store + release (PLAY_COMMIT=1 to apply; needs a running emulator)
+	$(MAKE) publish-store
+	$(MAKE) release
 
 ble-trackers: ## Inject fake AirTag/Tile/SmartTag adverts into the emulator (netsim+Bumble)
 	@test -x tools/ble-netsim/venv/bin/python || \
