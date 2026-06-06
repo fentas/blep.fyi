@@ -145,4 +145,12 @@
     <string name="settings_unnamed_desc">Uključi uređaje koji ne objavljuju ime.</string>
     <string name="settings_remember_title">Zapamti pratitelje između sesija</string>
     <string name="settings_remember_desc">Označava pratitelja koji se satima opetovano pojavljuje blizu tebe. Samo na uređaju.</string>
+    <string name="settings_section_background">Skeniranje u pozadini</string>
+    <string name="settings_foreground_title">Nastavi skenirati kad je smanjeno</string>
+    <string name="settings_foreground_desc">Zadržava sigurnosno skeniranje uz obavijest kad napustiš blep.</string>
+    <string name="settings_background_title">Skeniraj u pozadini</string>
+    <string name="settings_background_desc">Povremeno provjerava pratitelje dok je blep zatvoren.</string>
+    <string name="settings_interval_min">Svakih %1$d min</string>
+    <string name="settings_interval_h">Svakih %1$d h</string>
+    <string name="settings_interval_hm">Svakih %1$d h %2$d min</string>
 </resources>

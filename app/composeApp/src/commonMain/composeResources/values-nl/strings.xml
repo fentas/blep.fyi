@@ -145,4 +145,12 @@
     <string name="settings_unnamed_desc">Ook apparaten zonder aangekondigde naam tonen.</string>
     <string name="settings_remember_title">Trackers onthouden tussen sessies</string>
     <string name="settings_remember_desc">Markeert een tracker die urenlang steeds dichtbij opduikt. Alleen op het apparaat.</string>
+    <string name="settings_section_background">Scannen op de achtergrond</string>
+    <string name="settings_foreground_title">Blijven scannen indien geminimaliseerd</string>
+    <string name="settings_foreground_desc">Houdt een veiligheidsscan met melding wanneer je blep verlaat.</string>
+    <string name="settings_background_title">Op de achtergrond scannen</string>
+    <string name="settings_background_desc">Controleert periodiek op trackers terwijl blep gesloten is.</string>
+    <string name="settings_interval_min">Elke %1$d min</string>
+    <string name="settings_interval_h">Elke %1$d u</string>
+    <string name="settings_interval_hm">Elke %1$d u %2$d min</string>
 </resources>

@@ -76,13 +76,19 @@ fun App(demo: Boolean = false) {
                     onToggleUnnamed = { controller.toggleUnnamed() },
                     rememberTrackers = controller.rememberEncounters,
                     onToggleRemember = { controller.toggleRememberEncounters() },
+                    foregroundScan = controller.foregroundScanEnabled,
+                    onToggleForeground = controller::setForegroundScanning,
+                    backgroundScan = controller.backgroundScanEnabled,
+                    onToggleBackground = controller::setBackgroundScanning,
+                    intervalMinutes = controller.scanIntervalMinutes,
+                    onIntervalChange = controller::setScanInterval,
                     onBack = controller::startDiscovery,
                 )
 
                 is Screen.Safety -> SafetyScreen(
                     alerts = controller.safetyAlerts,
-                    rememberOn = controller.rememberEncounters,
-                    onToggleRemember = controller::toggleRememberEncounters,
+                    backgroundOn = controller.backgroundScanEnabled,
+                    onToggleBackground = controller::setBackgroundScanning,
                     onFind = controller::findTracker,
                     onMine = controller::muteTracker,
                     lastMuted = controller.lastMuted,

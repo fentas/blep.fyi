@@ -17,6 +17,11 @@
     <!-- Geiger-counter haptic feedback while tracking. -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Optional background safety scanning (default off; requested when enabled). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
 
     <application
@@ -36,5 +41,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Captures the app context for background-scan plumbing. -->
+        <provider
+            android:name=".BlepAppInitProvider"
+            android:authorities="${applicationId}.blepappinit"
+            android:exported="false" />
+
+        <!-- Keeps a safety scan alive off-screen (passive advertisement scan only). -->
+        <service
+            android:name=".BackgroundScanService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
     </application>
 </manifest>

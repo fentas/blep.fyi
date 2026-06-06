@@ -65,8 +65,9 @@ import fyi.blep.resources.safety_all_clear_body
 import fyi.blep.resources.safety_find_it
 import fyi.blep.resources.safety_its_mine
 import fyi.blep.resources.safety_muted_undo
-import fyi.blep.resources.safety_remember_body
-import fyi.blep.resources.safety_remember_title
+import fyi.blep.resources.settings_background_desc
+import fyi.blep.resources.settings_background_title
+import fyi.blep.ui.rememberNotificationPermissionRequest
 import fyi.blep.resources.safety_scanning
 import fyi.blep.resources.safety_title
 import fyi.blep.resources.severity_alert
@@ -92,8 +93,8 @@ private val AMBER = Color(0xFFE8A33D)
 @Composable
 fun SafetyScreen(
     alerts: List<TrackerAlert>,
-    rememberOn: Boolean,
-    onToggleRemember: () -> Unit,
+    backgroundOn: Boolean,
+    onToggleBackground: (Boolean) -> Unit,
     onFind: (TrackerAlert, String) -> Unit,
     onMine: (TrackerAlert) -> Unit,
     lastMuted: TrackerAlert?,
@@ -147,7 +148,7 @@ fun SafetyScreen(
                 }
             }
 
-            RememberToggle(rememberOn, onToggleRemember)
+            BackgroundToggle(backgroundOn, onToggleBackground)
 
             TextButton(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                 Text(stringResource(Res.string.action_done), color = BlepColors.Ink.copy(alpha = 0.6f))
@@ -162,7 +163,8 @@ fun SafetyScreen(
 }
 
 @Composable
-private fun RememberToggle(on: Boolean, onToggle: () -> Unit) {
+private fun BackgroundToggle(on: Boolean, onToggle: (Boolean) -> Unit) {
+    val requestNotifications = rememberNotificationPermissionRequest()
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = Color.White.copy(alpha = 0.6f),
@@ -173,9 +175,9 @@ private fun RememberToggle(on: Boolean, onToggle: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text(stringResource(Res.string.safety_remember_title), style = MaterialTheme.typography.titleSmall, color = BlepColors.Ink)
+                Text(stringResource(Res.string.settings_background_title), style = MaterialTheme.typography.titleSmall, color = BlepColors.Ink)
                 Text(
-                    stringResource(Res.string.safety_remember_body),
+                    stringResource(Res.string.settings_background_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = BlepColors.Ink.copy(alpha = 0.55f),
                 )
@@ -183,7 +185,7 @@ private fun RememberToggle(on: Boolean, onToggle: () -> Unit) {
             Spacer(Modifier.width(12.dp))
             Switch(
                 checked = on,
-                onCheckedChange = { onToggle() },
+                onCheckedChange = { v -> if (v) requestNotifications(); onToggle(v) },
                 colors = SwitchDefaults.colors(checkedTrackColor = BlepColors.Blue),
             )
         }

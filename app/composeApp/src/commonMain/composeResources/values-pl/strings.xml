@@ -145,4 +145,12 @@
     <string name="settings_unnamed_desc">Uwzględnij urządzenia, które nie rozgłaszają nazwy.</string>
     <string name="settings_remember_title">Pamiętaj lokalizatory między sesjami</string>
     <string name="settings_remember_desc">Oznacza lokalizator, który przez godziny wciąż pojawia się blisko ciebie. Tylko na urządzeniu.</string>
+    <string name="settings_section_background">Skanowanie w tle</string>
+    <string name="settings_foreground_title">Skanuj po zminimalizowaniu</string>
+    <string name="settings_foreground_desc">Utrzymuje skan bezpieczeństwa z powiadomieniem, gdy opuścisz blep.</string>
+    <string name="settings_background_title">Skanuj w tle</string>
+    <string name="settings_background_desc">Okresowo sprawdza lokalizatory, gdy blep jest zamknięty.</string>
+    <string name="settings_interval_min">Co %1$d min</string>
+    <string name="settings_interval_h">Co %1$d godz.</string>
+    <string name="settings_interval_hm">Co %1$d godz. %2$d min</string>
 </resources>

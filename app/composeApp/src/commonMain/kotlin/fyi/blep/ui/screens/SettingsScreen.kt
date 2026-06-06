@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -26,8 +28,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import fyi.blep.resources.Res
+import fyi.blep.AppSettings
+import fyi.blep.resources.settings_background_desc
+import fyi.blep.resources.settings_background_title
 import fyi.blep.resources.settings_connected_signal_desc
 import fyi.blep.resources.settings_connected_signal_title
+import fyi.blep.resources.settings_foreground_desc
+import fyi.blep.resources.settings_foreground_title
+import fyi.blep.resources.settings_interval_h
+import fyi.blep.resources.settings_interval_hm
+import fyi.blep.resources.settings_interval_min
+import fyi.blep.resources.settings_section_background
 import fyi.blep.resources.settings_remember_desc
 import fyi.blep.resources.settings_remember_title
 import fyi.blep.resources.settings_sound_desc
@@ -35,8 +46,10 @@ import fyi.blep.resources.settings_sound_title
 import fyi.blep.resources.settings_title
 import fyi.blep.resources.settings_unnamed_desc
 import fyi.blep.resources.settings_unnamed_title
+import fyi.blep.ui.rememberNotificationPermissionRequest
 import fyi.blep.ui.theme.BlepColors
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.roundToInt
 
 @Composable
 fun SettingsScreen(
@@ -48,9 +61,17 @@ fun SettingsScreen(
     onToggleUnnamed: (Boolean) -> Unit,
     rememberTrackers: Boolean,
     onToggleRemember: (Boolean) -> Unit,
+    foregroundScan: Boolean,
+    onToggleForeground: (Boolean) -> Unit,
+    backgroundScan: Boolean,
+    onToggleBackground: (Boolean) -> Unit,
+    intervalMinutes: Int,
+    onIntervalChange: (Int) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // Ask for the notification permission when background scanning is switched on.
+    val requestNotifications = rememberNotificationPermissionRequest()
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -102,8 +123,60 @@ fun SettingsScreen(
                 checked = rememberTrackers,
                 onToggle = onToggleRemember,
             )
+
+            Spacer(Modifier.height(6.dp))
+            Text(
+                stringResource(Res.string.settings_section_background).uppercase(),
+                style = MaterialTheme.typography.labelLarge,
+                color = BlepColors.Ink.copy(alpha = 0.4f),
+                modifier = Modifier.padding(start = 4.dp),
+            )
+            SettingRow(
+                title = stringResource(Res.string.settings_foreground_title),
+                desc = stringResource(Res.string.settings_foreground_desc),
+                checked = foregroundScan,
+                onToggle = { on -> if (on) requestNotifications(); onToggleForeground(on) },
+            )
+            SettingRow(
+                title = stringResource(Res.string.settings_background_title),
+                desc = stringResource(Res.string.settings_background_desc),
+                checked = backgroundScan,
+                onToggle = { on -> if (on) requestNotifications(); onToggleBackground(on) },
+            )
+            if (backgroundScan) IntervalRow(intervalMinutes, onIntervalChange)
         }
     }
+}
+
+/** Slider for the periodic background interval (15 min – 4 h, 15-min steps). */
+@Composable
+private fun IntervalRow(minutes: Int, onChange: (Int) -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(18.dp),
+        color = androidx.compose.ui.graphics.Color.White,
+        shadowElevation = 1.dp,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(intervalLabel(minutes), style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink)
+            val min = AppSettings.INTERVAL_MIN
+            val max = AppSettings.INTERVAL_MAX
+            Slider(
+                value = minutes.toFloat(),
+                onValueChange = { v -> onChange((v / 15f).roundToInt() * 15) },
+                valueRange = min.toFloat()..max.toFloat(),
+                steps = (max - min) / 15 - 1,
+                colors = SliderDefaults.colors(thumbColor = BlepColors.Blue, activeTrackColor = BlepColors.Blue),
+            )
+        }
+    }
+}
+
+@Composable
+private fun intervalLabel(minutes: Int): String = when {
+    minutes < 60 -> stringResource(Res.string.settings_interval_min, minutes)
+    minutes % 60 == 0 -> stringResource(Res.string.settings_interval_h, minutes / 60)
+    else -> stringResource(Res.string.settings_interval_hm, minutes / 60, minutes % 60)
 }
 
 @Composable

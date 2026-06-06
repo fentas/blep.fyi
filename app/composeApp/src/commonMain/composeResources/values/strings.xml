@@ -162,4 +162,12 @@
     <string name="settings_unnamed_desc">Include devices that don't advertise a name.</string>
     <string name="settings_remember_title">Remember trackers across sessions</string>
     <string name="settings_remember_desc">Flag a tracker that keeps reappearing near you over hours. On-device only.</string>
+    <string name="settings_section_background">Background scanning</string>
+    <string name="settings_foreground_title">Keep scanning when minimized</string>
+    <string name="settings_foreground_desc">Hold a safety scan with a notification when you leave blep.</string>
+    <string name="settings_background_title">Scan in the background</string>
+    <string name="settings_background_desc">Periodically check for trackers while blep is closed.</string>
+    <string name="settings_interval_min">Every %1$d min</string>
+    <string name="settings_interval_h">Every %1$d h</string>
+    <string name="settings_interval_hm">Every %1$d h %2$d min</string>
 </resources>

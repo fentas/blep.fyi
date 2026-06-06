@@ -145,4 +145,12 @@
     <string name="settings_unnamed_desc">名前を広告しないデバイスも含めます。</string>
     <string name="settings_remember_title">セッションをまたいでトラッカーを記憶</string>
     <string name="settings_remember_desc">数時間にわたり近くに繰り返し現れるトラッカーを警告します。端末内のみ。</string>
+    <string name="settings_section_background">バックグラウンドスキャン</string>
+    <string name="settings_foreground_title">最小化中もスキャンを継続</string>
+    <string name="settings_foreground_desc">blep を離れても通知付きで安全スキャンを維持します。</string>
+    <string name="settings_background_title">バックグラウンドでスキャン</string>
+    <string name="settings_background_desc">blep を閉じている間も定期的にトラッカーを確認します。</string>
+    <string name="settings_interval_min">%1$d 分ごと</string>
+    <string name="settings_interval_h">%1$d 時間ごと</string>
+    <string name="settings_interval_hm">%1$d 時間 %2$d 分ごと</string>
 </resources>

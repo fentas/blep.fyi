@@ -146,4 +146,12 @@
     <string name="settings_unnamed_desc">包含不广播名称的设备。</string>
     <string name="settings_remember_title">跨会话记住追踪器</string>
     <string name="settings_remember_desc">标记数小时内反复出现在你附近的追踪器。仅在设备本地。</string>
+    <string name="settings_section_background">后台扫描</string>
+    <string name="settings_foreground_title">最小化时继续扫描</string>
+    <string name="settings_foreground_desc">离开 blep 时通过通知保持安全扫描。</string>
+    <string name="settings_background_title">在后台扫描</string>
+    <string name="settings_background_desc">blep 关闭时定期检查追踪器。</string>
+    <string name="settings_interval_min">每 %1$d 分钟</string>
+    <string name="settings_interval_h">每 %1$d 小时</string>
+    <string name="settings_interval_hm">每 %1$d 小时 %2$d 分钟</string>
 </resources>

@@ -106,6 +106,15 @@ class BlepController(
      *  (they don't advertise). Persisted; default on. */
     var measureConnectedSignal by mutableStateOf(settings.measureConnectedSignal())
         private set
+    /** Keep a safety scan alive off-screen via a foreground service. Persisted; off. */
+    var foregroundScanEnabled by mutableStateOf(settings.foregroundScan())
+        private set
+    /** Periodic background safety scan (WorkManager) while the app is closed. Off. */
+    var backgroundScanEnabled by mutableStateOf(settings.backgroundScan())
+        private set
+    /** Background scan interval, minutes (15–240). */
+    var scanIntervalMinutes by mutableStateOf(settings.scanIntervalMinutes())
+        private set
 
     /**
      * The main discovery list: everything genuinely **nearby** ([BleDevice.isPresent]
@@ -166,7 +175,29 @@ class BlepController(
 
     init {
         haptic.setSoundEnabled(soundOn) // apply the persisted sound preference
+        BackgroundScan.applyPeriodic(backgroundScanEnabled, scanIntervalMinutes)
         startDiscovery()
+    }
+
+    /** Foreground service that keeps a safety scan alive off-screen (persisted). */
+    fun setForegroundScanning(on: Boolean) {
+        foregroundScanEnabled = on
+        settings.setForegroundScan(on)
+        BackgroundScan.setForeground(on && screen is Screen.Safety)
+    }
+
+    /** Periodic background safety scan while the app is closed (persisted). */
+    fun setBackgroundScanning(on: Boolean) {
+        backgroundScanEnabled = on
+        settings.setBackgroundScan(on)
+        BackgroundScan.applyPeriodic(on, scanIntervalMinutes)
+    }
+
+    /** Background scan interval in minutes (clamped 15–240; persisted). */
+    fun setScanInterval(minutes: Int) {
+        scanIntervalMinutes = minutes.coerceIn(AppSettings.INTERVAL_MIN, AppSettings.INTERVAL_MAX)
+        settings.setScanIntervalMinutes(scanIntervalMinutes)
+        if (backgroundScanEnabled) BackgroundScan.applyPeriodic(true, scanIntervalMinutes)
     }
 
     fun startDiscovery() {
@@ -186,6 +217,7 @@ class BlepController(
         latestMotion = null
         spatialTracker.reset()
         guidanceStabilizer.reset()
+        BackgroundScan.setForeground(false) // leaving safety → drop the foreground service
         screen = Screen.Discovery
         restartScan()
     }
@@ -233,6 +265,7 @@ class BlepController(
         scanJob?.cancel(); scanJob = null
         safetyScanner.reset()
         safetyAlerts = emptyList()
+        if (foregroundScanEnabled) BackgroundScan.setForeground(true)
         screen = Screen.Safety
         safetyJob?.cancel()
         safetyJob = scope.launch {

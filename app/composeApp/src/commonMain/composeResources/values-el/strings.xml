@@ -145,4 +145,12 @@
     <string name="settings_unnamed_desc">Συμπερίληψη συσκευών που δεν διαφημίζουν όνομα.</string>
     <string name="settings_remember_title">Απομνημόνευση ιχνηλατών μεταξύ συνεδριών</string>
     <string name="settings_remember_desc">Επισημαίνει έναν ιχνηλάτη που εμφανίζεται κοντά σου επί ώρες. Μόνο στη συσκευή.</string>
+    <string name="settings_section_background">Σάρωση στο παρασκήνιο</string>
+    <string name="settings_foreground_title">Συνέχεια σάρωσης όταν ελαχιστοποιηθεί</string>
+    <string name="settings_foreground_desc">Διατηρεί μια σάρωση ασφαλείας με ειδοποίηση όταν φεύγεις από το blep.</string>
+    <string name="settings_background_title">Σάρωση στο παρασκήνιο</string>
+    <string name="settings_background_desc">Ελέγχει περιοδικά για ιχνηλάτες όσο το blep είναι κλειστό.</string>
+    <string name="settings_interval_min">Κάθε %1$d λεπτά</string>
+    <string name="settings_interval_h">Κάθε %1$d ώρες</string>
+    <string name="settings_interval_hm">Κάθε %1$d ώρες %2$d λεπτά</string>
 </resources>
