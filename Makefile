@@ -9,6 +9,7 @@ EMULATOR    := $(ANDROID_HOME)/emulator/emulator
 GRADLE      := mise exec -- ./gradlew
 APP_ID      := fyi.blep
 AVD         ?= blep
+DEVICE      ?=          # target adb serial; auto-picks when only one is attached
 SYSIMG      ?= system-images;android-35;google_apis;x86_64
 
 # ── Play publishing ──────────────────────────────────────────────────────────
@@ -85,29 +86,43 @@ clean: ## Clean Gradle + web build outputs
 	rm -rf web/dist
 
 # ─────────────────────── app: device / phone ──────────────────────
+# Resolve the target device into ANDROID_SERIAL (honoured by both adb and Gradle).
+# DEVICE=<serial> picks one explicitly; otherwise auto-pick when exactly one is
+# attached, else list them and ask. Use inside a recipe: `@$(call with_device,<cmd>)`.
+define with_device
+serial="$(DEVICE)"; \
+if [ -z "$$serial" ]; then \
+  list=$$($(ADB) devices | awk '$$2=="device"{print $$1}'); \
+  cnt=$$(printf '%s\n' "$$list" | sed '/^$$/d' | wc -l); \
+  if [ "$$cnt" -eq 0 ]; then echo "No device. Plug in + enable USB debugging, then 'make devices'."; exit 1; fi; \
+  if [ "$$cnt" -gt 1 ]; then echo "Multiple devices — pick one with DEVICE=<serial>:"; printf '  %s\n' $$list; exit 1; fi; \
+  serial="$$list"; \
+fi; \
+export ANDROID_SERIAL="$$serial"; echo "› device $$serial"; $(1)
+endef
+
 devices: ## List connected devices (adb)
 	$(ADB) devices
 
-install: ## Build + install the phone app on a connected device
-	@$(ADB) get-state >/dev/null 2>&1 || { echo "No device. Plug in + enable USB debugging, then 'make devices'."; exit 1; }
-	cd app && $(GRADLE) :composeApp:installDebug
+install: ## Build + install the phone app (DEVICE=<serial> to pick when several attached)
+	@$(call with_device,cd app && $(GRADLE) :composeApp:installDebug)
 
 run: install ## Install and launch blep on the phone
-	$(ADB) shell am start -n $(APP_ID)/.MainActivity
+	@$(call with_device,$(ADB) shell am start -n $(APP_ID)/.MainActivity)
 
-install-wear: ## Build + install the Wear OS app (needs a watch/Wear device)
-	cd app && $(GRADLE) :wearApp:installDebug
+install-wear: ## Build + install the Wear OS app (DEVICE=<serial> for the watch)
+	@$(call with_device,cd app && $(GRADLE) :wearApp:installDebug)
 
 demo: ## Install + launch the app in demo mode (scripted data, no BLE needed)
 	cd app && $(GRADLE) :composeApp:assembleDebug -q
-	$(ADB) install -r app/composeApp/build/outputs/apk/debug/composeApp-debug.apk
-	$(ADB) shell am start -n $(APP_ID)/.MainActivity --ez demo true
+	@$(call with_device,$(ADB) install -r app/composeApp/build/outputs/apk/debug/composeApp-debug.apk \
+		&& $(ADB) shell am start -n $(APP_ID)/.MainActivity --ez demo true)
 
 uninstall: ## Remove blep from the connected device
-	-$(ADB) uninstall $(APP_ID)
+	-@$(call with_device,$(ADB) uninstall $(APP_ID))
 
 logcat: ## Tail blep logs from the device (app must be running)
-	$(ADB) logcat --pid=$$($(ADB) shell pidof -s $(APP_ID))
+	@$(call with_device,$(ADB) logcat --pid=$$($(ADB) shell pidof -s $(APP_ID)))
 
 # ───────────────────────── app: emulator ──────────────────────────
 # Note: the emulator has NO motion sensors, so REAL pointer tracking can't run
