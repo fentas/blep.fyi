@@ -92,9 +92,9 @@ clean: ## Clean Gradle + web build outputs
 define with_device
 serial="$(DEVICE)"; \
 if [ -z "$$serial" ]; then \
-  list=$$($(ADB) devices | awk '$$2=="device"{print $$1}'); \
+  list=$$($(ADB) devices | awk '$$2=="device"{print $$1}' | grep -v '^emulator-'); \
   cnt=$$(printf '%s\n' "$$list" | sed '/^$$/d' | wc -l); \
-  if [ "$$cnt" -eq 0 ]; then echo "No device. Plug in + enable USB debugging, then 'make devices'."; exit 1; fi; \
+  if [ "$$cnt" -eq 0 ]; then echo "No physical device (emulators are ignored unless you set DEVICE=<serial>). Attached:"; $(ADB) devices | awk '$$2=="device"{print "  "$$1}'; exit 1; fi; \
   if [ "$$cnt" -gt 1 ]; then echo "Multiple devices — pick one with DEVICE=<serial>:"; printf '  %s\n' $$list; exit 1; fi; \
   serial="$$list"; \
 fi; \
