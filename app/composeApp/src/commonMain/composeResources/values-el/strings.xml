@@ -154,4 +154,11 @@
     <string name="settings_interval_h">Κάθε %1$d ώρες</string>
     <string name="settings_interval_hm">Κάθε %1$d ώρες %2$d λεπτά</string>
     <string name="settings_background_info">Και τα δύο παρακολουθούν μόνο ιχνηλάτες που φαίνεται να σε ακολουθούν και δεν χρησιμοποιούν ποτέ την τοποθεσία σου. «Όταν ελαχιστοποιηθεί» διατηρεί συνεχή σάρωση (με ειδοποίηση) μόλις φύγεις από το blep — καλύτερη ανίχνευση, περισσότερη μπαταρία. «Στο παρασκήνιο» ξυπνά ανά διάστημα για γρήγορο έλεγχο όσο το blep είναι εντελώς κλειστό — πιο ελαφρύ, αλλά μπορεί να χάσει κάτι ανάμεσα στους ελέγχους.</string>
+    <string name="sensitivity_title">Ευαισθησία ανίχνευσης</string>
+    <string name="sensitivity_relaxed">Χαλαρή</string>
+    <string name="sensitivity_balanced">Ισορροπημένη</string>
+    <string name="sensitivity_strict">Αυστηρή</string>
+    <string name="sensitivity_relaxed_hint">Λιγότερες ειδοποιήσεις — για πολυσύχναστα μέρη.</string>
+    <string name="sensitivity_balanced_hint">Καλή προεπιλογή για κάθε μέρα.</string>
+    <string name="sensitivity_strict_hint">Πιο άγρυπνη — ειδοποιεί νωρίτερα, ίσως συχνότερα.</string>
 </resources>

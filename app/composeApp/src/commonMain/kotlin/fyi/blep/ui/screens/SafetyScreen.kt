@@ -65,8 +65,10 @@ import fyi.blep.resources.safety_all_clear_body
 import fyi.blep.resources.safety_find_it
 import fyi.blep.resources.safety_its_mine
 import fyi.blep.resources.safety_muted_undo
+import fyi.blep.core.safety.ScanSensitivity
 import fyi.blep.resources.settings_background_desc
 import fyi.blep.resources.settings_background_title
+import fyi.blep.ui.components.SensitivitySelector
 import fyi.blep.ui.rememberNotificationPermissionRequest
 import fyi.blep.resources.safety_scanning
 import fyi.blep.resources.safety_title
@@ -93,6 +95,8 @@ private val AMBER = Color(0xFFE8A33D)
 @Composable
 fun SafetyScreen(
     alerts: List<TrackerAlert>,
+    scanSensitivity: ScanSensitivity,
+    onSelectSensitivity: (ScanSensitivity) -> Unit,
     backgroundOn: Boolean,
     onToggleBackground: (Boolean) -> Unit,
     onFind: (TrackerAlert, String) -> Unit,
@@ -148,6 +152,7 @@ fun SafetyScreen(
                 }
             }
 
+            SensitivitySelector(scanSensitivity, onSelectSensitivity, Modifier.fillMaxWidth())
             BackgroundToggle(backgroundOn, onToggleBackground)
 
             TextButton(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {

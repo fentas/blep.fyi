@@ -155,4 +155,11 @@
     <string name="settings_interval_h">Alle %1$d Std.</string>
     <string name="settings_interval_hm">Alle %1$d Std. %2$d Min.</string>
     <string name="settings_background_info">Beide achten nur auf Tracker, die dir zu folgen scheinen, und nutzen nie deinen Standort. „Bei minimierter App“ hält einen durchgehenden Scan (mit Benachrichtigung), sobald du blep verlässt — beste Erkennung, mehr Akku. „Im Hintergrund“ wacht im Intervall kurz auf, während blep ganz geschlossen ist — sparsamer, kann aber zwischen den Checks etwas verpassen.</string>
+    <string name="sensitivity_title">Erkennungs-Empfindlichkeit</string>
+    <string name="sensitivity_relaxed">Entspannt</string>
+    <string name="sensitivity_balanced">Ausgewogen</string>
+    <string name="sensitivity_strict">Streng</string>
+    <string name="sensitivity_relaxed_hint">Weniger Warnungen — für belebte Orte.</string>
+    <string name="sensitivity_balanced_hint">Guter Standard für den Alltag.</string>
+    <string name="sensitivity_strict_hint">Am wachsamsten — meldet früher, evtl. öfter.</string>
 </resources>

@@ -154,4 +154,11 @@
     <string name="settings_interval_h">Ogni %1$d h</string>
     <string name="settings_interval_hm">Ogni %1$d h %2$d min</string>
     <string name="settings_background_info">Entrambi controllano solo i tracker che sembrano seguirti e non usano mai la tua posizione. «Se ridotta» mantiene una scansione continua (con notifica) quando esci da blep — rilevamento migliore, più batteria. «In background» si attiva a intervalli per un controllo rapido mentre blep è del tutto chiuso — più leggero, ma può perdere qualcosa tra un controllo e l'altro.</string>
+    <string name="sensitivity_title">Sensibilità di rilevamento</string>
+    <string name="sensitivity_relaxed">Rilassata</string>
+    <string name="sensitivity_balanced">Bilanciata</string>
+    <string name="sensitivity_strict">Rigorosa</string>
+    <string name="sensitivity_relaxed_hint">Meno avvisi — per luoghi affollati.</string>
+    <string name="sensitivity_balanced_hint">Un buon valore per ogni giorno.</string>
+    <string name="sensitivity_strict_hint">Più vigile — segnala prima, può avvisare di più.</string>
 </resources>

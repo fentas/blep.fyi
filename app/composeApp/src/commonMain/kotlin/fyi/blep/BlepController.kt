@@ -11,6 +11,7 @@ import fyi.blep.core.platform.createKeyValueStore
 import fyi.blep.core.safety.SafetyHistory
 import fyi.blep.core.safety.SafetyScanner
 import fyi.blep.core.safety.TrackerAlert
+import fyi.blep.core.safety.ScanSensitivity
 import fyi.blep.core.safety.TrackerDetector
 import fyi.blep.core.safety.TrackerTuning
 import fyi.blep.core.spatial.GuidanceLine
@@ -56,7 +57,7 @@ class BlepController(
     private val scope: CoroutineScope,
     private val motionProvider: MotionProvider = createMotionProvider(),
     private val haptic: Haptic = createHaptic(),
-    safetyTuning: TrackerTuning = TrackerTuning(),
+    private val safetyTuning: TrackerTuning? = null, // demo override; else the sensitivity preset
     private val safetyHistory: SafetyHistory = SafetyHistory(createKeyValueStore()),
     private val favorites: DeviceFavorites = DeviceFavorites(createKeyValueStore()),
     private val settings: AppSettings = AppSettings(),
@@ -115,6 +116,9 @@ class BlepController(
     /** Background scan interval, minutes (15–240). */
     var scanIntervalMinutes by mutableStateOf(settings.scanIntervalMinutes())
         private set
+    /** Detection sensitivity preset for the safety scan. */
+    var scanSensitivity by mutableStateOf(settings.scanSensitivity())
+        private set
 
     /**
      * The main discovery list: everything genuinely **nearby** ([BleDevice.isPresent]
@@ -165,7 +169,9 @@ class BlepController(
     private val spatialTuning = SpatialTuning()
     private val spatialTracker = SpatialTracker(spatialTuning)
     private val guidanceStabilizer = GuidanceStabilizer()
-    private val safetyScanner = SafetyScanner(scanner, TrackerDetector(safetyTuning), safetyHistory)
+    private var safetyScanner = buildSafetyScanner()
+    private fun buildSafetyScanner() =
+        SafetyScanner(scanner, TrackerDetector(safetyTuning ?: scanSensitivity.tuning), safetyHistory)
     private var safetyJob: Job? = null
     // Latest motion sample; both flows run on the same (Main) dispatcher, so a
     // plain var is safe to share between the RSSI and motion collectors.
@@ -236,6 +242,18 @@ class BlepController(
     }
 
     fun openSettings() { screen = Screen.Settings }
+
+    /** Switch the detection sensitivity preset (persisted); re-runs the safety scan
+     *  with the new thresholds if it's open. Ignored in demo (fixed tuning). */
+    fun selectScanSensitivity(s: ScanSensitivity) {
+        if (s == scanSensitivity) return
+        scanSensitivity = s
+        settings.setScanSensitivity(s)
+        if (safetyTuning == null) {
+            safetyScanner = buildSafetyScanner()
+            if (screen is Screen.Safety) openSafetyScan()
+        }
+    }
 
     /** Toggle GATT ranging of connected devices; persisted, re-runs discovery so
      *  the change takes effect immediately. */

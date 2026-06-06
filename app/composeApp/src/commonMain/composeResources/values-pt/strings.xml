@@ -154,4 +154,11 @@
     <string name="settings_interval_h">A cada %1$d h</string>
     <string name="settings_interval_hm">A cada %1$d h %2$d min</string>
     <string name="settings_background_info">Ambos vigiam apenas rastreadores que parecem seguir-te e nunca usam a tua localização. «Quando minimizado» mantém uma análise contínua (com notificação) ao sair do blep — melhor deteção, mais bateria. «Em segundo plano» acorda por intervalo para uma verificação rápida com o blep fechado — mais leve, mas pode perder algo entre verificações.</string>
+    <string name="sensitivity_title">Sensibilidade de deteção</string>
+    <string name="sensitivity_relaxed">Relaxada</string>
+    <string name="sensitivity_balanced">Equilibrada</string>
+    <string name="sensitivity_strict">Rigorosa</string>
+    <string name="sensitivity_relaxed_hint">Menos alertas — para locais movimentados.</string>
+    <string name="sensitivity_balanced_hint">Um bom padrão para o dia a dia.</string>
+    <string name="sensitivity_strict_hint">Mais vigilante — sinaliza mais cedo, pode alertar mais.</string>
 </resources>

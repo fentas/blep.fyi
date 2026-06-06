@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
@@ -375,6 +376,13 @@ private fun DeviceCard(
 
 /** Star toggle: filled gold when starred, hollow otherwise. Starred devices pin to
  *  the top of the main list even when not advertising. */
+// Centre a single glyph within its line box so ★/☆/✎ sit at the same height
+// (their default font ascent/descent differ).
+private val CenteredGlyph = LineHeightStyle(
+    alignment = LineHeightStyle.Alignment.Center,
+    trim = LineHeightStyle.Trim.Both,
+)
+
 @Composable
 private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit) {
     Box(
@@ -383,7 +391,7 @@ private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit) {
     ) {
         Text(
             if (isFavorite) "★" else "☆",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMedium.copy(lineHeightStyle = CenteredGlyph),
             color = if (isFavorite) BlepColors.Gold else BlepColors.Ink.copy(alpha = 0.35f),
         )
     }
@@ -433,7 +441,7 @@ private fun RenameButton(onRename: () -> Unit) {
         Modifier.size(30.dp).clip(CircleShape).clickable(onClick = onRename),
         contentAlignment = Alignment.Center,
     ) {
-        Text("✎", style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink.copy(alpha = 0.35f))
+        Text("✎", style = MaterialTheme.typography.titleMedium.copy(lineHeightStyle = CenteredGlyph), color = BlepColors.Ink.copy(alpha = 0.35f))
     }
 }
 

@@ -155,4 +155,11 @@
     <string name="settings_interval_h">每 %1$d 小时</string>
     <string name="settings_interval_hm">每 %1$d 小时 %2$d 分钟</string>
     <string name="settings_background_info">两者都只关注疑似跟踪你的追踪器，且从不使用你的位置。“最小化时”在你离开 blep 后保持持续扫描（带通知）——检测最佳，更耗电。“在后台”在 blep 完全关闭时按间隔短暂唤醒检查——更省电，但两次检查之间可能漏掉。</string>
+    <string name="sensitivity_title">检测灵敏度</string>
+    <string name="sensitivity_relaxed">宽松</string>
+    <string name="sensitivity_balanced">均衡</string>
+    <string name="sensitivity_strict">严格</string>
+    <string name="sensitivity_relaxed_hint">更少提醒——适合拥挤场所。</string>
+    <string name="sensitivity_balanced_hint">日常使用的良好默认值。</string>
+    <string name="sensitivity_strict_hint">最警觉——更早提醒，可能更频繁。</string>
 </resources>

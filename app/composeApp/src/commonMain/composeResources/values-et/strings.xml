@@ -154,4 +154,11 @@
     <string name="settings_interval_h">Iga %1$d h</string>
     <string name="settings_interval_hm">Iga %1$d h %2$d min</string>
     <string name="settings_background_info">Mõlemad jälgivad ainult jälitajaid, kes näivad sind järgivat, ega kasuta kunagi su asukohta. „Minimeerituna“ hoiab pidevat skannimist (teavitusega), kui blepist lahkud — parim tuvastus, rohkem akut. „Taustal“ ärkab intervalliga lühikeseks kontrolliks, kui blep on täiesti suletud — säästlikum, kuid võib kontrollide vahel midagi mööda lasta.</string>
+    <string name="sensitivity_title">Tuvastuse tundlikkus</string>
+    <string name="sensitivity_relaxed">Lõdvem</string>
+    <string name="sensitivity_balanced">Tasakaalus</string>
+    <string name="sensitivity_strict">Range</string>
+    <string name="sensitivity_relaxed_hint">Vähem hoiatusi — rahvarohketeks kohtadeks.</string>
+    <string name="sensitivity_balanced_hint">Hea vaikeväärtus igapäevaks.</string>
+    <string name="sensitivity_strict_hint">Kõige valvsam — hoiatab varem, võib sagedamini.</string>
 </resources>

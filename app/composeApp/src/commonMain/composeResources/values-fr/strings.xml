@@ -154,4 +154,11 @@
     <string name="settings_interval_h">Toutes les %1$d h</string>
     <string name="settings_interval_hm">Toutes les %1$d h %2$d min</string>
     <string name="settings_background_info">Les deux surveillent uniquement les traceurs qui semblent te suivre et n'utilisent jamais ta position. « Une fois réduite » maintient une analyse continue (avec notification) dès que tu quittes blep — meilleure détection, plus de batterie. « En arrière-plan » se réveille à intervalle pour un coup d'œil rapide quand blep est totalement fermé — plus léger, mais peut manquer des choses entre deux vérifications.</string>
+    <string name="sensitivity_title">Sensibilité de détection</string>
+    <string name="sensitivity_relaxed">Détendue</string>
+    <string name="sensitivity_balanced">Équilibrée</string>
+    <string name="sensitivity_strict">Stricte</string>
+    <string name="sensitivity_relaxed_hint">Moins d'alertes — pour les lieux bondés.</string>
+    <string name="sensitivity_balanced_hint">Un bon réglage au quotidien.</string>
+    <string name="sensitivity_strict_hint">La plus vigilante — alerte plus tôt, peut-être plus souvent.</string>
 </resources>

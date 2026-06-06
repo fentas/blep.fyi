@@ -154,4 +154,11 @@
     <string name="settings_interval_h">Elke %1$d u</string>
     <string name="settings_interval_hm">Elke %1$d u %2$d min</string>
     <string name="settings_background_info">Beide letten alleen op trackers die je lijken te volgen en gebruiken nooit je locatie. ‘Indien geminimaliseerd’ houdt een doorlopende scan (met melding) zodra je blep verlaat — beste detectie, meer batterij. ‘Op de achtergrond’ wordt op het interval kort wakker terwijl blep helemaal gesloten is — zuiniger, maar kan iets missen tussen controles.</string>
+    <string name="sensitivity_title">Detectiegevoeligheid</string>
+    <string name="sensitivity_relaxed">Ontspannen</string>
+    <string name="sensitivity_balanced">Gebalanceerd</string>
+    <string name="sensitivity_strict">Streng</string>
+    <string name="sensitivity_relaxed_hint">Minder meldingen — voor drukke plekken.</string>
+    <string name="sensitivity_balanced_hint">Een goede standaard voor elke dag.</string>
+    <string name="sensitivity_strict_hint">Het meest waakzaam — meldt eerder, mogelijk vaker.</string>
 </resources>

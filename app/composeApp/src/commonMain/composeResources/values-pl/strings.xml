@@ -154,4 +154,11 @@
     <string name="settings_interval_h">Co %1$d godz.</string>
     <string name="settings_interval_hm">Co %1$d godz. %2$d min</string>
     <string name="settings_background_info">Oba śledzą tylko lokalizatory, które wydają się za tobą podążać, i nigdy nie używają twojej lokalizacji. „Po zminimalizowaniu“ utrzymuje ciągły skan (z powiadomieniem), gdy opuścisz blep — najlepsze wykrywanie, więcej baterii. „W tle“ budzi się co interwał na szybkie sprawdzenie, gdy blep jest całkiem zamknięty — oszczędniej, ale może coś przeoczyć między sprawdzeniami.</string>
+    <string name="sensitivity_title">Czułość wykrywania</string>
+    <string name="sensitivity_relaxed">Złagodzona</string>
+    <string name="sensitivity_balanced">Zrównoważona</string>
+    <string name="sensitivity_strict">Surowa</string>
+    <string name="sensitivity_relaxed_hint">Mniej alertów — do zatłoczonych miejsc.</string>
+    <string name="sensitivity_balanced_hint">Dobre ustawienie na co dzień.</string>
+    <string name="sensitivity_strict_hint">Najczujniejsza — ostrzega wcześniej, może częściej.</string>
 </resources>

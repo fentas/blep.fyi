@@ -2,6 +2,7 @@ package fyi.blep
 
 import fyi.blep.core.platform.KeyValueStore
 import fyi.blep.core.platform.createKeyValueStore
+import fyi.blep.core.safety.ScanSensitivity
 
 /**
  * Persisted app preferences shown on the Settings screen. Thin typed wrapper over
@@ -36,6 +37,10 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
     fun setScanIntervalMinutes(min: Int) =
         store.putString(KEY_INTERVAL, min.coerceIn(INTERVAL_MIN, INTERVAL_MAX).toString())
 
+    /** Detection sensitivity preset for the safety scan. */
+    fun scanSensitivity(): ScanSensitivity = ScanSensitivity.fromName(store.getString(KEY_SENSITIVITY))
+    fun setScanSensitivity(s: ScanSensitivity) = store.putString(KEY_SENSITIVITY, s.name)
+
     companion object {
         const val INTERVAL_MIN = 15   // WorkManager periodic floor
         const val INTERVAL_MAX = 240  // 4 hours
@@ -46,5 +51,6 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
         private const val KEY_FG = "settings.foregroundScan"
         private const val KEY_BG = "settings.backgroundScan"
         private const val KEY_INTERVAL = "settings.scanIntervalMin"
+        private const val KEY_SENSITIVITY = "settings.scanSensitivity"
     }
 }

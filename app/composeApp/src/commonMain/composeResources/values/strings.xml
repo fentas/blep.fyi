@@ -171,4 +171,11 @@
     <string name="settings_interval_h">Every %1$d h</string>
     <string name="settings_interval_hm">Every %1$d h %2$d min</string>
     <string name="settings_background_info">Both watch only for trackers that seem to follow you, and never use your location. ‘When minimized’ keeps a continuous scan running (with a notification) once you leave blep — best detection, more battery. ‘In the background’ wakes on the interval for a quick look while blep is fully closed — lighter, but it can miss things between checks.</string>
+    <string name="sensitivity_title">Detection sensitivity</string>
+    <string name="sensitivity_relaxed">Relaxed</string>
+    <string name="sensitivity_balanced">Balanced</string>
+    <string name="sensitivity_strict">Strict</string>
+    <string name="sensitivity_relaxed_hint">Fewer alerts — for busy, crowded places.</string>
+    <string name="sensitivity_balanced_hint">A good default for everyday use.</string>
+    <string name="sensitivity_strict_hint">Most vigilant — flags sooner, may alert more.</string>
 </resources>

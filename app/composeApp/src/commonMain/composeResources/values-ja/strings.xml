@@ -154,4 +154,11 @@
     <string name="settings_interval_h">%1$d 時間ごと</string>
     <string name="settings_interval_hm">%1$d 時間 %2$d 分ごと</string>
     <string name="settings_background_info">どちらもあなたを追っていそうなトラッカーだけを監視し、位置情報は一切使いません。「最小化中」は blep を離れた後も連続スキャン（通知あり）を維持——検出は最良ですが電池を多く使います。「バックグラウンド」は blep を完全に閉じている間、間隔ごとに短く起動して確認——省電力ですが、確認の合間に見逃すことがあります。</string>
+    <string name="sensitivity_title">検出感度</string>
+    <string name="sensitivity_relaxed">ゆるめ</string>
+    <string name="sensitivity_balanced">バランス</string>
+    <string name="sensitivity_strict">厳しめ</string>
+    <string name="sensitivity_relaxed_hint">通知少なめ——混雑した場所向け。</string>
+    <string name="sensitivity_balanced_hint">普段使いに最適な既定値。</string>
+    <string name="sensitivity_strict_hint">最も警戒——早く通知、回数が増えることも。</string>
 </resources>

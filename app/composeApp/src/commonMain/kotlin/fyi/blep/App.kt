@@ -76,6 +76,8 @@ fun App(demo: Boolean = false) {
                     onToggleUnnamed = { controller.toggleUnnamed() },
                     rememberTrackers = controller.rememberEncounters,
                     onToggleRemember = { controller.toggleRememberEncounters() },
+                    scanSensitivity = controller.scanSensitivity,
+                    onSelectSensitivity = controller::selectScanSensitivity,
                     foregroundScan = controller.foregroundScanEnabled,
                     onToggleForeground = controller::setForegroundScanning,
                     backgroundScan = controller.backgroundScanEnabled,
@@ -87,6 +89,8 @@ fun App(demo: Boolean = false) {
 
                 is Screen.Safety -> SafetyScreen(
                     alerts = controller.safetyAlerts,
+                    scanSensitivity = controller.scanSensitivity,
+                    onSelectSensitivity = controller::selectScanSensitivity,
                     backgroundOn = controller.backgroundScanEnabled,
                     onToggleBackground = controller::setBackgroundScanning,
                     onFind = controller::findTracker,

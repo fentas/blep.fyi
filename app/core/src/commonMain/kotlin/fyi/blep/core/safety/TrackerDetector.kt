@@ -50,6 +50,27 @@ data class TrackerTuning(
 )
 
 /**
+ * User-selectable detection sensitivity — a [TrackerTuning] preset trading false
+ * positives against how fast/eagerly a follower is flagged. (Manual for now;
+ * movement-based auto-switching is future work — see docs/detection.md.)
+ */
+enum class ScanSensitivity(val tuning: TrackerTuning) {
+    /** Fewer alerts — for busy/crowded places where strangers churn (commute). */
+    RELAXED(TrackerTuning(closeDbm = -65, nearbyMs = 60_000L, followingMs = 10 * 60_000L, rotationMinDistinct = 6, rotationMinCoverage = 0.7)),
+
+    /** The default balance. */
+    BALANCED(TrackerTuning()),
+
+    /** Most vigilant — flags sooner and from a bit further (somewhere unfamiliar). */
+    STRICT(TrackerTuning(closeDbm = -82, nearbyMs = 20_000L, followingMs = 3 * 60_000L, rotationMinDistinct = 3, rotationMinCoverage = 0.5));
+
+    companion object {
+        fun fromName(name: String?): ScanSensitivity =
+            entries.firstOrNull { it.name == name } ?: BALANCED
+    }
+}
+
+/**
  * Detects whether an unwanted Bluetooth tracker (an AirTag, Tile, SmartTag, a
  * Find My / DULT beacon, or an anonymous rotating-MAC device) is travelling **with
  * you** — the anti-stalking mirror of blep's normal hunt.

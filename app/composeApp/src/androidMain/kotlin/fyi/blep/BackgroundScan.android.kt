@@ -64,7 +64,7 @@ actual object BackgroundScan {
 /** Periodic (app-closed) check: scan a short window for a following tracker, notify. */
 class BackgroundScanWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
     override suspend fun doWork(): Result {
-        val safety = SafetyScanner(createBleScanner(), TrackerDetector(), SafetyHistory(createKeyValueStore()))
+        val safety = SafetyScanner(createBleScanner(), TrackerDetector(AppSettings().scanSensitivity().tuning), SafetyHistory(createKeyValueStore()))
         val hit = withTimeoutOrNull(SCAN_WINDOW_MS) {
             safety.alerts().first { list -> list.any { it.severity == Severity.ALERT } }
         }
@@ -86,7 +86,7 @@ class BackgroundScanService : Service() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE else 0,
         )
         scope.launch {
-            val safety = SafetyScanner(createBleScanner(), TrackerDetector(), SafetyHistory(createKeyValueStore()))
+            val safety = SafetyScanner(createBleScanner(), TrackerDetector(AppSettings().scanSensitivity().tuning), SafetyHistory(createKeyValueStore()))
             runCatching {
                 safety.alerts().collect { list ->
                     if (list.any { it.severity == Severity.ALERT }) notifyTracker(this@BackgroundScanService)

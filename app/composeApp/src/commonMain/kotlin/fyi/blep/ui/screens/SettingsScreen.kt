@@ -38,6 +38,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import fyi.blep.resources.Res
 import fyi.blep.AppSettings
+import fyi.blep.core.safety.ScanSensitivity
+import fyi.blep.ui.components.SensitivitySelector
 import fyi.blep.resources.action_done
 import fyi.blep.resources.settings_background_desc
 import fyi.blep.resources.settings_background_info
@@ -72,6 +74,8 @@ fun SettingsScreen(
     onToggleUnnamed: (Boolean) -> Unit,
     rememberTrackers: Boolean,
     onToggleRemember: (Boolean) -> Unit,
+    scanSensitivity: ScanSensitivity,
+    onSelectSensitivity: (ScanSensitivity) -> Unit,
     foregroundScan: Boolean,
     onToggleForeground: (Boolean) -> Unit,
     backgroundScan: Boolean,
@@ -135,6 +139,8 @@ fun SettingsScreen(
                 checked = rememberTrackers,
                 onToggle = onToggleRemember,
             )
+
+            SensitivitySelector(scanSensitivity, onSelectSensitivity, Modifier.fillMaxWidth())
 
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
