@@ -161,4 +161,7 @@
     <string name="sensitivity_relaxed_hint">Minder meldingen — voor drukke plekken.</string>
     <string name="sensitivity_balanced_hint">Een goede standaard voor elke dag.</string>
     <string name="sensitivity_strict_hint">Het meest waakzaam — meldt eerder, mogelijk vaker.</string>
+    <string name="settings_location_title">Locatiebewuste detectie</string>
+    <string name="settings_location_desc">Noteert een grove, lokale plek bij een tracker, om een achtervolger van je dagelijkse drukte te onderscheiden. Verlaat nooit je telefoon.</string>
+    <string name="alert_cross_places">Bij jou gezien op %1$d verschillende plekken.</string>
 </resources>

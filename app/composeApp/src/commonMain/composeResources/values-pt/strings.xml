@@ -161,4 +161,7 @@
     <string name="sensitivity_relaxed_hint">Menos alertas — para locais movimentados.</string>
     <string name="sensitivity_balanced_hint">Um bom padrão para o dia a dia.</string>
     <string name="sensitivity_strict_hint">Mais vigilante — sinaliza mais cedo, pode alertar mais.</string>
+    <string name="settings_location_title">Deteção com localização</string>
+    <string name="settings_location_desc">Anota um local aproximado, no dispositivo, ao detetar um rastreador, para distinguir um perseguidor da tua rotina. Nunca sai do telefone.</string>
+    <string name="alert_cross_places">Visto perto de ti em %1$d locais diferentes.</string>
 </resources>

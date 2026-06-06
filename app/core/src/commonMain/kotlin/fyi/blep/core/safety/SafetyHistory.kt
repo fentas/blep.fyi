@@ -8,10 +8,15 @@ data class CrossSession(
     val distinctHours: Int, // number of separate clock-hours it was seen close
     val firstMs: Long,
     val lastMs: Long,
+    val distinctPlaces: Int = 0, // distinct coarse places (0 if location-aware off)
 ) {
     /** Seen close across several separated hours ⇒ likely travelling with you, not
      *  a stranger you happened to pass. */
     val persistent: Boolean get() = distinctHours >= 3
+
+    /** Seen near you in ≥2 distinct places — the strongest "following you" signal
+     *  (a stationary device you merely pass stays in one place). */
+    val multiPlace: Boolean get() = distinctPlaces >= 2
 }
 
 /**
@@ -40,13 +45,17 @@ class SafetyHistory(
         if (!on) clear()
     }
 
-    /** Records a close encounter with a recognised tracker kind (throttled, pruned). */
-    fun record(kind: TrackerKind, nowEpochMs: Long) {
+    /** Records a close encounter with a recognised tracker kind (throttled, pruned).
+     *  [place] is an optional coarse, on-device place cell (null when location-aware
+     *  detection is off) used only to count distinct places. */
+    fun record(kind: TrackerKind, nowEpochMs: Long, place: String? = null) {
         if (kind == TrackerKind.UNKNOWN) return
         val kept = load().filter { nowEpochMs - it.epochMs <= retentionMs }
         val lastForKind = kept.filter { it.kind == kind }.maxOfOrNull { it.epochMs }
-        if (lastForKind != null && nowEpochMs - lastForKind < minGapMs) return
-        save((kept + Encounter(kind, nowEpochMs)).takeLast(maxEntries))
+        // Throttle by time, but always record a *new* place so distinct-place counts stay honest.
+        val knownPlace = place != null && kept.any { it.kind == kind && it.place == place }
+        if (lastForKind != null && nowEpochMs - lastForKind < minGapMs && (place == null || knownPlace)) return
+        save((kept + Encounter(kind, nowEpochMs, place)).takeLast(maxEntries))
     }
 
     /** Cross-session context for [kind], or null if it's never been logged. */
@@ -54,7 +63,8 @@ class SafetyHistory(
         val mine = load().filter { it.kind == kind && nowEpochMs - it.epochMs <= retentionMs }
         if (mine.isEmpty()) return null
         val hours = mine.map { it.epochMs / 3_600_000L }.toHashSet().size
-        return CrossSession(kind, hours, mine.minOf { it.epochMs }, mine.maxOf { it.epochMs })
+        val places = mine.mapNotNull { it.place }.toHashSet().size
+        return CrossSession(kind, hours, mine.minOf { it.epochMs }, mine.maxOf { it.epochMs }, places)
     }
 
     fun clear() = store.putString(KEY_LOG, "")
@@ -78,15 +88,16 @@ class SafetyHistory(
     fun unmute(address: String) = writeLines(KEY_MUTED, (mutedAddresses() - address).toList())
 
     private fun load(): List<Encounter> = readLines(KEY_LOG).mapNotNull { line ->
-        val p = line.split(':')
-        if (p.size != 2) return@mapNotNull null
+        val p = line.split(':')                       // "ord:ms" or "ord:ms:place" (place may contain a comma)
+        if (p.size < 2) return@mapNotNull null
         val ord = p[0].toIntOrNull() ?: return@mapNotNull null
         val ms = p[1].toLongOrNull() ?: return@mapNotNull null
-        TrackerKind.entries.getOrNull(ord)?.let { Encounter(it, ms) }
+        val place = p.getOrNull(2)?.takeIf { it.isNotBlank() }
+        TrackerKind.entries.getOrNull(ord)?.let { Encounter(it, ms, place) }
     }
 
     private fun save(list: List<Encounter>) =
-        writeLines(KEY_LOG, list.map { "${it.kind.ordinal}:${it.epochMs}" })
+        writeLines(KEY_LOG, list.map { "${it.kind.ordinal}:${it.epochMs}:${it.place.orEmpty()}" })
 
     /** Newline-delimited string codec shared by the encounter log and the mute list. */
     private fun readLines(key: String): List<String> =
@@ -94,7 +105,7 @@ class SafetyHistory(
 
     private fun writeLines(key: String, lines: List<String>) = store.putString(key, lines.joinToString("\n"))
 
-    private data class Encounter(val kind: TrackerKind, val epochMs: Long)
+    private data class Encounter(val kind: TrackerKind, val epochMs: Long, val place: String? = null)
 
     private companion object {
         const val KEY_ENABLED = "safety.remember"

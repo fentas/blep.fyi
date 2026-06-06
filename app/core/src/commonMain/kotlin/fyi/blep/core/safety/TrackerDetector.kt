@@ -36,6 +36,7 @@ data class TrackerAlert(
     val durationMs: Long = 0L,        // FOLLOWING: how long it's been near you
     val distinctCount: Int = 0,       // ROTATION: number of anonymous IDs seen
     val crossSessionHours: Int = 0,   // set when promoted by cross-session history
+    val crossSessionPlaces: Int = 0,  // distinct coarse places seen (location-aware only)
 )
 
 /** Thresholds for [TrackerDetector] (all overridable / unit-tunable). */

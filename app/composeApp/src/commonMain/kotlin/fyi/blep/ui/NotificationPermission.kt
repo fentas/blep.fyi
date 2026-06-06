@@ -9,3 +9,8 @@ import androidx.compose.runtime.Composable
  */
 @Composable
 expect fun rememberNotificationPermissionRequest(): () -> Unit
+
+/** Returns a function that, when invoked, ensures coarse-location permission so
+ *  location-aware detection can sample a place. No-op where not applicable. */
+@Composable
+expect fun rememberLocationPermissionRequest(): () -> Unit

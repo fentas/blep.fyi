@@ -162,4 +162,7 @@
     <string name="sensitivity_relaxed_hint">Weniger Warnungen — für belebte Orte.</string>
     <string name="sensitivity_balanced_hint">Guter Standard für den Alltag.</string>
     <string name="sensitivity_strict_hint">Am wachsamsten — meldet früher, evtl. öfter.</string>
+    <string name="settings_location_title">Standortbasierte Erkennung</string>
+    <string name="settings_location_desc">Notiert einen groben, geräteinternen Ort bei einem Tracker, um Verfolger von deinem Alltag zu unterscheiden. Verlässt nie dein Telefon.</string>
+    <string name="alert_cross_places">In %1$d verschiedenen Orten nahe dir gesehen.</string>
 </resources>

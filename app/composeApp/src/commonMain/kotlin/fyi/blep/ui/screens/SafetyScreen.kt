@@ -66,6 +66,7 @@ import fyi.blep.resources.safety_find_it
 import fyi.blep.resources.safety_its_mine
 import fyi.blep.resources.safety_muted_undo
 import fyi.blep.core.safety.ScanSensitivity
+import fyi.blep.resources.alert_cross_places
 import fyi.blep.resources.settings_background_desc
 import fyi.blep.resources.settings_background_title
 import fyi.blep.ui.components.SensitivitySelector
@@ -213,11 +214,14 @@ private fun alertDetail(alert: TrackerAlert): String {
         AlertReason.SEPARATED_NEARBY -> stringResource(Res.string.alert_nearby_detail)
         AlertReason.ROTATION -> stringResource(Res.string.alert_rotation_detail, alert.distinctCount)
     }
-    return if (alert.crossSessionHours >= 3) {
-        base + " " + stringResource(Res.string.alert_cross_session, alert.crossSessionHours)
-    } else {
-        base
+    var out = base
+    if (alert.crossSessionPlaces >= 2) {
+        out += " " + stringResource(Res.string.alert_cross_places, alert.crossSessionPlaces)
     }
+    if (alert.crossSessionHours >= 3) {
+        out += " " + stringResource(Res.string.alert_cross_session, alert.crossSessionHours)
+    }
+    return out
 }
 
 @Composable

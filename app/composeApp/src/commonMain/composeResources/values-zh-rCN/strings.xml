@@ -162,4 +162,7 @@
     <string name="sensitivity_relaxed_hint">更少提醒——适合拥挤场所。</string>
     <string name="sensitivity_balanced_hint">日常使用的良好默认值。</string>
     <string name="sensitivity_strict_hint">最警觉——更早提醒，可能更频繁。</string>
+    <string name="settings_location_title">基于位置的检测</string>
+    <string name="settings_location_desc">发现追踪器时在本机记录一个粗略地点，以区分跟踪者和你的日常人群。绝不离开你的手机。</string>
+    <string name="alert_cross_places">在 %1$d 个不同地点出现在你附近。</string>
 </resources>

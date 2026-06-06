@@ -161,4 +161,7 @@
     <string name="sensitivity_relaxed_hint">Manje upozorenja — za gužve.</string>
     <string name="sensitivity_balanced_hint">Dobra zadana vrijednost za svaki dan.</string>
     <string name="sensitivity_strict_hint">Najopreznije — javlja ranije, možda češće.</string>
+    <string name="settings_location_title">Otkrivanje uz lokaciju</string>
+    <string name="settings_location_desc">Pri uočavanju pratitelja bilježi grubo, lokalno mjesto kako bi razlikovao progonitelja od svakodnevne gužve. Nikad ne napušta telefon.</string>
+    <string name="alert_cross_places">Viđen blizu tebe na %1$d različita mjesta.</string>
 </resources>

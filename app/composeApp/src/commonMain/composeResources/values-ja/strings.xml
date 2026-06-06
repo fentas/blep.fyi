@@ -161,4 +161,7 @@
     <string name="sensitivity_relaxed_hint">通知少なめ——混雑した場所向け。</string>
     <string name="sensitivity_balanced_hint">普段使いに最適な既定値。</string>
     <string name="sensitivity_strict_hint">最も警戒——早く通知、回数が増えることも。</string>
+    <string name="settings_location_title">位置を使った検出</string>
+    <string name="settings_location_desc">トラッカーを検出した際に端末内に大まかな場所を記録し、尾行者を日常の人混みと区別します。端末から出ることはありません。</string>
+    <string name="alert_cross_places">%1$d か所の異なる場所であなたの近くで検出。</string>
 </resources>

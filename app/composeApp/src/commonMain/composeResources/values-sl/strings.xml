@@ -161,4 +161,7 @@
     <string name="sensitivity_relaxed_hint">Manj opozoril — za živahne, polne kraje.</string>
     <string name="sensitivity_balanced_hint">Dober privzetek za vsakdan.</string>
     <string name="sensitivity_strict_hint">Najbolj pozorno — opozori prej, morda pogosteje.</string>
+    <string name="settings_location_title">Zaznava glede na lokacijo</string>
+    <string name="settings_location_desc">Ob zaznavi sledilnika zabeleži grob, lokalni kraj, da loči zasledovalca od vsakdanje množice. Nikoli ne zapusti telefona.</string>
+    <string name="alert_cross_places">Opažen blizu tebe na %1$d različnih krajih.</string>
 </resources>

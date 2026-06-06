@@ -22,3 +22,16 @@ actual fun rememberNotificationPermissionRequest(): () -> Unit {
         }
     }
 }
+
+@Composable
+actual fun rememberLocationPermissionRequest(): () -> Unit {
+    val ctx = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    return {
+        if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+    }
+}

@@ -161,4 +161,7 @@
     <string name="sensitivity_relaxed_hint">Meno avvisi — per luoghi affollati.</string>
     <string name="sensitivity_balanced_hint">Un buon valore per ogni giorno.</string>
     <string name="sensitivity_strict_hint">Più vigile — segnala prima, può avvisare di più.</string>
+    <string name="settings_location_title">Rilevamento con posizione</string>
+    <string name="settings_location_desc">Annota un luogo approssimativo, sul dispositivo, quando vede un tracker, per distinguere un inseguitore dalla tua routine. Non lascia mai il telefono.</string>
+    <string name="alert_cross_places">Visto vicino a te in %1$d luoghi diversi.</string>
 </resources>

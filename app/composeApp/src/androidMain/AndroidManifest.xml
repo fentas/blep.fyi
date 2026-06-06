@@ -17,6 +17,10 @@
     <!-- Geiger-counter haptic feedback while tracking. -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Optional location-aware detection (opt-in): a coarse, on-device place to tell
+         a follower seen across places from your daily crowd. Never leaves the phone. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <!-- Optional background safety scanning (default off; requested when enabled). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />

@@ -161,4 +161,7 @@
     <string name="sensitivity_relaxed_hint">Moins d'alertes — pour les lieux bondés.</string>
     <string name="sensitivity_balanced_hint">Un bon réglage au quotidien.</string>
     <string name="sensitivity_strict_hint">La plus vigilante — alerte plus tôt, peut-être plus souvent.</string>
+    <string name="settings_location_title">Détection avec position</string>
+    <string name="settings_location_desc">Note un lieu approximatif, sur l'appareil, en repérant un traceur, pour distinguer un suiveur de ta routine. Ne quitte jamais ton téléphone.</string>
+    <string name="alert_cross_places">Vu près de toi dans %1$d lieux différents.</string>
 </resources>

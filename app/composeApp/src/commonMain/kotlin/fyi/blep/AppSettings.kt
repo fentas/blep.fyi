@@ -41,6 +41,11 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
     fun scanSensitivity(): ScanSensitivity = ScanSensitivity.fromName(store.getString(KEY_SENSITIVITY))
     fun setScanSensitivity(s: ScanSensitivity) = store.putString(KEY_SENSITIVITY, s.name)
 
+    /** Location-aware detection: sample a coarse on-device place on a suspect sighting
+     *  to tell a follower (seen across places) from your daily crowd. Opt-in. */
+    fun locationAware(): Boolean = store.getBoolean(KEY_LOCATION, false)
+    fun setLocationAware(on: Boolean) = store.putBoolean(KEY_LOCATION, on)
+
     companion object {
         const val INTERVAL_MIN = 15   // WorkManager periodic floor
         const val INTERVAL_MAX = 240  // 4 hours
@@ -52,5 +57,6 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
         private const val KEY_BG = "settings.backgroundScan"
         private const val KEY_INTERVAL = "settings.scanIntervalMin"
         private const val KEY_SENSITIVITY = "settings.scanSensitivity"
+        private const val KEY_LOCATION = "settings.locationAware"
     }
 }

@@ -21,6 +21,9 @@ class SafetyScanner(
     private val detector: TrackerDetector = TrackerDetector(),
     private val history: SafetyHistory? = null,
     private val nowEpochMs: () -> Long = ::epochMillis,
+    // Coarse on-device place cell for the current location, or null (location-aware
+    // detection off / no permission). Sampled when an encounter is recorded.
+    private val place: () -> String? = { null },
 ) {
     /** Addresses the user marked "it's mine" — never observed, never alerted. */
     private val muted: MutableSet<String> = history?.mutedAddresses()?.toMutableSet() ?: mutableSetOf()
@@ -53,11 +56,15 @@ class SafetyScanner(
         val log = history?.takeIf { it.enabled() } ?: return alerts
         val now = nowEpochMs()
         return alerts.map { alert ->
-            log.record(alert.kind, now)
+            log.record(alert.kind, now, place())
             val cross = log.crossSession(alert.kind, now)
-            if (cross != null && cross.persistent) {
-                // Promote + carry the hour count; the UI appends the localized sentence.
-                alert.copy(severity = Severity.ALERT, crossSessionHours = cross.distinctHours)
+            if (cross != null && (cross.persistent || cross.multiPlace)) {
+                // Promote + carry the hour/place counts; the UI appends the localized sentence.
+                alert.copy(
+                    severity = Severity.ALERT,
+                    crossSessionHours = cross.distinctHours,
+                    crossSessionPlaces = cross.distinctPlaces,
+                )
             } else {
                 alert
             }

@@ -161,4 +161,7 @@
     <string name="sensitivity_relaxed_hint">Λιγότερες ειδοποιήσεις — για πολυσύχναστα μέρη.</string>
     <string name="sensitivity_balanced_hint">Καλή προεπιλογή για κάθε μέρα.</string>
     <string name="sensitivity_strict_hint">Πιο άγρυπνη — ειδοποιεί νωρίτερα, ίσως συχνότερα.</string>
+    <string name="settings_location_title">Ανίχνευση με τοποθεσία</string>
+    <string name="settings_location_desc">Σημειώνει έναν χονδρικό, τοπικό τόπο όταν εντοπίζει ιχνηλάτη, για να ξεχωρίζει έναν διώκτη από την καθημερινότητά σου. Δεν φεύγει ποτέ από το τηλέφωνο.</string>
+    <string name="alert_cross_places">Εντοπίστηκε κοντά σου σε %1$d διαφορετικά μέρη.</string>
 </resources>

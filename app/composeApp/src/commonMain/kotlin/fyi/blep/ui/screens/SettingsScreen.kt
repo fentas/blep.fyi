@@ -51,6 +51,8 @@ import fyi.blep.resources.settings_foreground_title
 import fyi.blep.resources.settings_interval_h
 import fyi.blep.resources.settings_interval_hm
 import fyi.blep.resources.settings_interval_min
+import fyi.blep.resources.settings_location_desc
+import fyi.blep.resources.settings_location_title
 import fyi.blep.resources.settings_section_background
 import fyi.blep.resources.settings_remember_desc
 import fyi.blep.resources.settings_remember_title
@@ -59,6 +61,7 @@ import fyi.blep.resources.settings_sound_title
 import fyi.blep.resources.settings_title
 import fyi.blep.resources.settings_unnamed_desc
 import fyi.blep.resources.settings_unnamed_title
+import fyi.blep.ui.rememberLocationPermissionRequest
 import fyi.blep.ui.rememberNotificationPermissionRequest
 import fyi.blep.ui.theme.BlepColors
 import org.jetbrains.compose.resources.stringResource
@@ -76,6 +79,8 @@ fun SettingsScreen(
     onToggleRemember: (Boolean) -> Unit,
     scanSensitivity: ScanSensitivity,
     onSelectSensitivity: (ScanSensitivity) -> Unit,
+    locationAware: Boolean,
+    onToggleLocation: (Boolean) -> Unit,
     foregroundScan: Boolean,
     onToggleForeground: (Boolean) -> Unit,
     backgroundScan: Boolean,
@@ -87,6 +92,7 @@ fun SettingsScreen(
 ) {
     // Ask for the notification permission when background scanning is switched on.
     val requestNotifications = rememberNotificationPermissionRequest()
+    val requestLocation = rememberLocationPermissionRequest()
     var showBgInfo by remember { mutableStateOf(false) }
     Column(
         modifier = modifier
@@ -140,7 +146,22 @@ fun SettingsScreen(
                 onToggle = onToggleRemember,
             )
 
-            SensitivitySelector(scanSensitivity, onSelectSensitivity, Modifier.fillMaxWidth())
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White.copy(alpha = 0.6f),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                SensitivitySelector(
+                    scanSensitivity, onSelectSensitivity,
+                    Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
+                )
+            }
+            SettingRow(
+                title = stringResource(Res.string.settings_location_title),
+                desc = stringResource(Res.string.settings_location_desc),
+                checked = locationAware,
+                onToggle = { on -> if (on) requestLocation(); onToggleLocation(on) },
+            )
 
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {

@@ -7,6 +7,7 @@ import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.ble.DeviceFavorites
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.platform.coarsePlaceCell
 import fyi.blep.core.platform.createKeyValueStore
 import fyi.blep.core.safety.SafetyHistory
 import fyi.blep.core.safety.SafetyScanner
@@ -119,6 +120,10 @@ class BlepController(
     /** Detection sensitivity preset for the safety scan. */
     var scanSensitivity by mutableStateOf(settings.scanSensitivity())
         private set
+    /** Location-aware detection (opt-in): sample a coarse on-device place on a
+     *  suspect sighting to count distinct places. */
+    var locationAware by mutableStateOf(settings.locationAware())
+        private set
 
     /**
      * The main discovery list: everything genuinely **nearby** ([BleDevice.isPresent]
@@ -171,7 +176,12 @@ class BlepController(
     private val guidanceStabilizer = GuidanceStabilizer()
     private var safetyScanner = buildSafetyScanner()
     private fun buildSafetyScanner() =
-        SafetyScanner(scanner, TrackerDetector(safetyTuning ?: scanSensitivity.tuning), safetyHistory)
+        SafetyScanner(
+            scanner,
+            TrackerDetector(safetyTuning ?: scanSensitivity.tuning),
+            safetyHistory,
+            place = { if (locationAware) coarsePlaceCell() else null },
+        )
     private var safetyJob: Job? = null
     // Latest motion sample; both flows run on the same (Main) dispatcher, so a
     // plain var is safe to share between the RSSI and motion collectors.
@@ -242,6 +252,13 @@ class BlepController(
     }
 
     fun openSettings() { screen = Screen.Settings }
+
+    /** Toggle location-aware detection (persisted). The scanner reads this live, so
+     *  no rebuild is needed. */
+    fun toggleLocationAware(on: Boolean) {
+        locationAware = on
+        settings.setLocationAware(on)
+    }
 
     /** Switch the detection sensitivity preset (persisted); re-runs the safety scan
      *  with the new thresholds if it's open. Ignored in demo (fixed tuning). */

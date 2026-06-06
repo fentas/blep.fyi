@@ -161,4 +161,7 @@
     <string name="sensitivity_relaxed_hint">Mniej alertów — do zatłoczonych miejsc.</string>
     <string name="sensitivity_balanced_hint">Dobre ustawienie na co dzień.</string>
     <string name="sensitivity_strict_hint">Najczujniejsza — ostrzega wcześniej, może częściej.</string>
+    <string name="settings_location_title">Wykrywanie z lokalizacją</string>
+    <string name="settings_location_desc">Przy wykryciu lokalizatora zapisuje przybliżone, lokalne miejsce, aby odróżnić prześladowcę od codziennego tłumu. Nigdy nie opuszcza telefonu.</string>
+    <string name="alert_cross_places">Widziany przy tobie w %1$d różnych miejscach.</string>
 </resources>
