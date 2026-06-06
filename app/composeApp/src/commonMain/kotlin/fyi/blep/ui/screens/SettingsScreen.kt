@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -22,14 +23,24 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import fyi.blep.resources.Res
 import fyi.blep.AppSettings
+import fyi.blep.resources.action_done
 import fyi.blep.resources.settings_background_desc
+import fyi.blep.resources.settings_background_info
 import fyi.blep.resources.settings_background_title
 import fyi.blep.resources.settings_connected_signal_desc
 import fyi.blep.resources.settings_connected_signal_title
@@ -72,6 +83,7 @@ fun SettingsScreen(
 ) {
     // Ask for the notification permission when background scanning is switched on.
     val requestNotifications = rememberNotificationPermissionRequest()
+    var showBgInfo by remember { mutableStateOf(false) }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -125,49 +137,105 @@ fun SettingsScreen(
             )
 
             Spacer(Modifier.height(6.dp))
-            Text(
-                stringResource(Res.string.settings_section_background).uppercase(),
-                style = MaterialTheme.typography.labelLarge,
-                color = BlepColors.Ink.copy(alpha = 0.4f),
-                modifier = Modifier.padding(start = 4.dp),
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(Res.string.settings_section_background).uppercase(),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = BlepColors.Ink.copy(alpha = 0.4f),
+                    modifier = Modifier.weight(1f).padding(start = 4.dp),
+                )
+                Text(
+                    "?",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = BlepColors.Blue,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable { showBgInfo = true }
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                )
+            }
             SettingRow(
                 title = stringResource(Res.string.settings_foreground_title),
                 desc = stringResource(Res.string.settings_foreground_desc),
                 checked = foregroundScan,
                 onToggle = { on -> if (on) requestNotifications(); onToggleForeground(on) },
             )
-            SettingRow(
-                title = stringResource(Res.string.settings_background_title),
-                desc = stringResource(Res.string.settings_background_desc),
+            BackgroundScanRow(
                 checked = backgroundScan,
                 onToggle = { on -> if (on) requestNotifications(); onToggleBackground(on) },
+                intervalMinutes = intervalMinutes,
+                onIntervalChange = onIntervalChange,
             )
-            if (backgroundScan) IntervalRow(intervalMinutes, onIntervalChange)
         }
+    }
+
+    if (showBgInfo) {
+        AlertDialog(
+            onDismissRequest = { showBgInfo = false },
+            title = { Text(stringResource(Res.string.settings_section_background)) },
+            text = { Text(stringResource(Res.string.settings_background_info)) },
+            confirmButton = {
+                TextButton(onClick = { showBgInfo = false }) { Text(stringResource(Res.string.action_done)) }
+            },
+        )
     }
 }
 
-/** Slider for the periodic background interval (15 min – 4 h, 15-min steps). */
+/** "Scan in the background" toggle with the interval slider nested as a sub-option
+ *  (slider on top, small centred label below) when it's on. */
 @Composable
-private fun IntervalRow(minutes: Int, onChange: (Int) -> Unit) {
+private fun BackgroundScanRow(
+    checked: Boolean,
+    onToggle: (Boolean) -> Unit,
+    intervalMinutes: Int,
+    onIntervalChange: (Int) -> Unit,
+) {
     Surface(
-        shape = RoundedCornerShape(18.dp),
-        color = androidx.compose.ui.graphics.Color.White,
-        shadowElevation = 1.dp,
+        shape = RoundedCornerShape(16.dp),
+        color = Color.White.copy(alpha = 0.6f),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text(intervalLabel(minutes), style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink)
-            val min = AppSettings.INTERVAL_MIN
-            val max = AppSettings.INTERVAL_MAX
-            Slider(
-                value = minutes.toFloat(),
-                onValueChange = { v -> onChange((v / 15f).roundToInt() * 15) },
-                valueRange = min.toFloat()..max.toFloat(),
-                steps = (max - min) / 15 - 1,
-                colors = SliderDefaults.colors(thumbColor = BlepColors.Blue, activeTrackColor = BlepColors.Blue),
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        stringResource(Res.string.settings_background_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = BlepColors.Ink,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        stringResource(Res.string.settings_background_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = BlepColors.Ink.copy(alpha = 0.55f),
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Switch(
+                    checked = checked,
+                    onCheckedChange = onToggle,
+                    colors = SwitchDefaults.colors(checkedThumbColor = BlepColors.Cream, checkedTrackColor = BlepColors.Blue),
+                )
+            }
+            if (checked) {
+                Spacer(Modifier.height(4.dp))
+                val min = AppSettings.INTERVAL_MIN
+                val max = AppSettings.INTERVAL_MAX
+                Slider(
+                    value = intervalMinutes.toFloat(),
+                    onValueChange = { v -> onIntervalChange((v / 15f).roundToInt() * 15) },
+                    valueRange = min.toFloat()..max.toFloat(),
+                    steps = (max - min) / 15 - 1,
+                    colors = SliderDefaults.colors(thumbColor = BlepColors.Blue, activeTrackColor = BlepColors.Blue),
+                )
+                Text(
+                    intervalLabel(intervalMinutes),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = BlepColors.Ink.copy(alpha = 0.6f),
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+            }
         }
     }
 }
@@ -183,9 +251,8 @@ private fun intervalLabel(minutes: Int): String = when {
 private fun SettingRow(title: String, desc: String, checked: Boolean, onToggle: (Boolean) -> Unit) {
     Surface(
         onClick = { onToggle(!checked) },
-        shape = RoundedCornerShape(18.dp),
-        color = androidx.compose.ui.graphics.Color.White,
-        shadowElevation = 1.dp,
+        shape = RoundedCornerShape(16.dp),
+        color = Color.White.copy(alpha = 0.6f),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
@@ -193,7 +260,7 @@ private fun SettingRow(title: String, desc: String, checked: Boolean, onToggle: 
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink)
+                Text(title, style = MaterialTheme.typography.titleSmall, color = BlepColors.Ink, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(2.dp))
                 Text(desc, style = MaterialTheme.typography.bodySmall, color = BlepColors.Ink.copy(alpha = 0.55f))
             }

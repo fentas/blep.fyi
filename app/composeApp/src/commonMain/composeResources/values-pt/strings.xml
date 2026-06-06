@@ -147,10 +147,11 @@
     <string name="settings_remember_desc">Sinaliza um rastreador que reaparece perto de ti durante horas. Apenas no dispositivo.</string>
     <string name="settings_section_background">Análise em segundo plano</string>
     <string name="settings_foreground_title">Continuar a analisar quando minimizado</string>
-    <string name="settings_foreground_desc">Mantém uma análise de segurança com notificação ao sair do blep.</string>
+    <string name="settings_foreground_desc">Mantém uma análise ao vivo ao sair do blep — em tempo real, mais bateria.</string>
     <string name="settings_background_title">Analisar em segundo plano</string>
-    <string name="settings_background_desc">Verifica periodicamente rastreadores enquanto o blep está fechado.</string>
+    <string name="settings_background_desc">Verificações rápidas por intervalo com o blep fechado — pouca bateria.</string>
     <string name="settings_interval_min">A cada %1$d min</string>
     <string name="settings_interval_h">A cada %1$d h</string>
     <string name="settings_interval_hm">A cada %1$d h %2$d min</string>
+    <string name="settings_background_info">Ambos vigiam apenas rastreadores que parecem seguir-te e nunca usam a tua localização. «Quando minimizado» mantém uma análise contínua (com notificação) ao sair do blep — melhor deteção, mais bateria. «Em segundo plano» acorda por intervalo para uma verificação rápida com o blep fechado — mais leve, mas pode perder algo entre verificações.</string>
 </resources>

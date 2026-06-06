@@ -147,10 +147,11 @@
     <string name="settings_remember_desc">Markeert een tracker die urenlang steeds dichtbij opduikt. Alleen op het apparaat.</string>
     <string name="settings_section_background">Scannen op de achtergrond</string>
     <string name="settings_foreground_title">Blijven scannen indien geminimaliseerd</string>
-    <string name="settings_foreground_desc">Houdt een veiligheidsscan met melding wanneer je blep verlaat.</string>
+    <string name="settings_foreground_desc">Houdt een live scan wanneer je blep verlaat — realtime, meer batterij.</string>
     <string name="settings_background_title">Op de achtergrond scannen</string>
-    <string name="settings_background_desc">Controleert periodiek op trackers terwijl blep gesloten is.</string>
+    <string name="settings_background_desc">Korte controles op een timer terwijl blep gesloten is — weinig batterij.</string>
     <string name="settings_interval_min">Elke %1$d min</string>
     <string name="settings_interval_h">Elke %1$d u</string>
     <string name="settings_interval_hm">Elke %1$d u %2$d min</string>
+    <string name="settings_background_info">Beide letten alleen op trackers die je lijken te volgen en gebruiken nooit je locatie. ‘Indien geminimaliseerd’ houdt een doorlopende scan (met melding) zodra je blep verlaat — beste detectie, meer batterij. ‘Op de achtergrond’ wordt op het interval kort wakker terwijl blep helemaal gesloten is — zuiniger, maar kan iets missen tussen controles.</string>
 </resources>

@@ -147,10 +147,11 @@
     <string name="settings_remember_desc">Märgib jälitaja, mis tundide jooksul su lähedal korduvalt ilmub. Ainult seadmes.</string>
     <string name="settings_section_background">Taustaskannimine</string>
     <string name="settings_foreground_title">Skanni ka minimeerituna</string>
-    <string name="settings_foreground_desc">Hoiab turvaskannimist teavitusega, kui blepist lahkud.</string>
+    <string name="settings_foreground_desc">Hoiab reaalajas skannimist, kui blepist lahkud — reaalajas, rohkem akut.</string>
     <string name="settings_background_title">Skanni taustal</string>
-    <string name="settings_background_desc">Kontrollib aeg-ajalt jälitajaid, kui blep on suletud.</string>
+    <string name="settings_background_desc">Kiired kontrollid intervalliga, kui blep on suletud — vähe akut.</string>
     <string name="settings_interval_min">Iga %1$d min</string>
     <string name="settings_interval_h">Iga %1$d h</string>
     <string name="settings_interval_hm">Iga %1$d h %2$d min</string>
+    <string name="settings_background_info">Mõlemad jälgivad ainult jälitajaid, kes näivad sind järgivat, ega kasuta kunagi su asukohta. „Minimeerituna“ hoiab pidevat skannimist (teavitusega), kui blepist lahkud — parim tuvastus, rohkem akut. „Taustal“ ärkab intervalliga lühikeseks kontrolliks, kui blep on täiesti suletud — säästlikum, kuid võib kontrollide vahel midagi mööda lasta.</string>
 </resources>

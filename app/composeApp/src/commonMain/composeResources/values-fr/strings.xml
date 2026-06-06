@@ -147,10 +147,11 @@
     <string name="settings_remember_desc">Signale un traceur qui réapparaît près de toi pendant des heures. Sur l'appareil uniquement.</string>
     <string name="settings_section_background">Analyse en arrière-plan</string>
     <string name="settings_foreground_title">Continuer l'analyse une fois réduite</string>
-    <string name="settings_foreground_desc">Maintient une analyse de sécurité avec notification quand tu quittes blep.</string>
+    <string name="settings_foreground_desc">Maintient une analyse en direct quand tu quittes blep — temps réel, plus de batterie.</string>
     <string name="settings_background_title">Analyser en arrière-plan</string>
-    <string name="settings_background_desc">Vérifie périodiquement les traceurs quand blep est fermé.</string>
+    <string name="settings_background_desc">Vérifications rapides à intervalle quand blep est fermé — peu de batterie.</string>
     <string name="settings_interval_min">Toutes les %1$d min</string>
     <string name="settings_interval_h">Toutes les %1$d h</string>
     <string name="settings_interval_hm">Toutes les %1$d h %2$d min</string>
+    <string name="settings_background_info">Les deux surveillent uniquement les traceurs qui semblent te suivre et n'utilisent jamais ta position. « Une fois réduite » maintient une analyse continue (avec notification) dès que tu quittes blep — meilleure détection, plus de batterie. « En arrière-plan » se réveille à intervalle pour un coup d'œil rapide quand blep est totalement fermé — plus léger, mais peut manquer des choses entre deux vérifications.</string>
 </resources>

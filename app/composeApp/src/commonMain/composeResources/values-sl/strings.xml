@@ -147,10 +147,11 @@
     <string name="settings_remember_desc">Označi sledilnik, ki se v urah znova pojavlja blizu tebe. Samo na napravi.</string>
     <string name="settings_section_background">Skeniranje v ozadju</string>
     <string name="settings_foreground_title">Skeniraj ob pomanjšani aplikaciji</string>
-    <string name="settings_foreground_desc">Ohrani varnostno skeniranje z obvestilom, ko zapustiš blep.</string>
+    <string name="settings_foreground_desc">Ohranja sprotno skeniranje, ko zapustiš blep — v realnem času, več baterije.</string>
     <string name="settings_background_title">Skeniraj v ozadju</string>
-    <string name="settings_background_desc">Občasno preveri sledilnike, ko je blep zaprt.</string>
+    <string name="settings_background_desc">Kratke preverbe v intervalu, ko je blep zaprt — malo baterije.</string>
     <string name="settings_interval_min">Vsakih %1$d min</string>
     <string name="settings_interval_h">Vsakih %1$d h</string>
     <string name="settings_interval_hm">Vsakih %1$d h %2$d min</string>
+    <string name="settings_background_info">Oba pazita le na sledilnike, ki ti morda sledijo, in nikoli ne uporabljata lokacije. »Ob pomanjšani aplikaciji« ohranja neprekinjeno skeniranje (z obvestilom), ko zapustiš blep — najboljše zaznavanje, več baterije. »V ozadju« se v intervalu na kratko zbudi, ko je blep povsem zaprt — varčneje, a lahko kaj spregleda med preverbami.</string>
 </resources>

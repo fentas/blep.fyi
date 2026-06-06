@@ -147,10 +147,11 @@
     <string name="settings_remember_desc">Επισημαίνει έναν ιχνηλάτη που εμφανίζεται κοντά σου επί ώρες. Μόνο στη συσκευή.</string>
     <string name="settings_section_background">Σάρωση στο παρασκήνιο</string>
     <string name="settings_foreground_title">Συνέχεια σάρωσης όταν ελαχιστοποιηθεί</string>
-    <string name="settings_foreground_desc">Διατηρεί μια σάρωση ασφαλείας με ειδοποίηση όταν φεύγεις από το blep.</string>
+    <string name="settings_foreground_desc">Διατηρεί ζωντανή σάρωση όταν φεύγεις από το blep — σε πραγματικό χρόνο, περισσότερη μπαταρία.</string>
     <string name="settings_background_title">Σάρωση στο παρασκήνιο</string>
-    <string name="settings_background_desc">Ελέγχει περιοδικά για ιχνηλάτες όσο το blep είναι κλειστό.</string>
+    <string name="settings_background_desc">Γρήγοροι έλεγχοι ανά διάστημα όσο το blep είναι κλειστό — λίγη μπαταρία.</string>
     <string name="settings_interval_min">Κάθε %1$d λεπτά</string>
     <string name="settings_interval_h">Κάθε %1$d ώρες</string>
     <string name="settings_interval_hm">Κάθε %1$d ώρες %2$d λεπτά</string>
+    <string name="settings_background_info">Και τα δύο παρακολουθούν μόνο ιχνηλάτες που φαίνεται να σε ακολουθούν και δεν χρησιμοποιούν ποτέ την τοποθεσία σου. «Όταν ελαχιστοποιηθεί» διατηρεί συνεχή σάρωση (με ειδοποίηση) μόλις φύγεις από το blep — καλύτερη ανίχνευση, περισσότερη μπαταρία. «Στο παρασκήνιο» ξυπνά ανά διάστημα για γρήγορο έλεγχο όσο το blep είναι εντελώς κλειστό — πιο ελαφρύ, αλλά μπορεί να χάσει κάτι ανάμεσα στους ελέγχους.</string>
 </resources>

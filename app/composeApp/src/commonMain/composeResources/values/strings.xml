@@ -164,10 +164,11 @@
     <string name="settings_remember_desc">Flag a tracker that keeps reappearing near you over hours. On-device only.</string>
     <string name="settings_section_background">Background scanning</string>
     <string name="settings_foreground_title">Keep scanning when minimized</string>
-    <string name="settings_foreground_desc">Hold a safety scan with a notification when you leave blep.</string>
+    <string name="settings_foreground_desc">Keeps a live scan running when you leave blep — real-time, more battery.</string>
     <string name="settings_background_title">Scan in the background</string>
-    <string name="settings_background_desc">Periodically check for trackers while blep is closed.</string>
+    <string name="settings_background_desc">Quick checks on a timer while blep is closed — light on battery.</string>
     <string name="settings_interval_min">Every %1$d min</string>
     <string name="settings_interval_h">Every %1$d h</string>
     <string name="settings_interval_hm">Every %1$d h %2$d min</string>
+    <string name="settings_background_info">Both watch only for trackers that seem to follow you, and never use your location. ‘When minimized’ keeps a continuous scan running (with a notification) once you leave blep — best detection, more battery. ‘In the background’ wakes on the interval for a quick look while blep is fully closed — lighter, but it can miss things between checks.</string>
 </resources>

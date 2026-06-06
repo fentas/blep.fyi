@@ -148,10 +148,11 @@
     <string name="settings_remember_desc">Markiert einen Tracker, der über Stunden immer wieder nahe auftaucht. Nur auf dem Gerät.</string>
     <string name="settings_section_background">Hintergrund-Scan</string>
     <string name="settings_foreground_title">Scannen bei minimierter App</string>
-    <string name="settings_foreground_desc">Hält einen Sicherheits-Scan mit Benachrichtigung, wenn du blep verlässt.</string>
+    <string name="settings_foreground_desc">Hält einen Live-Scan, wenn du blep verlässt — in Echtzeit, mehr Akku.</string>
     <string name="settings_background_title">Im Hintergrund scannen</string>
-    <string name="settings_background_desc">Sucht regelmäßig nach Trackern, während blep geschlossen ist.</string>
+    <string name="settings_background_desc">Kurze Checks im Intervall, während blep geschlossen ist — wenig Akku.</string>
     <string name="settings_interval_min">Alle %1$d Min.</string>
     <string name="settings_interval_h">Alle %1$d Std.</string>
     <string name="settings_interval_hm">Alle %1$d Std. %2$d Min.</string>
+    <string name="settings_background_info">Beide achten nur auf Tracker, die dir zu folgen scheinen, und nutzen nie deinen Standort. „Bei minimierter App“ hält einen durchgehenden Scan (mit Benachrichtigung), sobald du blep verlässt — beste Erkennung, mehr Akku. „Im Hintergrund“ wacht im Intervall kurz auf, während blep ganz geschlossen ist — sparsamer, kann aber zwischen den Checks etwas verpassen.</string>
 </resources>

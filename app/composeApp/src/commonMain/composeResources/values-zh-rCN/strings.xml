@@ -148,10 +148,11 @@
     <string name="settings_remember_desc">标记数小时内反复出现在你附近的追踪器。仅在设备本地。</string>
     <string name="settings_section_background">后台扫描</string>
     <string name="settings_foreground_title">最小化时继续扫描</string>
-    <string name="settings_foreground_desc">离开 blep 时通过通知保持安全扫描。</string>
+    <string name="settings_foreground_desc">离开 blep 时保持实时扫描——实时，更耗电。</string>
     <string name="settings_background_title">在后台扫描</string>
-    <string name="settings_background_desc">blep 关闭时定期检查追踪器。</string>
+    <string name="settings_background_desc">blep 关闭时按间隔快速检查——省电。</string>
     <string name="settings_interval_min">每 %1$d 分钟</string>
     <string name="settings_interval_h">每 %1$d 小时</string>
     <string name="settings_interval_hm">每 %1$d 小时 %2$d 分钟</string>
+    <string name="settings_background_info">两者都只关注疑似跟踪你的追踪器，且从不使用你的位置。“最小化时”在你离开 blep 后保持持续扫描（带通知）——检测最佳，更耗电。“在后台”在 blep 完全关闭时按间隔短暂唤醒检查——更省电，但两次检查之间可能漏掉。</string>
 </resources>
