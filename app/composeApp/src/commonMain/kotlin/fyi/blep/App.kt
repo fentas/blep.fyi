@@ -37,6 +37,7 @@ fun App(demo: Boolean = false) {
                 DemoBleScanner(), scope, DemoMotionProvider(),
                 // fast thresholds so the demo safety scan escalates within seconds
                 safetyTuning = TrackerTuning(nearbyMs = 1_000, followingMs = 6_000, rotationMinDistinct = 3, bucketMs = 4_000),
+                skipOnboarding = true, // screenshots/demo jump straight to discovery
             )
             else BlepController(createBleScanner(), scope)
         }

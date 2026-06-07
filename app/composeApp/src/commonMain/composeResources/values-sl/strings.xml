@@ -25,6 +25,7 @@
     <string name="safety_scanning">Iskanje neželenih sledilnikov v bližini …</string>
     <string name="safety_all_clear">Vse je čisto</string>
     <string name="safety_all_clear_body">Trenutno v tvoji bližini ni neželenih sledilnikov. Pusti odprto minuto, medtem ko se premikaš — sledilnik, ki ti sledi, se bo pokazal.</string>
+    <string name="safety_need_help">Si našel sledilnik? Kaj storiti</string>
     <string name="safety_find_it">Najdi</string>
     <string name="safety_its_mine">Moje je</string>
     <string name="safety_muted_undo">Označeno kot tvoje — ne bo več opozarjalo</string>
@@ -41,13 +42,13 @@
     <string name="severity_alert">ALARM</string>
     <string name="severity_warn">OPOZORILO</string>
     <string name="severity_info">INFO</string>
-    <string name="alert_following_title">%1$s ti morda sledi</string>
-    <string name="alert_following_detail">V tvoji bližini je že %1$s. Če ni tvoj, ga poišči in onemogoči.</string>
+    <string name="alert_following_title">%1$s morda potuje s teboj</string>
+    <string name="alert_following_detail">Pogosto je to neškodljivo — tvoja lastna oznaka, prijateljeva ali skupna stvar. V tvoji bližini je že %1$s; če ni tvoj, ga lahko poiščeš in odstraniš.</string>
     <string name="alert_nearby_title">Neznan %1$s v bližini</string>
-    <string name="alert_nearby_detail">Sledilnik, ločen od lastnika, oddaja blizu tebe.</string>
+    <string name="alert_nearby_detail">Sledilnik, ločen od lastnika, oddaja blizu tebe. Pogosto je to neškodljivo — preveri, ali je tvoj ali od koga, ki je s teboj.</string>
     <string name="alert_rotation_title">Nekaj se vedno znova pojavlja blizu tebe</string>
-    <string name="alert_rotation_detail">%1$d anonimnih naprav te je zasledovalo od blizu — morda sledilnik, ki menja svoj ID.</string>
-    <string name="alert_cross_session">V tvoji bližini se je pojavil v %1$d različnih urah — močan znak, da potuje s teboj.</string>
+    <string name="alert_rotation_detail">%1$d anonimnih naprav se je pojavilo blizu tebe — morda en sledilnik, ki menja svoj ID.</string>
+    <string name="alert_cross_session">V tvoji bližini se je pojavil v %1$d ločenih urah — znak, da morda potuje s teboj.</string>
     <string name="dur_a_little_while">nekaj časa</string>
     <string name="dur_minutes">%1$d min</string>
     <string name="tracking_no_signal">Ni signala</string>

@@ -25,6 +25,7 @@
     <string name="safety_scanning">Zoeken naar ongewenste trackers in de buurt…</string>
     <string name="safety_all_clear">Alles veilig</string>
     <string name="safety_all_clear_body">Op dit moment geen ongewenste trackers bij je in de buurt. Houd dit een minuut open terwijl je beweegt — een tracker die je volgt, verschijnt.</string>
+    <string name="safety_need_help">Een tracker gevonden? Wat te doen</string>
     <string name="safety_find_it">Zoeken</string>
     <string name="safety_its_mine">Is van mij</string>
     <string name="safety_muted_undo">Gemarkeerd als van jou — wordt niet meer gemeld</string>
@@ -41,13 +42,13 @@
     <string name="severity_alert">ALARM</string>
     <string name="severity_warn">WAARSCHUWING</string>
     <string name="severity_info">INFO</string>
-    <string name="alert_following_title">%1$s volgt je mogelijk</string>
-    <string name="alert_following_detail">Hij is al %1$s bij je in de buurt. Als hij niet van jou is, zoek en schakel hem uit.</string>
+    <string name="alert_following_title">%1$s reist mogelijk met je mee</string>
+    <string name="alert_following_detail">Vaak is dit onschuldig — je eigen tag, die van een vriend(in) of een gedeeld voorwerp. Hij is al %1$s bij je in de buurt; als hij niet van jou is, kun je hem zoeken en verwijderen.</string>
     <string name="alert_nearby_title">Onbekende %1$s in de buurt</string>
-    <string name="alert_nearby_detail">Een tracker die van zijn eigenaar gescheiden is, zendt dichtbij je uit.</string>
+    <string name="alert_nearby_detail">Een tracker die van zijn eigenaar gescheiden is, zendt dichtbij je uit. Vaak is dat onschuldig — kijk of hij van jou is of van iemand bij je in de buurt.</string>
     <string name="alert_rotation_title">Er duikt steeds iets op bij je in de buurt</string>
-    <string name="alert_rotation_detail">%1$d anonieme apparaten zijn je op korte afstand gevolgd — mogelijk één tracker die zijn ID wisselt.</string>
-    <string name="alert_cross_session">Hij is in %1$d verschillende uren bij je opgedoken — een sterk teken dat hij met je meereist.</string>
+    <string name="alert_rotation_detail">%1$d anonieme apparaten zijn dichtbij je opgedoken — mogelijk één tracker die zijn ID wisselt.</string>
+    <string name="alert_cross_session">Hij is in %1$d verschillende uren bij je opgedoken — een teken dat hij mogelijk met je meereist.</string>
     <string name="dur_a_little_while">een tijdje</string>
     <string name="dur_minutes">%1$d min</string>
     <string name="tracking_no_signal">Geen signaal</string>

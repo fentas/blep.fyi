@@ -25,6 +25,7 @@
     <string name="safety_scanning">Σάρωση για ανεπιθύμητους ιχνηλάτες κοντά…</string>
     <string name="safety_all_clear">Όλα καθαρά</string>
     <string name="safety_all_clear_body">Δεν υπάρχουν ανεπιθύμητοι ιχνηλάτες κοντά σου αυτή τη στιγμή. Κράτησέ το ανοιχτό για ένα λεπτό καθώς κινείσαι — ένας ιχνηλάτης που σε ακολουθεί θα εμφανιστεί.</string>
+    <string name="safety_need_help">Βρήκες ιχνηλάτη; Τι να κάνεις</string>
     <string name="safety_find_it">Εντοπισμός</string>
     <string name="safety_its_mine">Είναι δικό μου</string>
     <string name="safety_muted_undo">Σημειώθηκε ως δικό σου — δεν θα επισημαίνεται πια</string>
@@ -41,13 +42,13 @@
     <string name="severity_alert">ΣΥΝΑΓΕΡΜΟΣ</string>
     <string name="severity_warn">ΠΡΟΕΙΔΟΠΟΙΗΣΗ</string>
     <string name="severity_info">ΠΛΗΡΟΦΟΡΙΑ</string>
-    <string name="alert_following_title">%1$s ίσως σε ακολουθεί</string>
-    <string name="alert_following_detail">Είναι κοντά σου εδώ και %1$s. Αν δεν είναι δικό σου, βρες το και απενεργοποίησέ το.</string>
+    <string name="alert_following_title">%1$s μπορεί να ταξιδεύει μαζί σου</string>
+    <string name="alert_following_detail">Συχνά αυτό είναι ακίνδυνο — μπορεί να είναι δική σου ετικέτα, ενός φίλου ή ένα κοινόχρηστο αντικείμενο. Βρίσκεται κοντά σου εδώ και %1$s· αν δεν είναι δικό σου, μπορείς να το βρεις και να το αφαιρέσεις.</string>
     <string name="alert_nearby_title">Άγνωστος %1$s κοντά</string>
-    <string name="alert_nearby_detail">Ένας ιχνηλάτης χωρισμένος από τον ιδιοκτήτη του εκπέμπει κοντά σου.</string>
+    <string name="alert_nearby_detail">Ένας ιχνηλάτης χωρισμένος από τον ιδιοκτήτη του εκπέμπει κοντά σου. Συχνά αυτό είναι ακίνδυνο — έλεγξε αν είναι δικό σου ή κάποιου που είναι μαζί σου.</string>
     <string name="alert_rotation_title">Κάτι συνεχίζει να εμφανίζεται κοντά σου</string>
-    <string name="alert_rotation_detail">%1$d ανώνυμες συσκευές σε ακολούθησαν από κοντά — ίσως ένας ιχνηλάτης που αλλάζει το ID του.</string>
-    <string name="alert_cross_session">Εμφανίστηκε κοντά σου σε %1$d διαφορετικές ώρες — ισχυρό σημάδι ότι ταξιδεύει μαζί σου.</string>
+    <string name="alert_rotation_detail">%1$d ανώνυμες συσκευές εμφανίστηκαν κοντά σου — ίσως ένας ιχνηλάτης που αλλάζει το ID του.</string>
+    <string name="alert_cross_session">Εμφανίστηκε κοντά σου σε %1$d διαφορετικές ώρες — ένα σημάδι ότι μπορεί να ταξιδεύει μαζί σου.</string>
     <string name="dur_a_little_while">λίγη ώρα</string>
     <string name="dur_minutes">%1$d λεπτά</string>
     <string name="tracking_no_signal">Χωρίς σήμα</string>

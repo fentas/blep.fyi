@@ -64,6 +64,7 @@ class BlepController(
     private val safetyHistory: SafetyHistory = SafetyHistory(createKeyValueStore()),
     private val favorites: DeviceFavorites = DeviceFavorites(createKeyValueStore()),
     private val settings: AppSettings = AppSettings(),
+    private val skipOnboarding: Boolean = false, // demo mode jumps straight to discovery
 ) {
     var screen by mutableStateOf<Screen>(Screen.Discovery)
         private set
@@ -199,7 +200,7 @@ class BlepController(
         // recovers the moment the user fixes it) instead of guessing from a thrown
         // exception's message.
         scope.launch { scanner.availability.collect { availability = it } }
-        if (settings.onboarded()) startDiscovery() else screen = Screen.Onboarding
+        if (skipOnboarding || settings.onboarded()) startDiscovery() else screen = Screen.Onboarding
     }
 
     /** First-run intro finished (completed or skipped) — never show it again. */

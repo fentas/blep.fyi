@@ -42,13 +42,13 @@
     <string name="severity_alert">ALARM</string>
     <string name="severity_warn">WARNUNG</string>
     <string name="severity_info">INFO</string>
-    <string name="alert_following_title">%1$s folgt dir möglicherweise</string>
-    <string name="alert_following_detail">Er ist seit %1$s in deiner Nähe. Wenn er nicht dir gehört, finde und deaktiviere ihn.</string>
+    <string name="alert_following_title">%1$s reist vielleicht mit dir</string>
+    <string name="alert_following_detail">Oft ist das harmlos — dein eigener Tag, der einer Freundin oder ein geteilter Gegenstand. Er ist seit %1$s in deiner Nähe; wenn er nicht dir gehört, kannst du ihn finden und entfernen.</string>
     <string name="alert_nearby_title">Unbekannter %1$s in der Nähe</string>
-    <string name="alert_nearby_detail">Ein vom Besitzer getrennter Tracker sendet nahe bei dir.</string>
+    <string name="alert_nearby_detail">Ein vom Besitzer getrennter Tracker sendet nahe bei dir. Oft ist das harmlos — prüfe, ob er dir oder jemandem in deiner Nähe gehört.</string>
     <string name="alert_rotation_title">Etwas taucht immer wieder neben dir auf</string>
-    <string name="alert_rotation_detail">%1$d anonyme Geräte sind dir auf kurze Distanz gefolgt — möglicherweise ein Tracker, der seine ID wechselt.</string>
-    <string name="alert_cross_session">Er ist über %1$d verschiedene Stunden in deiner Nähe aufgetaucht — ein starkes Zeichen, dass er mit dir reist.</string>
+    <string name="alert_rotation_detail">%1$d anonyme Geräte sind nahe bei dir aufgetaucht — möglicherweise ein Tracker, der seine ID wechselt.</string>
+    <string name="alert_cross_session">Er ist über %1$d verschiedene Stunden in deiner Nähe aufgetaucht — ein Zeichen, dass er vielleicht mit dir reist.</string>
     <string name="dur_a_little_while">eine Weile</string>
     <string name="dur_minutes">%1$d Min</string>
     <string name="tracking_no_signal">Kein Signal</string>
@@ -180,4 +180,5 @@
     <string name="onboard_body_2">Dein Körper blockiert das Signal von hinten und macht es so gerichtet. Halte das Handy flach an die Brust und dreh dich langsam — blep wird wärmer, je näher du dem gesuchten Gerät kommst.</string>
     <string name="onboard_title_3">Privat von Grund auf</string>
     <string name="onboard_body_3">Alles läuft auf deinem Gerät — keine Konten, keine Werbung, kein Tracking. Nichts verlässt jemals dein Handy. blep braucht nur Bluetooth, um Geräte zu finden und nach Trackern Ausschau zu halten.</string>
+    <string name="safety_need_help">Tracker gefunden? Was nun</string>
 </resources>

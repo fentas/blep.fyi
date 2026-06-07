@@ -25,6 +25,7 @@
     <string name="safety_scanning">Recherche de traceurs indésirables à proximité…</string>
     <string name="safety_all_clear">Tout est clair</string>
     <string name="safety_all_clear_body">Aucun traceur indésirable près de toi pour l'instant. Garde ceci ouvert une minute en te déplaçant — un traceur qui te suit apparaîtra.</string>
+    <string name="safety_need_help">Tu as trouvé un traceur ? Que faire</string>
     <string name="safety_find_it">Trouver</string>
     <string name="safety_its_mine">C'est le mien</string>
     <string name="safety_muted_undo">Marqué comme tien — ne sera plus signalé</string>
@@ -41,13 +42,13 @@
     <string name="severity_alert">ALERTE</string>
     <string name="severity_warn">AVERTISSEMENT</string>
     <string name="severity_info">INFO</string>
-    <string name="alert_following_title">%1$s te suit peut-être</string>
-    <string name="alert_following_detail">Il est près de toi depuis %1$s. S'il n'est pas à toi, trouve-le et désactive-le.</string>
+    <string name="alert_following_title">%1$s voyage peut-être avec toi</string>
+    <string name="alert_following_detail">C'est souvent sans gravité — ta propre balise, celle d'un ami, ou un objet partagé. Il est près de toi depuis %1$s ; s'il n'est pas à toi, tu peux le trouver et le retirer.</string>
     <string name="alert_nearby_title">%1$s inconnu à proximité</string>
-    <string name="alert_nearby_detail">Un traceur séparé de son propriétaire émet près de toi.</string>
+    <string name="alert_nearby_detail">Un traceur séparé de son propriétaire émet près de toi. C'est souvent sans gravité — vérifie s'il est à toi ou à quelqu'un avec toi.</string>
     <string name="alert_rotation_title">Quelque chose réapparaît sans cesse près de toi</string>
-    <string name="alert_rotation_detail">%1$d appareils anonymes t'ont suivi à courte distance — peut-être un traceur qui change son identifiant.</string>
-    <string name="alert_cross_session">Il est apparu près de toi sur %1$d heures différentes — un signe fort qu'il voyage avec toi.</string>
+    <string name="alert_rotation_detail">%1$d appareils anonymes sont apparus près de toi — peut-être un seul traceur qui change son identifiant.</string>
+    <string name="alert_cross_session">Il est apparu près de toi sur %1$d heures différentes — un signe qu'il voyage peut-être avec toi.</string>
     <string name="dur_a_little_while">un moment</string>
     <string name="dur_minutes">%1$d min</string>
     <string name="tracking_no_signal">Aucun signal</string>

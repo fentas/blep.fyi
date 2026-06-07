@@ -25,6 +25,7 @@
     <string name="safety_scanning">A procurar rastreadores indesejados por perto…</string>
     <string name="safety_all_clear">Tudo limpo</string>
     <string name="safety_all_clear_body">Neste momento não há rastreadores indesejados perto de ti. Mantém isto aberto durante um minuto enquanto te moves — um rastreador que te siga vai aparecer.</string>
+    <string name="safety_need_help">Encontraste um rastreador? O que fazer</string>
     <string name="safety_find_it">Encontrar</string>
     <string name="safety_its_mine">É meu</string>
     <string name="safety_muted_undo">Marcado como teu — deixa de ser assinalado</string>
@@ -41,13 +42,13 @@
     <string name="severity_alert">ALERTA</string>
     <string name="severity_warn">AVISO</string>
     <string name="severity_info">INFO</string>
-    <string name="alert_following_title">%1$s pode estar a seguir-te</string>
-    <string name="alert_following_detail">Está perto de ti há %1$s. Se não é teu, encontra-o e desativa-o.</string>
+    <string name="alert_following_title">%1$s pode estar a viajar contigo</string>
+    <string name="alert_following_detail">Muitas vezes isto é inofensivo — a tua própria etiqueta, a de um amigo ou um item partilhado. Está perto de ti há %1$s; se não é teu, podes encontrá-lo e removê-lo.</string>
     <string name="alert_nearby_title">%1$s desconhecido por perto</string>
-    <string name="alert_nearby_detail">Um rastreador separado do dono está a transmitir perto de ti.</string>
+    <string name="alert_nearby_detail">Um rastreador separado do dono está a transmitir perto de ti. Muitas vezes isto é inofensivo — verifica se é teu ou de alguém que está contigo.</string>
     <string name="alert_rotation_title">Algo continua a reaparecer perto de ti</string>
-    <string name="alert_rotation_detail">%1$d dispositivos anónimos seguiram-te de perto — talvez um rastreador que muda o seu ID.</string>
-    <string name="alert_cross_session">Apareceu perto de ti em %1$d horas diferentes — um forte sinal de que viaja contigo.</string>
+    <string name="alert_rotation_detail">%1$d dispositivos anónimos apareceram perto de ti — possivelmente um rastreador a alternar o seu ID.</string>
+    <string name="alert_cross_session">Apareceu perto de ti em %1$d horas diferentes — um sinal de que pode estar a viajar contigo.</string>
     <string name="dur_a_little_while">um pouco</string>
     <string name="dur_minutes">%1$d min</string>
     <string name="tracking_no_signal">Sem sinal</string>

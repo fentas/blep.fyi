@@ -33,6 +33,7 @@
     <string name="safety_find_it">Find it</string>
     <string name="safety_its_mine">It's mine</string>
     <string name="safety_muted_undo">Marked as yours — won't flag it again</string>
+    <string name="safety_need_help">Found a tracker? What to do</string>
     <string name="action_undo">Undo</string>
     <string name="action_done">Done</string>
     <string name="safety_remember_title">Remember across sessions</string>
@@ -50,13 +51,13 @@
     <string name="severity_alert">ALERT</string>
     <string name="severity_warn">WARN</string>
     <string name="severity_info">INFO</string>
-    <string name="alert_following_title">%1$s may be following you</string>
-    <string name="alert_following_detail">It's been near you for %1$s. If it isn't yours, find and disable it.</string>
+    <string name="alert_following_title">%1$s may be travelling with you</string>
+    <string name="alert_following_detail">Often this is harmless — your own tag, a friend's, or a shared item. It's been near you for %1$s; if it isn't yours, you can find and remove it.</string>
     <string name="alert_nearby_title">Unknown %1$s nearby</string>
-    <string name="alert_nearby_detail">A tracker that's separated from its owner is advertising close to you.</string>
+    <string name="alert_nearby_detail">A tracker that's separated from its owner is advertising close to you. Often that's harmless — check whether it's yours or someone's with you.</string>
     <string name="alert_rotation_title">Something keeps reappearing near you</string>
-    <string name="alert_rotation_detail">%1$d anonymous devices have shadowed you at close range — possibly one tracker rotating its ID.</string>
-    <string name="alert_cross_session">It's shown up near you across %1$d separate hours — a strong sign it's travelling with you.</string>
+    <string name="alert_rotation_detail">%1$d anonymous devices have shown up close to you — possibly one tracker rotating its ID.</string>
+    <string name="alert_cross_session">It's shown up near you across %1$d separate hours — a sign it may be travelling with you.</string>
     <string name="dur_a_little_while">a little while</string>
     <string name="dur_minutes">%1$d min</string>
 

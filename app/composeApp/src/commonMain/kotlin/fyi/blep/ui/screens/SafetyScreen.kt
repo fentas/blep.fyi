@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -66,6 +67,7 @@ import fyi.blep.resources.safety_all_clear_body
 import fyi.blep.resources.safety_find_it
 import fyi.blep.resources.safety_its_mine
 import fyi.blep.resources.safety_muted_undo
+import fyi.blep.resources.safety_need_help
 import fyi.blep.core.safety.ScanSensitivity
 import fyi.blep.resources.alert_cross_places
 import fyi.blep.resources.settings_background_desc
@@ -82,6 +84,7 @@ import fyi.blep.resources.severity_warn
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -302,9 +305,16 @@ private fun AlertCard(alert: TrackerAlert, onFind: (TrackerAlert, String) -> Uni
                     ) { Text(stringResource(Res.string.safety_find_it)) }
                 }
             }
+            // Calm, opt-in guidance — the detailed "what to do" lives on the website.
+            val uriHandler = LocalUriHandler.current
+            TextButton(onClick = { uriHandler.openUri(FOUND_HELP_URL) }, contentPadding = PaddingValues(0.dp)) {
+                Text(stringResource(Res.string.safety_need_help), style = MaterialTheme.typography.labelLarge, color = BlepColors.Blue)
+            }
         }
     }
 }
+
+private const val FOUND_HELP_URL = "https://blep.fyi/guide.html#found"
 
 @Composable
 private fun AllClear(modifier: Modifier = Modifier) {
