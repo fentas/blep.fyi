@@ -168,4 +168,6 @@
     <string name="a11y_favorite">Lisa lemmikutesse</string>
     <string name="a11y_back">Tagasi</string>
     <string name="a11y_more_info">Lisateave</string>
+    <string name="settings_notifications_off">Teavitused on välja lülitatud — hoiatusi ei kuvata. Puuduta, et need sisse lülitada.</string>
+    <string name="radar_warmer">soojem</string>
 </resources>

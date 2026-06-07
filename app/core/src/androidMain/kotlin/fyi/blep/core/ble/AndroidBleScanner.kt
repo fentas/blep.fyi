@@ -1,5 +1,6 @@
 package fyi.blep.core.ble
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -12,6 +13,8 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.SystemClock
 import fyi.blep.core.model.BleDevice
 import fyi.blep.core.safety.AddressType
@@ -51,12 +54,23 @@ internal class AndroidBleScanner : BleScanner {
             emit(
                 when {
                     a == null -> ScanAvailability.UNSUPPORTED
+                    !hasScanPermission() -> ScanAvailability.PERMISSION_REQUIRED
                     !a.isEnabled -> ScanAvailability.BLUETOOTH_OFF
                     else -> ScanAvailability.READY
                 },
             )
             delay(1500)
         }
+    }
+
+    /** True once the user has granted the runtime scan permission (BLUETOOTH_SCAN on
+     *  Android 12+, else legacy ACCESS_FINE_LOCATION). Drives PERMISSION_REQUIRED so
+     *  the banner reflects the real grant state, not a string-matched exception. */
+    private fun hasScanPermission(): Boolean {
+        val ctx = context ?: return true
+        val perm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            Manifest.permission.BLUETOOTH_SCAN else Manifest.permission.ACCESS_FINE_LOCATION
+        return ctx.checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED
     }
 
     @SuppressLint("MissingPermission")

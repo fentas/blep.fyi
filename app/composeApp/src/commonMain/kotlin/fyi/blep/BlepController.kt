@@ -192,6 +192,11 @@ class BlepController(
     init {
         haptic.setSoundEnabled(soundOn) // apply the persisted sound preference
         BackgroundScan.applyPeriodic(backgroundScanEnabled, scanIntervalMinutes)
+        // Authoritative availability: the platform scanner proactively reports
+        // adapter/permission state, so the banner reflects the real reason (and
+        // recovers the moment the user fixes it) instead of guessing from a thrown
+        // exception's message.
+        scope.launch { scanner.availability.collect { availability = it } }
         startDiscovery()
     }
 
@@ -442,7 +447,9 @@ class BlepController(
             while (isActive) {
                 try {
                     scanner.devices(includeUnnamed = true, measureConnectedSignal = measureConnectedSignal).collect { list ->
-                        availability = ScanAvailability.READY
+                        // availability is driven solely by scanner.availability now;
+                        // don't override it here (an early empty emission would falsely
+                        // flip it to READY while permission is actually missing).
                         devices = list.map {
                             it.copy(alias = aliases[it.id] ?: it.alias, isFavorite = it.id in favoriteIds)
                         }
@@ -450,8 +457,9 @@ class BlepController(
                 } catch (c: CancellationException) {
                     throw c
                 } catch (e: Throwable) {
-                    availability = if (e.message?.contains("permission", ignoreCase = true) == true)
-                        ScanAvailability.PERMISSION_REQUIRED else ScanAvailability.BLUETOOTH_OFF
+                    // The availability flow reports the precise reason (adapter off /
+                    // permission missing); here we just clear the stale list and let
+                    // the self-healing loop retry.
                     devices = emptyList()
                 }
                 delay(2000)

@@ -69,6 +69,8 @@ import fyi.blep.resources.settings_unnamed_desc
 import fyi.blep.resources.settings_unnamed_title
 import fyi.blep.ui.rememberLocationPermissionRequest
 import fyi.blep.ui.rememberNotificationPermissionRequest
+import fyi.blep.ui.rememberNotificationsEnabled
+import fyi.blep.resources.settings_notifications_off
 import fyi.blep.ui.theme.BlepColors
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
@@ -277,6 +279,15 @@ private fun BackgroundScanRow(
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                     modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+            }
+            if (checked && !rememberNotificationsEnabled()) {
+                val requestNotifications = rememberNotificationPermissionRequest()
+                Text(
+                    stringResource(Res.string.settings_notifications_off),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFFE8A33D),
+                    modifier = Modifier.padding(top = 8.dp).clickable { requestNotifications() },
                 )
             }
         }

@@ -7,3 +7,8 @@ actual fun rememberNotificationPermissionRequest(): () -> Unit = {}
 
 @Composable
 actual fun rememberLocationPermissionRequest(): () -> Unit = {}
+
+// iOS notification authorisation is async to query; assume enabled (don't show a
+// false hint). The system handles its own prompt on first request.
+@Composable
+actual fun rememberNotificationsEnabled(): Boolean = true

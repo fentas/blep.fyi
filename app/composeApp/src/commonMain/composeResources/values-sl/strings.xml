@@ -168,4 +168,6 @@
     <string name="a11y_favorite">Priljubljeno</string>
     <string name="a11y_back">Nazaj</string>
     <string name="a11y_more_info">Več informacij</string>
+    <string name="settings_notifications_off">Obvestila so izklopljena — opozorila se ne bodo prikazala. Pritisni za vklop.</string>
+    <string name="radar_warmer">topleje</string>
 </resources>

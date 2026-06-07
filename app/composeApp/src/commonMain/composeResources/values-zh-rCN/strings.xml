@@ -169,4 +169,6 @@
     <string name="a11y_favorite">收藏</string>
     <string name="a11y_back">返回</string>
     <string name="a11y_more_info">更多信息</string>
+    <string name="settings_notifications_off">通知已关闭——不会显示提醒。点按以开启。</string>
+    <string name="radar_warmer">更热</string>
 </resources>

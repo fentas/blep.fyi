@@ -7,7 +7,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+
+@Composable
+actual fun rememberNotificationsEnabled(): Boolean {
+    val ctx = LocalContext.current
+    return NotificationManagerCompat.from(ctx).areNotificationsEnabled()
+}
 
 @Composable
 actual fun rememberNotificationPermissionRequest(): () -> Unit {

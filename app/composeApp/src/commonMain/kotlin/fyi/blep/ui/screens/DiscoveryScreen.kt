@@ -81,6 +81,7 @@ import fyi.blep.resources.show_unnamed_many
 import fyi.blep.resources.show_unnamed_one
 import fyi.blep.resources.status_connected
 import fyi.blep.resources.status_paired
+import fyi.blep.ui.rememberAvailabilityAction
 import fyi.blep.ui.theme.BlepColors
 import fyi.blep.ui.theme.BlepLogo
 import fyi.blep.ui.theme.HeartIcon
@@ -597,17 +598,27 @@ private fun AvailabilityBanner(availability: ScanAvailability) {
         ScanAvailability.UNSUPPORTED -> stringResource(Res.string.avail_unsupported)
         ScanAvailability.READY -> return
     }
+    // Tappable recovery: turn on the adapter / grant the permission (UNSUPPORTED has
+    // no fix, so it isn't actionable). The chevron signals it's tappable in any locale.
+    val fix = rememberAvailabilityAction()
+    val actionable = availability != ScanAvailability.UNSUPPORTED
     Surface(
         color = BlepColors.Pink.copy(alpha = 0.35f),
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+            .then(if (actionable) Modifier.clickable { fix(availability) } else Modifier),
     ) {
-        Text(
-            message,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(16.dp),
-        )
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.weight(1f),
+            )
+            if (actionable) {
+                Text("›", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f))
+            }
+        }
     }
 }
 

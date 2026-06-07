@@ -168,4 +168,6 @@
     <string name="a11y_favorite">Αγαπημένο</string>
     <string name="a11y_back">Πίσω</string>
     <string name="a11y_more_info">Περισσότερες πληροφορίες</string>
+    <string name="settings_notifications_off">Οι ειδοποιήσεις είναι ανενεργές — δεν θα εμφανίζονται προειδοποιήσεις. Πάτησε για να τις ενεργοποιήσεις.</string>
+    <string name="radar_warmer">πιο ζεστά</string>
 </resources>

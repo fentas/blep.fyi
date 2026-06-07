@@ -168,4 +168,6 @@
     <string name="a11y_favorite">Favorito</string>
     <string name="a11y_back">Atrás</string>
     <string name="a11y_more_info">Más información</string>
+    <string name="settings_notifications_off">Las notificaciones están desactivadas — no se mostrarán alertas. Toca para activarlas.</string>
+    <string name="radar_warmer">más caliente</string>
 </resources>

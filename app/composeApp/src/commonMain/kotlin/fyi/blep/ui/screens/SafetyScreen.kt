@@ -7,6 +7,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -71,6 +72,8 @@ import fyi.blep.resources.settings_background_desc
 import fyi.blep.resources.settings_background_title
 import fyi.blep.ui.components.SensitivitySelector
 import fyi.blep.ui.rememberNotificationPermissionRequest
+import fyi.blep.ui.rememberNotificationsEnabled
+import fyi.blep.resources.settings_notifications_off
 import fyi.blep.resources.safety_scanning
 import fyi.blep.resources.safety_title
 import fyi.blep.resources.severity_alert
@@ -171,29 +174,37 @@ fun SafetyScreen(
 @Composable
 private fun BackgroundToggle(on: Boolean, onToggle: (Boolean) -> Unit) {
     val requestNotifications = rememberNotificationPermissionRequest()
+    val notificationsEnabled = rememberNotificationsEnabled()
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
         modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
     ) {
-        Row(
-            Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text(stringResource(Res.string.settings_background_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
-                Text(
-                    stringResource(Res.string.settings_background_desc),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(Res.string.settings_background_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
+                    Text(
+                        stringResource(Res.string.settings_background_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Switch(
+                    checked = on,
+                    onCheckedChange = { v -> if (v) requestNotifications(); onToggle(v) },
+                    colors = SwitchDefaults.colors(checkedTrackColor = BlepColors.Blue),
                 )
             }
-            Spacer(Modifier.width(12.dp))
-            Switch(
-                checked = on,
-                onCheckedChange = { v -> if (v) requestNotifications(); onToggle(v) },
-                colors = SwitchDefaults.colors(checkedTrackColor = BlepColors.Blue),
-            )
+            if (on && !notificationsEnabled) {
+                Text(
+                    stringResource(Res.string.settings_notifications_off),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = AMBER,
+                    modifier = Modifier.padding(top = 8.dp).clickable { requestNotifications() },
+                )
+            }
         }
     }
 }

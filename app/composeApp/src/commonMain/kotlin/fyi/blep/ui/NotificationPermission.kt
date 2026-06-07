@@ -14,3 +14,8 @@ expect fun rememberNotificationPermissionRequest(): () -> Unit
  *  location-aware detection can sample a place. No-op where not applicable. */
 @Composable
 expect fun rememberLocationPermissionRequest(): () -> Unit
+
+/** Whether the OS will actually show this app's notifications. When false, the
+ *  background-watch alerts silently won't appear — the UI surfaces a hint. */
+@Composable
+expect fun rememberNotificationsEnabled(): Boolean

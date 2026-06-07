@@ -168,4 +168,6 @@
     <string name="a11y_favorite">Oznacz gwiazdką</string>
     <string name="a11y_back">Wstecz</string>
     <string name="a11y_more_info">Więcej informacji</string>
+    <string name="settings_notifications_off">Powiadomienia są wyłączone — alerty się nie pojawią. Dotknij, aby je włączyć.</string>
+    <string name="radar_warmer">cieplej</string>
 </resources>

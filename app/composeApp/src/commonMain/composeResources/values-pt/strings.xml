@@ -168,4 +168,6 @@
     <string name="a11y_favorite">Marcar com estrela</string>
     <string name="a11y_back">Voltar</string>
     <string name="a11y_more_info">Mais informações</string>
+    <string name="settings_notifications_off">As notificações estão desativadas — os alertas não vão aparecer. Toca para as ativar.</string>
+    <string name="radar_warmer">mais quente</string>
 </resources>

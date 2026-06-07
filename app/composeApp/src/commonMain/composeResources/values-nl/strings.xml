@@ -168,4 +168,6 @@
     <string name="a11y_favorite">Favoriet</string>
     <string name="a11y_back">Terug</string>
     <string name="a11y_more_info">Meer info</string>
+    <string name="settings_notifications_off">Meldingen staan uit — waarschuwingen verschijnen niet. Tik om ze aan te zetten.</string>
+    <string name="radar_warmer">warmer</string>
 </resources>

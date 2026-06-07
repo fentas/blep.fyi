@@ -169,4 +169,6 @@
     <string name="a11y_favorite">Mit Stern markieren</string>
     <string name="a11y_back">Zurück</string>
     <string name="a11y_more_info">Mehr Infos</string>
+    <string name="settings_notifications_off">Benachrichtigungen sind aus — Warnungen erscheinen nicht. Tippe, um sie einzuschalten.</string>
+    <string name="radar_warmer">wärmer</string>
 </resources>
