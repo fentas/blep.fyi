@@ -107,7 +107,7 @@ fun DiscoveryScreen(
     var showPaired by remember { mutableStateOf(false) }
     var showDonate by remember { mutableStateOf(false) }
 
-    Box(modifier.fillMaxSize().background(BlepColors.Mist)) {
+    Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -198,7 +198,7 @@ fun DiscoveryScreen(
                 Text(
                     stringResource(Res.string.done_donate_blurb),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = BlepColors.Ink,
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
             },
             confirmButton = {
@@ -208,7 +208,7 @@ fun DiscoveryScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDonate = false }) {
-                    Text(stringResource(Res.string.action_cancel), color = BlepColors.Ink.copy(alpha = 0.6f))
+                    Text(stringResource(Res.string.action_cancel), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f))
                 }
             },
         )
@@ -249,26 +249,26 @@ private fun PairedSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = BlepColors.Mist,
+        containerColor = MaterialTheme.colorScheme.background,
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
             Text(
                 stringResource(Res.string.paired_sheet_title),
                 style = MaterialTheme.typography.titleLarge,
-                color = BlepColors.Ink,
+                color = MaterialTheme.colorScheme.onBackground,
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 stringResource(Res.string.paired_sheet_hint),
                 style = MaterialTheme.typography.bodyMedium,
-                color = BlepColors.Ink.copy(alpha = 0.55f),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
             )
             Spacer(Modifier.height(14.dp))
             if (devices.isEmpty()) {
                 Text(
                     stringResource(Res.string.paired_sheet_empty),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = BlepColors.Ink.copy(alpha = 0.45f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f),
                     modifier = Modifier.padding(vertical = 24.dp),
                 )
             } else {
@@ -301,15 +301,15 @@ private fun Header(deviceCount: Int) {
             Text(
                 stringResource(Res.string.app_tagline),
                 style = MaterialTheme.typography.bodyLarge,
-                color = BlepColors.Ink.copy(alpha = 0.55f),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
             )
         }
         if (deviceCount > 0) {
-            Surface(color = BlepColors.Ink.copy(alpha = 0.06f), shape = RoundedCornerShape(999.dp)) {
+            Surface(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.06f), shape = RoundedCornerShape(999.dp)) {
                 Text(
                     stringResource(Res.string.nearby_count, deviceCount),
                     style = MaterialTheme.typography.labelLarge,
-                    color = BlepColors.Ink.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                 )
             }
@@ -324,7 +324,7 @@ private fun SettingsButton(onClick: () -> Unit) {
     Text(
         "⚙",
         style = MaterialTheme.typography.titleLarge,
-        color = BlepColors.Ink.copy(alpha = 0.5f),
+        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
         modifier = Modifier
             .clip(CircleShape)
             .clickable(onClick = onClick)
@@ -348,8 +348,8 @@ private fun SafetyEntry(onClick: () -> Unit) {
             Text("🛡️", style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(stringResource(Res.string.safety_entry_title), style = MaterialTheme.typography.titleSmall, color = BlepColors.Ink, fontWeight = FontWeight.SemiBold)
-                Text(stringResource(Res.string.safety_entry_subtitle), style = MaterialTheme.typography.bodySmall, color = BlepColors.Ink.copy(alpha = 0.55f))
+                Text(stringResource(Res.string.safety_entry_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.safety_entry_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f))
             }
             Text("›", style = MaterialTheme.typography.titleLarge, color = BlepColors.Blue)
         }
@@ -361,7 +361,7 @@ private fun SectionLabel(text: String, modifier: Modifier = Modifier) {
     Text(
         text.uppercase(),
         style = MaterialTheme.typography.labelLarge,
-        color = BlepColors.Ink.copy(alpha = 0.4f),
+        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
         modifier = modifier.padding(start = 4.dp),
     )
 }
@@ -394,7 +394,7 @@ private fun DeviceCard(
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(22.dp),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 1.dp,
         modifier = modifier.fillMaxWidth(),
     ) {
@@ -408,7 +408,7 @@ private fun DeviceCard(
                 Text(
                     device.displayName,
                     style = MaterialTheme.typography.titleMedium,
-                    color = if (device.isNamed) BlepColors.Ink else BlepColors.Ink.copy(alpha = 0.55f),
+                    color = if (device.isNamed) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
                 )
                 Spacer(Modifier.height(2.dp))
                 // Show the live signal whenever we have it (even when connected or
@@ -423,7 +423,7 @@ private fun DeviceCard(
                         Text(
                             stringResource(Res.string.dbm, device.rssi),
                             style = MaterialTheme.typography.labelLarge,
-                            color = BlepColors.Ink.copy(alpha = 0.45f),
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f),
                         )
                     }
                     device.isConnected -> StatusChip(stringResource(Res.string.status_connected), showDot = true)
@@ -459,7 +459,7 @@ private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit) {
         Text(
             if (isFavorite) "★" else "☆",
             style = MaterialTheme.typography.titleMedium.copy(lineHeightStyle = CenteredGlyph),
-            color = if (isFavorite) BlepColors.Gold else BlepColors.Ink.copy(alpha = 0.35f),
+            color = if (isFavorite) BlepColors.Gold else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.35f),
             modifier = Modifier.semantics { contentDescription = label },
         )
     }
@@ -470,7 +470,7 @@ private fun Avatar(device: BleDevice) {
     val bg = when {
         device.isConnected -> BlepColors.Blue
         device.isNamed -> BlepColors.Blue.copy(alpha = 0.12f)
-        else -> BlepColors.Ink.copy(alpha = 0.06f)
+        else -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.06f)
     }
     val fg = if (device.isConnected) BlepColors.Cream else BlepColors.Blue
     val initial = if (device.isNamed) device.displayName.first().uppercaseChar().toString() else "?"
@@ -481,7 +481,7 @@ private fun Avatar(device: BleDevice) {
         Text(
             initial,
             style = MaterialTheme.typography.titleMedium,
-            color = if (device.isNamed || device.isConnected) fg else BlepColors.Ink.copy(alpha = 0.4f),
+            color = if (device.isNamed || device.isConnected) fg else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
             fontWeight = FontWeight.Bold,
         )
     }
@@ -510,7 +510,7 @@ private fun RenameButton(onRename: () -> Unit) {
         Modifier.size(30.dp).clip(CircleShape).clickable(onClick = onRename),
         contentAlignment = Alignment.Center,
     ) {
-        Text("✎", style = MaterialTheme.typography.titleMedium.copy(lineHeightStyle = CenteredGlyph), color = BlepColors.Ink.copy(alpha = 0.35f), modifier = Modifier.semantics { contentDescription = label })
+        Text("✎", style = MaterialTheme.typography.titleMedium.copy(lineHeightStyle = CenteredGlyph), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.35f), modifier = Modifier.semantics { contentDescription = label })
     }
 }
 
@@ -533,7 +533,7 @@ private fun SignalDots(rssi: Int) {
                     .clip(RoundedCornerShape(3.dp))
                     .background(
                         if (i <= strength) BlepColors.proximity(strength / 4f)
-                        else BlepColors.Ink.copy(alpha = 0.10f),
+                        else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.10f),
                     ),
             )
         }
@@ -578,12 +578,12 @@ private fun EmptyState() {
         Modifier.fillMaxWidth().padding(top = 48.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(stringResource(Res.string.discovery_empty_title), style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink.copy(alpha = 0.6f))
+        Text(stringResource(Res.string.discovery_empty_title), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f))
         Spacer(Modifier.height(6.dp))
         Text(
             stringResource(Res.string.discovery_hint),
             style = MaterialTheme.typography.bodyLarge,
-            color = BlepColors.Ink.copy(alpha = 0.45f),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f),
         )
     }
 }
@@ -605,7 +605,7 @@ private fun AvailabilityBanner(availability: ScanAvailability) {
         Text(
             message,
             style = MaterialTheme.typography.bodyLarge,
-            color = BlepColors.Ink,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(16.dp),
         )
     }

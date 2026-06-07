@@ -59,7 +59,7 @@ fun SensitivitySelector(
             Text(
                 stringResource(Res.string.sensitivity_title),
                 style = MaterialTheme.typography.titleSmall,
-                color = BlepColors.Ink,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f),
             )
@@ -96,13 +96,13 @@ fun SensitivitySelector(
                             Text(
                                 sensitivityLabel(s),
                                 style = MaterialTheme.typography.titleSmall,
-                                color = if (selected) BlepColors.Blue else BlepColors.Ink,
+                                color = if (selected) BlepColors.Blue else MaterialTheme.colorScheme.onBackground,
                                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                             )
                             Text(
                                 sensitivityHint(s),
                                 style = MaterialTheme.typography.labelMedium,
-                                color = BlepColors.Ink.copy(alpha = 0.55f),
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
                             )
                         }
                         if (selected) Text("✓", style = MaterialTheme.typography.titleSmall, color = BlepColors.Blue)

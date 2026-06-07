@@ -108,7 +108,7 @@ fun SafetyScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier.fillMaxSize().background(BlepColors.Mist)) {
+    Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         val snackbarHostState = remember { SnackbarHostState() }
         // Snackbar runs in a coroutine, so resolve its strings in composition first.
         val mutedMessage = stringResource(Res.string.safety_muted_undo)
@@ -132,7 +132,7 @@ fun SafetyScreen(
                 .padding(horizontal = 20.dp),
         ) {
             Spacer(Modifier.height(12.dp))
-            Text(stringResource(Res.string.safety_title), style = MaterialTheme.typography.headlineMedium, color = BlepColors.Ink)
+            Text(stringResource(Res.string.safety_title), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ScanningDot()
@@ -140,7 +140,7 @@ fun SafetyScreen(
                 Text(
                     stringResource(Res.string.safety_scanning),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = BlepColors.Ink.copy(alpha = 0.55f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
                 )
             }
             Spacer(Modifier.height(16.dp))
@@ -157,7 +157,7 @@ fun SafetyScreen(
             BackgroundToggle(backgroundOn, onToggleBackground)
 
             TextButton(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                Text(stringResource(Res.string.action_done), color = BlepColors.Ink.copy(alpha = 0.6f))
+                Text(stringResource(Res.string.action_done), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f))
             }
         }
 
@@ -173,7 +173,7 @@ private fun BackgroundToggle(on: Boolean, onToggle: (Boolean) -> Unit) {
     val requestNotifications = rememberNotificationPermissionRequest()
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color.White.copy(alpha = 0.6f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
         modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
     ) {
         Row(
@@ -181,11 +181,11 @@ private fun BackgroundToggle(on: Boolean, onToggle: (Boolean) -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text(stringResource(Res.string.settings_background_title), style = MaterialTheme.typography.titleSmall, color = BlepColors.Ink)
+                Text(stringResource(Res.string.settings_background_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
                 Text(
                     stringResource(Res.string.settings_background_desc),
                     style = MaterialTheme.typography.bodySmall,
-                    color = BlepColors.Ink.copy(alpha = 0.55f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
                 )
             }
             Spacer(Modifier.width(12.dp))
@@ -256,7 +256,7 @@ private fun AlertCard(alert: TrackerAlert, onFind: (TrackerAlert, String) -> Uni
         },
     )
     val title = alertTitle(alert)
-    Surface(shape = RoundedCornerShape(20.dp), color = Color.White, shadowElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
+    Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surface, shadowElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(10.dp).clip(CircleShape).background(accent))
@@ -269,20 +269,20 @@ private fun AlertCard(alert: TrackerAlert, onFind: (TrackerAlert, String) -> Uni
                 )
             }
             Spacer(Modifier.height(6.dp))
-            Text(title, style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink)
+            Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
             Spacer(Modifier.height(2.dp))
-            Text(alertDetail(alert), style = MaterialTheme.typography.bodyMedium, color = BlepColors.Ink.copy(alpha = 0.65f))
+            Text(alertDetail(alert), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f))
             Spacer(Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     stringResource(Res.string.dbm, alert.rssi),
                     style = MaterialTheme.typography.labelLarge,
-                    color = BlepColors.Ink.copy(alpha = 0.45f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f),
                     modifier = Modifier.weight(1f),
                 )
                 if (alert.trackingAddress != null) {
                     TextButton(onClick = { onMine(alert) }) {
-                        Text(stringResource(Res.string.safety_its_mine), color = BlepColors.Ink.copy(alpha = 0.55f))
+                        Text(stringResource(Res.string.safety_its_mine), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f))
                     }
                     Spacer(Modifier.width(4.dp))
                     Button(
@@ -301,12 +301,12 @@ private fun AllClear(modifier: Modifier = Modifier) {
         Spacer(Modifier.height(48.dp))
         Text("🛡️", style = MaterialTheme.typography.displayMedium)
         Spacer(Modifier.height(12.dp))
-        Text(stringResource(Res.string.safety_all_clear), style = MaterialTheme.typography.titleLarge, color = BlepColors.Ink.copy(alpha = 0.7f))
+        Text(stringResource(Res.string.safety_all_clear), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
         Spacer(Modifier.height(6.dp))
         Text(
             stringResource(Res.string.safety_all_clear_body),
             style = MaterialTheme.typography.bodyLarge,
-            color = BlepColors.Ink.copy(alpha = 0.5f),
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 16.dp),
         )

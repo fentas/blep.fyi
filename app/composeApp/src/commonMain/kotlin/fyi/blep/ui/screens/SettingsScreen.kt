@@ -105,7 +105,7 @@ fun SettingsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BlepColors.Mist)
+            .background(MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(horizontal = 20.dp),
     ) {
@@ -123,7 +123,7 @@ fun SettingsScreen(
             Text(
                 stringResource(Res.string.settings_title),
                 style = MaterialTheme.typography.headlineSmall,
-                color = BlepColors.Ink,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold,
             )
         }
@@ -168,7 +168,7 @@ fun SettingsScreen(
             )
             Surface(
                 shape = RoundedCornerShape(16.dp),
-                color = Color.White.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 SensitivitySelector(
@@ -182,7 +182,7 @@ fun SettingsScreen(
                 Text(
                     stringResource(Res.string.settings_section_background).uppercase(),
                     style = MaterialTheme.typography.labelLarge,
-                    color = BlepColors.Ink.copy(alpha = 0.4f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
                     modifier = Modifier.weight(1f).padding(start = 4.dp),
                 )
                 Text(
@@ -235,7 +235,7 @@ private fun BackgroundScanRow(
 ) {
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color.White.copy(alpha = 0.6f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.padding(16.dp)) {
@@ -244,14 +244,14 @@ private fun BackgroundScanRow(
                     Text(
                         stringResource(Res.string.settings_background_title),
                         style = MaterialTheme.typography.titleSmall,
-                        color = BlepColors.Ink,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
                         stringResource(Res.string.settings_background_desc),
                         style = MaterialTheme.typography.bodySmall,
-                        color = BlepColors.Ink.copy(alpha = 0.55f),
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
                     )
                 }
                 Spacer(Modifier.width(12.dp))
@@ -275,7 +275,7 @@ private fun BackgroundScanRow(
                 Text(
                     intervalLabel(intervalMinutes),
                     style = MaterialTheme.typography.labelMedium,
-                    color = BlepColors.Ink.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
             }
@@ -295,7 +295,7 @@ private fun SettingRow(title: String, desc: String, checked: Boolean, onToggle: 
     Surface(
         onClick = { onToggle(!checked) },
         shape = RoundedCornerShape(16.dp),
-        color = Color.White.copy(alpha = 0.6f),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
@@ -303,9 +303,9 @@ private fun SettingRow(title: String, desc: String, checked: Boolean, onToggle: 
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleSmall, color = BlepColors.Ink, fontWeight = FontWeight.SemiBold)
+                Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(2.dp))
-                Text(desc, style = MaterialTheme.typography.bodySmall, color = BlepColors.Ink.copy(alpha = 0.55f))
+                Text(desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f))
             }
             Spacer(Modifier.width(12.dp))
             Switch(
