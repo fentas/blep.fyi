@@ -47,18 +47,22 @@ class SafetyScanner(
         scanner.advertisements().collect { adv ->
             // A muted address contributes to neither detection signal…
             if (adv.address !in muted) detector.observe(TrackerClassifier.classify(adv))
-            // …and is filtered out of the result in case it was seen pre-mute.
-            emit(enrich(detector.evaluate(adv.timeMs)).filter { it.trackingAddress !in muted })
+            // Sample the coarse place + stable-crowd backdrop once, into a context signature.
+            val here = place()
+            val context = listOfNotNull(here, detector.backdropFingerprint(adv.timeMs))
+                .joinToString("|").ifBlank { null }
+            // …and a muted address is filtered out of the result in case it was seen pre-mute.
+            emit(enrich(detector.evaluate(adv.timeMs), here, context).filter { it.trackingAddress !in muted })
         }
     }
 
-    private fun enrich(alerts: List<TrackerAlert>): List<TrackerAlert> {
+    private fun enrich(alerts: List<TrackerAlert>, place: String?, context: String?): List<TrackerAlert> {
         val log = history?.takeIf { it.enabled() } ?: return alerts
         val now = nowEpochMs()
         return alerts.map { alert ->
-            log.record(alert.kind, now, place())
+            log.record(alert.kind, now, place, context)
             val cross = log.crossSession(alert.kind, now)
-            if (cross != null && (cross.persistent || cross.multiPlace)) {
+            if (cross != null && promote(cross)) {
                 // Promote + carry the hour/place counts; the UI appends the localized sentence.
                 alert.copy(
                     severity = Severity.ALERT,
@@ -69,5 +73,20 @@ class SafetyScanner(
                 alert
             }
         }
+    }
+
+    /**
+     * Promote a live sighting to ALERT on cross-session evidence — but key on context
+     * *diversity*, not raw recurrence (docs/detection.md):
+     *  - moved across distinct places, or recurred across ≥2 contexts beyond your
+     *    learned baseline ⇒ following you;
+     *  - recurrence within a *single* known context (your home/desk) is routine, so
+     *    the hour-based [CrossSession.persistent] signal is suppressed there;
+     *  - with no context signal at all (location off, no stable backdrop) we can't
+     *    tell, so the hour fallbacks still apply.
+     */
+    private fun promote(cross: CrossSession): Boolean {
+        val routine = cross.distinctContexts == 1 // everything seen in one known context
+        return cross.multiPlace || cross.diverse || cross.veryPersistent || (cross.persistent && !routine)
     }
 }

@@ -158,4 +158,50 @@ class SafetyScannerTest {
         val out = lastAlerts(s)
         assertEquals(Severity.WARN, out[0].severity) // not promoted
     }
+
+    @Test
+    fun routine_single_context_recurrence_is_not_promoted() = runTest {
+        val history = SafetyHistory(createKeyValueStore())
+        history.setEnabled(true)
+        // Seen close across 4 separate hours, but always in the SAME context (your commute)
+        // — the classic false positive (same train, same crowd, every day).
+        (1..4).forEach { history.record(TrackerKind.FIND_MY, it * hourMs, context = "commute") }
+        val now = 4 * hourMs + 5_000
+        val adverts = listOf(findMy("AA:11", -60, 0), findMy("AA:11", -60, 1_000))
+        val s = SafetyScanner(scanner(adverts), TrackerDetector(tuning), history, nowEpochMs = { now })
+        val out = lastAlerts(s)
+        assertEquals(Severity.WARN, out[0].severity) // recurs, but routine ⇒ stays a WARN
+    }
+
+    @Test
+    fun diverse_contexts_promote_a_brief_sighting() = runTest {
+        val history = SafetyHistory(createKeyValueStore())
+        history.setEnabled(true)
+        // Seen close across THREE unrelated contexts (home baseline, train, work) —
+        // followed you as your surroundings changed.
+        history.record(TrackerKind.FIND_MY, 1 * hourMs, context = "home")
+        history.record(TrackerKind.FIND_MY, 2 * hourMs, context = "home")
+        history.record(TrackerKind.FIND_MY, 3 * hourMs, context = "train")
+        history.record(TrackerKind.FIND_MY, 4 * hourMs, context = "work")
+        val now = 4 * hourMs + 5_000
+        val adverts = listOf(findMy("AA:11", -60, 0), findMy("AA:11", -60, 1_000))
+        val s = SafetyScanner(scanner(adverts), TrackerDetector(tuning), history, nowEpochMs = { now })
+        val out = lastAlerts(s)
+        assertEquals(Severity.ALERT, out[0].severity)
+    }
+
+    @Test
+    fun multiple_places_promote_a_brief_sighting() = runTest {
+        val history = SafetyHistory(createKeyValueStore())
+        history.setEnabled(true)
+        // Location-aware: seen in two distinct coarse places — moved with you.
+        history.record(TrackerKind.FIND_MY, 1 * hourMs, place = "cellA")
+        history.record(TrackerKind.FIND_MY, 2 * hourMs, place = "cellB")
+        val now = 2 * hourMs + 5_000
+        val adverts = listOf(findMy("AA:11", -60, 0), findMy("AA:11", -60, 1_000))
+        val s = SafetyScanner(scanner(adverts), TrackerDetector(tuning), history, nowEpochMs = { now })
+        val out = lastAlerts(s)
+        assertEquals(Severity.ALERT, out[0].severity)
+        assertEquals(2, out[0].crossSessionPlaces)
+    }
 }

@@ -144,4 +144,46 @@ class SafetyHistoryTest {
         h.setEnabled(false)
         assertEquals(setOf("AA:11"), h.mutedAddresses())
     }
+
+    @Test
+    fun context_diversity_excludes_the_learned_baseline() {
+        val h = history()
+        h.setEnabled(true)
+        // Same Find My kind: 3× in your home context (the baseline), then train, then work.
+        h.record(TrackerKind.FIND_MY, 1 * hourMs, context = "home")
+        h.record(TrackerKind.FIND_MY, 2 * hourMs, context = "home")
+        h.record(TrackerKind.FIND_MY, 3 * hourMs, context = "home")
+        h.record(TrackerKind.FIND_MY, 4 * hourMs, context = "train")
+        h.record(TrackerKind.FIND_MY, 5 * hourMs, context = "work")
+        val cs = h.crossSession(TrackerKind.FIND_MY, 5 * hourMs)!!
+        assertEquals(3, cs.distinctContexts)
+        assertEquals(2, cs.nonBaselineContexts) // home is the baseline ⇒ train + work
+        assertTrue(cs.diverse)
+    }
+
+    @Test
+    fun single_context_recurrence_is_persistent_but_not_diverse() {
+        val h = history()
+        h.setEnabled(true)
+        // Recurs across 5 hours but always in the same context (your daily commute).
+        (1..5).forEach { h.record(TrackerKind.TILE, it * hourMs, context = "commute") }
+        val cs = h.crossSession(TrackerKind.TILE, 5 * hourMs)!!
+        assertEquals(1, cs.distinctContexts)
+        assertEquals(0, cs.nonBaselineContexts)
+        assertFalse(cs.diverse)
+        assertTrue(cs.persistent) // it recurs — but it's routine, so the scanner won't promote it
+    }
+
+    @Test
+    fun a_new_context_is_recorded_despite_the_time_throttle() {
+        // The min-gap throttle must not swallow a sighting that introduces a NEW context,
+        // or distinct-context counts would under-report a follower moving quickly.
+        val h = SafetyHistory(createKeyValueStore(), minGapMs = 5 * 60_000L)
+        h.setEnabled(true)
+        h.record(TrackerKind.FIND_MY, 0, context = "home")
+        h.record(TrackerKind.FIND_MY, 60_000L, context = "car")   // 1 min later, new context — kept
+        h.record(TrackerKind.FIND_MY, 120_000L, context = "shop") // 1 min later, new context — kept
+        val cs = h.crossSession(TrackerKind.FIND_MY, 120_000L)!!
+        assertEquals(3, cs.distinctContexts)
+    }
 }

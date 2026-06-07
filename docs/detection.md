@@ -80,6 +80,37 @@ So the upgrade is: don't just count "separate hours," count **separate
 *independent contexts*** (movement segments × time gaps × changed co-present set).
 Threshold on context-diversity, not raw recurrence.
 
+### Shipped (context-diversity + auto-learned baseline)
+
+This is now implemented in `core/safety`:
+
+- Each close encounter is logged with a coarse **context signature** =
+  `place cell` (opt-in, location-aware) **×** `TrackerDetector.backdropFingerprint`
+  — a stable, order-independent hash of the *close, non-rotating, non-tracker*
+  devices around you (the home/desk/café backdrop; rotating strangers and trackers
+  are excluded as churn). This gives context **without GPS**.
+- `SafetyHistory.crossSession` learns a **baseline** = the single most-frequent
+  context across all kinds (your auto-learned "usually around me"), and reports
+  `distinctContexts` and `nonBaselineContexts` (contexts beyond the baseline).
+  `CrossSession.diverse` = recurs across ≥2 non-baseline contexts.
+- `SafetyScanner.promote` now keys on **diversity, not raw recurrence**: it promotes
+  on `multiPlace` (≥2 places) or `diverse` (≥2 non-baseline contexts); raw
+  hour-recurrence (`persistent`) is **suppressed when everything sits in one known
+  context** (the commute/home false positive), and only the high-bar `veryPersistent`
+  (≥6 separate hours) survives as a no-context-signal fallback.
+- Tests: `SafetyHistoryTest` (baseline exclusion, single-context-not-diverse,
+  new-context-beats-throttle) and `SafetyScannerTest` (routine single-context not
+  promoted; diverse contexts and multi-place promote).
+
+**Why baseline at the *context* level, not a device allowlist:** auto-allowlisting a
+device or tracker *kind* "because it's always around" is dangerous — a stalker's tag
+*is* always around (it's on you), so it would self-suppress. Downweighting the
+**context** instead keeps the suspect flaggable the moment it appears beyond your
+routine. The explicit per-device escape hatch stays the manual "It's mine" mute.
+
+Still open: movement-segment counting (needs the motion stream wired into the scan)
+and time-of-day/dwell, both of which would further sharpen `distinctContexts`.
+
 ## Profiles worth having
 
 Rather than one global threshold, a small set of modes (auto-detected from

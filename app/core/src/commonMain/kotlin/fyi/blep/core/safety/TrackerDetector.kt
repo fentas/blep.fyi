@@ -152,4 +152,30 @@ class TrackerDetector(private val tuning: TrackerTuning = TrackerTuning()) {
         val hit = sightings.map { ((nowMs - it.timeMs) / tuning.bucketMs).toInt() }.toHashSet().size
         return hit.toDouble() / buckets
     }
+
+    /**
+     * A coarse, order-independent signature of the *stable* nearby-device backdrop —
+     * the close, non-rotating, non-tracker addresses around you right now. Your home
+     * set differs from your desk set differs from the café's, so this lets the
+     * cross-session log tell apart the **contexts** a suspect recurs in *without GPS*
+     * (see docs/detection.md). Rotating strangers (random addresses) and trackers are
+     * excluded — they're churn, not backdrop. Null when there's no stable backdrop.
+     */
+    fun backdropFingerprint(nowMs: Long): String? {
+        prune(nowMs)
+        val backdrop = recent.asSequence()
+            .filter { it.rssi >= tuning.closeDbm && !it.randomAddress && it.kind == TrackerKind.UNKNOWN }
+            .map { it.address }
+            .toHashSet()
+        if (backdrop.isEmpty()) return null
+        return stableHash(backdrop.sorted().joinToString(","))
+    }
+
+    /** Deterministic across platforms and process restarts (unlike String.hashCode on
+     *  Native), so a persisted backdrop signature stays comparable over the week. */
+    private fun stableHash(s: String): String {
+        var h = 1125899906842597L
+        for (c in s) h = 31 * h + c.code
+        return h.toString(36)
+    }
 }
