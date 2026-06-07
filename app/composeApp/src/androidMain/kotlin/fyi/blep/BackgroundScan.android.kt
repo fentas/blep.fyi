@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
@@ -65,6 +66,11 @@ actual object BackgroundScan {
 /** Periodic (app-closed) check: scan a short window for a following tracker, notify. */
 class BackgroundScanWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
     override suspend fun doWork(): Result {
+        // Honor battery saver: the periodic (ambient) check skips its cycle while the
+        // device is in power-save mode. The user-initiated foreground service is left
+        // alone — it's a deliberate, visible "watch closely now" action.
+        val pm = applicationContext.getSystemService(Context.POWER_SERVICE) as? PowerManager
+        if (pm?.isPowerSaveMode == true) return Result.success()
         val safety = SafetyScanner(createBleScanner(), TrackerDetector(AppSettings().scanSensitivity().tuning), SafetyHistory(createKeyValueStore()))
         val hit = withTimeoutOrNull(SCAN_WINDOW_MS) {
             safety.alerts().first { list -> list.any { it.severity == Severity.ALERT } }
