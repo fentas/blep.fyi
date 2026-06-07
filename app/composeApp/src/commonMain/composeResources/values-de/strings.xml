@@ -171,4 +171,13 @@
     <string name="a11y_more_info">Mehr Infos</string>
     <string name="settings_notifications_off">Benachrichtigungen sind aus — Warnungen erscheinen nicht. Tippe, um sie einzuschalten.</string>
     <string name="radar_warmer">wärmer</string>
+    <string name="onboard_skip">Überspringen</string>
+    <string name="onboard_next">Weiter</string>
+    <string name="onboard_done">Bluetooth einschalten</string>
+    <string name="onboard_title_1">Finde deine Sachen per Signal</string>
+    <string name="onboard_body_1">blep macht dein Handy zu einem Warm/Kalt-Zeiger, der dich zu einem verlorenen Bluetooth-Gerät führt — und nach unerwünschten Trackern Ausschau hält, die mit dir reisen.</string>
+    <string name="onboard_title_2">An die Brust halten</string>
+    <string name="onboard_body_2">Dein Körper blockiert das Signal von hinten und macht es so gerichtet. Halte das Handy flach an die Brust und dreh dich langsam — blep wird wärmer, je näher du dem gesuchten Gerät kommst.</string>
+    <string name="onboard_title_3">Privat von Grund auf</string>
+    <string name="onboard_body_3">Alles läuft auf deinem Gerät — keine Konten, keine Werbung, kein Tracking. Nichts verlässt jemals dein Handy. blep braucht nur Bluetooth, um Geräte zu finden und nach Trackern Ausschau zu halten.</string>
 </resources>

@@ -170,4 +170,13 @@
     <string name="a11y_more_info">Više informacija</string>
     <string name="settings_notifications_off">Obavijesti su isključene — upozorenja se neće prikazivati. Dodirni da ih uključiš.</string>
     <string name="radar_warmer">toplije</string>
+    <string name="onboard_skip">Preskoči</string>
+    <string name="onboard_next">Dalje</string>
+    <string name="onboard_done">Uključi Bluetooth</string>
+    <string name="onboard_title_1">Pronađi svoje stvari po signalu</string>
+    <string name="onboard_body_1">blep pretvara tvoj telefon u toplo/hladno usmjeravalo koje te vodi do izgubljenog Bluetooth uređaja — i pazi na neželjene pratitelje koji putuju s tobom.</string>
+    <string name="onboard_title_2">Drži uz prsa</string>
+    <string name="onboard_body_2">Tvoje tijelo blokira signal odostraga, čineći ga usmjerenim. Drži telefon plosnato uz prsa i polako se okreći — blep postaje topliji prema onome što tražiš.</string>
+    <string name="onboard_title_3">Privatno po dizajnu</string>
+    <string name="onboard_body_3">Sve radi na tvom uređaju — bez računa, bez oglasa, bez analitike. Ništa nikad ne napušta tvoj telefon. blep treba samo Bluetooth da pronađe uređaje i pazi na pratitelje.</string>
 </resources>

@@ -42,6 +42,7 @@ import kotlin.time.TimeSource
 
 /** Top-level navigation destinations. */
 sealed interface Screen {
+    data object Onboarding : Screen // first-run intro, shown before Discovery
     data object Discovery : Screen
     data object Safety : Screen // "is something tracking me?" scan
     data object Settings : Screen
@@ -198,6 +199,12 @@ class BlepController(
         // recovers the moment the user fixes it) instead of guessing from a thrown
         // exception's message.
         scope.launch { scanner.availability.collect { availability = it } }
+        if (settings.onboarded()) startDiscovery() else screen = Screen.Onboarding
+    }
+
+    /** First-run intro finished (completed or skipped) — never show it again. */
+    fun finishOnboarding() {
+        settings.setOnboarded(true)
         startDiscovery()
     }
 

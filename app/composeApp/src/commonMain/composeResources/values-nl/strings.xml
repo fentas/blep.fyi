@@ -170,4 +170,13 @@
     <string name="a11y_more_info">Meer info</string>
     <string name="settings_notifications_off">Meldingen staan uit — waarschuwingen verschijnen niet. Tik om ze aan te zetten.</string>
     <string name="radar_warmer">warmer</string>
+    <string name="onboard_skip">Overslaan</string>
+    <string name="onboard_next">Volgende</string>
+    <string name="onboard_done">Bluetooth aanzetten</string>
+    <string name="onboard_title_1">Vind je spullen via het signaal</string>
+    <string name="onboard_body_1">blep maakt van je telefoon een warm/koud-kompas dat je naar een verloren Bluetooth-apparaat leidt — en let op ongewenste trackers die met je meereizen.</string>
+    <string name="onboard_title_2">Houd hem tegen je borst</string>
+    <string name="onboard_body_2">Je lichaam blokkeert het signaal van achteren, waardoor het richting krijgt. Houd de telefoon plat tegen je borst en draai langzaam — blep wordt warmer richting wat je zoekt.</string>
+    <string name="onboard_title_3">Privé van ontwerp</string>
+    <string name="onboard_body_3">Alles draait op je apparaat — geen accounts, geen advertenties, geen analyse. Niets verlaat ooit je telefoon. blep heeft alleen Bluetooth nodig om apparaten te vinden en op trackers te letten.</string>
 </resources>

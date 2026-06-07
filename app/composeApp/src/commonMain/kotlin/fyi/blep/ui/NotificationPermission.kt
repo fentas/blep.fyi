@@ -19,3 +19,9 @@ expect fun rememberLocationPermissionRequest(): () -> Unit
  *  background-watch alerts silently won't appear — the UI surfaces a hint. */
 @Composable
 expect fun rememberNotificationsEnabled(): Boolean
+
+/** Requests the runtime Bluetooth scan/connect permissions (legacy location on
+ *  Android < 12). Triggered at the end of onboarding. No-op on iOS (the system
+ *  prompts on first scan). */
+@Composable
+expect fun rememberBlePermissionRequest(): () -> Unit

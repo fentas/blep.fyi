@@ -170,4 +170,13 @@
     <string name="a11y_more_info">Plus d'infos</string>
     <string name="settings_notifications_off">Les notifications sont désactivées — les alertes n'apparaîtront pas. Touche pour les activer.</string>
     <string name="radar_warmer">plus chaud</string>
+    <string name="onboard_skip">Passer</string>
+    <string name="onboard_next">Suivant</string>
+    <string name="onboard_done">Activer le Bluetooth</string>
+    <string name="onboard_title_1">Retrouve tes affaires au signal</string>
+    <string name="onboard_body_1">blep transforme ton téléphone en boussole chaud/froid qui te guide vers un appareil Bluetooth perdu — et surveille les traceurs indésirables qui voyagent avec toi.</string>
+    <string name="onboard_title_2">Tiens-le contre ta poitrine</string>
+    <string name="onboard_body_2">Ton corps bloque le signal venant de derrière, ce qui le rend directionnel. Tiens le téléphone à plat contre ta poitrine et tourne lentement — blep devient plus chaud à mesure que tu pointes ce que tu cherches.</string>
+    <string name="onboard_title_3">Privé par conception</string>
+    <string name="onboard_body_3">Tout fonctionne sur ton appareil — pas de comptes, pas de pubs, pas de suivi. Rien ne quitte jamais ton téléphone. blep a juste besoin du Bluetooth pour trouver des appareils et repérer les traceurs.</string>
 </resources>

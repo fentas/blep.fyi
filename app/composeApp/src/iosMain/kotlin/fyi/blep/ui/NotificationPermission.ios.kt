@@ -12,3 +12,6 @@ actual fun rememberLocationPermissionRequest(): () -> Unit = {}
 // false hint). The system handles its own prompt on first request.
 @Composable
 actual fun rememberNotificationsEnabled(): Boolean = true
+
+@Composable
+actual fun rememberBlePermissionRequest(): () -> Unit = {} // CoreBluetooth prompts on first scan

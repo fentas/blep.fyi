@@ -46,6 +46,10 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
     fun locationAware(): Boolean = store.getBoolean(KEY_LOCATION, false)
     fun setLocationAware(on: Boolean) = store.putBoolean(KEY_LOCATION, on)
 
+    /** Whether the first-run onboarding has been shown (skipped or completed). */
+    fun onboarded(): Boolean = store.getBoolean(KEY_ONBOARDED, false)
+    fun setOnboarded(on: Boolean) = store.putBoolean(KEY_ONBOARDED, on)
+
     companion object {
         const val INTERVAL_MIN = 15   // WorkManager periodic floor
         const val INTERVAL_MAX = 240  // 4 hours
@@ -58,5 +62,6 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
         private const val KEY_INTERVAL = "settings.scanIntervalMin"
         private const val KEY_SENSITIVITY = "settings.scanSensitivity"
         private const val KEY_LOCATION = "settings.locationAware"
+        private const val KEY_ONBOARDED = "settings.onboarded"
     }
 }

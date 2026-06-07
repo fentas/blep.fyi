@@ -170,4 +170,13 @@
     <string name="a11y_more_info">Περισσότερες πληροφορίες</string>
     <string name="settings_notifications_off">Οι ειδοποιήσεις είναι ανενεργές — δεν θα εμφανίζονται προειδοποιήσεις. Πάτησε για να τις ενεργοποιήσεις.</string>
     <string name="radar_warmer">πιο ζεστά</string>
+    <string name="onboard_skip">Παράλειψη</string>
+    <string name="onboard_next">Επόμενο</string>
+    <string name="onboard_done">Ενεργοποίηση Bluetooth</string>
+    <string name="onboard_title_1">Βρες τα πράγματά σου με το σήμα</string>
+    <string name="onboard_body_1">Το blep μετατρέπει το τηλέφωνό σου σε έναν δείκτη ζεστού/κρύου που σε οδηγεί σε μια χαμένη συσκευή Bluetooth — και προσέχει για ανεπιθύμητους ιχνηλάτες που ταξιδεύουν μαζί σου.</string>
+    <string name="onboard_title_2">Κράτησέ το στο στήθος σου</string>
+    <string name="onboard_body_2">Το σώμα σου μπλοκάρει το σήμα από πίσω, κάνοντάς το κατευθυντικό. Κράτησε το τηλέφωνο επίπεδο στο στήθος σου και γύρνα αργά — το blep γίνεται πιο ζεστό προς αυτό που ψάχνεις.</string>
+    <string name="onboard_title_3">Ιδιωτικό εκ κατασκευής</string>
+    <string name="onboard_body_3">Όλα τρέχουν στη συσκευή σου — χωρίς λογαριασμούς, χωρίς διαφημίσεις, χωρίς analytics. Τίποτα δεν φεύγει ποτέ από το τηλέφωνό σου. Το blep χρειάζεται μόνο Bluetooth για να βρίσκει συσκευές και να προσέχει για ιχνηλάτες.</string>
 </resources>

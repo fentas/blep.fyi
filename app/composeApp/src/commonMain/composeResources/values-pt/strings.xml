@@ -170,4 +170,13 @@
     <string name="a11y_more_info">Mais informações</string>
     <string name="settings_notifications_off">As notificações estão desativadas — os alertas não vão aparecer. Toca para as ativar.</string>
     <string name="radar_warmer">mais quente</string>
+    <string name="onboard_skip">Ignorar</string>
+    <string name="onboard_next">Seguinte</string>
+    <string name="onboard_done">Ativar o Bluetooth</string>
+    <string name="onboard_title_1">Encontra as tuas coisas pelo sinal</string>
+    <string name="onboard_body_1">O blep transforma o teu telemóvel num ponteiro quente/frio que te guia até um dispositivo Bluetooth perdido — e vigia rastreadores indesejados que viajam contigo.</string>
+    <string name="onboard_title_2">Encosta-o ao peito</string>
+    <string name="onboard_body_2">O teu corpo bloqueia o sinal por trás, tornando-o direcional. Mantém o telemóvel plano contra o peito e roda devagar — o blep fica mais quente em direção ao que procuras.</string>
+    <string name="onboard_title_3">Privado por design</string>
+    <string name="onboard_body_3">Tudo corre no teu dispositivo — sem contas, sem anúncios, sem análises. Nada sai do teu telemóvel. O blep só precisa do Bluetooth para encontrar dispositivos e vigiar rastreadores.</string>
 </resources>

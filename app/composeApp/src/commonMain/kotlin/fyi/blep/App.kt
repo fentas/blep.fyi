@@ -14,7 +14,9 @@ import fyi.blep.core.safety.TrackerTuning
 import fyi.blep.demo.DemoBleScanner
 import fyi.blep.demo.DemoMotionProvider
 import fyi.blep.ui.screens.CompletionScreen
+import fyi.blep.ui.rememberBlePermissionRequest
 import fyi.blep.ui.screens.DiscoveryScreen
+import fyi.blep.ui.screens.OnboardingScreen
 import fyi.blep.ui.screens.SafetyScreen
 import fyi.blep.ui.screens.SettingsScreen
 import fyi.blep.ui.AppBackHandler
@@ -39,10 +41,12 @@ fun App(demo: Boolean = false) {
             else BlepController(createBleScanner(), scope)
         }
         val uriHandler = LocalUriHandler.current
+        val requestBlePermission = rememberBlePermissionRequest()
 
-        // System back on any sub-screen returns to discovery; on discovery it's
-        // disabled so the OS handles it (exit). The paired sheet handles its own.
-        AppBackHandler(enabled = controller.screen !is Screen.Discovery) {
+        // System back on any sub-screen returns to discovery; on discovery (and the
+        // first-run onboarding) it's disabled so the OS handles it (exit). The paired
+        // sheet handles its own.
+        AppBackHandler(enabled = controller.screen !is Screen.Discovery && controller.screen !is Screen.Onboarding) {
             controller.startDiscovery()
         }
 
@@ -52,6 +56,11 @@ fun App(demo: Boolean = false) {
             label = "screen",
         ) { screen ->
             when (screen) {
+                is Screen.Onboarding -> OnboardingScreen(
+                    onDone = { requestBlePermission(); controller.finishOnboarding() },
+                    onSkip = controller::finishOnboarding,
+                )
+
                 is Screen.Discovery -> DiscoveryScreen(
                     devices = controller.visibleDevices,
                     pairedDevices = controller.pairedDevices,
