@@ -37,6 +37,32 @@ Then open blep on the device in **real mode** (not `make demo`) →
 *"Is something tracking you?"*. You should see the injected fakes flagged
 (e.g. *"Unknown Find My tracker nearby"*).
 
+### Per-device runs
+
+netsim reliably brings up **one** virtual peripheral at a time, so to check each
+fingerprint pass the device name(s) after the port and cycle them (re-open the scan
+between devices to reset the detector window):
+
+```bash
+tools/ble-netsim/venv/bin/python tools/ble-netsim/advertise.py 35677 tile
+# names: airtag airtag-owned tile smarttag googletag galaxy-phone  (default: all)
+```
+
+Last validated live (emulator-5554, API 35) — the real `AndroidBleScanner` →
+`TrackerClassifier` path:
+
+| injected device | expected | live result |
+|---|---|---|
+| `airtag` (Find My, len `0x19`) | Find My, separated | ✅ "Unknown Find My tracker nearby" |
+| `tile` (`0xFEED`) | Tile | ✅ "Unknown Tile nearby" |
+| `smarttag` (`0xFD5A`) | SmartTag | ✅ "Unknown SmartTag nearby" |
+| `googletag` (DULT `0xFD44`) | DULT | ✅ "Unknown tracker nearby" |
+| `airtag-owned` (Find My, len `0x02`) | **not** flagged (with owner) | ✅ no alert |
+| `galaxy-phone` (bare `0x0075`) | **not** flagged (Samsung phone) | ✅ no alert |
+
+The last two are the regression guards for the bugs fixed in the classifier
+(length-aware Find My separation; dropping the over-broad Samsung company-id match).
+
 ## Bridge checks (the tracking platform glue)
 
 The same virtual-radio setup powers the "bridge" checks for the *tracking* path —
