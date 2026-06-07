@@ -28,6 +28,7 @@ import fyi.blep.core.spatial.createHaptic
 import fyi.blep.core.spatial.createMotionProvider
 import fyi.blep.core.tracking.TrackingPhase
 import fyi.blep.core.tracking.TrackingSession
+import fyi.blep.core.tracking.signalFreshness
 import fyi.blep.core.tracking.TrackingStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -378,11 +379,14 @@ class BlepController(
                     val snap = spatialTracker.update((lastRssi ?: FALLBACK_RSSI).toDouble(), sample)
                     spatial = snap
                     guidance = guidanceStabilizer.guideLine(snap, spatialTuning)
-                    val sinceRssi = lastRssiMark?.elapsedNow()
-                    val sinceStart = trackStartMark?.elapsedNow()
-                    signalLost = (sinceRssi != null && sinceRssi > SIGNAL_LOST_AFTER) ||
-                        (sinceRssi == null && sinceStart != null && sinceStart > NO_SIGNAL_GRACE)
-                    signalAgeSec = (sinceRssi ?: sinceStart)?.inWholeSeconds?.toInt() ?: 0
+                    val fresh = signalFreshness(
+                        sinceLastRssiMs = lastRssiMark?.elapsedNow()?.inWholeMilliseconds,
+                        sinceStartMs = trackStartMark?.elapsedNow()?.inWholeMilliseconds,
+                        lostAfterMs = SIGNAL_LOST_AFTER.inWholeMilliseconds,
+                        graceMs = NO_SIGNAL_GRACE.inWholeMilliseconds,
+                    )
+                    signalLost = fresh.lost
+                    signalAgeSec = fresh.ageSec
                 }
             } catch (c: CancellationException) {
                 throw c

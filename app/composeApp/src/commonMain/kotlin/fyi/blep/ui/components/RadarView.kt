@@ -29,6 +29,9 @@ import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
+import fyi.blep.resources.Res
+import fyi.blep.resources.radar_warmer
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Abstract, map-less "radar" of the hunt. Draws the start point, the trail you've
@@ -45,6 +48,7 @@ fun RadarView(
     modifier: Modifier = Modifier,
 ) {
     val measurer = rememberTextMeasurer()
+    val warmerLabel = stringResource(Res.string.radar_warmer)
     val labelStyle = TextStyle(color = BlepColors.Ink.copy(alpha = 0.55f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
     Canvas(modifier = modifier.fillMaxSize()) {
         val cx = size.width / 2f
@@ -195,7 +199,7 @@ fun RadarView(
                 },
                 amber,
             )
-            val warmLabel = measurer.measure("warmer", TextStyle(color = amber, fontSize = 12.sp, fontWeight = FontWeight.Bold))
+            val warmLabel = measurer.measure(warmerLabel, TextStyle(color = amber, fontSize = 12.sp, fontWeight = FontWeight.Bold))
             drawText(warmLabel, topLeft = Offset(wtip.x - warmLabel.size.width / 2f, wtip.y - warmLabel.size.height - 4f))
         }
 
