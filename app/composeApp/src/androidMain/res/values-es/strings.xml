@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="noti_ongoing_text">Vigilando rastreadores cerca de ti</string>
+    <string name="noti_alert_title">Un rastreador podría estar siguiéndote</string>
+    <string name="noti_alert_text">Un rastreador sigue apareciendo cerca de ti. Abre blep para localizarlo.</string>
+    <string name="noti_channel_alert">Alertas de rastreadores</string>
+    <string name="noti_channel_ongoing">Análisis en segundo plano</string>
+</resources>

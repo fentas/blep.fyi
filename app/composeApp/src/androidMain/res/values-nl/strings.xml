@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="noti_ongoing_text">Zoeken naar trackers in de buurt</string>
+    <string name="noti_alert_title">Mogelijk volgt een tracker je</string>
+    <string name="noti_alert_text">Een tracker blijft bij je in de buurt opduiken. Open blep om hem te zoeken.</string>
+    <string name="noti_channel_alert">Trackerwaarschuwingen</string>
+    <string name="noti_channel_ongoing">Scannen op de achtergrond</string>
+</resources>

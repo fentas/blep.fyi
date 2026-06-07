@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">blep</string>
+    <!-- Background-scan notifications (shown by the Android service/worker, outside Compose) -->
+    <string name="noti_ongoing_text">Watching for trackers nearby</string>
+    <string name="noti_alert_title">Possible tracker following you</string>
+    <string name="noti_alert_text">A tracker keeps showing up near you. Open blep to locate it.</string>
+    <string name="noti_channel_alert">Tracker alerts</string>
+    <string name="noti_channel_ongoing">Background scanning</string>
 </resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="noti_ongoing_text">Achtet auf Tracker in der Nähe</string>
+    <string name="noti_alert_title">Möglicher Tracker folgt dir</string>
+    <string name="noti_alert_text">Ein Tracker taucht immer wieder in deiner Nähe auf. Öffne blep, um ihn zu orten.</string>
+    <string name="noti_channel_alert">Tracker-Warnungen</string>
+    <string name="noti_channel_ongoing">Hintergrund-Scan</string>
+</resources>

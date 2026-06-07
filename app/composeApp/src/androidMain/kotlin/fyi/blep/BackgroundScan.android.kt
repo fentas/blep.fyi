@@ -19,6 +19,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import fyi.blep.R
 import fyi.blep.core.ble.createBleScanner
 import fyi.blep.core.platform.createKeyValueStore
 import fyi.blep.core.safety.SafetyHistory
@@ -107,10 +108,10 @@ private fun ensureChannels(ctx: Context) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
     val nm = ctx.getSystemService(NotificationManager::class.java) ?: return
     nm.createNotificationChannel(
-        NotificationChannel(CH_ALERT, "Tracker alerts", NotificationManager.IMPORTANCE_HIGH),
+        NotificationChannel(CH_ALERT, ctx.getString(R.string.noti_channel_alert), NotificationManager.IMPORTANCE_HIGH),
     )
     nm.createNotificationChannel(
-        NotificationChannel(CH_ONGOING, "Background scanning", NotificationManager.IMPORTANCE_LOW),
+        NotificationChannel(CH_ONGOING, ctx.getString(R.string.noti_channel_ongoing), NotificationManager.IMPORTANCE_LOW),
     )
 }
 
@@ -122,8 +123,8 @@ private fun openAppIntent(ctx: Context): PendingIntent {
 private fun ongoingNotification(ctx: Context): Notification {
     ensureChannels(ctx)
     return NotificationCompat.Builder(ctx, CH_ONGOING)
-        .setContentTitle("blep")
-        .setContentText("Watching for trackers nearby")
+        .setContentTitle(ctx.getString(R.string.app_name))
+        .setContentText(ctx.getString(R.string.noti_ongoing_text))
         .setSmallIcon(android.R.drawable.stat_notify_sync)
         .setOngoing(true)
         .setContentIntent(openAppIntent(ctx))
@@ -134,8 +135,8 @@ private fun notifyTracker(ctx: Context) {
     ensureChannels(ctx)
     if (!NotificationManagerCompat.from(ctx).areNotificationsEnabled()) return
     val n = NotificationCompat.Builder(ctx, CH_ALERT)
-        .setContentTitle("Possible tracker following you")
-        .setContentText("A tracker keeps showing up near you. Open blep to locate it.")
+        .setContentTitle(ctx.getString(R.string.noti_alert_title))
+        .setContentText(ctx.getString(R.string.noti_alert_text))
         .setSmallIcon(android.R.drawable.stat_sys_warning)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setAutoCancel(true)

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="noti_ongoing_text">近くのトラッカーを監視中</string>
+    <string name="noti_alert_title">トラッカーがあなたを追跡している可能性があります</string>
+    <string name="noti_alert_text">トラッカーがあなたの近くに繰り返し現れています。blep を開いて見つけてください。</string>
+    <string name="noti_channel_alert">トラッカー警告</string>
+    <string name="noti_channel_ongoing">バックグラウンドスキャン</string>
+</resources>
