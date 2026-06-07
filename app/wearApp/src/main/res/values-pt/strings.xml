@@ -33,4 +33,7 @@
     <string name="floor_up_many">↑ %1$d andares acima</string>
     <string name="floor_down_one">↓ %1$d andar abaixo</string>
     <string name="floor_down_many">↓ %1$d andares abaixo</string>
+    <string name="noti_channel_alert">Alertas de rastreadores</string>
+    <string name="noti_alert_title">Possível rastreador a seguir-te</string>
+    <string name="noti_alert_text">Um rastreador continua a aparecer perto de ti. Abre o blep para o localizar.</string>
 </resources>

@@ -33,4 +33,7 @@
     <string name="floor_up_many">↑ 上 %1$d 层</string>
     <string name="floor_down_one">↓ 下 %1$d 层</string>
     <string name="floor_down_many">↓ 下 %1$d 层</string>
+    <string name="noti_channel_alert">追踪器警报</string>
+    <string name="noti_alert_title">可能有追踪器在跟踪你</string>
+    <string name="noti_alert_text">有一个追踪器不断出现在你附近。打开 blep 来查找它。</string>
 </resources>

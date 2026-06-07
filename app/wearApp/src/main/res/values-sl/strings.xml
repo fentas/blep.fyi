@@ -33,4 +33,7 @@
     <string name="floor_up_many">↑ %1$d nadstropij gor</string>
     <string name="floor_down_one">↓ %1$d nadstropje dol</string>
     <string name="floor_down_many">↓ %1$d nadstropij dol</string>
+    <string name="noti_channel_alert">Opozorila o sledilnikih</string>
+    <string name="noti_alert_title">Morda ti sledi sledilnik</string>
+    <string name="noti_alert_text">Sledilnik se vedno znova pojavlja blizu tebe. Odpri blep, da ga poiščeš.</string>
 </resources>

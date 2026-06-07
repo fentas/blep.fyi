@@ -33,4 +33,7 @@
     <string name="floor_up_many">↑ %1$d korrust üles</string>
     <string name="floor_down_one">↓ %1$d korrus alla</string>
     <string name="floor_down_many">↓ %1$d korrust alla</string>
+    <string name="noti_channel_alert">Jälgija hoiatused</string>
+    <string name="noti_alert_title">Võimalik, et jälgija jälgib sind</string>
+    <string name="noti_alert_text">Jälgija ilmub aina uuesti sinu lähedale. Ava blep, et see üles leida.</string>
 </resources>

@@ -33,4 +33,7 @@
     <string name="floor_up_many">↑ %1$d 階上</string>
     <string name="floor_down_one">↓ %1$d 階下</string>
     <string name="floor_down_many">↓ %1$d 階下</string>
+    <string name="noti_channel_alert">トラッカー警告</string>
+    <string name="noti_alert_title">トラッカーがあなたを追跡している可能性があります</string>
+    <string name="noti_alert_text">トラッカーがあなたの近くに繰り返し現れています。blep を開いて見つけてください。</string>
 </resources>

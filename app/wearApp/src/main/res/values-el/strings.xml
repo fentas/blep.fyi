@@ -33,4 +33,7 @@
     <string name="floor_up_many">↑ %1$d ορόφους πάνω</string>
     <string name="floor_down_one">↓ %1$d όροφο κάτω</string>
     <string name="floor_down_many">↓ %1$d ορόφους κάτω</string>
+    <string name="noti_channel_alert">Ειδοποιήσεις ιχνηλατών</string>
+    <string name="noti_alert_title">Πιθανός ιχνηλάτης σε ακολουθεί</string>
+    <string name="noti_alert_text">Ένας ιχνηλάτης συνεχίζει να εμφανίζεται κοντά σου. Άνοιξε το blep για να τον εντοπίσεις.</string>
 </resources>

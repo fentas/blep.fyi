@@ -33,4 +33,7 @@
     <string name="floor_up_many">↑ %1$d étages au-dessus</string>
     <string name="floor_down_one">↓ %1$d étage en dessous</string>
     <string name="floor_down_many">↓ %1$d étages en dessous</string>
+    <string name="noti_channel_alert">Alertes de traceur</string>
+    <string name="noti_alert_title">Un traceur te suit peut-être</string>
+    <string name="noti_alert_text">Un traceur réapparaît sans cesse près de toi. Ouvre blep pour le localiser.</string>
 </resources>

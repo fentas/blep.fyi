@@ -33,4 +33,7 @@
     <string name="floor_up_many">↑ %1$d kata gore</string>
     <string name="floor_down_one">↓ %1$d kat dolje</string>
     <string name="floor_down_many">↓ %1$d kata dolje</string>
+    <string name="noti_channel_alert">Upozorenja o pratiteljima</string>
+    <string name="noti_alert_title">Pratitelj te možda slijedi</string>
+    <string name="noti_alert_text">Pratitelj se stalno pojavljuje blizu tebe. Otvori blep da ga pronađeš.</string>
 </resources>

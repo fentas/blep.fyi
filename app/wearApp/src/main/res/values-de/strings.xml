@@ -33,4 +33,7 @@
     <string name="floor_up_many">↑ %1$d Etagen hoch</string>
     <string name="floor_down_one">↓ %1$d Etage runter</string>
     <string name="floor_down_many">↓ %1$d Etagen runter</string>
+    <string name="noti_channel_alert">Tracker-Warnungen</string>
+    <string name="noti_alert_title">Möglicher Tracker folgt dir</string>
+    <string name="noti_alert_text">Ein Tracker taucht immer wieder in deiner Nähe auf. Öffne blep, um ihn zu orten.</string>
 </resources>

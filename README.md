@@ -135,7 +135,10 @@ you?"** and blep watches the same advertisements for a tag that's travelling
   likely following you.
 - **Background watch** (opt-in) — a foreground service / periodic worker keeps an
   eye out while the app is closed and notifies you, with a battery-minded
-  interval (it skips actively ranging your *own* paired devices).
+  interval (it skips actively ranging your *own* paired devices). On **Wear OS**
+  the watch runs only the lighter **periodic (~30-min) check** — no continuous
+  foreground service — to spare the watch battery; the phone does the continuous
+  watch.
 - **Sensitivity profiles** — Relaxed / Balanced / Strict retune the thresholds;
   surfaced both in Settings and on the safety screen.
 

@@ -22,7 +22,12 @@ class MainActivity : ComponentActivity() {
         // `--ez demo true` swaps in the scripted hunt (store screenshots/previews);
         // off in normal use, where it requests BLE permissions and scans for real.
         val demo = intent?.getBooleanExtra("demo", false) == true
-        if (!demo) requestBlePermissions()
+        if (!demo) {
+            requestBlePermissions()
+            // Light, foreground-service-free anti-stalking watch: a periodic (~30 min)
+            // check that notifies if a tracker seems to be following you.
+            WearSafetyScan.enqueue(applicationContext)
+        }
         setContent {
             val scope = rememberCoroutineScope()
             val controller = remember(scope) {
@@ -37,11 +42,15 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun requestBlePermissions() {
-        val needed = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)
-        } else {
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
+        val needed = buildList {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                add(Manifest.permission.BLUETOOTH_SCAN); add(Manifest.permission.BLUETOOTH_CONNECT)
+            } else {
+                add(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+            // So the periodic safety check's "tracker following you" alert can show.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) add(Manifest.permission.POST_NOTIFICATIONS)
+        }.toTypedArray()
         permissionLauncher.launch(needed)
     }
 }

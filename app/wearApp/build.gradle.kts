@@ -72,6 +72,7 @@ android {
 dependencies {
     implementation(project(":core"))
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.androidx.work.runtime) // periodic (no-FGS) safety check
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

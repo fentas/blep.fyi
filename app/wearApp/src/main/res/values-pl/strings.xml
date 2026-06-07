@@ -33,4 +33,7 @@
     <string name="floor_up_many">↑ %1$d pięter w górę</string>
     <string name="floor_down_one">↓ %1$d piętro w dół</string>
     <string name="floor_down_many">↓ %1$d pięter w dół</string>
+    <string name="noti_channel_alert">Alerty o lokalizatorach</string>
+    <string name="noti_alert_title">Lokalizator może cię śledzić</string>
+    <string name="noti_alert_text">Lokalizator wciąż pojawia się blisko ciebie. Otwórz blep, aby go namierzyć.</string>
 </resources>
