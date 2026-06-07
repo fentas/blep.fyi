@@ -87,9 +87,13 @@ Severity: a *separated tracker close by* → **WARN**; *close & present for minu
 ## Remaining work
 - **Fingerprint-vs-real-hardware.** netsim/Bumble validates the *parse path* but not
   the fingerprints themselves (it replays the same byte assumptions the classifier
-  holds). The Find My `0x12` / DULT `0xFD44`/`0xFEAA` / SmartTag `0xFD5A` patterns
-  still want one confirmation against a real AirTag/Tile/SmartTag (internal track)
-  or an authoritative published advertising spec.
+  holds). The classifier was since tightened — Find My is TLV-walked and length-aware
+  (`0x12` len `0x19` = separated vs `0x02` = with-owner), and the over-broad Samsung
+  company-id (`0x0075`) match was dropped in favour of the `0xFD5A` SmartTag UUID — but
+  `0xFEAA` (Eddystone/Google FMDN) and the exact SmartTag/Google payloads still want
+  one confirmation against real tags. Checklist + expected results:
+  **[`docs/tracker-validation.md`](tracker-validation.md)** (and `make ble-trackers`
+  now injects the with-owner, Google/DULT, and Samsung-phone negative cases too).
 - **Continuous background scan — DONE (opt-in).** Shipped as a foreground service +
   periodic WorkManager scan (see "What's built"). Kept off by default and permission-
   gated to avoid forcing Play's background-location review on users who don't want

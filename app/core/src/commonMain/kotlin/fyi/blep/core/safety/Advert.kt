@@ -38,30 +38,52 @@ fun shortServiceUuid(uuid: String): String =
  */
 object TrackerClassifier {
     private const val APPLE = 0x004C
-    private const val SAMSUNG = 0x0075
-    private const val APPLE_FINDMY_OFFLINE = 0x12 // offline-finding payload = separated from owner
+    private const val APPLE_FINDMY = 0x12         // Apple data-type byte for offline finding
+    private const val FINDMY_SEPARATED_LEN = 0x19 // full "lost" advert (public key); 0x02 = with owner
 
-    private val TILE = setOf("feed", "feec")
-    private val SMARTTAG = setOf("fd5a")
-    // DULT "accessory-not-with-owner" / Find My Device network — verify on-device.
+    private val TILE = setOf("feed", "feec")      // Tile, Inc. (0xFEED / 0xFEEC)
+    private val SMARTTAG = setOf("fd5a")           // Samsung SmartTag Find network (0xFD5A)
+    // Cross-vendor "accessory not with owner" / Find My Device network. 0xFD44 (Apple
+    // Find My) is solid; 0xFEAA (Eddystone, used by Google's FMDN) is lower-confidence
+    // because plain Eddystone beacons share it — flagged for real-hardware validation
+    // (docs/tracker-validation.md).
     private val DULT = setOf("fd44", "feaa")
 
     fun classify(a: RawAdvert): TrackerSighting {
         val random = a.addressType == AddressType.RANDOM
         val svc = a.serviceUuids.map { it.lowercase() }.toHashSet()
 
+        // Apple Find My: scan the (type,len,value) TLV chain for the 0x12 offline-finding
+        // record. The full-length record is the *separated* (lost) tag; the short 0x02
+        // record is a tag still with its owner — recognise it but don't call it separated.
         a.manufacturerData[APPLE]?.let { m ->
-            if (m.isNotEmpty() && (m[0].toInt() and 0xFF) == APPLE_FINDMY_OFFLINE) {
-                return sighting(a, TrackerKind.FIND_MY, separated = true, random)
+            appleFindMySeparated(m)?.let { sep ->
+                return sighting(a, TrackerKind.FIND_MY, separated = sep, random)
             }
         }
         return when {
             svc.any { it in TILE } -> sighting(a, TrackerKind.TILE, separated = true, random)
-            svc.any { it in SMARTTAG } || a.manufacturerData.containsKey(SAMSUNG) ->
-                sighting(a, TrackerKind.SMARTTAG, separated = true, random)
+            // SmartTag is keyed on its service UUID only — the bare Samsung company id
+            // (0x0075) rides on every Galaxy phone/watch/buds, so matching it would flag
+            // half a room of Samsung gear as trackers.
+            svc.any { it in SMARTTAG } -> sighting(a, TrackerKind.SMARTTAG, separated = true, random)
             svc.any { it in DULT } -> sighting(a, TrackerKind.DULT, separated = true, random)
             else -> sighting(a, TrackerKind.UNKNOWN, separated = false, random)
         }
+    }
+
+    /** Walk Apple's manufacturer-data TLV chain for the Find My type (0x12). Returns
+     *  null if absent; true for the full *separated/lost* advert (len ≥ 0x19); false
+     *  for the short *with-owner* advert. Bounds-checked against malformed payloads. */
+    private fun appleFindMySeparated(m: ByteArray): Boolean? {
+        var i = 0
+        while (i + 1 < m.size) {
+            val type = m[i].toInt() and 0xFF
+            val len = m[i + 1].toInt() and 0xFF
+            if (type == APPLE_FINDMY) return len >= FINDMY_SEPARATED_LEN
+            i += 2 + len // advance past this TLV's value
+        }
+        return null
     }
 
     private fun sighting(a: RawAdvert, kind: TrackerKind, separated: Boolean, random: Boolean) =
