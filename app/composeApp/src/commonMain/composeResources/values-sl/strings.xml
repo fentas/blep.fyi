@@ -164,4 +164,8 @@
     <string name="settings_location_title">Zaznava glede na lokacijo</string>
     <string name="settings_location_desc">Ob zaznavi sledilnika zabeleži grob, lokalni kraj, da loči zasledovalca od vsakdanje množice. Nikoli ne zapusti telefona.</string>
     <string name="alert_cross_places">Opažen blizu tebe na %1$d različnih krajih.</string>
+    <string name="a11y_donate">Podari</string>
+    <string name="a11y_favorite">Priljubljeno</string>
+    <string name="a11y_back">Nazaj</string>
+    <string name="a11y_more_info">Več informacij</string>
 </resources>

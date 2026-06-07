@@ -165,4 +165,8 @@
     <string name="settings_location_title">基于位置的检测</string>
     <string name="settings_location_desc">发现追踪器时在本机记录一个粗略地点，以区分跟踪者和你的日常人群。绝不离开你的手机。</string>
     <string name="alert_cross_places">在 %1$d 个不同地点出现在你附近。</string>
+    <string name="a11y_donate">捐赠</string>
+    <string name="a11y_favorite">收藏</string>
+    <string name="a11y_back">返回</string>
+    <string name="a11y_more_info">更多信息</string>
 </resources>

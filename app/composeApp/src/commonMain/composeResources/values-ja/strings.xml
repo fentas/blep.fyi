@@ -164,4 +164,8 @@
     <string name="settings_location_title">位置を使った検出</string>
     <string name="settings_location_desc">トラッカーを検出した際に端末内に大まかな場所を記録し、尾行者を日常の人混みと区別します。端末から出ることはありません。</string>
     <string name="alert_cross_places">%1$d か所の異なる場所であなたの近くで検出。</string>
+    <string name="a11y_donate">支援・寄付</string>
+    <string name="a11y_favorite">お気に入り</string>
+    <string name="a11y_back">戻る</string>
+    <string name="a11y_more_info">詳細情報</string>
 </resources>

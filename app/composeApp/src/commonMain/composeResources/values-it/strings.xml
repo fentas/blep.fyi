@@ -164,4 +164,8 @@
     <string name="settings_location_title">Rilevamento con posizione</string>
     <string name="settings_location_desc">Annota un luogo approssimativo, sul dispositivo, quando vede un tracker, per distinguere un inseguitore dalla tua routine. Non lascia mai il telefono.</string>
     <string name="alert_cross_places">Visto vicino a te in %1$d luoghi diversi.</string>
+    <string name="a11y_donate">Dona</string>
+    <string name="a11y_favorite">Preferito</string>
+    <string name="a11y_back">Indietro</string>
+    <string name="a11y_more_info">Più info</string>
 </resources>

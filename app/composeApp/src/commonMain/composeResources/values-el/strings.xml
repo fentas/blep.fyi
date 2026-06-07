@@ -164,4 +164,8 @@
     <string name="settings_location_title">Ανίχνευση με τοποθεσία</string>
     <string name="settings_location_desc">Σημειώνει έναν χονδρικό, τοπικό τόπο όταν εντοπίζει ιχνηλάτη, για να ξεχωρίζει έναν διώκτη από την καθημερινότητά σου. Δεν φεύγει ποτέ από το τηλέφωνο.</string>
     <string name="alert_cross_places">Εντοπίστηκε κοντά σου σε %1$d διαφορετικά μέρη.</string>
+    <string name="a11y_donate">Δώρισε</string>
+    <string name="a11y_favorite">Αγαπημένο</string>
+    <string name="a11y_back">Πίσω</string>
+    <string name="a11y_more_info">Περισσότερες πληροφορίες</string>
 </resources>

@@ -164,4 +164,8 @@
     <string name="settings_location_title">Otkrivanje uz lokaciju</string>
     <string name="settings_location_desc">Pri uočavanju pratitelja bilježi grubo, lokalno mjesto kako bi razlikovao progonitelja od svakodnevne gužve. Nikad ne napušta telefon.</string>
     <string name="alert_cross_places">Viđen blizu tebe na %1$d različita mjesta.</string>
+    <string name="a11y_donate">Doniraj</string>
+    <string name="a11y_favorite">Označi zvjezdicom</string>
+    <string name="a11y_back">Natrag</string>
+    <string name="a11y_more_info">Više informacija</string>
 </resources>

@@ -164,4 +164,8 @@
     <string name="settings_location_title">Détection avec position</string>
     <string name="settings_location_desc">Note un lieu approximatif, sur l'appareil, en repérant un traceur, pour distinguer un suiveur de ta routine. Ne quitte jamais ton téléphone.</string>
     <string name="alert_cross_places">Vu près de toi dans %1$d lieux différents.</string>
+    <string name="a11y_donate">Faire un don</string>
+    <string name="a11y_favorite">Mettre en favori</string>
+    <string name="a11y_back">Retour</string>
+    <string name="a11y_more_info">Plus d'infos</string>
 </resources>

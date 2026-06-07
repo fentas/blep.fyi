@@ -164,4 +164,8 @@
     <string name="settings_location_title">Locatiebewuste detectie</string>
     <string name="settings_location_desc">Noteert een grove, lokale plek bij een tracker, om een achtervolger van je dagelijkse drukte te onderscheiden. Verlaat nooit je telefoon.</string>
     <string name="alert_cross_places">Bij jou gezien op %1$d verschillende plekken.</string>
+    <string name="a11y_donate">Doneren</string>
+    <string name="a11y_favorite">Favoriet</string>
+    <string name="a11y_back">Terug</string>
+    <string name="a11y_more_info">Meer info</string>
 </resources>

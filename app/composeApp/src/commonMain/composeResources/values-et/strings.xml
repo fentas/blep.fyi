@@ -164,4 +164,8 @@
     <string name="settings_location_title">Asukohateadlik tuvastus</string>
     <string name="settings_location_desc">Märgib jälitaja nägemisel umbkaudse, seadmesisese koha, et eristada jälitajat su igapäevasest sebimisest. Ei lahku kunagi telefonist.</string>
     <string name="alert_cross_places">Nähtud su lähedal %1$d eri kohas.</string>
+    <string name="a11y_donate">Anneta</string>
+    <string name="a11y_favorite">Lisa lemmikutesse</string>
+    <string name="a11y_back">Tagasi</string>
+    <string name="a11y_more_info">Lisateave</string>
 </resources>

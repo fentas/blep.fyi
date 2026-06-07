@@ -164,4 +164,8 @@
     <string name="settings_location_title">Detección con ubicación</string>
     <string name="settings_location_desc">Anota un lugar aproximado, en el dispositivo, al ver un rastreador, para distinguir a un perseguidor de tu rutina. Nunca sale del teléfono.</string>
     <string name="alert_cross_places">Visto cerca de ti en %1$d lugares distintos.</string>
+    <string name="a11y_donate">Donar</string>
+    <string name="a11y_favorite">Favorito</string>
+    <string name="a11y_back">Atrás</string>
+    <string name="a11y_more_info">Más información</string>
 </resources>

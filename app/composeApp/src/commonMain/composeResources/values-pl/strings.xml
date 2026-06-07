@@ -164,4 +164,8 @@
     <string name="settings_location_title">Wykrywanie z lokalizacją</string>
     <string name="settings_location_desc">Przy wykryciu lokalizatora zapisuje przybliżone, lokalne miejsce, aby odróżnić prześladowcę od codziennego tłumu. Nigdy nie opuszcza telefonu.</string>
     <string name="alert_cross_places">Widziany przy tobie w %1$d różnych miejscach.</string>
+    <string name="a11y_donate">Przekaż darowiznę</string>
+    <string name="a11y_favorite">Oznacz gwiazdką</string>
+    <string name="a11y_back">Wstecz</string>
+    <string name="a11y_more_info">Więcej informacji</string>
 </resources>

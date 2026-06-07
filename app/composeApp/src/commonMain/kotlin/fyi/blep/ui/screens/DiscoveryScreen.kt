@@ -39,6 +39,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
@@ -69,8 +71,11 @@ import fyi.blep.resources.paired_sheet_hint
 import fyi.blep.resources.paired_sheet_title
 import fyi.blep.resources.rename_label
 import fyi.blep.resources.rename_title
+import fyi.blep.resources.a11y_donate
+import fyi.blep.resources.a11y_favorite
 import fyi.blep.resources.safety_entry_subtitle
 import fyi.blep.resources.safety_entry_title
+import fyi.blep.resources.settings_title
 import fyi.blep.resources.section_nearby
 import fyi.blep.resources.show_unnamed_many
 import fyi.blep.resources.show_unnamed_one
@@ -223,7 +228,7 @@ private fun DonateHeart(onClick: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         Icon(
             painter = rememberVectorPainter(HeartIcon),
-            contentDescription = null,
+            contentDescription = stringResource(Res.string.a11y_donate),
             tint = BlepColors.Pink, // mild pastel
             modifier = Modifier.size(26.dp),
         )
@@ -315,6 +320,7 @@ private fun Header(deviceCount: Int) {
 /** Gear that opens Settings — sits in the section row, right of the Paired pill. */
 @Composable
 private fun SettingsButton(onClick: () -> Unit) {
+    val label = stringResource(Res.string.settings_title)
     Text(
         "⚙",
         style = MaterialTheme.typography.titleLarge,
@@ -322,7 +328,8 @@ private fun SettingsButton(onClick: () -> Unit) {
         modifier = Modifier
             .clip(CircleShape)
             .clickable(onClick = onClick)
-            .padding(6.dp),
+            .padding(6.dp)
+            .semantics { contentDescription = label },
     )
 }
 
@@ -444,6 +451,7 @@ private val CenteredGlyph = LineHeightStyle(
 
 @Composable
 private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit) {
+    val label = stringResource(Res.string.a11y_favorite)
     Box(
         Modifier.size(30.dp).clip(CircleShape).clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
@@ -452,6 +460,7 @@ private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit) {
             if (isFavorite) "★" else "☆",
             style = MaterialTheme.typography.titleMedium.copy(lineHeightStyle = CenteredGlyph),
             color = if (isFavorite) BlepColors.Gold else BlepColors.Ink.copy(alpha = 0.35f),
+            modifier = Modifier.semantics { contentDescription = label },
         )
     }
 }
@@ -496,11 +505,12 @@ private fun StatusChip(label: String, showDot: Boolean) {
 
 @Composable
 private fun RenameButton(onRename: () -> Unit) {
+    val label = stringResource(Res.string.rename_title)
     Box(
         Modifier.size(30.dp).clip(CircleShape).clickable(onClick = onRename),
         contentAlignment = Alignment.Center,
     ) {
-        Text("✎", style = MaterialTheme.typography.titleMedium.copy(lineHeightStyle = CenteredGlyph), color = BlepColors.Ink.copy(alpha = 0.35f))
+        Text("✎", style = MaterialTheme.typography.titleMedium.copy(lineHeightStyle = CenteredGlyph), color = BlepColors.Ink.copy(alpha = 0.35f), modifier = Modifier.semantics { contentDescription = label })
     }
 }
 

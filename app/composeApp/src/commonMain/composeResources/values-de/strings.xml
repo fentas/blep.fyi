@@ -165,4 +165,8 @@
     <string name="settings_location_title">Standortbasierte Erkennung</string>
     <string name="settings_location_desc">Notiert einen groben, geräteinternen Ort bei einem Tracker, um Verfolger von deinem Alltag zu unterscheiden. Verlässt nie dein Telefon.</string>
     <string name="alert_cross_places">In %1$d verschiedenen Orten nahe dir gesehen.</string>
+    <string name="a11y_donate">Spenden</string>
+    <string name="a11y_favorite">Mit Stern markieren</string>
+    <string name="a11y_back">Zurück</string>
+    <string name="a11y_more_info">Mehr Infos</string>
 </resources>

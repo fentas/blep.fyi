@@ -181,4 +181,9 @@
     <string name="settings_location_title">Location-aware detection</string>
     <string name="settings_location_desc">Note a coarse, on-device place when a tracker is spotted, to tell a follower from your daily crowd. Never leaves your phone.</string>
     <string name="alert_cross_places">Seen near you in %1$d different places.</string>
+    <!-- Accessibility labels for icon-only controls (TalkBack/VoiceOver) -->
+    <string name="a11y_donate">Donate</string>
+    <string name="a11y_favorite">Favourite</string>
+    <string name="a11y_back">Back</string>
+    <string name="a11y_more_info">More info</string>
 </resources>

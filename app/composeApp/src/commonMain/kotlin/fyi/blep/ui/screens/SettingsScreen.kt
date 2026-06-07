@@ -34,11 +34,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import fyi.blep.resources.Res
+import fyi.blep.resources.a11y_back
+import fyi.blep.resources.a11y_more_info
 import fyi.blep.AppSettings
 import fyi.blep.core.safety.ScanSensitivity
 import fyi.blep.ui.components.SensitivitySelector
@@ -96,6 +100,8 @@ fun SettingsScreen(
     val requestNotifications = rememberNotificationPermissionRequest()
     val requestLocation = rememberLocationPermissionRequest()
     var showBgInfo by remember { mutableStateOf(false) }
+    val backLabel = stringResource(Res.string.a11y_back)
+    val infoLabel = stringResource(Res.string.a11y_more_info)
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -111,7 +117,8 @@ fun SettingsScreen(
                 color = BlepColors.Blue,
                 modifier = Modifier
                     .clickable(onClick = onBack)
-                    .padding(end = 12.dp),
+                    .padding(end = 12.dp)
+                    .semantics { contentDescription = backLabel },
             )
             Text(
                 stringResource(Res.string.settings_title),
@@ -185,7 +192,8 @@ fun SettingsScreen(
                     modifier = Modifier
                         .clip(CircleShape)
                         .clickable { showBgInfo = true }
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                        .semantics { contentDescription = infoLabel },
                 )
             }
             SettingRow(
