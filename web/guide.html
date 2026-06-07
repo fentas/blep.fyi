@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Guide — blep</title>
+    <meta name="description" content="How to use blep: find a lost Bluetooth device by signal with the body-shielding technique, and scan for unwanted trackers following you." />
+    <meta name="theme-color" content="#5F90C3" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content="Guide — blep" />
+    <meta property="og:description" content="Find lost Bluetooth things by signal, and catch unwanted trackers — how to use blep." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://blep.fyi/guide.html" />
+    <script>
+      try { var t = localStorage.getItem('blep-theme'); if (t) document.documentElement.classList.add(t); } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body class="min-h-dvh bg-mist text-ink antialiased selection:bg-pink/40">
+    <header class="mx-auto flex max-w-3xl items-center justify-between px-6 py-5">
+      <a href="/" class="flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+        <img src="/logo.svg" alt="" class="h-8 w-8" /> blep
+      </a>
+      <a href="/" class="rounded-full px-3 py-2 text-sm font-medium text-ink/60 transition hover:text-ink">← blep.fyi</a>
+    </header>
+
+    <main class="mx-auto max-w-3xl px-6 pb-24 pt-6">
+      <h1 class="font-display text-4xl font-bold tracking-tight sm:text-5xl">How to use blep</h1>
+      <p class="mt-3 max-w-2xl text-lg text-ink/70">
+        blep does two things with the Bluetooth Low Energy signals already around you:
+        it <strong>walks you to a device you've lost</strong>, and it
+        <strong>watches for trackers following you</strong>. No map, no account —
+        everything happens on your phone.
+      </p>
+
+      <!-- quick nav -->
+      <nav class="mt-6 flex flex-wrap gap-2 text-sm">
+        <a href="#find" class="rounded-full bg-ink/5 px-3 py-1 font-medium text-ink/70 transition hover:bg-ink/10">Find a thing</a>
+        <a href="#safety" class="rounded-full bg-ink/5 px-3 py-1 font-medium text-ink/70 transition hover:bg-ink/10">Is something tracking you?</a>
+        <a href="#settings" class="rounded-full bg-ink/5 px-3 py-1 font-medium text-ink/70 transition hover:bg-ink/10">Settings</a>
+        <a href="#faq" class="rounded-full bg-ink/5 px-3 py-1 font-medium text-ink/70 transition hover:bg-ink/10">FAQ</a>
+      </nav>
+
+      <!-- FIND -->
+      <section id="find" class="mt-8 scroll-mt-20 rounded-[28px] bg-card p-8 shadow-sm sm:p-10">
+        <h2 class="font-display text-2xl font-bold tracking-tight">🐾 Find a lost thing</h2>
+        <p class="mt-3 text-ink/80">
+          Open blep and pick the device from the <strong>nearby</strong> list — keys
+          with a tag, earbuds, a speaker, a watch, your car, anything that advertises
+          Bluetooth. Tap the ✎ to give it a friendly name, or the ★ to keep a favourite
+          handy. Paired devices that aren't advertising live sit under the
+          <strong>Paired</strong> button.
+        </p>
+        <p class="mt-4 text-ink/80">
+          A phone's Bluetooth antenna is roughly omnidirectional, so raw signal tells
+          you <em>how far</em> but not <em>which way</em>. blep makes it directional
+          using your own body:
+        </p>
+        <ol class="mt-4 space-y-3">
+          <li class="flex gap-3"><span class="font-bold text-blue">1.</span><span><strong>Calibrate.</strong> Hold the phone flat against your chest and stand still for a moment. Your torso absorbs the signal from behind, so it reads strongest toward what's in front of you.</span></li>
+          <li class="flex gap-3"><span class="font-bold text-blue">2.</span><span><strong>Sweep.</strong> Turn slowly in place. blep warms up as you face the device and cools as you turn away — stop where it's warmest.</span></li>
+          <li class="flex gap-3"><span class="font-bold text-blue">3.</span><span><strong>Walk.</strong> Walk forward in that direction. The big arrow and the background colour (cool → warm) track every step; a trail shows where you've already searched.</span></li>
+          <li class="flex gap-3"><span class="font-bold text-blue">4.</span><span><strong>Pinpoint.</strong> Up close, slow down and search low. Optional sound and haptics pulse faster as you close in — like a Geiger counter — and blep celebrates when you've found it.</span></li>
+        </ol>
+        <p class="mt-4 rounded-2xl bg-blue/10 p-4 text-sm text-ink/75">
+          <strong>Tip:</strong> chest-height, phone flat, move smoothly. Bluetooth is
+          noisy and bounces off walls, so blep is a <em>guide</em>, not a GPS dot — it
+          gets you the last room or two, then the warmer/colder feel does the rest.
+          With motion sensors it also draws a small radar and gives turn-by-turn hints
+          ("turn 30° left · ~8 m"); the same hunt runs on Apple&nbsp;Watch and Wear&nbsp;OS.
+        </p>
+      </section>
+
+      <!-- SAFETY -->
+      <section id="safety" class="mt-6 scroll-mt-20 rounded-[28px] bg-card p-8 shadow-sm sm:p-10">
+        <h2 class="font-display text-2xl font-bold tracking-tight">🛡 Is something tracking you?</h2>
+        <p class="mt-3 text-ink/80">
+          Tap <strong>"Is something tracking you?"</strong> on the main screen. blep
+          scans the same Bluetooth advertisements for a tracker travelling <em>with
+          you</em> — an AirTag, Tile, Samsung SmartTag, or a Find&nbsp;My / Google
+          Find&nbsp;My&nbsp;Device beacon someone may have slipped into your bag, coat
+          or car. Keep the screen open for a minute while you move around.
+        </p>
+        <p class="mt-4 text-ink/80">It looks for a few things at once:</p>
+        <ul class="mt-3 space-y-2 text-ink/80">
+          <li>• <strong>Known trackers</strong> advertising in "separated from owner" mode close to you.</li>
+          <li>• <strong>Rotating IDs.</strong> A privacy tracker changes its Bluetooth ID to stay anonymous — but it gives itself away by reappearing at the same close range again and again.</li>
+          <li>• <strong>Following across contexts.</strong> With "remember across sessions" on, a tag that keeps turning up as your surroundings change (home, then transit, then somewhere new) is flagged — a device you merely pass daily on the same commute is not.</li>
+        </ul>
+        <p class="mt-4 text-ink/80">When something is flagged you'll see a card with two actions:</p>
+        <ul class="mt-3 space-y-2 text-ink/80">
+          <li>• <strong>Find it</strong> — because blep is a finder, it doesn't just warn: it walks you to the tracker with the same warm/cold guidance so you can locate and remove it.</li>
+          <li>• <strong>It's mine</strong> — mark your own tag so it stops being flagged.</li>
+        </ul>
+        <div class="mt-5 grid gap-3 sm:grid-cols-3">
+          <div class="rounded-2xl bg-ink/5 p-4"><div class="font-semibold">Sensitivity</div><div class="mt-1 text-sm text-ink/65">Relaxed, Balanced or Strict — how eagerly it flags. Use Relaxed in crowded places, Strict somewhere unfamiliar.</div></div>
+          <div class="rounded-2xl bg-ink/5 p-4"><div class="font-semibold">Background watch</div><div class="mt-1 text-sm text-ink/65">Optionally keep an eye out while blep is closed and get a notification — on a battery-friendly schedule.</div></div>
+          <div class="rounded-2xl bg-ink/5 p-4"><div class="font-semibold">Location-aware</div><div class="mt-1 text-sm text-ink/65">Off by default. If you turn it on, a coarse on-device place helps tell a real follower from your daily crowd — it never leaves your phone.</div></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="settings" class="mt-6 scroll-mt-20 rounded-[28px] bg-card p-8 shadow-sm sm:p-10">
+        <h2 class="font-display text-2xl font-bold tracking-tight">⚙ Settings</h2>
+        <p class="mt-3 text-ink/80">Open Settings from the ⚙ on the main screen. Everything is optional and on-device:</p>
+        <ul class="mt-3 space-y-2 text-ink/80">
+          <li>• <strong>Connected-device signal</strong> — show live signal bars for already-paired devices (uses a little more battery).</li>
+          <li>• <strong>Tracking sound</strong> — the audible warmer/colder tone while hunting.</li>
+          <li>• <strong>Show unnamed devices</strong> — include devices that don't advertise a name.</li>
+          <li>• <strong>Remember across sessions</strong> — the on-device log that powers "following across contexts" (no identity, no raw location).</li>
+          <li>• <strong>Location-aware detection</strong> — opt-in coarse location for the safety scan only (never the finder).</li>
+          <li>• <strong>Detection sensitivity</strong> and <strong>background scanning</strong> (keep scanning when minimized / scan on a timer, with an interval).</li>
+        </ul>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="mt-6 scroll-mt-20 rounded-[28px] bg-card p-8 shadow-sm sm:p-10">
+        <h2 class="font-display text-2xl font-bold tracking-tight">FAQ</h2>
+        <dl class="mt-4 space-y-4">
+          <div><dt class="font-semibold">Can blep find something across town?</dt><dd class="mt-1 text-ink/75">No. It works within Bluetooth range — roughly a room, a floor, or a parking lot. It's not a GPS/cloud network like Find&nbsp;My; it guides you the last stretch by signal.</dd></div>
+          <div><dt class="font-semibold">Does it need the internet or an account?</dt><dd class="mt-1 text-ink/75">No accounts, no ads, no analytics, no internet. Your Bluetooth scans and motion sensing never leave the phone. See the <a class="font-medium text-blue hover:underline" href="/privacy.html">privacy policy</a>.</dd></div>
+          <div><dt class="font-semibold">Why didn't it flag a tracker I know is there?</dt><dd class="mt-1 text-ink/75">Give it a minute and move around — detection relies on seeing a device persist as you go. Try the Strict sensitivity. Some trackers only enter "separated" mode after they've been away from their owner for a while.</dd></div>
+          <div><dt class="font-semibold">It flagged my own tag.</dt><dd class="mt-1 text-ink/75">Tap <strong>It's mine</strong> on the alert — it won't bother you about that one again.</dd></div>
+          <div><dt class="font-semibold">Is my phone supported?</dt><dd class="mt-1 text-ink/75">Android and iPhone, plus companion apps for Apple&nbsp;Watch and Wear&nbsp;OS. blep is free and <a class="font-medium text-blue hover:underline" href="https://github.com/fentas/blep.fyi">open source</a>.</dd></div>
+        </dl>
+      </section>
+
+      <p class="mt-8 text-center text-sm text-ink/55">
+        Still stuck? <a class="font-medium text-blue hover:underline" href="https://github.com/fentas/blep.fyi">Open an issue on GitHub</a>.
+      </p>
+    </main>
+
+    <footer class="mx-auto max-w-3xl px-6 pb-10 text-center text-sm text-ink/50">
+      Made with care · <a class="underline-offset-2 hover:underline" href="https://github.com/fentas/blep.fyi">github.com/fentas/blep.fyi</a>
+    </footer>
+  </body>
+</html>
