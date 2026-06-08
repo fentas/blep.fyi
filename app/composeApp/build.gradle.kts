@@ -29,6 +29,15 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
         }
+        // Kotlin/Native otherwise builds the framework for the host SDK (iOS 18.x),
+        // making CMP hard-link iOS-18 UIKit APIs (UIViewLayoutRegion) — which then
+        // fail to link in the app (deployment target 15.0). Pin the framework's
+        // min-OS so CMP weak-links those instead.
+        iosTarget.binaries.all {
+            freeCompilerArgs += listOf(
+                "-Xoverride-konan-properties=osVersionMin.ios_arm64=15.0;osVersionMin.ios_simulator_arm64=15.0",
+            )
+        }
     }
 
     sourceSets {
