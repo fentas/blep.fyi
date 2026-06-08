@@ -45,11 +45,13 @@ fun RadarView(
     snapshot: SpatialSnapshot?,
     pulse: Float,          // 0..1 looping, for the target glow
     signalLost: Boolean = false, // no fresh RSSI from the target right now
+    ink: Color = BlepColors.Ink,    // foreground (rings, labels, "you") — flips for dark
+    halo: Color = BlepColors.Cream, // contrast outline behind ink marks
     modifier: Modifier = Modifier,
 ) {
     val measurer = rememberTextMeasurer()
     val warmerLabel = stringResource(Res.string.radar_warmer)
-    val labelStyle = TextStyle(color = BlepColors.Ink.copy(alpha = 0.55f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
+    val labelStyle = TextStyle(color = ink.copy(alpha = 0.55f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
     Canvas(modifier = modifier.fillMaxSize()) {
         val cx = size.width / 2f
         val cy = size.height / 2f
@@ -75,7 +77,7 @@ fun RadarView(
         )
 
         // ── range rings: distance from you, snapped to round metres + labelled ──
-        val ringColor = BlepColors.Ink.copy(alpha = if (signalLost) 0.10f else 0.20f)
+        val ringColor = ink.copy(alpha = if (signalLost) 0.10f else 0.20f)
         val r1 = niceMeters(span / 6.0)
         val r2 = niceMeters(span / 3.0).let { if (it <= r1) r1 * 2.0 else it }
         listOf(r1, r2).forEach { rm ->
@@ -122,7 +124,7 @@ fun RadarView(
         }
 
         // ── start marker (a four-point star) ─────────────────────────────────
-        drawStar(toScreen(Vec2.ZERO), r = 13f, color = BlepColors.Ink.copy(alpha = 0.55f))
+        drawStar(toScreen(Vec2.ZERO), r = 13f, color = ink.copy(alpha = 0.55f))
 
         // ── predicted target: glow + confidence ring ─────────────────────────
         val est = snapshot?.target
@@ -211,10 +213,10 @@ fun RadarView(
             val hp = toScreen(here)
             val heading = snapshot.headingRad
             val arrowColor = when {
-                snapshot.target.bearingRad == null -> BlepColors.Ink
+                snapshot.target.bearingRad == null -> ink
                 snapshot.onCourse > 0.25f -> Color(0xFF4FA85E)
                 snapshot.onCourse < -0.25f -> Color(0xFFD4694F)
-                else -> BlepColors.Ink
+                else -> ink
             }
             val dir = Offset(sin(heading).toFloat(), -cos(heading).toFloat())
             val perp = Offset(-dir.y, dir.x)
@@ -227,14 +229,14 @@ fun RadarView(
                 lineTo((base - perp * 22f).x, (base - perp * 22f).y)
                 close()
             }
-            drawPath(wedge, BlepColors.Cream, style = Stroke(width = 6f)) // outline for contrast
+            drawPath(wedge, halo, style = Stroke(width = 6f)) // outline for contrast
             drawPath(wedge, arrowColor)
             // pivot hub
-            drawCircle(BlepColors.Cream, radius = 12f, center = hp)
+            drawCircle(halo, radius = 12f, center = hp)
             drawCircle(arrowColor, radius = 7f, center = hp)
         } else {
-            drawCircle(BlepColors.Cream, radius = 12f, center = Offset(cx, cy))
-            drawCircle(BlepColors.Ink, radius = 7f, center = Offset(cx, cy))
+            drawCircle(halo, radius = 12f, center = Offset(cx, cy))
+            drawCircle(ink, radius = 7f, center = Offset(cx, cy))
         }
     }
 }

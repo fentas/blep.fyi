@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -132,14 +133,25 @@ fun TrackingScreen(
     modifier: Modifier = Modifier,
 ) {
     KeepScreenOn() // don't let the display sleep mid-hunt
+    val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    // Foreground "ink" + its contrast halo flip with the theme so the radar/text
+    // aren't black-on-bright in dark mode.
+    val ink = if (dark) Color(0xFFE7EBEF) else BlepColors.Ink
+    val halo = if (dark) Color(0xFF14181D) else BlepColors.Cream
     val background by animateColorAsState(
-        // Softened: blend the warm/cold proximity colour toward a calm neutral so the
-        // full-bleed background isn't harsh. The radar/arrow keep the vivid signal.
-        targetValue = lerp(BlepColors.proximity(status.proximity), Color(0xFFEFF2F6), 0.32f),
+        // Blend the warm/cold proximity cue toward a calm neutral so the full-bleed
+        // background isn't harsh — a light neutral in light mode, a dark one in dark
+        // mode (using the muted ramp). Either way it still shifts cool→warm as you
+        // close in; the radar/arrow keep the vivid signal.
+        targetValue = if (dark) {
+            lerp(BlepColors.proximity(status.proximity, dark = true), Color(0xFF14181D), 0.62f)
+        } else {
+            lerp(BlepColors.proximity(status.proximity), Color(0xFFEFF2F6), 0.32f)
+        },
         animationSpec = tween(durationMillis = 800),
         label = "trackingBackground",
     )
-    val arrowTint = BlepColors.Ink.copy(alpha = 0.82f)
+    val arrowTint = ink.copy(alpha = 0.82f)
     val pulse by rememberInfiniteTransition(label = "radar").animateFloat(
         0f, 1f, infiniteRepeatable(tween(1100, easing = LinearEasing), RepeatMode.Reverse), label = "pulse",
     )
@@ -156,19 +168,20 @@ fun TrackingScreen(
             Text(
                 text = deviceName,
                 style = MaterialTheme.typography.titleMedium,
-                color = BlepColors.Ink.copy(alpha = 0.7f),
+                color = ink.copy(alpha = 0.7f),
                 modifier = Modifier.align(Alignment.Center),
             )
             MuteToggle(
                 soundOn = soundOn,
                 onToggle = onToggleSound,
+                ink = ink,
                 modifier = Modifier.align(Alignment.CenterEnd),
             )
         }
 
         // The spatial map is the hero; a compact arrow keeps the immediate cue.
         Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            RadarView(snapshot = spatial, pulse = pulse, signalLost = signalLost, modifier = Modifier.fillMaxSize())
+            RadarView(snapshot = spatial, pulse = pulse, signalLost = signalLost, ink = ink, halo = halo, modifier = Modifier.fillMaxSize())
             if (spatial == null) {
                 VectorArrow(curl = status.arrow.curl, scale = status.arrow.scale, tint = arrowTint)
             }
@@ -205,13 +218,13 @@ fun TrackingScreen(
                 Text(
                     text,
                     style = MaterialTheme.typography.displaySmall,
-                    color = BlepColors.Ink,
+                    color = ink,
                     textAlign = TextAlign.Center,
                     // announce each new turn-by-turn cue to screen readers
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                 )
                 if (detail != null) {
-                    Text(detail, style = MaterialTheme.typography.bodyLarge, color = BlepColors.Ink.copy(alpha = 0.7f), textAlign = TextAlign.Center)
+                    Text(detail, style = MaterialTheme.typography.bodyLarge, color = ink.copy(alpha = 0.7f), textAlign = TextAlign.Center)
                 }
             }
         }
@@ -221,7 +234,7 @@ fun TrackingScreen(
             Text(
                 text = floor,
                 style = MaterialTheme.typography.bodyLarge,
-                color = BlepColors.Ink.copy(alpha = 0.6f),
+                color = ink.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 4.dp),
             )
@@ -237,7 +250,7 @@ fun TrackingScreen(
         Text(
             text = if (signalLost) noSignalLc else rssiText + (fieldSuffix ?: ""),
             style = MaterialTheme.typography.labelLarge,
-            color = BlepColors.Ink.copy(alpha = 0.55f),
+            color = ink.copy(alpha = 0.55f),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 12.dp),
         )
@@ -245,7 +258,7 @@ fun TrackingScreen(
         Text(
             text = stringResource(Res.string.action_cancel),
             style = MaterialTheme.typography.labelLarge,
-            color = BlepColors.Ink.copy(alpha = 0.55f),
+            color = ink.copy(alpha = 0.55f),
             modifier = Modifier
                 .padding(top = 10.dp, bottom = 6.dp)
                 .clip(RoundedCornerShape(12.dp))
@@ -341,8 +354,8 @@ private const val NOISY_FIELD_DB = 2.2
 /** A flat 2-D speaker glyph (no system emoji) that toggles the tracking tone:
  *  sound-wave arcs when on, a slash when muted. */
 @Composable
-private fun MuteToggle(soundOn: Boolean, onToggle: () -> Unit, modifier: Modifier = Modifier) {
-    val tint = BlepColors.Ink.copy(alpha = 0.72f)
+private fun MuteToggle(soundOn: Boolean, onToggle: () -> Unit, ink: Color, modifier: Modifier = Modifier) {
+    val tint = ink.copy(alpha = 0.72f)
     val desc = stringResource(if (soundOn) Res.string.sound_on else Res.string.sound_off)
     Canvas(
         modifier = modifier
