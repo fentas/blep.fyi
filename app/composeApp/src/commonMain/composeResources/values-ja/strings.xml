@@ -198,4 +198,16 @@
     <string name="noti_alert_text">トラッカーがあなたの近くに繰り返し現れています。blep を開いて見つけてください。</string>
     <string name="noti_channel_alert">トラッカー警告</string>
     <string name="noti_channel_ongoing">バックグラウンドスキャン</string>
+    <string name="a11y_details">デバイスの詳細</string>
+    <string name="detail_identity">識別情報</string>
+    <string name="detail_signal">信号</string>
+    <string name="detail_identifier">識別子</string>
+    <string name="detail_addr_stable">固定アドレス — このデバイスは同じ id を保ちます。</string>
+    <string name="detail_addr_rotating">プライベートな可変アドレス — プライバシーのため定期的に id が変わります。</string>
+    <string name="detail_addr_opaque">不透明な id — システムがハードウェアアドレスを隠します。</string>
+    <string name="detail_rotated">id が %1$d回変化 · 確度 %2$d%%</string>
+    <string name="detail_rotated_contested">id が %1$d回変化した可能性 — 近くの未解決の一致を共有</string>
+    <string name="detail_no_rotation">まだ id の変化は見られません。</string>
+    <string name="detail_first_seen">初回検出 %1$s前</string>
+    <string name="detail_find">見つける</string>
 </resources>

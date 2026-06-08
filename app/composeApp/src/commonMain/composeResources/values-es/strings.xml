@@ -198,4 +198,16 @@
     <string name="noti_alert_text">Un rastreador sigue apareciendo cerca de ti. Abre blep para localizarlo.</string>
     <string name="noti_channel_alert">Alertas de rastreadores</string>
     <string name="noti_channel_ongoing">Análisis en segundo plano</string>
+    <string name="a11y_details">Detalles del dispositivo</string>
+    <string name="detail_identity">Identidad</string>
+    <string name="detail_signal">Señal</string>
+    <string name="detail_identifier">Identificador</string>
+    <string name="detail_addr_stable">Dirección fija — este dispositivo mantiene el mismo id.</string>
+    <string name="detail_addr_rotating">Dirección privada y rotativa — cambia de id periódicamente por privacidad.</string>
+    <string name="detail_addr_opaque">Id opaco — el sistema oculta la dirección de hardware.</string>
+    <string name="detail_rotated">Cambió de id %1$d× · %2$d%% seguro</string>
+    <string name="detail_rotated_contested">Quizá cambió de id %1$d× — comparte una coincidencia sin resolver cerca</string>
+    <string name="detail_no_rotation">Aún no se ha visto ningún cambio de id.</string>
+    <string name="detail_first_seen">Visto por primera vez hace %1$s</string>
+    <string name="detail_find">Encontrarlo</string>
 </resources>

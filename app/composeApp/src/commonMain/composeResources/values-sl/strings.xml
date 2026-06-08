@@ -198,4 +198,16 @@
     <string name="noti_alert_text">Sledilnik se vedno znova pojavlja blizu tebe. Odpri blep, da ga poiščeš.</string>
     <string name="noti_channel_alert">Opozorila o sledilnikih</string>
     <string name="noti_channel_ongoing">Skeniranje v ozadju</string>
+    <string name="a11y_details">Podrobnosti naprave</string>
+    <string name="detail_identity">Identiteta</string>
+    <string name="detail_signal">Signal</string>
+    <string name="detail_identifier">Identifikator</string>
+    <string name="detail_addr_stable">Stalni naslov — ta naprava ohranja isti id.</string>
+    <string name="detail_addr_rotating">Zasebni, spreminjajoči naslov — občasno spremeni id zaradi zasebnosti.</string>
+    <string name="detail_addr_opaque">Nepregleden id — sistem skrije strojni naslov.</string>
+    <string name="detail_rotated">Zamenjal id %1$d× · %2$d%% gotovo</string>
+    <string name="detail_rotated_contested">Morda zamenjal id %1$d× — deli nerazrešeno ujemanje v bližini</string>
+    <string name="detail_no_rotation">Sprememba id-ja še ni opažena.</string>
+    <string name="detail_first_seen">Prvič opaženo pred %1$s</string>
+    <string name="detail_find">Najdi</string>
 </resources>

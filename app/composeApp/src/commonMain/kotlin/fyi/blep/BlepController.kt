@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.ble.DeviceAliases
 import fyi.blep.core.ble.DeviceFavorites
+import fyi.blep.core.ble.RotationStats
+import fyi.blep.core.ble.RotationTracker
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
 import fyi.blep.core.platform.coarsePlaceCell
@@ -49,6 +51,7 @@ sealed interface Screen {
     data object Settings : Screen
     data class Tracking(val device: BleDevice) : Screen
     data class Done(val device: BleDevice) : Screen
+    data class DeviceDetail(val device: BleDevice) : Screen // rename + identity + rotation history
 }
 
 /**
@@ -183,6 +186,10 @@ class BlepController(
 
     private val spatialTuning = SpatialTuning()
     private val spatialTracker = SpatialTracker(spatialTuning)
+    // Correlates rotating addresses back into logical devices across the scan stream
+    // (id-switch handovers); fed in restartScan, read by the device detail page/list.
+    private val rotationTracker = RotationTracker()
+    private val rotationClock = TimeSource.Monotonic.markNow()
     private val guidanceStabilizer = GuidanceStabilizer()
     private var safetyScanner = buildSafetyScanner()
     private fun buildSafetyScanner() =
@@ -290,6 +297,16 @@ class BlepController(
     }
 
     fun openSettings() { screen = Screen.Settings }
+
+    /** Open the per-device detail page (identity, rename, rotation history). */
+    fun openDeviceDetail(device: BleDevice) { screen = Screen.DeviceDetail(device) }
+
+    /** Rotation/identity-churn stats for a device id, or null if uncorrelated yet. */
+    fun rotationStats(id: String): RotationStats? = rotationTracker.statsFor(id)
+
+    /** How long ago this device was first seen (ms), carried across its id rotations. */
+    fun rotationFirstSeenAgoMs(id: String): Long? =
+        rotationTracker.statsFor(id)?.let { rotationClock.elapsedNow().inWholeMilliseconds - it.firstSeenMs }
 
     /** Toggle location-aware detection (persisted). The scanner reads this live, so
      *  no rebuild is needed. */
@@ -487,6 +504,10 @@ class BlepController(
                         // availability is driven solely by scanner.availability now;
                         // don't override it here (an early empty emission would falsely
                         // flip it to READY while permission is actually missing).
+                        // Feed live sightings to the rotation correlator (only ones with a
+                        // real RSSI — bonded-but-silent devices carry no range to match on).
+                        val nowMs = rotationClock.elapsedNow().inWholeMilliseconds
+                        list.forEach { if (!it.rssiUnknown) rotationTracker.observe(it.id, it.rssi, nowMs) }
                         devices = list.map {
                             it.copy(alias = aliases[it.id] ?: it.alias, isFavorite = it.id in favoriteIds)
                         }

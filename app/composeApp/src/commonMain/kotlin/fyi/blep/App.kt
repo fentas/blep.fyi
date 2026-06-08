@@ -17,6 +17,7 @@ import fyi.blep.ui.screens.CompletionScreen
 import androidx.compose.foundation.isSystemInDarkTheme
 import fyi.blep.ui.BuildInfo
 import fyi.blep.ui.rememberBlePermissionRequest
+import fyi.blep.ui.screens.DeviceDetailScreen
 import fyi.blep.ui.screens.DiscoveryScreen
 import fyi.blep.ui.screens.OnboardingScreen
 import fyi.blep.ui.screens.SafetyScreen
@@ -80,7 +81,7 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     includeUnnamed = controller.includeUnnamed,
                     onToggleUnnamed = controller::toggleUnnamed,
                     onSelect = controller::track,
-                    onRename = controller::rename,
+                    onDetails = controller::openDeviceDetail,
                     onToggleFavorite = controller::toggleFavorite,
                     onSafetyScan = controller::openSafetyScan,
                     onSettings = controller::openSettings,
@@ -149,6 +150,20 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     onDonate = { uriHandler.openUri(DONATE_URL) },
                     rssi = if (controller.signalLost) null else controller.lastRssi,
                 )
+
+                is Screen.DeviceDetail -> {
+                    // Look up the live device so signal + rotation stats refresh each tick.
+                    val live = controller.devices.firstOrNull { it.id == screen.device.id } ?: screen.device
+                    DeviceDetailScreen(
+                        device = live,
+                        rotation = controller.rotationStats(live.id),
+                        firstSeenAgoMs = controller.rotationFirstSeenAgoMs(live.id),
+                        onRename = { controller.rename(live, it) },
+                        onToggleFavorite = { controller.toggleFavorite(live) },
+                        onTrack = { controller.track(live) },
+                        onBack = controller::startDiscovery,
+                    )
+                }
             }
         }
     }

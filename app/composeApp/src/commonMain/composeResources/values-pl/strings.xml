@@ -198,4 +198,16 @@
     <string name="noti_alert_text">Lokalizator wciąż pojawia się blisko ciebie. Otwórz blep, aby go namierzyć.</string>
     <string name="noti_channel_alert">Alerty o lokalizatorach</string>
     <string name="noti_channel_ongoing">Skanowanie w tle</string>
+    <string name="a11y_details">Szczegóły urządzenia</string>
+    <string name="detail_identity">Tożsamość</string>
+    <string name="detail_signal">Sygnał</string>
+    <string name="detail_identifier">Identyfikator</string>
+    <string name="detail_addr_stable">Stały adres — to urządzenie zachowuje ten sam identyfikator.</string>
+    <string name="detail_addr_rotating">Prywatny, zmienny adres — okresowo zmienia id dla prywatności.</string>
+    <string name="detail_addr_opaque">Nieprzejrzysty id — system ukrywa adres sprzętowy.</string>
+    <string name="detail_rotated">Zmieniono id %1$d× · %2$d%% pewności</string>
+    <string name="detail_rotated_contested">Może zmieniono id %1$d× — dzieli nierozwiązane dopasowanie w pobliżu</string>
+    <string name="detail_no_rotation">Nie widziano jeszcze zmiany id.</string>
+    <string name="detail_first_seen">Pierwszy raz widziano %1$s temu</string>
+    <string name="detail_find">Znajdź</string>
 </resources>

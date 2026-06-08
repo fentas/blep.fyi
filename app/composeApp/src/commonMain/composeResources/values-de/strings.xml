@@ -199,4 +199,16 @@
     <string name="noti_alert_text">Ein Tracker taucht immer wieder in deiner Nähe auf. Öffne blep, um ihn zu orten.</string>
     <string name="noti_channel_alert">Tracker-Warnungen</string>
     <string name="noti_channel_ongoing">Hintergrund-Scan</string>
+    <string name="a11y_details">Gerätedetails</string>
+    <string name="detail_identity">Identität</string>
+    <string name="detail_signal">Signal</string>
+    <string name="detail_identifier">Kennung</string>
+    <string name="detail_addr_stable">Feste Adresse — dieses Gerät behält dieselbe ID.</string>
+    <string name="detail_addr_rotating">Private, wechselnde Adresse — sie ändert die ID regelmäßig zum Schutz der Privatsphäre.</string>
+    <string name="detail_addr_opaque">Undurchsichtige ID — das System verbirgt die Hardware-Adresse.</string>
+    <string name="detail_rotated">ID %1$d× gewechselt · %2$d%% sicher</string>
+    <string name="detail_rotated_contested">ID evtl. %1$d× gewechselt — teilt eine ungeklärte Übereinstimmung in der Nähe</string>
+    <string name="detail_no_rotation">Noch kein ID-Wechsel beobachtet.</string>
+    <string name="detail_first_seen">Zuerst gesehen vor %1$s</string>
+    <string name="detail_find">Finden</string>
 </resources>

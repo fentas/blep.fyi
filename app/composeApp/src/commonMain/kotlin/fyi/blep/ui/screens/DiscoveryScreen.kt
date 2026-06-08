@@ -74,6 +74,7 @@ import fyi.blep.resources.paired_sheet_title
 import fyi.blep.resources.rename_label
 import fyi.blep.resources.rename_title
 import fyi.blep.resources.a11y_donate
+import fyi.blep.resources.a11y_details
 import fyi.blep.resources.a11y_favorite
 import fyi.blep.resources.safety_entry_subtitle
 import fyi.blep.resources.safety_entry_title
@@ -104,14 +105,13 @@ fun DiscoveryScreen(
     includeUnnamed: Boolean,
     onToggleUnnamed: () -> Unit,
     onSelect: (BleDevice) -> Unit,
-    onRename: (BleDevice, String?) -> Unit,
+    onDetails: (BleDevice) -> Unit,
     onToggleFavorite: (BleDevice) -> Unit,
     onSafetyScan: () -> Unit,
     onSettings: () -> Unit,
     onDonate: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var renaming by remember { mutableStateOf<BleDevice?>(null) }
     var showPaired by remember { mutableStateOf(false) }
     var showDonate by remember { mutableStateOf(false) }
 
@@ -153,7 +153,7 @@ fun DiscoveryScreen(
                 DeviceCard(
                     device = device,
                     onClick = { onSelect(device) },
-                    onRename = { renaming = device },
+                    onDetails = { onDetails(device) },
                     onToggleFavorite = { onToggleFavorite(device) },
                     modifier = Modifier.animateItem(),
                 )
@@ -178,14 +178,6 @@ fun DiscoveryScreen(
                 .align(Alignment.BottomEnd)
                 .windowInsetsPadding(WindowInsets.safeDrawing)
                 .padding(20.dp),
-        )
-    }
-
-    renaming?.let { device ->
-        RenameDialog(
-            device = device,
-            onDismiss = { renaming = null },
-            onConfirm = { alias -> onRename(device, alias); renaming = null },
         )
     }
 
@@ -400,7 +392,7 @@ private fun DeviceCard(
     onClick: () -> Unit,
     onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier,
-    onRename: (() -> Unit)? = null,
+    onDetails: (() -> Unit)? = null,
 ) {
     Surface(
         onClick = onClick,
@@ -446,7 +438,7 @@ private fun DeviceCard(
                 Spacer(Modifier.width(10.dp))
             }
             FavoriteButton(isFavorite = device.isFavorite, onClick = onToggleFavorite)
-            if (onRename != null) RenameButton(onRename)
+            if (onDetails != null) DetailsButton(onDetails)
         }
     }
 }
@@ -508,17 +500,16 @@ private fun StatusChip(label: String, showDot: Boolean) {
 }
 
 @Composable
-private fun RenameButton(onRename: () -> Unit) {
-    val label = stringResource(Res.string.rename_title)
+private fun DetailsButton(onClick: () -> Unit) {
+    val label = stringResource(Res.string.a11y_details)
     Box(
-        Modifier.size(30.dp).clip(CircleShape).clickable(onClick = onRename),
+        Modifier.size(30.dp).clip(CircleShape).clickable(onClick = onClick).semantics { contentDescription = label },
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            rememberVectorPainter(PencilIcon),
-            contentDescription = label,
-            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.35f),
-            modifier = Modifier.size(18.dp),
+        Text(
+            "›",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
         )
     }
 }
@@ -641,27 +632,4 @@ private fun AvailabilityBanner(availability: ScanAvailability) {
     }
 }
 
-@Composable
-private fun RenameDialog(
-    device: BleDevice,
-    onDismiss: () -> Unit,
-    onConfirm: (String?) -> Unit,
-) {
-    var text by remember {
-        mutableStateOf(TextFieldValue(device.alias ?: device.name ?: ""))
-    }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(Res.string.rename_title)) },
-        text = {
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                singleLine = true,
-                label = { Text(stringResource(Res.string.rename_label)) },
-            )
-        },
-        confirmButton = { TextButton(onClick = { onConfirm(text.text) }) { Text(stringResource(Res.string.action_save)) } },
-        dismissButton = { TextButton(onClick = { onConfirm(null) }) { Text(stringResource(Res.string.action_clear)) } },
-    )
-}
+// (Rename moved to the device detail page — DeviceDetailScreen owns the dialog now.)

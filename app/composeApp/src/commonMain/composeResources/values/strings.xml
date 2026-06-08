@@ -219,4 +219,17 @@
     <string name="noti_alert_text">A tracker keeps showing up near you. Open blep to locate it.</string>
     <string name="noti_channel_alert">Tracker alerts</string>
     <string name="noti_channel_ongoing">Background scanning</string>
+    <!-- Device detail page -->
+    <string name="a11y_details">Device details</string>
+    <string name="detail_identity">Identity</string>
+    <string name="detail_signal">Signal</string>
+    <string name="detail_identifier">Identifier</string>
+    <string name="detail_addr_stable">Stable address — this device keeps the same id.</string>
+    <string name="detail_addr_rotating">Private, rotating address — it changes id periodically for privacy.</string>
+    <string name="detail_addr_opaque">Opaque id — the system hides the hardware address.</string>
+    <string name="detail_rotated">Changed id %1$d× · %2$d%% sure</string>
+    <string name="detail_rotated_contested">Maybe changed id %1$d× — shares an unresolved match nearby</string>
+    <string name="detail_no_rotation">No id change seen yet.</string>
+    <string name="detail_first_seen">First seen %1$s ago</string>
+    <string name="detail_find">Find it</string>
 </resources>

@@ -198,4 +198,16 @@
     <string name="noti_alert_text">Pratitelj se stalno pojavljuje blizu tebe. Otvori blep da ga pronađeš.</string>
     <string name="noti_channel_alert">Upozorenja o pratiteljima</string>
     <string name="noti_channel_ongoing">Skeniranje u pozadini</string>
+    <string name="a11y_details">Pojedinosti uređaja</string>
+    <string name="detail_identity">Identitet</string>
+    <string name="detail_signal">Signal</string>
+    <string name="detail_identifier">Identifikator</string>
+    <string name="detail_addr_stable">Stalna adresa — uređaj zadržava isti id.</string>
+    <string name="detail_addr_rotating">Privatna, promjenjiva adresa — povremeno mijenja id radi privatnosti.</string>
+    <string name="detail_addr_opaque">Neprozirni id — sustav skriva hardversku adresu.</string>
+    <string name="detail_rotated">Promijenio id %1$d× · %2$d%% sigurno</string>
+    <string name="detail_rotated_contested">Možda promijenio id %1$d× — dijeli neriješeno podudaranje u blizini</string>
+    <string name="detail_no_rotation">Još nema promjene id-a.</string>
+    <string name="detail_first_seen">Prvi put viđeno prije %1$s</string>
+    <string name="detail_find">Pronađi</string>
 </resources>

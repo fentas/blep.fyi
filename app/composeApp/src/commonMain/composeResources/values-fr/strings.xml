@@ -198,4 +198,16 @@
     <string name="noti_alert_text">Un traceur réapparaît sans cesse près de toi. Ouvre blep pour le localiser.</string>
     <string name="noti_channel_alert">Alertes de traceur</string>
     <string name="noti_channel_ongoing">Analyse en arrière-plan</string>
+    <string name="a11y_details">Détails de l'appareil</string>
+    <string name="detail_identity">Identité</string>
+    <string name="detail_signal">Signal</string>
+    <string name="detail_identifier">Identifiant</string>
+    <string name="detail_addr_stable">Adresse fixe — cet appareil garde le même id.</string>
+    <string name="detail_addr_rotating">Adresse privée et tournante — elle change d'id régulièrement pour la confidentialité.</string>
+    <string name="detail_addr_opaque">Id opaque — le système masque l'adresse matérielle.</string>
+    <string name="detail_rotated">A changé d'id %1$d× · %2$d%% sûr</string>
+    <string name="detail_rotated_contested">A peut-être changé d'id %1$d× — partage une correspondance non résolue à proximité</string>
+    <string name="detail_no_rotation">Aucun changement d'id pour l'instant.</string>
+    <string name="detail_first_seen">Vu pour la première fois il y a %1$s</string>
+    <string name="detail_find">Le trouver</string>
 </resources>

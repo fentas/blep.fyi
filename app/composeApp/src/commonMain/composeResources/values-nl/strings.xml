@@ -198,4 +198,16 @@
     <string name="noti_alert_text">Een tracker blijft bij je in de buurt opduiken. Open blep om hem te zoeken.</string>
     <string name="noti_channel_alert">Trackerwaarschuwingen</string>
     <string name="noti_channel_ongoing">Scannen op de achtergrond</string>
+    <string name="a11y_details">Apparaatdetails</string>
+    <string name="detail_identity">Identiteit</string>
+    <string name="detail_signal">Signaal</string>
+    <string name="detail_identifier">Identificatie</string>
+    <string name="detail_addr_stable">Vast adres — dit apparaat houdt hetzelfde id.</string>
+    <string name="detail_addr_rotating">Privé, wisselend adres — verandert periodiek van id voor privacy.</string>
+    <string name="detail_addr_opaque">Ondoorzichtig id — het systeem verbergt het hardware-adres.</string>
+    <string name="detail_rotated">Id %1$d× gewijzigd · %2$d%% zeker</string>
+    <string name="detail_rotated_contested">Id mogelijk %1$d× gewijzigd — deelt een onopgeloste match dichtbij</string>
+    <string name="detail_no_rotation">Nog geen id-wijziging gezien.</string>
+    <string name="detail_first_seen">Voor het eerst gezien %1$s geleden</string>
+    <string name="detail_find">Vind het</string>
 </resources>

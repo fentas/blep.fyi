@@ -199,4 +199,16 @@
     <string name="noti_alert_text">有一个追踪器不断出现在你附近。打开 blep 来查找它。</string>
     <string name="noti_channel_alert">追踪器警报</string>
     <string name="noti_channel_ongoing">后台扫描</string>
+    <string name="a11y_details">设备详情</string>
+    <string name="detail_identity">身份</string>
+    <string name="detail_signal">信号</string>
+    <string name="detail_identifier">标识符</string>
+    <string name="detail_addr_stable">固定地址 — 此设备保持相同的 id。</string>
+    <string name="detail_addr_rotating">私密的轮换地址 — 为保护隐私定期更换 id。</string>
+    <string name="detail_addr_opaque">不透明 id — 系统隐藏了硬件地址。</string>
+    <string name="detail_rotated">id 已更换 %1$d× · 把握 %2$d%%</string>
+    <string name="detail_rotated_contested">id 可能更换了 %1$d× — 与附近一个未确定的匹配共享</string>
+    <string name="detail_no_rotation">尚未发现 id 更换。</string>
+    <string name="detail_first_seen">首次发现于 %1$s前</string>
+    <string name="detail_find">找到它</string>
 </resources>
