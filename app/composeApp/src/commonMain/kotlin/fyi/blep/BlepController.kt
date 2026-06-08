@@ -14,6 +14,7 @@ import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
 import fyi.blep.core.platform.coarsePlaceCell
 import fyi.blep.core.platform.createKeyValueStore
+import fyi.blep.core.platform.epochMillis
 import fyi.blep.core.safety.SafetyHistory
 import fyi.blep.core.safety.SafetyScanner
 import fyi.blep.core.safety.payloadFingerprint
@@ -312,9 +313,13 @@ class BlepController(
     /** Rotation/identity-churn stats for a device id, or null if uncorrelated yet. */
     fun rotationStats(id: String): RotationStats? = rotationTracker.statsFor(id)
 
-    /** How long ago this device was first seen (ms), carried across its id rotations. */
-    fun rotationFirstSeenAgoMs(id: String): Long? =
-        rotationTracker.statsFor(id)?.let { rotationClock.elapsedNow().inWholeMilliseconds - it.firstSeenMs }
+    /** How long ago this device was first seen (ms), carried across its id rotations.
+     *  Prefers the persisted first-seen (stable — survives the live track ageing out and
+     *  app restarts); falls back to the live track only until the first identity sync. */
+    fun rotationFirstSeenAgoMs(id: String): Long? {
+        identityStore.firstSeenOf(id)?.let { return epochMillis() - it }
+        return rotationTracker.statsFor(id)?.let { rotationClock.elapsedNow().inWholeMilliseconds - it.firstSeenMs }
+    }
 
     /** The ids this device has worn (its rotation lineage), current id last. For the
      *  detail page's history list. Empty when there's nothing correlated. */

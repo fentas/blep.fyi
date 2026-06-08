@@ -68,6 +68,20 @@ class IdentityStoreTest {
     }
 
     @Test
+    fun first_seen_is_recorded_and_preserved_while_last_seen_refreshes_the_ttl() {
+        val store = createKeyValueStore()
+        var clock = 1_000_000L
+        IdentityStore(store, ttlMs = 14 * day, now = { clock }).seen(setOf("watch"))
+        assertEquals(1_000_000L, IdentityStore(store, now = { clock }).firstSeenOf("watch")) // recorded
+        clock += 5 * day
+        IdentityStore(store, ttlMs = 14 * day, now = { clock }).seen(setOf("watch")) // seen again → ttl refreshes
+        // 15 days after first sight, but only 10 since last → still alive, first-seen unchanged.
+        clock += 10 * day
+        val later = IdentityStore(store, ttlMs = 14 * day, now = { clock })
+        assertEquals(1_000_000L, later.firstSeenOf("watch")) // not reset by being seen again
+    }
+
+    @Test
     fun seen_keeps_an_identity_alive_past_the_ttl() {
         val store = createKeyValueStore()
         var clock = 1_000_000L
