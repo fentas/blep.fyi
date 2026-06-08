@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark launch background (matches the dark Compose scheme's background, 0xFF14181D)
+         so the cold-start window isn't a white flash before Compose draws. -->
+    <color name="blep_ink">#FF14181D</color>
+
+    <style name="Theme.Blep" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/blep_ink</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
