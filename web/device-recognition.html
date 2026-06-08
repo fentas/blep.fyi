@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Device recognition — blep</title>
+    <meta name="description" content="How blep recognises a device across its rotating Bluetooth id — so a rename or a flag follows it, even when its address changes." />
+    <meta name="theme-color" content="#5F90C3" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content="Device recognition — blep" />
+    <meta property="og:description" content="How blep follows a device across its rotating Bluetooth id." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://blep.fyi/device-recognition.html" />
+    <script>
+      try { var t = localStorage.getItem('blep-theme'); if (t) document.documentElement.classList.add(t); } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body class="min-h-dvh bg-mist text-ink antialiased selection:bg-pink/40">
+    <header class="sticky top-0 z-30 border-b border-ink/10 bg-mist/80 backdrop-blur">
+      <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+        <a href="/" class="flex items-center gap-2 font-display text-xl font-bold tracking-tight">
+          <img src="/logo.svg" alt="" class="h-7 w-7" /> blep
+          <span class="font-normal text-ink/40">/ device recognition</span>
+        </a>
+        <div class="flex items-center gap-1">
+          <button id="theme-toggle" type="button" aria-label="Toggle dark mode"
+            class="flex h-9 w-9 items-center justify-center rounded-full text-lg leading-none transition hover:bg-ink/10 active:scale-95">🌙</button>
+          <a href="https://github.com/fentas/blep.fyi" class="rounded-full px-3 py-2 text-sm font-medium text-ink/60 transition hover:text-ink">GitHub</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="mx-auto flex max-w-7xl gap-8 px-4 sm:px-6">
+      <!-- Left sidebar -->
+      <aside class="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-56 shrink-0 self-start overflow-y-auto py-8 pr-3 lg:block">
+        <nav class="text-sm">
+          <p class="px-2 text-xs font-semibold uppercase tracking-wide text-ink/40">Using blep</p>
+          <ul class="mt-2 space-y-0.5">
+            <li><a href="/guide.html#find" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Find a thing</a></li>
+            <li><a href="/guide.html#safety" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Is something tracking you?</a></li>
+            <li><a href="/guide.html#found" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Found a tracker?</a></li>
+            <li><a href="/guide.html#settings" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Settings</a></li>
+            <li><a href="/guide.html#faq" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">FAQ</a></li>
+          </ul>
+          <p class="mt-6 px-2 text-xs font-semibold uppercase tracking-wide text-ink/40">Advanced</p>
+          <ul class="mt-2 space-y-0.5">
+            <li><a href="/device-recognition.html" class="block rounded-md px-2 py-1.5 font-semibold text-blue">Device recognition</a></li>
+            <li><a href="/background-scanning.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Background scanning</a></li>
+          </ul>
+          <p class="mt-6 px-2 text-xs font-semibold uppercase tracking-wide text-ink/40">More</p>
+          <ul class="mt-2 space-y-0.5">
+            <li><a href="/" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Home</a></li>
+            <li><a href="/donate.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Donate</a></li>
+            <li><a href="/privacy.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Privacy</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Main content -->
+      <main class="doc min-w-0 flex-1 py-8 lg:py-10">
+        <p class="text-xs font-semibold uppercase tracking-wide text-blue">Advanced</p>
+        <h1 class="mt-1 font-display text-4xl font-bold tracking-tight">Device recognition</h1>
+        <p class="mt-4 text-lg text-ink/70">
+          Most modern devices change their Bluetooth address every few minutes <em>on
+          purpose</em>, so nobody can track them by it. blep follows a device anyway — and
+          keeps your name and flag attached — by recognising the device behind the churn.
+        </p>
+
+        <section id="panel" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            The device panel
+            <a href="#panel" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">Tap the <span class="font-semibold text-ink">›</span> on any device in the list to open its panel: the live signal, what its id tells you, how long ago you first saw it, how many times it has changed id, and two controls — <strong>rename</strong> and <strong>watch</strong>.</p>
+        </section>
+
+        <section id="addresses" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            Stable vs. rotating ids
+            <a href="#addresses" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">The panel tells you whether a device's id is <strong>stable</strong> (it keeps the same one — many paired accessories do) or a <strong>private, rotating</strong> address that changes periodically for privacy. On iPhone there's no hardware address at all, just an opaque id. It's an honest read on how trackable a device is by its address alone.</p>
+        </section>
+
+        <section id="following" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            Following a device across id changes
+            <a href="#following" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">blep stitches the churn back into one device by the <strong>handover</strong>: one id goes quiet exactly as a new one appears at the same distance and with the same advertisement signature. The panel shows how many times a device has <strong>changed id</strong> and how sure blep is, with the list of ids it has worn.</p>
+          <aside class="mt-4 rounded-2xl border border-blue/20 bg-blue/10 p-4 text-sm text-ink/80">
+            It never guesses over you: blep only links two ids when it's confident they're the same physical thing. A weak or ambiguous match is shown as a fork (the ids it might also be) and left alone — so your label can't jump onto a stranger's device.
+          </aside>
+        </section>
+
+        <section id="rename" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            Renames &amp; flags that stick
+            <a href="#rename" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">Because of the handover, a <strong>rename</strong> or a <strong>flag</strong> follows the device across its rotations — it doesn't reset every few minutes. <strong>Watch this device</strong> flags one for priority: blep keeps a live scan running and shows a quiet notification for as long as it stays in range (handy for keeping an eye on a suspected tracker). See <a class="font-medium text-blue hover:underline" href="/background-scanning.html">Background scanning</a> for how that runs.</p>
+        </section>
+
+        <section id="remembered" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            How long it's remembered
+            <a href="#remembered" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">A device's identity — its name, flag and first-seen — is kept for as long as you keep seeing it, then forgotten on its own. The window is yours to set in <strong>Settings → Remember devices</strong> (1 to 90 days, 14 by default). It all lives on your phone and clears itself; nothing about which devices are around you ever leaves the device.</p>
+        </section>
+
+        <section id="limits" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            What it can — and can't — do
+            <a href="#limits" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <ul class="mt-3 space-y-2 text-ink/80">
+            <li class="flex gap-2"><span class="text-blue">•</span><span>It works <strong>within Bluetooth range</strong> and while a device is around to be seen — it can't follow something across town or while it's switched off.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span>A device that rotates its id <strong>and</strong> vanishes for a long time (or while the app is closed) may return as "new" — without watching the change happen, there's no honest way to be certain it's the same one.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span>Everything is computed <strong>on your phone</strong>, kept briefly, and cleared on its own. See the <a class="font-medium text-blue hover:underline" href="/privacy.html">privacy policy</a>.</span></li>
+          </ul>
+        </section>
+
+        <!-- Pager -->
+        <nav class="mt-14 flex items-center justify-between border-t border-ink/10 pt-6 text-sm">
+          <a href="/guide.html#settings" class="rounded-xl border border-ink/10 px-4 py-3 transition hover:border-blue hover:text-blue">
+            <span class="block text-xs text-ink/45">Previous</span><span class="font-medium">← Settings</span>
+          </a>
+          <a href="/background-scanning.html" class="rounded-xl border border-ink/10 px-4 py-3 text-right transition hover:border-blue hover:text-blue">
+            <span class="block text-xs text-ink/45">Next</span><span class="font-medium">Background scanning →</span>
+          </a>
+        </nav>
+
+        <footer class="mt-10 text-sm text-ink/50">
+          Made with care · <a class="underline-offset-2 hover:underline" href="https://github.com/fentas/blep.fyi">github.com/fentas/blep.fyi</a>
+        </footer>
+      </main>
+
+      <!-- Right "on this page" -->
+      <aside class="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-52 shrink-0 self-start overflow-y-auto py-10 pl-2 xl:block">
+        <p class="text-xs font-semibold uppercase tracking-wide text-ink/40">On this page</p>
+        <ul class="mt-3 space-y-2 border-l border-ink/10 text-sm">
+          <li><a data-spy href="#panel" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">The device panel</a></li>
+          <li><a data-spy href="#addresses" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Stable vs. rotating ids</a></li>
+          <li><a data-spy href="#following" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Following across id changes</a></li>
+          <li><a data-spy href="#rename" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Renames &amp; flags that stick</a></li>
+          <li><a data-spy href="#remembered" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">How long it's remembered</a></li>
+          <li><a data-spy href="#limits" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">What it can &amp; can't do</a></li>
+        </ul>
+      </aside>
+    </div>
+
+    <script type="module" src="/src/theme.js"></script>
+    <script type="module">
+      const spy = [...document.querySelectorAll('[data-spy]')]
+      const setActive = (id) => spy.forEach((a) => {
+        const on = a.getAttribute('href') === '#' + id
+        a.classList.toggle('text-blue', on)
+        a.classList.toggle('font-semibold', on)
+        if (a.classList.contains('border-l')) a.classList.toggle('border-blue', on)
+      })
+      const obs = new IntersectionObserver((entries) => {
+        const vis = entries.filter((e) => e.isIntersecting).sort((a, b) => a.target.offsetTop - b.target.offsetTop)
+        if (vis[0]) setActive(vis[0].target.id)
+      }, { rootMargin: '0px 0px -72% 0px' })
+      document.querySelectorAll('main section[id]').forEach((s) => obs.observe(s))
+    </script>
+  </body>
+</html>

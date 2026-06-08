@@ -11,6 +11,8 @@ export default defineConfig({
       input: {
         main: 'index.html',
         guide: 'guide.html',
+        deviceRecognition: 'device-recognition.html',
+        backgroundScanning: 'background-scanning.html',
         donate: 'donate.html',
         privacy: 'privacy.html',
       },

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Background scanning — blep</title>
+    <meta name="description" content="How blep watches for trackers in the background — a continuous foreground scan vs. a battery-friendly timer — and what each one can catch." />
+    <meta name="theme-color" content="#5F90C3" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content="Background scanning — blep" />
+    <meta property="og:description" content="Continuous vs. interval background scanning in blep, and what each catches." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://blep.fyi/background-scanning.html" />
+    <script>
+      try { var t = localStorage.getItem('blep-theme'); if (t) document.documentElement.classList.add(t); } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body class="min-h-dvh bg-mist text-ink antialiased selection:bg-pink/40">
+    <header class="sticky top-0 z-30 border-b border-ink/10 bg-mist/80 backdrop-blur">
+      <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+        <a href="/" class="flex items-center gap-2 font-display text-xl font-bold tracking-tight">
+          <img src="/logo.svg" alt="" class="h-7 w-7" /> blep
+          <span class="font-normal text-ink/40">/ background scanning</span>
+        </a>
+        <div class="flex items-center gap-1">
+          <button id="theme-toggle" type="button" aria-label="Toggle dark mode"
+            class="flex h-9 w-9 items-center justify-center rounded-full text-lg leading-none transition hover:bg-ink/10 active:scale-95">🌙</button>
+          <a href="https://github.com/fentas/blep.fyi" class="rounded-full px-3 py-2 text-sm font-medium text-ink/60 transition hover:text-ink">GitHub</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="mx-auto flex max-w-7xl gap-8 px-4 sm:px-6">
+      <!-- Left sidebar -->
+      <aside class="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-56 shrink-0 self-start overflow-y-auto py-8 pr-3 lg:block">
+        <nav class="text-sm">
+          <p class="px-2 text-xs font-semibold uppercase tracking-wide text-ink/40">Using blep</p>
+          <ul class="mt-2 space-y-0.5">
+            <li><a href="/guide.html#find" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Find a thing</a></li>
+            <li><a href="/guide.html#safety" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Is something tracking you?</a></li>
+            <li><a href="/guide.html#found" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Found a tracker?</a></li>
+            <li><a href="/guide.html#settings" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Settings</a></li>
+            <li><a href="/guide.html#faq" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">FAQ</a></li>
+          </ul>
+          <p class="mt-6 px-2 text-xs font-semibold uppercase tracking-wide text-ink/40">Advanced</p>
+          <ul class="mt-2 space-y-0.5">
+            <li><a href="/device-recognition.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Device recognition</a></li>
+            <li><a href="/background-scanning.html" class="block rounded-md px-2 py-1.5 font-semibold text-blue">Background scanning</a></li>
+          </ul>
+          <p class="mt-6 px-2 text-xs font-semibold uppercase tracking-wide text-ink/40">More</p>
+          <ul class="mt-2 space-y-0.5">
+            <li><a href="/" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Home</a></li>
+            <li><a href="/donate.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Donate</a></li>
+            <li><a href="/privacy.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Privacy</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Main content -->
+      <main class="doc min-w-0 flex-1 py-8 lg:py-10">
+        <p class="text-xs font-semibold uppercase tracking-wide text-blue">Advanced</p>
+        <h1 class="mt-1 font-display text-4xl font-bold tracking-tight">Background scanning</h1>
+        <p class="mt-4 text-lg text-ink/70">
+          blep can keep watching for trackers while it's off-screen. There are two
+          modes — one continuous, one on a timer — and they don't catch quite the same
+          things. Both are off by default and you turn them on in Settings.
+        </p>
+
+        <section id="modes" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            Two ways to keep watching
+            <a href="#modes" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">In <strong>Settings → Background scanning</strong> you'll find two switches: <em>Keep scanning when minimized</em> (a continuous scan with a quiet ongoing notification) and <em>Scan in the background</em> (a quick check on a timer while blep is fully closed). Use one, both, or neither.</p>
+        </section>
+
+        <section id="foreground" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            Keep scanning when minimized
+            <a href="#foreground" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">A live, continuous scan that keeps running when you leave the app, with a low-key ongoing notification (Android requires one for this). It sees a steady stream of advertisements, so it's the only mode that can catch the subtle stuff — a tracker that rapidly rotates its id, given away by the steady churn at a constant range. More thorough, a bit more battery.</p>
+        </section>
+
+        <section id="interval" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            Scan on a timer
+            <a href="#interval" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">A short check every so often (you pick the interval) while blep is fully closed — light on battery, and it pauses itself in battery-saver mode. It samples too briefly to see id-churn, so it leans on recognising self-advertising trackers (Find My, Tile, SmartTag, Find My Device) and on noticing the same kind of tracker reappearing across different places and surroundings.</p>
+        </section>
+
+        <section id="reach" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            What each one catches
+            <a href="#reach" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <ul class="mt-3 space-y-2 text-ink/80">
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Continuous</strong> — recognised trackers <em>and</em> anonymous, rapidly-rotating ones (the churn is the tell).</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Timer</strong> — recognised, self-advertising trackers, flagged when the same kind keeps following you across places. An anonymous rotating tracker needs the continuous scan.</span></li>
+          </ul>
+          <aside class="mt-4 rounded-2xl border border-blue/20 bg-blue/10 p-4 text-sm text-ink/80">
+            Whichever you use, detection is on-device only: it logs the tracker <em>type</em> and time (and, if you opt in, a coarse place) — never an identity, never raw location. Clear it any time.
+          </aside>
+        </section>
+
+        <section id="flag" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            Watching one device
+            <a href="#flag" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80"><strong>Watch this device</strong> on a device's panel (see <a class="font-medium text-blue hover:underline" href="/device-recognition.html">Device recognition</a>) gives that one device the continuous treatment without running it for everything: blep keeps a live scan on it and notifies you while it stays in range, clearing when it leaves or you stop watching.</p>
+        </section>
+
+        <!-- Pager -->
+        <nav class="mt-14 flex items-center justify-between border-t border-ink/10 pt-6 text-sm">
+          <a href="/device-recognition.html" class="rounded-xl border border-ink/10 px-4 py-3 transition hover:border-blue hover:text-blue">
+            <span class="block text-xs text-ink/45">Previous</span><span class="font-medium">← Device recognition</span>
+          </a>
+          <a href="/guide.html#faq" class="rounded-xl border border-ink/10 px-4 py-3 text-right transition hover:border-blue hover:text-blue">
+            <span class="block text-xs text-ink/45">Next</span><span class="font-medium">FAQ →</span>
+          </a>
+        </nav>
+
+        <footer class="mt-10 text-sm text-ink/50">
+          Made with care · <a class="underline-offset-2 hover:underline" href="https://github.com/fentas/blep.fyi">github.com/fentas/blep.fyi</a>
+        </footer>
+      </main>
+
+      <!-- Right "on this page" -->
+      <aside class="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-52 shrink-0 self-start overflow-y-auto py-10 pl-2 xl:block">
+        <p class="text-xs font-semibold uppercase tracking-wide text-ink/40">On this page</p>
+        <ul class="mt-3 space-y-2 border-l border-ink/10 text-sm">
+          <li><a data-spy href="#modes" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Two ways to keep watching</a></li>
+          <li><a data-spy href="#foreground" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Keep scanning when minimized</a></li>
+          <li><a data-spy href="#interval" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Scan on a timer</a></li>
+          <li><a data-spy href="#reach" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">What each one catches</a></li>
+          <li><a data-spy href="#flag" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Watching one device</a></li>
+        </ul>
+      </aside>
+    </div>
+
+    <script type="module" src="/src/theme.js"></script>
+    <script type="module">
+      const spy = [...document.querySelectorAll('[data-spy]')]
+      const setActive = (id) => spy.forEach((a) => {
+        const on = a.getAttribute('href') === '#' + id
+        a.classList.toggle('text-blue', on)
+        a.classList.toggle('font-semibold', on)
+        if (a.classList.contains('border-l')) a.classList.toggle('border-blue', on)
+      })
+      const obs = new IntersectionObserver((entries) => {
+        const vis = entries.filter((e) => e.isIntersecting).sort((a, b) => a.target.offsetTop - b.target.offsetTop)
+        if (vis[0]) setActive(vis[0].target.id)
+      }, { rootMargin: '0px 0px -72% 0px' })
+      document.querySelectorAll('main section[id]').forEach((s) => obs.observe(s))
+    </script>
+  </body>
+</html>
