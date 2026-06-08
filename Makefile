@@ -21,6 +21,7 @@ PLAY_WEAR_TRACK    ?= wear:blep   # Wear OS form-factor track (API prefixes it `
 PHONE_AAB          := app/androidApp/build/outputs/bundle/release/androidApp-release.aab
 WEAR_AAB           := app/wearApp/build/outputs/bundle/release/wearApp-release.aab
 PUBLISH_PY         := .venv-publish/bin/python
+NOTES_DIR          ?= store/release-notes   # <locale>.txt "what's new" (auto-drafted by `make release-notes`)
 # Dry-run unless PLAY_COMMIT is set (so a bare `make publish-*` only prints the plan).
 COMMIT_FLAG        := $(if $(PLAY_COMMIT),--commit,)
 
@@ -28,7 +29,7 @@ COMMIT_FLAG        := $(if $(PLAY_COMMIT),--commit,)
 .PHONY: help setup doctor test sim sim-gps sim-safety scenarios chaos robustness build apk aab \
         install install-wear run demo uninstall devices logcat \
         emulator-setup emulator screenshots screenshots-i18n screenshots-wear promo \
-        publish-setup publish-listing publish-store bump-version release-build publish-release release ship ble-trackers \
+        publish-setup publish-listing publish-store bump-version release-notes release-build publish-release release ship ble-trackers \
         bridge bridge-motion bridge-rssi web web-build web-icons \
         ci apple clean
 
@@ -180,9 +181,12 @@ bump-version: ## Increment each module's versionCode (phone 1xxx, wear 2xxx band
 release-build: ## Build the signed phone + Wear release AABs
 	cd app && $(GRADLE) :androidApp:bundleRelease :wearApp:bundleRelease
 
+release-notes: ## Draft the English "what's new" from feat/fix commits since the last release
+	tools/release-notes.sh
+
 publish-release: release-build ## Upload + release the built AABs to their tracks (no bump; PLAY_COMMIT=1 to apply)
-	$(PUBLISH_PY) tools/publish-release.py --key $(PLAY_KEY) --aab $(PHONE_AAB) --track $(PLAY_PHONE_TRACK) $(COMMIT_FLAG)
-	$(PUBLISH_PY) tools/publish-release.py --key $(PLAY_KEY) --aab $(WEAR_AAB)  --track $(PLAY_WEAR_TRACK)  $(COMMIT_FLAG)
+	$(PUBLISH_PY) tools/publish-release.py --key $(PLAY_KEY) --aab $(PHONE_AAB) --track $(PLAY_PHONE_TRACK) --notes-dir $(NOTES_DIR) $(COMMIT_FLAG)
+	$(PUBLISH_PY) tools/publish-release.py --key $(PLAY_KEY) --aab $(WEAR_AAB)  --track $(PLAY_WEAR_TRACK)  --notes-dir $(NOTES_DIR) $(COMMIT_FLAG)
 
 # ── Target B: bump build numbers, build, upload, release ──
 release: ## Bump versionCode → build signed AABs → upload + release to tracks (PLAY_COMMIT=1 to apply)
