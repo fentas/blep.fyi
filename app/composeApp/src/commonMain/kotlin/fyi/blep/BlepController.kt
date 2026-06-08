@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
+import fyi.blep.core.ble.DeviceAliases
 import fyi.blep.core.ble.DeviceFavorites
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
@@ -63,6 +64,7 @@ class BlepController(
     private val safetyTuning: TrackerTuning? = null, // demo override; else the sensitivity preset
     private val safetyHistory: SafetyHistory = SafetyHistory(createKeyValueStore()),
     private val favorites: DeviceFavorites = DeviceFavorites(createKeyValueStore()),
+    private val aliasStore: DeviceAliases = DeviceAliases(createKeyValueStore()),
     private val settings: AppSettings = AppSettings(),
     private val skipOnboarding: Boolean = false, // demo mode jumps straight to discovery
 ) {
@@ -170,7 +172,9 @@ class BlepController(
                     .thenBy { it.displayName.lowercase() },
             )
 
-    private val aliases = mutableMapOf<String, String>()
+    // Seeded from the persisted store so renames survive a restart; kept in memory
+    // for the hot overlay path and written through on every change.
+    private val aliases = aliasStore.all().toMutableMap()
     private var favoriteIds: Set<String> = favorites.ids()
     private var scanJob: Job? = null
     private var trackJob: Job? = null
@@ -315,10 +319,10 @@ class BlepController(
         if (screen is Screen.Discovery) restartScan()
     }
 
-    /** User-assigned rename, overlaid on scan results. */
+    /** User-assigned rename, overlaid on scan results and persisted across restarts. */
     fun rename(device: BleDevice, alias: String?) {
-        val clean = alias?.trim().orEmpty()
-        if (clean.isEmpty()) aliases.remove(device.id) else aliases[device.id] = clean
+        val clean = aliasStore.set(device.id, alias) // persist + normalize (null = cleared)
+        if (clean == null) aliases.remove(device.id) else aliases[device.id] = clean
         devices = devices.map { if (it.id == device.id) it.copy(alias = aliases[it.id]) else it }
     }
 

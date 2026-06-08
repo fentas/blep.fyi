@@ -137,6 +137,61 @@ doesn't need location, just motion + the time/co-presence fingerprint.
   while you moved between 3 places-worth of segments" as the *reason*, so the
   user judges. blep's edge is it also points you to it.
 
+## Scan modes: what each can actually see
+
+Detection runs in two very different modes, and they don't have the same reach:
+
+- **Foreground / foreground-service (continuous) scan.** A live, dense advertisement
+  stream over a 15-min window. This is the only mode that can see *churn*: the
+  rotation signal (many short-lived random ids, continuously close) and the
+  id-switch correlator below both need a continuous stream to work.
+- **Interval worker (app closed).** WorkManager's floor is 15 min between runs, and
+  each run scans a ~20 s window with a *fresh* detector (no live state carries over),
+  skipping while in battery-saver. Twenty seconds can't show four rotating ids churn,
+  and can't accumulate "close for 5 minutes". So the interval mode effectively only
+  catches **self-advertising, recognised-protocol trackers** (Find My / Tile /
+  SmartTag / DULT), promoted to an alert by **place + backdrop-context recurrence**
+  across sparse runs (the persisted cross-session log). An anonymous, protocol-less
+  rotating tracker is **not** catchable in interval mode — that needs the continuous
+  scan. We surface this rather than imply background == foreground coverage.
+
+## Correlating rotating ids back into a device (`RotationTracker`)
+
+Privacy MACs rotate *specifically* to stop per-tag tracking, so we don't try to
+resolve identity — we correlate at the level of the **handover**:
+
+- One id goes quiet exactly as a new id appears at the **same range** (within a
+  `dbGate`, default 6 dBm) → the close-by population stays the same size (one out,
+  one in) → treat the new id as the same physical device's next address, carrying
+  its `firstSeen`, incrementing a rotation count. A new id at a *different* range
+  with no matching departure is just a new device (the population grew). This is the
+  user's "we have 4 devices, one at −30 dBm swaps id and we still have 4 — but a 5th
+  at −90 just entered range" intuition.
+- **Resolved on disappearance, not appearance.** A merge happens only when an old id
+  actually dies while a matching successor lives on, so two devices that merely sit
+  at the same range are never falsely merged. A successor must be born *after* the
+  old id went quiet (small overlap allowed), never before.
+- **Confidence scales with the dB match** and is divided across rival candidates —
+  surfaced to the user, not a hidden binary.
+- **Collisions don't discard data.** When a dying id has ≥2 plausible successors (or
+  two die together at the same range), the orphaned lineage becomes a *branch* shared
+  across the candidates — both keep it, probability split — and it's revalidated each
+  tick until it resolves itself (a candidate leaves, or one keeps rotating and the
+  other doesn't). A lone survivor absorbs at most one branch, so 2-die→1-survive never
+  double-counts. While unresolved, stats report `contested` + the `alternatives`, so
+  the device detail page can show the fork transparently.
+
+Pure/deterministic and unit-tested (`RotationTrackerTest`). RSSI-only, so it's a
+heuristic — the confidence carries the uncertainty rather than overclaiming.
+
+## Flagging a device (priority escalation)
+
+A user can flag a suspicious device (persisted). A flagged device is promoted from
+the ambient interval check to a **continuous foreground scan** that keeps tracking it,
+with an active notification for as long as it stays in range — and clears when it
+leaves or is unflagged. This buys the continuous-scan reach (above) for the one device
+that matters, without running the foreground service all the time.
+
 ## Open questions
 
 - How much movement signal survives in the background scan (periodic worker only
