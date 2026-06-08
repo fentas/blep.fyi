@@ -12,6 +12,7 @@
     <string name="discovery_hint">Assure-toi que l'appareil est allumé et à proximité.</string>
     <string name="avail_bluetooth_off">Active le Bluetooth pour chercher</string>
     <string name="avail_permission">Autorise l'accès au Bluetooth pour chercher</string>
+    <string name="avail_permission_blocked">Accès Bluetooth bloqué — touchez pour ouvrir les réglages</string>
     <string name="avail_location_off">Active la localisation pour chercher (Android)</string>
     <string name="avail_unsupported">Le Bluetooth LE n'est pas pris en charge sur cet appareil</string>
     <string name="rename_title">Renommer l'appareil</string>

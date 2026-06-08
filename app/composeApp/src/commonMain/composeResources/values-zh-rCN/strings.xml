@@ -13,6 +13,7 @@
     <string name="discovery_hint">请确保设备已开启并在附近。</string>
     <string name="avail_bluetooth_off">开启蓝牙以扫描</string>
     <string name="avail_permission">允许蓝牙访问以扫描</string>
+    <string name="avail_permission_blocked">蓝牙访问被阻止 — 点按以打开设置</string>
     <string name="avail_location_off">开启定位以扫描（Android）</string>
     <string name="avail_unsupported">此设备不支持蓝牙 LE</string>
     <string name="rename_title">重命名设备</string>

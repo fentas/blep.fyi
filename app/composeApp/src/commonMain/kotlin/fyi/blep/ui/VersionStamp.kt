@@ -30,7 +30,7 @@ private const val ISSUES_URL = "https://github.com/fentas/blep.fyi/issues/new"
 fun VersionStamp(info: BuildInfo, modifier: Modifier = Modifier) {
     val uriHandler = LocalUriHandler.current
     Text(
-        text = "v${info.versionName} · ${info.gitSha}",
+        text = "v${info.versionName} (${info.versionCode}) · ${info.gitSha}",
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f),
         modifier = modifier

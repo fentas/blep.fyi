@@ -12,6 +12,7 @@
     <string name="discovery_hint">デバイスの電源が入っていて近くにあることを確認してください。</string>
     <string name="avail_bluetooth_off">スキャンするには Bluetooth をオンにしてください</string>
     <string name="avail_permission">スキャンするには Bluetooth へのアクセスを許可してください</string>
+    <string name="avail_permission_blocked">Bluetooth のアクセスがブロックされています — タップして設定を開く</string>
     <string name="avail_location_off">スキャンするには位置情報をオンにしてください（Android）</string>
     <string name="avail_unsupported">このデバイスは Bluetooth LE に対応していません</string>
     <string name="rename_title">デバイスの名前を変更</string>

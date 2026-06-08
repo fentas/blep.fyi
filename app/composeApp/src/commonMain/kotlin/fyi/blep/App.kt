@@ -85,7 +85,6 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     onSafetyScan = controller::openSafetyScan,
                     onSettings = controller::openSettings,
                     onDonate = { uriHandler.openUri(DONATE_URL) },
-                    buildInfo = buildInfo,
                 )
 
                 is Screen.Settings -> SettingsScreen(
@@ -112,6 +111,7 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     themeMode = controller.themeMode,
                     onSelectTheme = controller::selectTheme,
                     onBack = controller::startDiscovery,
+                    buildInfo = buildInfo,
                 )
 
                 is Screen.Safety -> SafetyScreen(

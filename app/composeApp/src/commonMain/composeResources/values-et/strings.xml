@@ -12,6 +12,7 @@
     <string name="discovery_hint">Veendu, et seade on sisse lülitatud ja lähedal.</string>
     <string name="avail_bluetooth_off">Lülita Bluetooth sisse, et otsida</string>
     <string name="avail_permission">Luba Bluetoothi juurdepääs, et otsida</string>
+    <string name="avail_permission_blocked">Bluetoothi juurdepääs on blokeeritud – puuduta seadete avamiseks</string>
     <string name="avail_location_off">Lülita asukoht sisse, et otsida (Android)</string>
     <string name="avail_unsupported">Bluetooth LE ei ole sellel seadmel toetatud</string>
     <string name="rename_title">Nimeta seade ümber</string>

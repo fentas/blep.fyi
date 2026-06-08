@@ -12,6 +12,7 @@
     <string name="discovery_hint">Βεβαιώσου ότι η συσκευή είναι αναμμένη και κοντά.</string>
     <string name="avail_bluetooth_off">Ενεργοποίησε το Bluetooth για σάρωση</string>
     <string name="avail_permission">Επίτρεψε την πρόσβαση στο Bluetooth για σάρωση</string>
+    <string name="avail_permission_blocked">Η πρόσβαση Bluetooth αποκλείστηκε — πατήστε για άνοιγμα ρυθμίσεων</string>
     <string name="avail_location_off">Ενεργοποίησε την Τοποθεσία για σάρωση (Android)</string>
     <string name="avail_unsupported">Το Bluetooth LE δεν υποστηρίζεται σε αυτή τη συσκευή</string>
     <string name="rename_title">Μετονομασία συσκευής</string>

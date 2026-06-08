@@ -12,6 +12,7 @@
     <string name="discovery_hint">Upewnij się, że urządzenie jest włączone i w pobliżu.</string>
     <string name="avail_bluetooth_off">Włącz Bluetooth, aby skanować</string>
     <string name="avail_permission">Zezwól na dostęp do Bluetooth, aby skanować</string>
+    <string name="avail_permission_blocked">Dostęp do Bluetootha zablokowany — dotknij, aby otworzyć ustawienia</string>
     <string name="avail_location_off">Włącz lokalizację, aby skanować (Android)</string>
     <string name="avail_unsupported">Bluetooth LE nie jest obsługiwany na tym urządzeniu</string>
     <string name="rename_title">Zmień nazwę urządzenia</string>

@@ -49,8 +49,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
-import fyi.blep.ui.BuildInfo
-import fyi.blep.ui.VersionStamp
 import fyi.blep.resources.Res
 import fyi.blep.resources.app_tagline
 import fyi.blep.resources.action_cancel
@@ -62,6 +60,7 @@ import fyi.blep.resources.donate_dialog_title
 import fyi.blep.resources.avail_bluetooth_off
 import fyi.blep.resources.avail_location_off
 import fyi.blep.resources.avail_permission
+import fyi.blep.resources.avail_permission_blocked
 import fyi.blep.resources.avail_unsupported
 import fyi.blep.resources.dbm
 import fyi.blep.resources.discovery_empty_title
@@ -85,6 +84,7 @@ import fyi.blep.resources.show_unnamed_one
 import fyi.blep.resources.status_connected
 import fyi.blep.resources.status_paired
 import fyi.blep.ui.rememberAvailabilityAction
+import fyi.blep.ui.rememberBlePermissionRecovery
 import fyi.blep.ui.theme.BlepColors
 import fyi.blep.ui.theme.GiftIcon
 import fyi.blep.ui.theme.PencilIcon
@@ -110,7 +110,6 @@ fun DiscoveryScreen(
     onSettings: () -> Unit,
     onDonate: () -> Unit,
     modifier: Modifier = Modifier,
-    buildInfo: BuildInfo? = null,
 ) {
     var renaming by remember { mutableStateOf<BleDevice?>(null) }
     var showPaired by remember { mutableStateOf(false) }
@@ -171,12 +170,6 @@ fun DiscoveryScreen(
             }
         }
         Spacer(Modifier.height(16.dp))
-        // Quiet build stamp on the background; tap → prefilled GitHub issue. Hidden
-        // on iOS/Wear and in demo/screenshot runs (buildInfo == null).
-        buildInfo?.let {
-            VersionStamp(it, Modifier.align(Alignment.CenterHorizontally))
-            Spacer(Modifier.height(4.dp))
-        }
     }
 
         DonateHeart(
@@ -608,22 +601,31 @@ private fun EmptyState() {
 
 @Composable
 private fun AvailabilityBanner(availability: ScanAvailability) {
+    // For the permission case, try the OS prompt first; only once it's permanently
+    // denied does [blocked] flip and we point the user at app settings instead.
+    val permission = rememberBlePermissionRecovery()
     val message = when (availability) {
         ScanAvailability.BLUETOOTH_OFF -> stringResource(Res.string.avail_bluetooth_off)
-        ScanAvailability.PERMISSION_REQUIRED -> stringResource(Res.string.avail_permission)
+        ScanAvailability.PERMISSION_REQUIRED ->
+            if (permission.blocked) stringResource(Res.string.avail_permission_blocked)
+            else stringResource(Res.string.avail_permission)
         ScanAvailability.LOCATION_OFF -> stringResource(Res.string.avail_location_off)
         ScanAvailability.UNSUPPORTED -> stringResource(Res.string.avail_unsupported)
         ScanAvailability.READY -> return
     }
-    // Tappable recovery: turn on the adapter / grant the permission (UNSUPPORTED has
-    // no fix, so it isn't actionable). The chevron signals it's tappable in any locale.
+    // Tappable recovery: request the permission / turn on the adapter / open settings
+    // (UNSUPPORTED has no fix, so it isn't actionable). The chevron signals tappable.
     val fix = rememberAvailabilityAction()
     val actionable = availability != ScanAvailability.UNSUPPORTED
+    val onFix: () -> Unit = {
+        if (availability == ScanAvailability.PERMISSION_REQUIRED) permission.request()
+        else fix(availability)
+    }
     Surface(
         color = BlepColors.Pink.copy(alpha = 0.35f),
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
-            .then(if (actionable) Modifier.clickable { fix(availability) } else Modifier),
+            .then(if (actionable) Modifier.clickable(onClick = onFix) else Modifier),
     ) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(

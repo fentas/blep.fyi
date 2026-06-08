@@ -12,6 +12,7 @@
     <string name="discovery_hint">Asegúrate de que el dispositivo esté encendido y cerca.</string>
     <string name="avail_bluetooth_off">Activa el Bluetooth para buscar</string>
     <string name="avail_permission">Permite el acceso al Bluetooth para buscar</string>
+    <string name="avail_permission_blocked">Acceso a Bluetooth bloqueado: toca para abrir los ajustes</string>
     <string name="avail_location_off">Activa la ubicación para buscar (Android)</string>
     <string name="avail_unsupported">Bluetooth LE no es compatible con este dispositivo</string>
     <string name="rename_title">Renombrar dispositivo</string>

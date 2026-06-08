@@ -13,6 +13,7 @@
     <string name="discovery_hint">Stelle sicher, dass das Gerät eingeschaltet und in der Nähe ist.</string>
     <string name="avail_bluetooth_off">Bluetooth einschalten, um zu suchen</string>
     <string name="avail_permission">Bluetooth-Zugriff erlauben, um zu suchen</string>
+    <string name="avail_permission_blocked">Bluetooth-Zugriff blockiert – zum Öffnen der Einstellungen tippen</string>
     <string name="avail_location_off">Standort einschalten, um zu suchen (Android)</string>
     <string name="avail_unsupported">Bluetooth LE wird auf diesem Gerät nicht unterstützt</string>
     <string name="rename_title">Gerät umbenennen</string>

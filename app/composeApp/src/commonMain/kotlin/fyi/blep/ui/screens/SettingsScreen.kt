@@ -75,6 +75,8 @@ import fyi.blep.resources.settings_sound_title
 import fyi.blep.resources.settings_title
 import fyi.blep.resources.settings_unnamed_desc
 import fyi.blep.resources.settings_unnamed_title
+import fyi.blep.ui.BuildInfo
+import fyi.blep.ui.VersionStamp
 import fyi.blep.ui.rememberLocationPermissionRequest
 import fyi.blep.ui.rememberNotificationPermissionRequest
 import fyi.blep.ui.rememberNotificationsEnabled
@@ -109,6 +111,7 @@ fun SettingsScreen(
     onSelectTheme: (ThemeMode) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    buildInfo: BuildInfo? = null,
 ) {
     // Ask for the notification permission when background scanning is switched on.
     val requestNotifications = rememberNotificationPermissionRequest()
@@ -229,6 +232,11 @@ fun SettingsScreen(
                 intervalMinutes = intervalMinutes,
                 onIntervalChange = onIntervalChange,
             )
+            Spacer(Modifier.height(20.dp))
+            // Build identity, tap → prefilled GitHub issue. Hidden on iOS/Wear (null).
+            buildInfo?.let {
+                VersionStamp(it, Modifier.align(Alignment.CenterHorizontally))
+            }
             Spacer(Modifier.height(16.dp))
         }
     }

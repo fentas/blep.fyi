@@ -15,6 +15,7 @@
     <string name="discovery_hint">Make sure the device is powered on and nearby.</string>
     <string name="avail_bluetooth_off">Turn on Bluetooth to scan</string>
     <string name="avail_permission">Allow Bluetooth access to scan</string>
+    <string name="avail_permission_blocked">Bluetooth access blocked — tap to open settings</string>
     <string name="avail_location_off">Turn on Location to scan (Android)</string>
     <string name="avail_unsupported">Bluetooth LE isn't supported on this device</string>
     <string name="rename_title">Rename device</string>

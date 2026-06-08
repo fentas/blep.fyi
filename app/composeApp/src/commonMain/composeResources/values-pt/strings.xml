@@ -12,6 +12,7 @@
     <string name="discovery_hint">Verifica se o dispositivo está ligado e por perto.</string>
     <string name="avail_bluetooth_off">Ativa o Bluetooth para procurar</string>
     <string name="avail_permission">Permite o acesso ao Bluetooth para procurar</string>
+    <string name="avail_permission_blocked">Acesso ao Bluetooth bloqueado — toque para abrir as definições</string>
     <string name="avail_location_off">Ativa a localização para procurar (Android)</string>
     <string name="avail_unsupported">O Bluetooth LE não é suportado neste dispositivo</string>
     <string name="rename_title">Renomear dispositivo</string>

@@ -12,6 +12,7 @@
     <string name="discovery_hint">Poskrbi, da je naprava vklopljena in v bližini.</string>
     <string name="avail_bluetooth_off">Vklopi Bluetooth za iskanje</string>
     <string name="avail_permission">Dovoli dostop do Bluetootha za iskanje</string>
+    <string name="avail_permission_blocked">Dostop do Bluetootha je blokiran – tapnite za odpiranje nastavitev</string>
     <string name="avail_location_off">Vklopi lokacijo za iskanje (Android)</string>
     <string name="avail_unsupported">Bluetooth LE na tej napravi ni podprt</string>
     <string name="rename_title">Preimenuj napravo</string>

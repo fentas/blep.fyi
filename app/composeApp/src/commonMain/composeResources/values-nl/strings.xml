@@ -12,6 +12,7 @@
     <string name="discovery_hint">Zorg dat het apparaat aanstaat en in de buurt is.</string>
     <string name="avail_bluetooth_off">Zet Bluetooth aan om te scannen</string>
     <string name="avail_permission">Sta Bluetooth-toegang toe om te scannen</string>
+    <string name="avail_permission_blocked">Bluetooth-toegang geblokkeerd — tik om instellingen te openen</string>
     <string name="avail_location_off">Zet Locatie aan om te scannen (Android)</string>
     <string name="avail_unsupported">Bluetooth LE wordt niet ondersteund op dit apparaat</string>
     <string name="rename_title">Apparaat hernoemen</string>
