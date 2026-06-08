@@ -66,6 +66,7 @@
     <string name="tracking_out_of_range">Out of range, or off</string>
     <string name="tracking_right_here">It's right here</string>
     <string name="tracking_right_here_detail">Within arm's reach — check pockets, bags and under things.</string>
+    <string name="tracking_db_hint">Signal strength — sweep slowly; it peaks right over it.</string>
     <string name="tracking_last_heard">· last heard %1$ds ago</string>
     <string name="tracking_no_signal_lc">no signal</string>
     <string name="tracking_scanning">scanning…</string>

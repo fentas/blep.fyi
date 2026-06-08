@@ -55,6 +55,7 @@
     <string name="tracking_out_of_range">Εκτός εμβέλειας ή κλειστό</string>
     <string name="tracking_right_here">Είναι ακριβώς εδώ</string>
     <string name="tracking_right_here_detail">Σε απόσταση χεριού — έλεγξε τσέπες, τσάντες και κάτω από αντικείμενα.</string>
+    <string name="tracking_db_hint">Ισχύς σήματος — σάρωσε αργά· κορυφώνεται ακριβώς από πάνω.</string>
     <string name="tracking_last_heard">· τελευταία ακούστηκε πριν %1$ds</string>
     <string name="tracking_no_signal_lc">χωρίς σήμα</string>
     <string name="tracking_scanning">σάρωση…</string>

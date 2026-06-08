@@ -55,6 +55,7 @@
     <string name="tracking_out_of_range">Izvan dometa ili isključeno</string>
     <string name="tracking_right_here">Tu je, nadohvat ruke</string>
     <string name="tracking_right_here_detail">Na dohvat ruke — provjeri džepove, torbe i ispod stvari.</string>
+    <string name="tracking_db_hint">Jačina signala — polako pomiči; najjači točno iznad njega.</string>
     <string name="tracking_last_heard">· zadnji put čuto prije %1$ds</string>
     <string name="tracking_no_signal_lc">nema signala</string>
     <string name="tracking_scanning">tražim…</string>

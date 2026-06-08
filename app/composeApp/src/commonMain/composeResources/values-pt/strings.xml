@@ -55,6 +55,7 @@
     <string name="tracking_out_of_range">Fora de alcance ou desligado</string>
     <string name="tracking_right_here">Está mesmo aqui</string>
     <string name="tracking_right_here_detail">Ao alcance da mão — vê nos bolsos, sacos e debaixo das coisas.</string>
+    <string name="tracking_db_hint">Força do sinal — move devagar; mais forte mesmo por cima.</string>
     <string name="tracking_last_heard">· ouvido pela última vez há %1$ds</string>
     <string name="tracking_no_signal_lc">sem sinal</string>
     <string name="tracking_scanning">a procurar…</string>

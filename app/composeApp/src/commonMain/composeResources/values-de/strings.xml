@@ -55,6 +55,7 @@
     <string name="tracking_out_of_range">Außer Reichweite oder aus</string>
     <string name="tracking_right_here">Es ist direkt hier</string>
     <string name="tracking_right_here_detail">In Reichweite — sieh in Taschen, Beuteln und unter Dingen nach.</string>
+    <string name="tracking_db_hint">Signalstärke — langsam schwenken; am stärksten direkt darüber.</string>
     <string name="tracking_last_heard">· zuletzt vor %1$ds gehört</string>
     <string name="tracking_no_signal_lc">kein Signal</string>
     <string name="tracking_scanning">suche …</string>

@@ -7,6 +7,7 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -37,6 +38,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -100,6 +102,7 @@ import fyi.blep.resources.line_turn_to_signal
 import fyi.blep.resources.line_turn_warmer
 import fyi.blep.resources.sound_off
 import fyi.blep.resources.sound_on
+import fyi.blep.resources.tracking_db_hint
 import fyi.blep.resources.tracking_field_clean
 import fyi.blep.resources.tracking_field_noisy
 import fyi.blep.resources.tracking_field_suffix
@@ -260,13 +263,43 @@ fun TrackingScreen(
             "  " + stringResource(Res.string.tracking_field_suffix, tag, (v * 10).roundToInt() / 10.0)
         }
         val noSignalLc = stringResource(Res.string.tracking_no_signal_lc)
-        Text(
-            text = if (signalLost) noSignalLc else rssiText + (fieldSuffix ?: ""),
-            style = MaterialTheme.typography.labelLarge,
-            color = ink.copy(alpha = 0.55f),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 12.dp),
-        )
+        // At point-blank the radar is useless but the live dB still pinpoints — bring
+        // it into focus (it scales up + brightens) with a quiet explainer, so you can
+        // sweep the phone over the exact spot and watch it peak. Otherwise the dB sits
+        // quietly in the footer with the field-quality note.
+        val dbFocus by animateFloatAsState(if (onIt) 1f else 0f, tween(450), label = "dbFocus")
+        if (onIt && rssi != null) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+                modifier = Modifier.padding(top = 10.dp),
+            ) {
+                Text(
+                    stringResource(Res.string.dbm, rssi),
+                    style = MaterialTheme.typography.displaySmall,
+                    color = ink,
+                    modifier = Modifier.graphicsLayer {
+                        val s = 0.8f + 0.2f * dbFocus
+                        scaleX = s; scaleY = s
+                        alpha = 0.35f + 0.65f * dbFocus
+                    },
+                )
+                Text(
+                    stringResource(Res.string.tracking_db_hint),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = ink.copy(alpha = 0.5f * dbFocus),
+                    textAlign = TextAlign.Center,
+                )
+            }
+        } else {
+            Text(
+                text = if (signalLost) noSignalLc else rssiText + (fieldSuffix ?: ""),
+                style = MaterialTheme.typography.labelLarge,
+                color = ink.copy(alpha = 0.55f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 12.dp),
+            )
+        }
 
         Text(
             text = stringResource(Res.string.action_cancel),
