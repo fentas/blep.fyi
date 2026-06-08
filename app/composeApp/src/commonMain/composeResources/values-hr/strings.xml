@@ -205,7 +205,7 @@
     <string name="detail_addr_stable">Stalna adresa — uređaj zadržava isti id.</string>
     <string name="detail_addr_rotating">Privatna, promjenjiva adresa — povremeno mijenja id radi privatnosti.</string>
     <string name="detail_addr_opaque">Neprozirni id — sustav skriva hardversku adresu.</string>
-    <string name="detail_rotated">Promijenio id %1$d× · %2$d%% sigurno</string>
+    <string name="detail_rotated">Promijenio id %1$d× · %2$s sigurno</string>
     <string name="detail_rotated_contested">Možda promijenio id %1$d× — dijeli neriješeno podudaranje u blizini</string>
     <string name="detail_no_rotation">Još nema promjene id-a.</string>
     <string name="detail_first_seen">Prvi put viđeno prije %1$s</string>

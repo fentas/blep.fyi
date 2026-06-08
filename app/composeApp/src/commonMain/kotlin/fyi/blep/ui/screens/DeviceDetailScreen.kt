@@ -59,7 +59,6 @@ import fyi.blep.resources.detail_flagged
 import fyi.blep.resources.detail_first_seen
 import fyi.blep.resources.detail_history
 import fyi.blep.resources.detail_identifier
-import fyi.blep.resources.detail_identity
 import fyi.blep.resources.detail_no_rotation
 import fyi.blep.resources.detail_rotated
 import fyi.blep.resources.detail_rotated_contested
@@ -120,18 +119,30 @@ fun DeviceDetailScreen(
 
         // Scrollable content; the actions stay pinned at the bottom.
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+            // Signal + connection status.
             Section(stringResource(Res.string.detail_signal)) {
-                val signal = when {
-                    !device.rssiUnknown -> stringResource(Res.string.dbm, device.rssi)
-                    device.isConnected -> stringResource(Res.string.status_connected)
-                    else -> stringResource(Res.string.status_paired)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val signal = when {
+                        !device.rssiUnknown -> stringResource(Res.string.dbm, device.rssi)
+                        device.isConnected -> stringResource(Res.string.status_connected)
+                        else -> stringResource(Res.string.status_paired)
+                    }
+                    Text(signal, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
+                    val status = when {
+                        device.isConnected -> stringResource(Res.string.status_connected)
+                        device.isPaired -> stringResource(Res.string.status_paired)
+                        else -> null
+                    }
+                    if (!device.rssiUnknown && status != null) {
+                        Spacer(Modifier.width(10.dp))
+                        Text("· $status", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
+                    }
                 }
-                Text(signal, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
             }
             Spacer(Modifier.height(12.dp))
 
-            Section(stringResource(Res.string.detail_identity)) {
-                Label(stringResource(Res.string.detail_identifier))
+            // Identifier — the id itself + what it tells us. (No redundant "Identity" header.)
+            Section(stringResource(Res.string.detail_identifier)) {
                 Text(device.id, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
                 Spacer(Modifier.height(8.dp))
                 val addressNote = when (addressKind(device.id)) {
@@ -140,6 +151,19 @@ fun DeviceDetailScreen(
                     AddressKind.OPAQUE -> stringResource(Res.string.detail_addr_opaque)
                 }
                 Text(addressNote, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
+            }
+            Spacer(Modifier.height(12.dp))
+
+            // History — id changes the correlator stitched together, first-seen, the
+            // ids it has worn, and (if any) the contested fork: ids it might also be.
+            Section(stringResource(Res.string.detail_history)) {
+                val rotated = rotation != null && rotation.rotations > 0
+                val summary = when {
+                    !rotated -> stringResource(Res.string.detail_no_rotation)
+                    rotation!!.contested -> stringResource(Res.string.detail_rotated_contested, rotation.rotations)
+                    else -> stringResource(Res.string.detail_rotated, rotation.rotations, "${(rotation.confidence * 100).roundToInt()}%")
+                }
+                Text(summary, style = MaterialTheme.typography.bodyMedium, color = if (rotation?.contested == true) BlepColors.Pink else MaterialTheme.colorScheme.onBackground)
                 if (firstSeenAgoMs != null) {
                     Spacer(Modifier.height(8.dp))
                     Text(
@@ -148,39 +172,17 @@ fun DeviceDetailScreen(
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
                     )
                 }
-                if (rotation == null || rotation.rotations == 0) {
+                if (rotated && wornIds.size > 1) {
                     Spacer(Modifier.height(8.dp))
-                    Text(
-                        stringResource(Res.string.detail_no_rotation),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
-                    )
+                    wornIds.forEach {
+                        Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
+                    }
                 }
-            }
-
-            // History — the id changes the correlator stitched together, with the
-            // contested fork (if any) shown plainly: the ids this might also be.
-            if (rotation != null && rotation.rotations > 0) {
-                Spacer(Modifier.height(12.dp))
-                Section(stringResource(Res.string.detail_history)) {
-                    val summary = if (rotation.contested) {
-                        stringResource(Res.string.detail_rotated_contested, rotation.rotations)
-                    } else {
-                        stringResource(Res.string.detail_rotated, rotation.rotations, (rotation.confidence * 100).roundToInt())
-                    }
-                    Text(summary, style = MaterialTheme.typography.bodyMedium, color = if (rotation.contested) BlepColors.Pink else MaterialTheme.colorScheme.onBackground)
-                    if (wornIds.size > 1) {
-                        Spacer(Modifier.height(8.dp))
-                        wornIds.forEach {
-                            Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
-                        }
-                    }
-                    if (rotation.contested && rotation.alternatives.isNotEmpty()) {
-                        Spacer(Modifier.height(8.dp))
-                        Text(stringResource(Res.string.detail_alt), style = MaterialTheme.typography.labelLarge, color = BlepColors.Pink)
-                        rotation.alternatives.forEach {
-                            Text(it, style = MaterialTheme.typography.labelMedium, color = BlepColors.Pink.copy(alpha = 0.8f))
-                        }
+                if (rotation?.contested == true && rotation.alternatives.isNotEmpty()) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(stringResource(Res.string.detail_alt), style = MaterialTheme.typography.labelLarge, color = BlepColors.Pink)
+                    rotation.alternatives.forEach {
+                        Text(it, style = MaterialTheme.typography.labelMedium, color = BlepColors.Pink.copy(alpha = 0.8f))
                     }
                 }
             }

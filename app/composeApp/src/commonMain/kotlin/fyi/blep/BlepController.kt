@@ -315,20 +315,41 @@ class BlepController(
     fun openDeviceDetail(device: BleDevice) { screen = Screen.DeviceDetail(device) }
 
     /** Rotation/identity-churn stats for a device id, or null if uncorrelated yet. */
-    fun rotationStats(id: String): RotationStats? = rotationTracker.statsFor(id)
+    fun rotationStats(id: String): RotationStats? = demoIdentity[id]?.stats ?: rotationTracker.statsFor(id)
 
     /** How long ago this device was first seen (ms), carried across its id rotations.
      *  Prefers the persisted first-seen (stable — survives the live track ageing out and
      *  app restarts); falls back to the live track only until the first identity sync. */
     fun rotationFirstSeenAgoMs(id: String): Long? {
+        demoIdentity[id]?.let { return it.firstSeenAgoMs }
         identityStore.firstSeenOf(id)?.let { return epochMillis() - it }
         return rotationTracker.statsFor(id)?.let { rotationClock.elapsedNow().inWholeMilliseconds - it.firstSeenMs }
+    }
+
+    // ── demo: a pre-seeded rotating tracker so the detail panel shows the identity
+    // features (id-change history, rename) without waiting for real rotations ──
+    private class DemoIdentity(val stats: RotationStats, val worn: List<String>, val firstSeenAgoMs: Long)
+    private val demoIdentity = mutableMapOf<String, DemoIdentity>()
+
+    /** Demo only: seed the showcase tracker's rotation history + rename. */
+    fun seedDemoIdentity() {
+        val cur = "C4:2A:1B:90:EF:01"
+        val worn = listOf("C4:2A:1B:11:00:01", "C4:2A:1B:35:00:02", "C4:2A:1B:7E:00:03", cur)
+        demoIdentity[cur] = DemoIdentity(
+            stats = RotationStats(address = cur, rssi = -62, firstSeenMs = 0, lastSeenMs = 0, rotations = 3, addressesSeen = 4, confidence = 0.92),
+            worn = worn,
+            firstSeenAgoMs = 57 * 60_000L,
+        )
+        aliases[cur] = "Bag tag" // a rename that follows the rotation
+        devices = devices.map { if (it.id == cur) it.copy(alias = "Bag tag") else it }
     }
 
     /** The ids this device has worn (its rotation lineage), current id last. For the
      *  detail page's history list. Empty when there's nothing correlated. */
     fun deviceHistory(id: String): List<String> =
-        rotationTracker.identityFor(id)?.addresses?.let { (it - id).sorted() + id } ?: listOf(id)
+        demoIdentity[id]?.worn
+            ?: rotationTracker.identityFor(id)?.addresses?.let { (it - id).sorted() + id }
+            ?: listOf(id)
 
     // ── identity: rename/flag follow a device across its rotating addresses ──────
     // Resolved across the persisted identity's address set, so a label saved under one

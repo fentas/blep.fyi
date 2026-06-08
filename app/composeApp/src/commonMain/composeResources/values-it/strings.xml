@@ -205,7 +205,7 @@
     <string name="detail_addr_stable">Indirizzo fisso — questo dispositivo mantiene lo stesso id.</string>
     <string name="detail_addr_rotating">Indirizzo privato e rotante — cambia id periodicamente per privacy.</string>
     <string name="detail_addr_opaque">Id opaco — il sistema nasconde l'indirizzo hardware.</string>
-    <string name="detail_rotated">Id cambiato %1$d× · %2$d%% sicuro</string>
+    <string name="detail_rotated">Id cambiato %1$d× · %2$s sicuro</string>
     <string name="detail_rotated_contested">Forse id cambiato %1$d× — condivide una corrispondenza irrisolta vicino</string>
     <string name="detail_no_rotation">Nessun cambio di id finora.</string>
     <string name="detail_first_seen">Visto per la prima volta %1$s fa</string>

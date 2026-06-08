@@ -206,7 +206,7 @@
     <string name="detail_addr_stable">固定地址 — 此设备保持相同的 id。</string>
     <string name="detail_addr_rotating">私密的轮换地址 — 为保护隐私定期更换 id。</string>
     <string name="detail_addr_opaque">不透明 id — 系统隐藏了硬件地址。</string>
-    <string name="detail_rotated">id 已更换 %1$d× · 把握 %2$d%%</string>
+    <string name="detail_rotated">id 已更换 %1$d× · 把握 %2$s</string>
     <string name="detail_rotated_contested">id 可能更换了 %1$d× — 与附近一个未确定的匹配共享</string>
     <string name="detail_no_rotation">尚未发现 id 更换。</string>
     <string name="detail_first_seen">首次发现于 %1$s前</string>

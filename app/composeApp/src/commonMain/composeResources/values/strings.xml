@@ -230,7 +230,7 @@
     <string name="detail_addr_stable">Stable address — this device keeps the same id.</string>
     <string name="detail_addr_rotating">Private, rotating address — it changes id periodically for privacy.</string>
     <string name="detail_addr_opaque">Opaque id — the system hides the hardware address.</string>
-    <string name="detail_rotated">Changed id %1$d× · %2$d%% sure</string>
+    <string name="detail_rotated">Changed id %1$d× · %2$s sure</string>
     <string name="detail_rotated_contested">Maybe changed id %1$d× — shares an unresolved match nearby</string>
     <string name="detail_no_rotation">No id change seen yet.</string>
     <string name="detail_first_seen">First seen %1$s ago</string>

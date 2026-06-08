@@ -206,7 +206,7 @@
     <string name="detail_addr_stable">Feste Adresse — dieses Gerät behält dieselbe ID.</string>
     <string name="detail_addr_rotating">Private, wechselnde Adresse — sie ändert die ID regelmäßig zum Schutz der Privatsphäre.</string>
     <string name="detail_addr_opaque">Undurchsichtige ID — das System verbirgt die Hardware-Adresse.</string>
-    <string name="detail_rotated">ID %1$d× gewechselt · %2$d%% sicher</string>
+    <string name="detail_rotated">ID %1$d× gewechselt · %2$s sicher</string>
     <string name="detail_rotated_contested">ID evtl. %1$d× gewechselt — teilt eine ungeklärte Übereinstimmung in der Nähe</string>
     <string name="detail_no_rotation">Noch kein ID-Wechsel beobachtet.</string>
     <string name="detail_first_seen">Zuerst gesehen vor %1$s</string>

@@ -205,7 +205,7 @@
     <string name="detail_addr_stable">Σταθερή διεύθυνση — η συσκευή κρατά το ίδιο id.</string>
     <string name="detail_addr_rotating">Ιδιωτική, εναλλασσόμενη διεύθυνση — αλλάζει id περιοδικά για ιδιωτικότητα.</string>
     <string name="detail_addr_opaque">Αδιαφανές id — το σύστημα κρύβει τη διεύθυνση υλικού.</string>
-    <string name="detail_rotated">Άλλαξε id %1$d× · %2$d%% σιγουριά</string>
+    <string name="detail_rotated">Άλλαξε id %1$d× · %2$s σιγουριά</string>
     <string name="detail_rotated_contested">Ίσως άλλαξε id %1$d× — μοιράζεται μια ανεπίλυτη αντιστοίχιση κοντά</string>
     <string name="detail_no_rotation">Καμία αλλαγή id ακόμη.</string>
     <string name="detail_first_seen">Πρώτη εμφάνιση πριν από %1$s</string>

@@ -121,7 +121,7 @@ capture_set() { local raw="$1"
   adb shell input tap 420 460; sleep 8; adb exec-out screencap -p > "$raw/05.png"
   # 07: a device's detail panel — open the first device's "›" (identity, rename, watch).
   adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
-  adb shell input tap 950 765; sleep 2; adb exec-out screencap -p > "$raw/07.png"
+  adb shell input tap 950 784; sleep 2; adb exec-out screencap -p > "$raw/07.png"
   # 06: dark theme — the app follows the system, so flip night mode and show the
   # discovery list in dark.
   adb shell cmd uimode night yes >/dev/null 2>&1

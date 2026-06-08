@@ -205,7 +205,7 @@
     <string name="detail_addr_stable">Stalni naslov — ta naprava ohranja isti id.</string>
     <string name="detail_addr_rotating">Zasebni, spreminjajoči naslov — občasno spremeni id zaradi zasebnosti.</string>
     <string name="detail_addr_opaque">Nepregleden id — sistem skrije strojni naslov.</string>
-    <string name="detail_rotated">Zamenjal id %1$d× · %2$d%% gotovo</string>
+    <string name="detail_rotated">Zamenjal id %1$d× · %2$s gotovo</string>
     <string name="detail_rotated_contested">Morda zamenjal id %1$d× — deli nerazrešeno ujemanje v bližini</string>
     <string name="detail_no_rotation">Sprememba id-ja še ni opažena.</string>
     <string name="detail_first_seen">Prvič opaženo pred %1$s</string>

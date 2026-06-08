@@ -42,7 +42,7 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
             // fast thresholds so the demo safety scan escalates within seconds
             safetyTuning = TrackerTuning(nearbyMs = 1_000, followingMs = 6_000, rotationMinDistinct = 3, bucketMs = 4_000),
             skipOnboarding = true, // screenshots/demo jump straight to discovery
-        )
+        ).also { it.seedDemoIdentity() }
         else BlepController(createBleScanner(), scope)
     }
     val dark = when (controller.themeMode) {

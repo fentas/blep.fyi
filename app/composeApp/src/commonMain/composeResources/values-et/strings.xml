@@ -205,7 +205,7 @@
     <string name="detail_addr_stable">Püsiv aadress — see seade hoiab sama id-d.</string>
     <string name="detail_addr_rotating">Privaatne, vahelduv aadress — muudab id-d perioodiliselt privaatsuse huvides.</string>
     <string name="detail_addr_opaque">Läbipaistmatu id — süsteem peidab riistvara aadressi.</string>
-    <string name="detail_rotated">Muutis id-d %1$d× · %2$d%% kindel</string>
+    <string name="detail_rotated">Muutis id-d %1$d× · %2$s kindel</string>
     <string name="detail_rotated_contested">Võib-olla muutis id-d %1$d× — jagab lähedal lahendamata vastet</string>
     <string name="detail_no_rotation">Id muutust pole veel nähtud.</string>
     <string name="detail_first_seen">Esmakordselt nähtud %1$s tagasi</string>

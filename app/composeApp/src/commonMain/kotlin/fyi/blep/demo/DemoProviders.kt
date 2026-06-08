@@ -26,6 +26,9 @@ import kotlin.time.TimeSource
 private const val DEMO_TOTAL = 20.0
 
 private val DEMO_DEVICES = listOf(
+    // A rotating private-address tracker the user renamed — its id-change history is
+    // seeded by BlepController.seedDemoIdentity so the detail panel showcases identity.
+    BleDevice(id = "C4:2A:1B:90:EF:01", name = "Unknown tracker", rssi = -54),
     BleDevice(id = "keys", name = "Keys", rssi = -58),
     BleDevice(id = "buds", name = "AirPods Pro", rssi = -71),
     BleDevice(id = "watch", name = "Galaxy Watch", rssi = -64, isPaired = true),
