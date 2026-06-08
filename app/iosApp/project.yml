@@ -4,7 +4,10 @@ name: iosApp
 options:
   bundleIdPrefix: fyi.blep
   deploymentTarget:
-    iOS: "15.0"
+    # Compose Multiplatform 1.11's framework (built against the iOS 18.x SDK)
+    # hard-references recent UIKit APIs (e.g. UIViewLayoutRegion), so the app must
+    # deploy to a matching floor or it fails to link. 17 is CMP's effective minimum.
+    iOS: "17.0"
   createIntermediateGroups: true
 
 targets:
