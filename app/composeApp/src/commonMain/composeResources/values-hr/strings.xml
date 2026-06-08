@@ -142,6 +142,8 @@
     <string name="settings_connected_signal_desc">Ispitaj povezane uređaje putem GATT-a za prikaz crtica uživo. Troši više baterije.</string>
     <string name="settings_sound_title">Zvuk traženja</string>
     <string name="settings_sound_desc">Reproduciraj zvuk tijekom traženja.</string>
+    <string name="settings_haptics_title">Vibracija</string>
+    <string name="settings_haptics_desc">Vibrira kako se približavaš — i kad ga pronađeš.</string>
     <string name="settings_unnamed_title">Prikaži neimenovane uređaje</string>
     <string name="settings_unnamed_desc">Uključi uređaje koji ne objavljuju ime.</string>
     <string name="settings_remember_title">Zapamti pratitelje između sesija</string>

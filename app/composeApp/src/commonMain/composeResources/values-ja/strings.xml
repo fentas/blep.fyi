@@ -142,6 +142,8 @@
     <string name="settings_connected_signal_desc">接続中のデバイスを GATT で問い合わせ、信号バーを表示します。電池を多く消費します。</string>
     <string name="settings_sound_title">探索サウンド</string>
     <string name="settings_sound_desc">探索中に音を鳴らします。</string>
+    <string name="settings_haptics_title">バイブレーション</string>
+    <string name="settings_haptics_desc">近づくほど振動し、見つけたときにも振動します。</string>
     <string name="settings_unnamed_title">名前のないデバイスを表示</string>
     <string name="settings_unnamed_desc">名前を広告しないデバイスも含めます。</string>
     <string name="settings_remember_title">セッションをまたいでトラッカーを記憶</string>

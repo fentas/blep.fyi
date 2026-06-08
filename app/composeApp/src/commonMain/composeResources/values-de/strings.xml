@@ -142,6 +142,8 @@
     <string name="settings_connected_signal_desc">Verbundene Geräte per GATT abfragen, um Live-Balken zu zeigen. Mehr Akkuverbrauch.</string>
     <string name="settings_sound_title">Suchton</string>
     <string name="settings_sound_desc">Den hörbaren Ton während der Suche abspielen.</string>
+    <string name="settings_haptics_title">Vibration</string>
+    <string name="settings_haptics_desc">Vibriert, je näher du kommst – und beim Fund.</string>
     <string name="settings_unnamed_title">Unbenannte Geräte zeigen</string>
     <string name="settings_unnamed_desc">Auch Geräte ohne angekündigten Namen einbeziehen.</string>
     <string name="settings_remember_title">Tracker sitzungsübergreifend merken</string>

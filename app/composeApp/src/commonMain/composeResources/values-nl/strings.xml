@@ -142,6 +142,8 @@
     <string name="settings_connected_signal_desc">Verbonden apparaten via GATT uitlezen voor live balkjes. Kost meer batterij.</string>
     <string name="settings_sound_title">Zoekgeluid</string>
     <string name="settings_sound_desc">Speel het hoorbare geluid tijdens het zoeken.</string>
+    <string name="settings_haptics_title">Trillen</string>
+    <string name="settings_haptics_desc">Trilt naarmate je dichterbij komt — en zodra je het vindt.</string>
     <string name="settings_unnamed_title">Naamloze apparaten tonen</string>
     <string name="settings_unnamed_desc">Ook apparaten zonder aangekondigde naam tonen.</string>
     <string name="settings_remember_title">Trackers onthouden tussen sessies</string>

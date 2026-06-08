@@ -142,6 +142,8 @@
     <string name="settings_connected_signal_desc">Consultar dispositivos ligados via GATT para mostrar barras ao vivo. Gasta mais bateria.</string>
     <string name="settings_sound_title">Som de procura</string>
     <string name="settings_sound_desc">Reproduzir o som durante a procura.</string>
+    <string name="settings_haptics_title">Vibração</string>
+    <string name="settings_haptics_desc">Vibra à medida que te aproximas, e ao encontrá-lo.</string>
     <string name="settings_unnamed_title">Mostrar dispositivos sem nome</string>
     <string name="settings_unnamed_desc">Incluir dispositivos que não anunciam um nome.</string>
     <string name="settings_remember_title">Lembrar rastreadores entre sessões</string>

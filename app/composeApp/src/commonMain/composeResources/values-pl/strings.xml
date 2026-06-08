@@ -142,6 +142,8 @@
     <string name="settings_connected_signal_desc">Odpytuj połączone urządzenia przez GATT, aby pokazać paski na żywo. Zużywa więcej baterii.</string>
     <string name="settings_sound_title">Dźwięk wyszukiwania</string>
     <string name="settings_sound_desc">Odtwarzaj dźwięk podczas wyszukiwania.</string>
+    <string name="settings_haptics_title">Wibracje</string>
+    <string name="settings_haptics_desc">Wibruje, gdy się zbliżasz — i gdy go znajdziesz.</string>
     <string name="settings_unnamed_title">Pokaż urządzenia bez nazwy</string>
     <string name="settings_unnamed_desc">Uwzględnij urządzenia, które nie rozgłaszają nazwy.</string>
     <string name="settings_remember_title">Pamiętaj lokalizatory między sesjami</string>

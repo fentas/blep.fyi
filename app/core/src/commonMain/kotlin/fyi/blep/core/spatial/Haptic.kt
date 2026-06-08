@@ -15,6 +15,9 @@ interface Haptic {
     /** Mute/unmute just the audible tone (haptic vibration is unaffected). */
     fun setSoundEnabled(enabled: Boolean)
 
+    /** Enable/disable just the vibration (the audible tone is unaffected). */
+    fun setVibrationEnabled(enabled: Boolean)
+
     /** Release any audio/vibrator resources. */
     fun release()
 }
@@ -27,5 +30,6 @@ object NoHaptic : Haptic {
     override fun pulse(intensity: Float) {}
     override fun success() {}
     override fun setSoundEnabled(enabled: Boolean) {}
+    override fun setVibrationEnabled(enabled: Boolean) {}
     override fun release() {}
 }

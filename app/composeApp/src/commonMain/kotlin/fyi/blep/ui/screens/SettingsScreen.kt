@@ -68,6 +68,8 @@ import fyi.blep.resources.settings_location_title
 import fyi.blep.resources.settings_section_background
 import fyi.blep.resources.settings_remember_desc
 import fyi.blep.resources.settings_remember_title
+import fyi.blep.resources.settings_haptics_desc
+import fyi.blep.resources.settings_haptics_title
 import fyi.blep.resources.settings_sound_desc
 import fyi.blep.resources.settings_sound_title
 import fyi.blep.resources.settings_title
@@ -87,6 +89,8 @@ fun SettingsScreen(
     onToggleConnectedSignal: (Boolean) -> Unit,
     soundOn: Boolean,
     onToggleSound: (Boolean) -> Unit,
+    hapticsOn: Boolean,
+    onToggleHaptics: (Boolean) -> Unit,
     showUnnamed: Boolean,
     onToggleUnnamed: (Boolean) -> Unit,
     rememberTrackers: Boolean,
@@ -157,6 +161,12 @@ fun SettingsScreen(
                 desc = stringResource(Res.string.settings_sound_desc),
                 checked = soundOn,
                 onToggle = onToggleSound,
+            )
+            SettingRow(
+                title = stringResource(Res.string.settings_haptics_title),
+                desc = stringResource(Res.string.settings_haptics_desc),
+                checked = hapticsOn,
+                onToggle = onToggleHaptics,
             )
             SettingRow(
                 title = stringResource(Res.string.settings_unnamed_title),

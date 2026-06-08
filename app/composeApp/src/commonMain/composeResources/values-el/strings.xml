@@ -142,6 +142,8 @@
     <string name="settings_connected_signal_desc">Ερώτηση συνδεδεμένων συσκευών μέσω GATT για ζωντανές μπάρες. Καταναλώνει περισσότερη μπαταρία.</string>
     <string name="settings_sound_title">Ήχος αναζήτησης</string>
     <string name="settings_sound_desc">Αναπαραγωγή του ήχου κατά την αναζήτηση.</string>
+    <string name="settings_haptics_title">Δόνηση</string>
+    <string name="settings_haptics_desc">Δονείται όσο πλησιάζεις — και μόλις το βρεις.</string>
     <string name="settings_unnamed_title">Εμφάνιση ανώνυμων συσκευών</string>
     <string name="settings_unnamed_desc">Συμπερίληψη συσκευών που δεν διαφημίζουν όνομα.</string>
     <string name="settings_remember_title">Απομνημόνευση ιχνηλατών μεταξύ συνεδριών</string>

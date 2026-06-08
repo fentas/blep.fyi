@@ -142,6 +142,8 @@
     <string name="settings_connected_signal_desc">Interroger les appareils connectés via GATT pour afficher des barres en direct. Consomme plus de batterie.</string>
     <string name="settings_sound_title">Son de recherche</string>
     <string name="settings_sound_desc">Jouer le son pendant la recherche.</string>
+    <string name="settings_haptics_title">Vibration</string>
+    <string name="settings_haptics_desc">Vibre à mesure que tu t'approches, et à la découverte.</string>
     <string name="settings_unnamed_title">Afficher les appareils sans nom</string>
     <string name="settings_unnamed_desc">Inclure les appareils qui n'annoncent pas de nom.</string>
     <string name="settings_remember_title">Mémoriser les traceurs entre les sessions</string>

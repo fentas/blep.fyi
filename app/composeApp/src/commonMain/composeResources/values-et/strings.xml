@@ -142,6 +142,8 @@
     <string name="settings_connected_signal_desc">Päri ühendatud seadmeid GATT kaudu, et näidata reaalajas ribasid. Kulutab rohkem akut.</string>
     <string name="settings_sound_title">Otsinguheli</string>
     <string name="settings_sound_desc">Esita heli otsimise ajal.</string>
+    <string name="settings_haptics_title">Vibratsioon</string>
+    <string name="settings_haptics_desc">Väriseb, kui lähened — ja leidmise hetkel.</string>
     <string name="settings_unnamed_title">Näita nimeta seadmeid</string>
     <string name="settings_unnamed_desc">Kaasa seadmed, mis ei avalda nime.</string>
     <string name="settings_remember_title">Jäta jälitajad seansside vahel meelde</string>

@@ -104,8 +104,11 @@ class BlepController(
      *  reactive in noisy ones). Null until guidance is confident. */
     var guidance by mutableStateOf<GuidanceLine?>(null)
         private set
-    /** Whether the audible tracking tone is on (haptics stay regardless). */
+    /** Whether the audible tracking tone is on. */
     var soundOn by mutableStateOf(settings.trackingSound())
+        private set
+    /** Whether vibration feedback during tracking is on. */
+    var hapticsOn by mutableStateOf(settings.haptics())
         private set
     /** Range connected devices via GATT so they show a live signal in the list
      *  (they don't advertise). Persisted; default on. */
@@ -194,6 +197,7 @@ class BlepController(
 
     init {
         haptic.setSoundEnabled(soundOn) // apply the persisted sound preference
+        haptic.setVibrationEnabled(hapticsOn) // …and the haptics preference
         BackgroundScan.applyPeriodic(backgroundScanEnabled, scanIntervalMinutes)
         // Authoritative availability: the platform scanner proactively reports
         // adapter/permission state, so the banner reflects the real reason (and
@@ -267,11 +271,18 @@ class BlepController(
         settings.setShowUnnamed(includeUnnamed)
     }
 
-    /** Mute/unmute the audible tracking tone (the Geiger tick); haptics stay on. */
+    /** Mute/unmute the audible tracking tone (the Geiger tick). */
     fun toggleSound() {
         soundOn = !soundOn
         haptic.setSoundEnabled(soundOn)
         settings.setTrackingSound(soundOn)
+    }
+
+    /** Enable/disable tracking vibration feedback (persisted). */
+    fun toggleHaptics() {
+        hapticsOn = !hapticsOn
+        haptic.setVibrationEnabled(hapticsOn)
+        settings.setHaptics(hapticsOn)
     }
 
     fun openSettings() { screen = Screen.Settings }

@@ -24,8 +24,12 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
     fun measureConnectedSignal(): Boolean = store.getBoolean(KEY_CONN_SIGNAL, true)
     fun setMeasureConnectedSignal(on: Boolean) = store.putBoolean(KEY_CONN_SIGNAL, on)
 
-    fun trackingSound(): Boolean = store.getBoolean(KEY_SOUND, true)
+    fun trackingSound(): Boolean = store.getBoolean(KEY_SOUND, false)
     fun setTrackingSound(on: Boolean) = store.putBoolean(KEY_SOUND, on)
+
+    /** Vibration feedback during tracking (the proximity "Geiger" pulse + success). */
+    fun haptics(): Boolean = store.getBoolean(KEY_HAPTICS, true)
+    fun setHaptics(on: Boolean) = store.putBoolean(KEY_HAPTICS, on)
 
     fun showUnnamed(): Boolean = store.getBoolean(KEY_UNNAMED, false)
     fun setShowUnnamed(on: Boolean) = store.putBoolean(KEY_UNNAMED, on)
@@ -69,6 +73,7 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
 
         private const val KEY_CONN_SIGNAL = "settings.connectedSignal"
         private const val KEY_SOUND = "settings.trackingSound"
+        private const val KEY_HAPTICS = "settings.haptics"
         private const val KEY_UNNAMED = "settings.showUnnamed"
         private const val KEY_FG = "settings.foregroundScan"
         private const val KEY_BG = "settings.backgroundScan"

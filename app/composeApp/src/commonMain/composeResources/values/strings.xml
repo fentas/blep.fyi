@@ -159,6 +159,8 @@
     <string name="settings_connected_signal_desc">Range connected devices over GATT to show live bars. Uses more battery.</string>
     <string name="settings_sound_title">Tracking sound</string>
     <string name="settings_sound_desc">Play the audible tone while hunting.</string>
+    <string name="settings_haptics_title">Vibration</string>
+    <string name="settings_haptics_desc">Buzz as you get closer — and when you find it.</string>
     <string name="settings_unnamed_title">Show unnamed devices</string>
     <string name="settings_unnamed_desc">Include devices that don't advertise a name.</string>
     <string name="settings_remember_title">Remember trackers across sessions</string>
