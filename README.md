@@ -109,6 +109,10 @@ cleanly back to RSSI-only when they aren't:
   pulsing glow with an **uncertainty ellipse** — plus **turn-by-turn** copy
   ("turn 30° left · ~8 m") and a **Geiger-counter haptic + tone** that quickens
   as you close in. On phone, Wear OS, and Apple Watch.
+- At **point-blank** the live signal trumps the estimate: rather than a stuck
+  triangulated distance, it switches to a plain *"It's right here"* with a
+  look-around hint. The whole UI is **light / dark / system** themable, with
+  independent sound and vibration toggles.
 
 It all lives in [`core/spatial`](app/core/src/commonMain/kotlin/fyi/blep/core/spatial)
 — pure and unit-tested like the rest, with platform sensor providers behind an
