@@ -120,6 +120,30 @@ class RotationTrackerTest {
     }
 
     @Test
+    fun identity_carries_the_whole_lineage_of_addresses() {
+        val rt = RotationTracker()
+        rt.observe("A", -50, 0)
+        rt.observe("A", -50, 5_000)
+        rt.observe("B", -50, 6_000)
+        rt.observe("B", -50, 30_000)
+        rt.observe("B", -50, 36_000)        // A→B handover
+        val id = rt.identityFor("B")!!
+        assertEquals(setOf("A", "B"), id.addresses) // both worn ids
+        assertFalse(id.contested)
+        assertNull(rt.identityFor("A")) // A is no longer a current address (it retired into B)
+    }
+
+    @Test
+    fun a_stable_device_is_its_own_identity() {
+        val rt = RotationTracker()
+        rt.observe("solo", -60, 0)
+        rt.observe("solo", -60, 5_000)
+        val id = rt.identityFor("solo")!!
+        assertEquals(setOf("solo"), id.addresses)
+        assertEquals(1.0, id.confidence)
+    }
+
+    @Test
     fun a_matching_payload_fingerprint_bridges_a_wider_dB_jump() {
         val rt = RotationTracker()
         rt.observe("A", -50, 0, "fp")

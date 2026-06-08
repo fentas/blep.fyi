@@ -7,6 +7,7 @@ import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.ble.DeviceAliases
 import fyi.blep.core.ble.DeviceFavorites
 import fyi.blep.core.ble.DeviceFlags
+import fyi.blep.core.ble.IdentityStore
 import fyi.blep.core.ble.RotationStats
 import fyi.blep.core.ble.RotationTracker
 import fyi.blep.core.ble.ScanAvailability
@@ -71,6 +72,7 @@ class BlepController(
     private val favorites: DeviceFavorites = DeviceFavorites(createKeyValueStore()),
     private val aliasStore: DeviceAliases = DeviceAliases(createKeyValueStore()),
     private val flags: DeviceFlags = DeviceFlags(createKeyValueStore()),
+    private val identityStore: IdentityStore = IdentityStore(createKeyValueStore()),
     private val settings: AppSettings = AppSettings(),
     private val skipOnboarding: Boolean = false, // demo mode jumps straight to discovery
 ) {
@@ -194,6 +196,7 @@ class BlepController(
     // (id-switch handovers); fed in restartScan, read by the device detail page/list.
     private val rotationTracker = RotationTracker()
     private val rotationClock = TimeSource.Monotonic.markNow()
+    private var lastIdentitySyncMark: TimeMark? = null // throttle persisted-identity writes
     private val guidanceStabilizer = GuidanceStabilizer()
     private var safetyScanner = buildSafetyScanner()
     private fun buildSafetyScanner() =
@@ -312,6 +315,32 @@ class BlepController(
     /** How long ago this device was first seen (ms), carried across its id rotations. */
     fun rotationFirstSeenAgoMs(id: String): Long? =
         rotationTracker.statsFor(id)?.let { rotationClock.elapsedNow().inWholeMilliseconds - it.firstSeenMs }
+
+    // ── identity: rename/flag follow a device across its rotating addresses ──────
+    // Resolved across the persisted identity's address set, so a label saved under one
+    // address is found under all of them — even after a restart.
+    private fun effectiveAlias(id: String): String? = identityStore.addressesFor(id).firstNotNullOfOrNull { aliases[it] }
+    private fun effectiveFlagged(id: String): Boolean = identityStore.addressesFor(id).any { it in flaggedIds }
+
+    /** Persist the address↔identity groupings the live correlator is confident about,
+     *  and refresh last-seen for everything present (TTL). Throttled — disk writes on
+     *  every 2 s scan tick would be wasteful. */
+    private fun syncIdentities(present: List<BleDevice>) {
+        val mark = lastIdentitySyncMark
+        if (mark != null && mark.elapsedNow() < IDENTITY_SYNC_INTERVAL) return
+        val presentIds = present.asSequence().filter { !it.rssiUnknown }.map { it.id }.toSet()
+        if (presentIds.isEmpty()) return
+        lastIdentitySyncMark = TimeSource.Monotonic.markNow()
+        identityStore.seen(presentIds)
+        for (id in presentIds) {
+            val identity = rotationTracker.identityFor(id) ?: continue
+            // Only persist a high-confidence, uncontested rotation lineage — a weak link
+            // would later drag a rename onto the wrong device.
+            if (!identity.contested && identity.confidence >= IDENTITY_MIN_CONF && identity.addresses.size > 1) {
+                identityStore.link(identity.addresses)
+            }
+        }
+    }
 
     /** Toggle location-aware detection (persisted). The scanner reads this live, so
      *  no rebuild is needed. */
@@ -547,8 +576,9 @@ class BlepController(
                         // real RSSI — bonded-but-silent devices carry no range to match on).
                         val nowMs = rotationClock.elapsedNow().inWholeMilliseconds
                         list.forEach { if (!it.rssiUnknown) rotationTracker.observe(it.id, it.rssi, nowMs) }
+                        syncIdentities(list)
                         devices = list.map {
-                            it.copy(alias = aliases[it.id] ?: it.alias, isFavorite = it.id in favoriteIds, isFlagged = it.id in flaggedIds)
+                            it.copy(alias = effectiveAlias(it.id) ?: it.alias, isFavorite = it.id in favoriteIds, isFlagged = effectiveFlagged(it.id))
                         }
                     }
                 } catch (c: CancellationException) {
@@ -573,5 +603,10 @@ class BlepController(
         val NO_SIGNAL_GRACE = 6.seconds
         /** Proximity at/above which the haptic adds a distinct "right here" double-tap. */
         const val VERY_CLOSE = 0.92f
+        /** Min correlation confidence before a rotation lineage is trusted to carry a
+         *  rename/flag (a weak link could move it onto the wrong device). */
+        const val IDENTITY_MIN_CONF = 0.6
+        /** How often the persisted identity groupings are written (throttle). */
+        val IDENTITY_SYNC_INTERVAL = 30.seconds
     }
 }

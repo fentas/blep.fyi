@@ -26,6 +26,20 @@ data class RotationStats(
 )
 
 /**
+ * A device's stable internal **identity**, recovered across its rotating addresses.
+ * [addresses] is every id this physical device has worn (so a rename/flag saved under
+ * one can follow it to the next); [id] is a stable token (its oldest address). Trust
+ * [addresses] only when [confidence] is high and not [contested] — propagating a label
+ * across a weak link would move it onto the wrong device.
+ */
+data class Identity(
+    val id: String,
+    val addresses: Set<String>,
+    val confidence: Double,
+    val contested: Boolean,
+)
+
+/**
  * Correlates a churn of rotating BLE addresses back into logical *devices*, so the
  * UI can say "this thing has changed its id N times, first seen X ago" even though a
  * privacy-rotating tracker wears a fresh random address every ~15 min.
@@ -61,6 +75,8 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         var addressesSeen: Int = 1,
         var qualitySum: Double = 0.0, // sum of per-handover qualities (definite handovers only)
         var fingerprint: String? = null, // rotation-stable payload signature, when known
+        var origin: String = address, // oldest address in the lineage — a stable identity token
+        val addresses: MutableSet<String> = linkedSetOf(address), // every address this device has worn
     )
 
     /** An orphaned lineage that could belong to >1 surviving id — kept, not discarded. */
@@ -71,6 +87,8 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         val qualitySum: Double,
         val rssi: Double,
         val fingerprint: String?,
+        val origin: String,
+        val addresses: Set<String>,
         val candidates: MutableSet<String>,
     )
 
@@ -119,6 +137,15 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
 
     fun all(): List<RotationStats> = tracks.mapNotNull { statsFor(it.address) }
 
+    /** The stable identity behind a current address (its lineage of worn addresses +
+     *  how sure we are), or null if we've never seen it. The caller decides whether to
+     *  trust [Identity.addresses] for propagating a label, based on the confidence. */
+    fun identityFor(address: String): Identity? {
+        val tr = tracks.firstOrNull { it.address == address } ?: return null
+        val stats = statsFor(address) ?: return null
+        return Identity(id = tr.origin, addresses = tr.addresses.toSet(), confidence = stats.confidence, contested = stats.contested)
+    }
+
     // ── correlation ──────────────────────────────────────────────────────────
 
     private fun reconcile(nowMs: Long) {
@@ -142,6 +169,8 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
                     qualitySum = old.qualitySum,
                     rssi = old.rssi,
                     fingerprint = old.fingerprint,
+                    origin = old.origin,
+                    addresses = old.addresses.toSet(),
                     candidates = heirs.map { it.address }.toMutableSet(),
                 )
                 // 0 heirs → the device left range; its lineage ends (nothing to carry).
@@ -170,6 +199,8 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
                         s.addressesSeen += b.addressesSeen
                         s.qualitySum += b.qualitySum + q
                         if (s.fingerprint == null) s.fingerprint = b.fingerprint
+                        s.addresses.addAll(b.addresses)
+                        s.origin = b.origin
                         claimed += s.address
                     }
                     branches.remove(b)
@@ -199,6 +230,8 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         heir.addressesSeen += old.addressesSeen
         heir.qualitySum += old.qualitySum + q
         if (heir.fingerprint == null) heir.fingerprint = old.fingerprint
+        heir.addresses.addAll(old.addresses)
+        heir.origin = old.origin // the older lineage's origin wins (continuity)
     }
 
     /** Handover quality: closer range ⇒ higher, divided across rival candidates;
