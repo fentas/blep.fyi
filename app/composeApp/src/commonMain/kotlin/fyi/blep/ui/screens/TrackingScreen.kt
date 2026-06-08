@@ -205,7 +205,7 @@ fun TrackingScreen(
         // over the spatial distance, which can stick far (seeded from an early weak
         // sample) and read e.g. "8 m" while you're standing on it. Show "right here"
         // and drop the misleading turn/distance cue.
-        val onIt = !signalLost && status.proximity >= POINT_BLANK_PROXIMITY
+        val onIt = !signalLost && rssi != null && rssi >= POINT_BLANK_DBM
         // No fresh signal trumps everything — don't guide on a stale reading.
         val headline = when {
             signalLost -> stringResource(Res.string.tracking_no_signal)
@@ -364,10 +364,11 @@ private fun floorHint(delta: Int): String? = when {
 // GuidanceStabilizer.noisyVolatilityDb, which gates directional commitment.
 private const val NOISY_FIELD_DB = 2.2
 
-// At/above this proximity (which saturates at ≈ -58 dBm) the target is within a
-// metre or two: directional guidance is moot and the spatial distance is unreliable,
-// so we switch to a plain "it's right here". Mirrors the controller's VERY_CLOSE.
-private const val POINT_BLANK_PROXIMITY = 0.95f
+// At/above this raw RSSI you're genuinely on top of it (within ~a metre):
+// directional guidance is moot and the spatial distance is unreliable, so we
+// switch to a plain "it's right here". Raw (not the proximity curve, which
+// saturates at -58 dBm ≈ 1-2 m) so it only fires when you're truly on it.
+private const val POINT_BLANK_DBM = -50
 
 /** A flat 2-D speaker glyph (no system emoji) that toggles the tracking tone:
  *  sound-wave arcs when on, a slash when muted. */
