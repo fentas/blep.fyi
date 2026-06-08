@@ -68,14 +68,13 @@ jobs:
     name: Build Swift apps (iOS + watchOS)
     # macOS 15 ships Xcode 16, which reads XcodeGen's project format (objectVersion 77).
     runs-on: macos-15
-    # NON-BLOCKING: Compose Multiplatform 1.11 hard-references an iOS-18 UIKit symbol
-    # (UIViewLayoutRegion) instead of weak-linking it, so the Swift app only links
-    # with a deployment floor that matches the build SDK (18.x) — which tracks Xcode
-    # and isn't a sane app minimum. Neither raising the floor nor pinning an older SDK
-    # works (the older SDK lacks the symbol entirely). We keep the iOS 15 floor and
-    # don't ship the iOS app yet (only Android phone + Wear release), so this job is
-    # allowed to fail; it keeps building and goes green on its own once CMP weak-links
-    # it. Track: JetBrains/compose-multiplatform#4821.
+    # Compose Multiplatform 1.11 hard-references an iOS-18 UIKit symbol
+    # (UIViewLayoutRegion) without an @available guard, so the Swift app fails to link
+    # below iOS 18. Fix: a `-U _OBJC_CLASS_$_UIViewLayoutRegion` linker flag in
+    # iosApp/project.yml lets that one symbol resolve dynamically at runtime (CMP
+    # guards it), keeping the iOS 15 floor. Kept non-blocking for ONE confirming run;
+    # drop continue-on-error once this job is green.
+    # Track: JetBrains/compose-multiplatform#4821 (CMP-10179).
     continue-on-error: true
     defaults:
       run:
