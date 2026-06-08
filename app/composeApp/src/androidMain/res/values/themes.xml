@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="blep_mist">#FFEEF2F6</color>
+    <!-- Dark launch background; the actual dark theme lives in values-night. Declared
+         here too so lint's MissingDefaultResource is satisfied (it isn't used by the
+         light Theme.Blep below, which uses blep_mist). -->
+    <color name="blep_ink">#FF14181D</color>
 
     <style name="Theme.Blep" parent="@android:style/Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/blep_mist</item>

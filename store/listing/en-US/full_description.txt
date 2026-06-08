@@ -15,8 +15,10 @@ WHAT MAKES IT GOOD
 • Direction by signal — a compass-and-signal pointer, not a fuzzy radar.
 • An on-screen trail of where you've searched, coloured by signal strength.
 • "Warmer this way" — if you stray, it points you back to the strongest spot.
+• Right on top of it, it drops the guesswork and just says "it's right here".
 • Tells you when the field is clean vs noisy, and when there's no signal at all.
-• Optional sound + haptics that pulse faster as you close in.
+• Optional sound and vibration that quicken as you close in — each on its own toggle.
+• Light, dark or system theme — your call.
 
 IS SOMETHING TRACKING YOU?
 Tap "Is something tracking you?" to scan for unwanted trackers travelling with
