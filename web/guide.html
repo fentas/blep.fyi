@@ -42,6 +42,7 @@
             <li><a data-spy href="#safety" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Is something tracking you?</a></li>
             <li><a data-spy href="#found" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Found a tracker?</a></li>
             <li><a data-spy href="#settings" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Settings</a></li>
+            <li><a data-spy href="#advanced" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Advanced</a></li>
             <li><a data-spy href="#faq" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">FAQ</a></li>
           </ul>
           <p class="mt-6 px-2 text-xs font-semibold uppercase tracking-wide text-ink/40">More</p>
@@ -174,6 +175,33 @@
           </ul>
         </section>
 
+        <section id="advanced" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            🔬 Advanced: how blep recognises devices
+            <a href="#advanced" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">Tap the <span class="font-semibold text-ink">›</span> on any device in the list to open its detail page — the signal, what its id tells you, how long it's been around, and a couple of power-user controls.</p>
+
+          <h3 class="mt-6 font-display text-lg font-semibold">Stable vs. rotating ids</h3>
+          <p class="mt-2 text-ink/80">Most modern devices — phones, AirTags, earbuds — change their Bluetooth address every few minutes <em>on purpose</em>, so nobody can track them by it. blep tells you whether a device's id looks <strong>stable</strong> (it keeps the same one — many paired accessories do) or is a <strong>private, rotating</strong> address; on iPhone there's no hardware address at all, just an opaque id.</p>
+
+          <h3 class="mt-6 font-display text-lg font-semibold">Following a device across its id changes</h3>
+          <p class="mt-2 text-ink/80">blep stitches that churn back into one device by the <strong>handover</strong>: one id goes quiet exactly as a new one appears at the same distance and with the same advertisement signature. The detail page shows how many times a device has <strong>changed id</strong> and how sure blep is — and because of it, a <strong>rename or a flag follows the device</strong> across its rotations, remembered for 14 days, then forgotten on its own.</p>
+          <aside class="mt-4 rounded-2xl border border-blue/20 bg-blue/10 p-4 text-sm text-ink/80">
+            It never guesses over you: blep only carries a name across a change when it's confident two ids are the same physical thing. A weak or ambiguous match is left alone, so your label can't jump onto a stranger's device.
+          </aside>
+
+          <h3 class="mt-6 font-display text-lg font-semibold">Watch a device</h3>
+          <p class="mt-2 text-ink/80"><strong>Watch this device</strong> on the detail page flags it for priority: blep keeps a live scan running and shows a quiet notification for as long as that device stays in range — handy for keeping an eye on a suspected tracker, or a thing you're actively hunting. It clears when the device leaves or you stop watching.</p>
+
+          <h3 class="mt-6 font-display text-lg font-semibold">What it can — and can't — do</h3>
+          <ul class="mt-2 space-y-2 text-ink/80">
+            <li class="flex gap-2"><span class="text-blue">•</span><span>It works <strong>within Bluetooth range</strong> and while a device is around to be seen — it can't follow something across town or while it's switched off.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span>A device that rotates its id <strong>and</strong> vanishes for a long time (or while the app is closed) may return as "new" — without watching the change happen, there's no honest way to be certain it's the same one.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span>All of this is computed <strong>on your phone</strong>, kept briefly, and cleared on its own — no identities or movements ever leave the device. See the <a class="font-medium text-blue hover:underline" href="/privacy.html">privacy policy</a>.</span></li>
+          </ul>
+        </section>
+
         <section id="faq" class="scroll-mt-20">
           <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
             FAQ
@@ -211,6 +239,7 @@
           <li><a data-spy href="#safety" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Is something tracking you?</a></li>
           <li><a data-spy href="#found" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Found a tracker?</a></li>
           <li><a data-spy href="#settings" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Settings</a></li>
+          <li><a data-spy href="#advanced" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Advanced</a></li>
           <li><a data-spy href="#faq" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">FAQ</a></li>
         </ul>
       </aside>
