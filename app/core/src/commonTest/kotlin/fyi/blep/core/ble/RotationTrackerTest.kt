@@ -118,4 +118,39 @@ class RotationTrackerTest {
         assertEquals(1, p.rotations)         // absorbed exactly one lineage (not double-counted)
         assertEquals(1.0, p.confidence)
     }
+
+    @Test
+    fun a_matching_payload_fingerprint_bridges_a_wider_dB_jump() {
+        val rt = RotationTracker()
+        rt.observe("A", -50, 0, "fp")
+        rt.observe("A", -50, 5_000, "fp")
+        rt.observe("B", -58, 6_000, "fp")    // 8 dB jump — beyond the 6 dB gate…
+        rt.observe("B", -58, 30_000, "fp")
+        rt.observe("B", -58, 36_000, "fp")   // …but the matching fingerprint widens it
+        assertEquals(1, rt.statsFor("B")!!.rotations)
+    }
+
+    @Test
+    fun a_mismatched_payload_fingerprint_vetoes_a_same_range_handover() {
+        val rt = RotationTracker()
+        rt.observe("A", -50, 0, "fpA")
+        rt.observe("A", -50, 5_000, "fpA")
+        rt.observe("B", -50, 6_000, "fpB")   // identical range, different device class
+        rt.observe("B", -50, 30_000, "fpB")
+        rt.observe("B", -50, 36_000, "fpB")
+        assertEquals(0, rt.statsFor("B")!!.rotations) // not merged — payload says it's a different thing
+    }
+
+    @Test
+    fun a_matching_fingerprint_lifts_confidence_on_a_loose_range_match() {
+        val rt = RotationTracker()
+        rt.observe("A", -50, 0, "fp")
+        rt.observe("A", -50, 5_000, "fp")
+        rt.observe("B", -55, 6_000, "fp")    // 5 dB off — RSSI-only would be ~0.29…
+        rt.observe("B", -55, 30_000, "fp")
+        rt.observe("B", -55, 36_000, "fp")
+        val b = rt.statsFor("B")!!
+        assertEquals(1, b.rotations)
+        assertTrue(b.confidence >= 0.85, "payload should corroborate, was ${b.confidence}")
+    }
 }

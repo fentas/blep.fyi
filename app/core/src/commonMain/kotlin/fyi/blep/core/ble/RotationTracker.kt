@@ -60,6 +60,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         var rotations: Int = 0,
         var addressesSeen: Int = 1,
         var qualitySum: Double = 0.0, // sum of per-handover qualities (definite handovers only)
+        var fingerprint: String? = null, // rotation-stable payload signature, when known
     )
 
     /** An orphaned lineage that could belong to >1 surviving id — kept, not discarded. */
@@ -69,6 +70,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         val addressesSeen: Int,
         val qualitySum: Double,
         val rssi: Double,
+        val fingerprint: String?,
         val candidates: MutableSet<String>,
     )
 
@@ -80,19 +82,23 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         branches.clear()
     }
 
-    fun observe(address: String, rssi: Int, timeMs: Long) {
+    /** [fingerprint] is an optional rotation-stable payload signature (see
+     *  payloadFingerprint): a match corroborates a handover (widens the dB gate +
+     *  lifts confidence), a mismatch vetoes it, null leaves it on RSSI alone. */
+    fun observe(address: String, rssi: Int, timeMs: Long, fingerprint: String? = null) {
         if (address.isBlank()) return
         reconcile(timeMs)
         val exact = tracks.firstOrNull { it.address == address }
         if (exact != null) {
             exact.rssi = ema(exact.rssi, rssi)
             exact.lastSeenMs = timeMs
+            if (fingerprint != null) exact.fingerprint = fingerprint
             return
         }
         // A brand-new id is born as its own track. If it's really a rotation of a
         // device whose old id is about to go quiet, reconcile() links them when that
         // old id dies (definite merge) or parks the lineage as a branch (contested).
-        tracks += Track(address = address, rssi = rssi.toDouble(), firstSeenMs = timeMs, lastSeenMs = timeMs, bornMs = timeMs)
+        tracks += Track(address = address, rssi = rssi.toDouble(), firstSeenMs = timeMs, lastSeenMs = timeMs, bornMs = timeMs, fingerprint = fingerprint)
     }
 
     fun statsFor(address: String): RotationStats? {
@@ -104,7 +110,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         }
         // Contested: tentatively fold in the branch lineage, but split its quality by
         // how many candidates still claim it (so confidence reflects the fork).
-        val hopQ = quality(branch.rssi, tr.rssi, branch.candidates.size)
+        val hopQ = quality(branch.rssi, tr.rssi, branch.candidates.size, fpMatch(branch.fingerprint, tr.fingerprint))
         val rot = tr.rotations + branch.rotations + 1
         val addr = tr.addressesSeen + branch.addressesSeen
         val confidence = ((tr.qualitySum + branch.qualitySum + hopQ) / rot).coerceIn(0.0, 1.0)
@@ -135,6 +141,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
                     addressesSeen = old.addressesSeen,
                     qualitySum = old.qualitySum,
                     rssi = old.rssi,
+                    fingerprint = old.fingerprint,
                     candidates = heirs.map { it.address }.toMutableSet(),
                 )
                 // 0 heirs → the device left range; its lineage ends (nothing to carry).
@@ -157,11 +164,12 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
                 1 -> {
                     val s = survivors[0]
                     if (s.address !in claimed) {
-                        val q = quality(b.rssi, s.rssi, candidateCount = 1)
+                        val q = quality(b.rssi, s.rssi, candidateCount = 1, fpMatch(b.fingerprint, s.fingerprint))
                         s.firstSeenMs = minOf(s.firstSeenMs, b.firstSeenMs)
                         s.rotations += b.rotations + 1
                         s.addressesSeen += b.addressesSeen
                         s.qualitySum += b.qualitySum + q
+                        if (s.fingerprint == null) s.fingerprint = b.fingerprint
                         claimed += s.address
                     }
                     branches.remove(b)
@@ -172,27 +180,37 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         }
     }
 
-    private fun isSuccessor(old: Track, heir: Track, nowMs: Long): Boolean =
-        nowMs - heir.lastSeenMs <= tuning.staleMs &&
-            // born when the old id went quiet (a touch of overlap allowed), never before:
-            // an id that predates the old's last sighting was coexisting, not a rotation.
-            heir.bornMs >= old.lastSeenMs - tuning.overlapMs &&
-            heir.bornMs <= old.lastSeenMs + tuning.handoverMs &&
-            abs(heir.rssi - old.rssi) <= tuning.dbGate
+    private fun isSuccessor(old: Track, heir: Track, nowMs: Long): Boolean {
+        if (nowMs - heir.lastSeenMs > tuning.staleMs) return false
+        // born when the old id went quiet (a touch of overlap allowed), never before:
+        // an id that predates the old's last sighting was coexisting, not a rotation.
+        if (heir.bornMs < old.lastSeenMs - tuning.overlapMs || heir.bornMs > old.lastSeenMs + tuning.handoverMs) return false
+        // Payload veto/boost: a different device class can't be the same device (veto);
+        // a matching one corroborates the range, so we tolerate a wider dB jump.
+        if (fpMismatch(old.fingerprint, heir.fingerprint)) return false
+        val gate = if (fpMatch(old.fingerprint, heir.fingerprint)) tuning.dbGate * 2 else tuning.dbGate
+        return abs(heir.rssi - old.rssi) <= gate
+    }
 
     private fun mergeInto(heir: Track, old: Track, candidateCount: Int) {
-        val q = quality(old.rssi, heir.rssi, candidateCount)
+        val q = quality(old.rssi, heir.rssi, candidateCount, fpMatch(old.fingerprint, heir.fingerprint))
         heir.firstSeenMs = minOf(heir.firstSeenMs, old.firstSeenMs)
         heir.rotations += old.rotations + 1
         heir.addressesSeen += old.addressesSeen
         heir.qualitySum += old.qualitySum + q
+        if (heir.fingerprint == null) heir.fingerprint = old.fingerprint
     }
 
-    /** Handover quality: closer range ⇒ higher, divided across rival candidates. */
-    private fun quality(r1: Double, r2: Double, candidateCount: Int): Double {
+    /** Handover quality: closer range ⇒ higher, divided across rival candidates;
+     *  a payload-fingerprint match lifts a loose range match (it corroborates). */
+    private fun quality(r1: Double, r2: Double, candidateCount: Int, fpMatch: Boolean = false): Double {
         val range = (1.0 - abs(r1 - r2) / (tuning.dbGate + 1.0)).coerceIn(0.0, 1.0)
-        return range / candidateCount.coerceAtLeast(1)
+        val base = if (fpMatch) maxOf(range, 0.85) else range
+        return base / candidateCount.coerceAtLeast(1)
     }
+
+    private fun fpMatch(a: String?, b: String?): Boolean = a != null && a == b
+    private fun fpMismatch(a: String?, b: String?): Boolean = a != null && b != null && a != b
 
     private fun ema(prev: Double, x: Int): Double = prev * (1 - tuning.emaWeight) + x * tuning.emaWeight
 

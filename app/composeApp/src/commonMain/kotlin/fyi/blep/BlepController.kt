@@ -15,6 +15,7 @@ import fyi.blep.core.platform.coarsePlaceCell
 import fyi.blep.core.platform.createKeyValueStore
 import fyi.blep.core.safety.SafetyHistory
 import fyi.blep.core.safety.SafetyScanner
+import fyi.blep.core.safety.payloadFingerprint
 import fyi.blep.core.safety.TrackerAlert
 import fyi.blep.core.safety.ScanSensitivity
 import fyi.blep.core.safety.TrackerDetector
@@ -517,6 +518,21 @@ class BlepController(
     private fun restartScan() {
         scanJob?.cancel()
         scanJob = scope.launch {
+            // Rotation correlator — fingerprint feed. The raw advertisement stream
+            // carries the payload (manufacturer data / service UUIDs), so a payload
+            // fingerprint can corroborate or veto an id-switch handover (the bare
+            // device list has no payload). Cancelled with the scan job.
+            launch {
+                runCatching {
+                    scanner.advertisements().collect { adv ->
+                        rotationTracker.observe(
+                            adv.address, adv.rssi,
+                            rotationClock.elapsedNow().inWholeMilliseconds,
+                            payloadFingerprint(adv),
+                        )
+                    }
+                }
+            }
             // Self-healing scan: scanning can throw if Bluetooth permission isn't
             // granted yet (it's requested asynchronously at launch) or the adapter
             // is off. Catch it, surface the reason, and retry so the list starts
