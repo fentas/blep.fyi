@@ -71,8 +71,9 @@ jobs:
     # the iOS-18 SDK (Xcode 16), which then fails to link below iOS 18. Building the
     # framework against the iOS-17 SDK avoids the reference entirely and keeps the
     # app's iOS-15 deployment floor. Interim until CMP weak-links it (see
-    # JetBrains/compose-multiplatform#4821). Xcode 15 reads the XcodeGen projects
-    # because their objectVersion is pinned to 56 (see iosApp/watchApp project.yml).
+    # JetBrains/compose-multiplatform#4821). XcodeGen is pinned to 2.41.0 because
+    # newer versions emit an Xcode-16-only project format (objectVersion 77) that
+    # Xcode 15.4 can't open.
     runs-on: macos-14
     defaults:
       run:
@@ -87,8 +88,12 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
-      - name: Install XcodeGen
-        run: brew install xcodegen
+      - name: Install XcodeGen 2.41.0 (emits an Xcode-15-readable project format)
+        run: |
+          curl -fsSL https://github.com/yonaskolb/XcodeGen/releases/download/2.41.0/xcodegen.zip -o /tmp/xcodegen.zip
+          unzip -q -o /tmp/xcodegen.zip -d /tmp/xcodegen-dist
+          cd /tmp/xcodegen-dist/xcodegen && sudo ./install.sh
+          xcodegen --version
       - name: Build iOS app (compiles Swift + links the KMP framework)
         working-directory: app/iosApp
         run: |
