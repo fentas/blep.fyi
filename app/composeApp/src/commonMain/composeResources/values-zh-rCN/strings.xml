@@ -110,7 +110,7 @@
     <string name="done_here">就在这里？</string>
     <string name="done_on_top">你正好在它上面。</string>
     <string name="done_got_it">知道了 👍</string>
-    <string name="done_donate_blurb">如果 blep 为你节省了时间，一点小费可以让它继续运行。♥</string>
+    <string name="done_donate_blurb">如果 blep 为你节省了时间，一点小费可以让它继续运行。</string>
     <string name="done_donate_button">♥  支持并捐赠</string>
     <string name="done_keep_looking">继续查找</string>
     <string name="done_track_another">追踪另一个</string>

@@ -1,6 +1,7 @@
 package fyi.blep.ui.screens
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,6 +37,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -73,7 +85,20 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
-private val BURST_EMOJI = listOf("🎉", "✨", "🎈", "🥳", "⭐", "🙌", "💫", "🐾", "🎊")
+// Motion curves (matching the SVG-animation craft: ease-out for things flying
+// out, a slight overshoot/bounce for things popping in).
+private val EaseOutCubic = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)
+private val EaseInOut = CubicBezierEasing(0.42f, 0f, 0.58f, 1f)
+private val Overshoot = CubicBezierEasing(0.34f, 1.56f, 0.64f, 1f)
+
+/** Festive palette shared by every celebration flavour. */
+private val PARTY = listOf(
+    BlepColors.Blue, BlepColors.Pink, BlepColors.Gold,
+    BlepColors.proximity(0.55f), BlepColors.proximity(0.9f),
+)
+
+/** One-shot celebration overlays. Each visit picks one at random. */
+private enum class CelebrationKind { FIREWORKS, RIBBONS, SPARKLES }
 
 @Composable
 private fun celebrations(): List<String> = listOf(
@@ -106,15 +131,18 @@ fun CompletionScreen(
     val subs = sublines()
     val celebration = remember { celebs[Random.nextInt(celebs.size)] }
     val subline = remember { subs[Random.nextInt(subs.size)] }
-    val flavour = remember { Random.nextInt(3) } // 0 confetti · 1 emoji · 2 both
+    val kind = remember { CelebrationKind.entries[Random.nextInt(CelebrationKind.entries.size)] }
 
     Box(
         modifier = modifier.fillMaxSize().background(BlepColors.proximity(1f)),
         contentAlignment = Alignment.Center,
     ) {
         if (celebrated) {
-            if (flavour != 1) Confetti(Modifier.fillMaxSize())
-            if (flavour != 0) EmojiBurst(Modifier.fillMaxSize())
+            when (kind) {
+                CelebrationKind.FIREWORKS -> Fireworks(Modifier.fillMaxSize())
+                CelebrationKind.RIBBONS -> Ribbons(Modifier.fillMaxSize())
+                CelebrationKind.SPARKLES -> Sparkles(Modifier.fillMaxSize())
+            }
         }
 
         AnimatedContent(
@@ -179,6 +207,9 @@ private fun CelebratePanel(headline: String, subline: String, onDonate: () -> Un
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+        // Hero: a ring + checkmark that draw themselves on, for the satisfying beat.
+        SuccessSeal(Modifier.size(96.dp))
+        Spacer(Modifier.height(20.dp))
         Text(
             headline,
             style = MaterialTheme.typography.displayLarge,
@@ -213,67 +244,186 @@ private fun CelebratePanel(headline: String, subline: String, onDonate: () -> Un
     }
 }
 
-/** A short, gentle one-shot confetti drift from the top. */
+/** A drawn-on success ring with a checkmark that strokes in after it
+ *  (stroke-dashoffset, the SVG way) — the hero beat of the celebration. */
 @Composable
-private fun Confetti(modifier: Modifier = Modifier) {
-    val palette = listOf(BlepColors.Blue, BlepColors.Pink, BlepColors.proximity(0.7f), BlepColors.proximity(1f))
-    val bits = remember {
-        List(22) {
-            ConfettiBit(
-                xFrac = Random.nextFloat(),
-                delay = Random.nextFloat() * 0.3f,
-                drift = (Random.nextFloat() - 0.5f) * 0.2f,
-                radius = 4f + Random.nextFloat() * 5f,
-                color = palette[Random.nextInt(palette.size)],
-            )
-        }
-    }
+private fun SuccessSeal(modifier: Modifier = Modifier) {
     var go by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { go = true }
-    val progress by animateFloatAsState(if (go) 1f else 0f, tween(1400), label = "confetti")
+    val ring by animateFloatAsState(if (go) 1f else 0f, tween(560, easing = EaseOutCubic), label = "ring")
+    val check by animateFloatAsState(if (go) 1f else 0f, tween(440, delayMillis = 440, easing = EaseInOut), label = "check")
 
     Canvas(modifier) {
-        bits.forEach { b ->
-            val p = ((progress - b.delay) / (1f - b.delay)).coerceIn(0f, 1f)
-            if (p <= 0f) return@forEach
-            val x = (b.xFrac + b.drift * p) * size.width
-            val y = (-0.05f + p * 0.85f) * size.height
-            drawCircle(b.color.copy(alpha = (1f - p) * 0.9f), radius = b.radius, center = androidx.compose.ui.geometry.Offset(x, y))
-        }
+        val s = size.minDimension
+        val stroke = s * 0.08f
+        val r = s * 0.40f
+        val c = Offset(size.width / 2f, size.height / 2f)
+        drawArc(
+            color = BlepColors.Blue,
+            startAngle = -90f,
+            sweepAngle = 360f * ring,
+            useCenter = false,
+            topLeft = Offset(c.x - r, c.y - r),
+            size = Size(r * 2f, r * 2f),
+            style = Stroke(width = stroke, cap = StrokeCap.Round),
+        )
+        // Checkmark: two strokes A→B→C drawn in sequence.
+        val a = Offset(c.x - r * 0.42f, c.y + r * 0.04f)
+        val b = Offset(c.x - r * 0.08f, c.y + r * 0.36f)
+        val d = Offset(c.x + r * 0.46f, c.y - r * 0.30f)
+        val seg1 = (check / 0.42f).coerceIn(0f, 1f)
+        val seg2 = ((check - 0.42f) / 0.58f).coerceIn(0f, 1f)
+        if (seg1 > 0f) drawLine(BlepColors.Blue, a, lerp(a, b, seg1), strokeWidth = stroke, cap = StrokeCap.Round)
+        if (seg2 > 0f) drawLine(BlepColors.Blue, b, lerp(b, d, seg2), strokeWidth = stroke, cap = StrokeCap.Round)
     }
 }
 
-/** A radial pop of celebratory emoji from the centre, scaling out and fading. */
+/** Staggered radial spark bursts with ease-out reach, gravity sag and a trailing
+ *  streak — reads like small fireworks rather than flat dots. */
 @Composable
-private fun EmojiBurst(modifier: Modifier = Modifier) {
-    val emoji = remember { BURST_EMOJI.shuffled().take(7) }
-    var go by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { go = true }
-    val p by animateFloatAsState(if (go) 1f else 0f, tween(1100), label = "burst")
-
-    Box(modifier, contentAlignment = Alignment.Center) {
-        emoji.forEachIndexed { i, e ->
-            val ang = (i.toFloat() / emoji.size) * 2f * PI.toFloat()
-            Text(
-                e,
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.graphicsLayer {
-                    val reach = 360f * p
-                    translationX = cos(ang) * reach
-                    translationY = sin(ang) * reach
-                    val s = (0.4f + p * 1.1f).coerceAtMost(1.5f)
-                    scaleX = s; scaleY = s
-                    alpha = (1f - p) * 0.85f + 0.12f
+private fun Fireworks(modifier: Modifier = Modifier) {
+    // Bursts sit in the open upper third so they read clearly above the centred text.
+    val bursts = remember {
+        List(4) { i ->
+            val n = 18 + Random.nextInt(10)
+            Burst(
+                cx = 0.15f + Random.nextFloat() * 0.70f,
+                cy = 0.12f + Random.nextFloat() * 0.30f,
+                delay = i * 0.15f + Random.nextFloat() * 0.05f,
+                sparks = List(n) { j ->
+                    val base = j.toFloat() / n * 2f * PI.toFloat()
+                    Spark(
+                        angle = base + (Random.nextFloat() - 0.5f) * 0.22f,
+                        speed = 0.75f + Random.nextFloat() * 0.5f,
+                        radius = 5f + Random.nextFloat() * 4f,
+                        color = PARTY[Random.nextInt(PARTY.size)],
+                    )
                 },
             )
         }
     }
+    var go by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { go = true }
+    val t by animateFloatAsState(if (go) 1f else 0f, tween(2100), label = "fireworks")
+
+    Canvas(modifier) {
+        val maxReach = size.minDimension * 0.42f
+        bursts.forEach { burst ->
+            val lp = ((t - burst.delay) / 0.6f).coerceIn(0f, 1f)
+            if (lp <= 0f) return@forEach
+            val e = EaseOutCubic.transform(lp)
+            val ox = burst.cx * size.width
+            val oy = burst.cy * size.height
+            val sag = 140f * lp * lp
+            // Stays bright through the first half, then fades — fireworks, not a dribble.
+            val alpha = (1f - (lp * lp)).coerceIn(0f, 1f)
+            burst.sparks.forEach { sp ->
+                val reach = e * maxReach * sp.speed
+                val gx = ox + cos(sp.angle) * reach
+                val gy = oy + sin(sp.angle) * reach + sag
+                val tx = ox + cos(sp.angle) * reach * 0.7f
+                val ty = oy + sin(sp.angle) * reach * 0.7f + sag * 0.7f
+                drawLine(sp.color.copy(alpha = alpha * 0.5f), Offset(tx, ty), Offset(gx, gy), strokeWidth = sp.radius * 0.8f, cap = StrokeCap.Round)
+                drawCircle(sp.color.copy(alpha = alpha), radius = sp.radius * (1f - 0.25f * lp), center = Offset(gx, gy))
+            }
+        }
+    }
 }
 
-private data class ConfettiBit(
-    val xFrac: Float,
-    val delay: Float,
-    val drift: Float,
-    val radius: Float,
-    val color: androidx.compose.ui.graphics.Color,
+/** Spinning, swaying ribbon confetti falling under ease-in gravity. */
+@Composable
+private fun Ribbons(modifier: Modifier = Modifier) {
+    val ribbons = remember {
+        List(38) {
+            Ribbon(
+                xFrac = Random.nextFloat(),
+                delay = Random.nextFloat() * 0.4f,
+                sway = 0.04f + Random.nextFloat() * 0.08f,
+                swayFreq = 4f + Random.nextFloat() * 4f,
+                phase = Random.nextFloat() * 2f * PI.toFloat(),
+                spin = (if (Random.nextBoolean()) 1f else -1f) * (1.5f + Random.nextFloat() * 2f),
+                w = 11f + Random.nextFloat() * 10f,
+                h = 18f + Random.nextFloat() * 16f,
+                color = PARTY[Random.nextInt(PARTY.size)],
+            )
+        }
+    }
+    var go by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { go = true }
+    val t by animateFloatAsState(if (go) 1f else 0f, tween(2200), label = "ribbons")
+
+    Canvas(modifier) {
+        ribbons.forEach { rb ->
+            val lp = ((t - rb.delay) / (1f - rb.delay)).coerceIn(0f, 1f)
+            if (lp <= 0f) return@forEach
+            val y = (-0.1f + lp * 1.2f) * size.height
+            val x = (rb.xFrac + sin(lp * rb.swayFreq + rb.phase) * rb.sway) * size.width
+            val alpha = if (lp < 0.82f) 1f else ((1f - lp) / 0.18f).coerceIn(0f, 1f)
+            rotate(rb.spin * lp * 360f, Offset(x, y)) {
+                drawRoundRect(
+                    color = rb.color.copy(alpha = alpha),
+                    topLeft = Offset(x - rb.w / 2f, y - rb.h / 2f),
+                    size = Size(rb.w, rb.h),
+                    cornerRadius = CornerRadius(rb.w * 0.35f, rb.w * 0.35f),
+                )
+            }
+        }
+    }
+}
+
+/** Four-point sparkles that twinkle in (overshoot) and fade out, staggered. */
+@Composable
+private fun Sparkles(modifier: Modifier = Modifier) {
+    val stars = remember {
+        List(22) {
+            Star(
+                xFrac = 0.06f + Random.nextFloat() * 0.88f,
+                yFrac = 0.08f + Random.nextFloat() * 0.74f,
+                delay = Random.nextFloat() * 0.6f,
+                peak = 16f + Random.nextFloat() * 20f,
+                color = PARTY[Random.nextInt(PARTY.size)],
+            )
+        }
+    }
+    var go by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { go = true }
+    val t by animateFloatAsState(if (go) 1f else 0f, tween(2000), label = "sparkles")
+
+    Canvas(modifier) {
+        stars.forEach { st ->
+            val lp = ((t - st.delay) / (1f - st.delay)).coerceIn(0f, 1f)
+            if (lp <= 0f) return@forEach
+            // twinkle: overshoot up over the first 40%, ease down the rest.
+            val scale = if (lp < 0.4f) Overshoot.transform(lp / 0.4f) else 1f - (lp - 0.4f) / 0.6f
+            if (scale <= 0f) return@forEach
+            drawSparkle(
+                center = Offset(st.xFrac * size.width, st.yFrac * size.height),
+                radius = st.peak * scale,
+                color = st.color.copy(alpha = scale.coerceIn(0f, 1f)),
+            )
+        }
+    }
+}
+
+/** A 4-pointed sparkle (outer points on the axes, concave between). */
+private fun DrawScope.drawSparkle(center: Offset, radius: Float, color: Color) {
+    val inner = radius * 0.32f
+    val path = Path()
+    for (i in 0 until 8) {
+        val ang = i * (PI / 4.0)
+        val rad = if (i % 2 == 0) radius else inner
+        val x = center.x + (cos(ang) * rad).toFloat()
+        val y = center.y + (sin(ang) * rad).toFloat()
+        if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+    }
+    path.close()
+    drawPath(path, color)
+}
+
+private data class Spark(val angle: Float, val speed: Float, val radius: Float, val color: Color)
+private data class Burst(val cx: Float, val cy: Float, val delay: Float, val sparks: List<Spark>)
+private data class Ribbon(
+    val xFrac: Float, val delay: Float, val sway: Float, val swayFreq: Float,
+    val phase: Float, val spin: Float, val w: Float, val h: Float, val color: Color,
 )
+private data class Star(val xFrac: Float, val yFrac: Float, val delay: Float, val peak: Float, val color: Color)
