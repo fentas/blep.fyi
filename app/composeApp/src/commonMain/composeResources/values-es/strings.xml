@@ -210,4 +210,8 @@
     <string name="detail_no_rotation">Aún no se ha visto ningún cambio de id.</string>
     <string name="detail_first_seen">Visto por primera vez hace %1$s</string>
     <string name="detail_find">Encontrarlo</string>
+    <string name="detail_flag">Vigilar este dispositivo</string>
+    <string name="detail_flagged">Vigilando — toca para parar</string>
+    <string name="noti_flagged_title">Vigilando un dispositivo marcado</string>
+    <string name="noti_flagged_text">%1$s está al alcance</string>
 </resources>

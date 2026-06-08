@@ -210,4 +210,8 @@
     <string name="detail_no_rotation">Nog geen id-wijziging gezien.</string>
     <string name="detail_first_seen">Voor het eerst gezien %1$s geleden</string>
     <string name="detail_find">Vind het</string>
+    <string name="detail_flag">Dit apparaat volgen</string>
+    <string name="detail_flagged">Wordt gevolgd — tik om te stoppen</string>
+    <string name="noti_flagged_title">Een gemarkeerd apparaat volgen</string>
+    <string name="noti_flagged_text">%1$s is binnen bereik</string>
 </resources>

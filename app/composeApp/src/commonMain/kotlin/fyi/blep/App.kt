@@ -161,6 +161,7 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                         firstSeenAgoMs = controller.rotationFirstSeenAgoMs(live.id),
                         onRename = { controller.rename(live, it) },
                         onToggleFavorite = { controller.toggleFavorite(live) },
+                        onToggleFlag = { controller.toggleFlag(live) },
                         onTrack = { controller.track(live) },
                         onBack = controller::startDiscovery,
                     )

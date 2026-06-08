@@ -210,4 +210,8 @@
     <string name="detail_no_rotation">Id muutust pole veel nähtud.</string>
     <string name="detail_first_seen">Esmakordselt nähtud %1$s tagasi</string>
     <string name="detail_find">Leia üles</string>
+    <string name="detail_flag">Jälgi seda seadet</string>
+    <string name="detail_flagged">Jälgitakse — peatamiseks puuduta</string>
+    <string name="noti_flagged_title">Märgistatud seadme jälgimine</string>
+    <string name="noti_flagged_text">%1$s on levialas</string>
 </resources>

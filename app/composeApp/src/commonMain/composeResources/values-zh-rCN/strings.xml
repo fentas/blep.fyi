@@ -211,4 +211,8 @@
     <string name="detail_no_rotation">尚未发现 id 更换。</string>
     <string name="detail_first_seen">首次发现于 %1$s前</string>
     <string name="detail_find">找到它</string>
+    <string name="detail_flag">监视此设备</string>
+    <string name="detail_flagged">监视中 — 点按停止</string>
+    <string name="noti_flagged_title">正在监视已标记的设备</string>
+    <string name="noti_flagged_text">%1$s 在范围内</string>
 </resources>

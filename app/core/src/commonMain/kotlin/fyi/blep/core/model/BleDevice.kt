@@ -12,6 +12,8 @@ package fyi.blep.core.model
  * @property alias user-assigned rename, takes precedence over [name] for display.
  * @property isFavorite user-starred — pinned into the main list even when the
  *   device isn't advertising (overlaid by the app, not the scanner).
+ * @property isFlagged user-flagged for priority watching — escalates the background
+ *   check to a continuous foreground watch with a notification while it's in range.
  */
 data class BleDevice(
     val id: String,
@@ -21,6 +23,7 @@ data class BleDevice(
     val isPaired: Boolean = false,
     val alias: String? = null,
     val isFavorite: Boolean = false,
+    val isFlagged: Boolean = false,
 ) {
     /** True when no live advertisement RSSI is available (bonded, not advertising). */
     val rssiUnknown: Boolean get() = rssi == RSSI_UNKNOWN

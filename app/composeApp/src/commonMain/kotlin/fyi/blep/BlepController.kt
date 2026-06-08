@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.ble.DeviceAliases
 import fyi.blep.core.ble.DeviceFavorites
+import fyi.blep.core.ble.DeviceFlags
 import fyi.blep.core.ble.RotationStats
 import fyi.blep.core.ble.RotationTracker
 import fyi.blep.core.ble.ScanAvailability
@@ -68,6 +69,7 @@ class BlepController(
     private val safetyHistory: SafetyHistory = SafetyHistory(createKeyValueStore()),
     private val favorites: DeviceFavorites = DeviceFavorites(createKeyValueStore()),
     private val aliasStore: DeviceAliases = DeviceAliases(createKeyValueStore()),
+    private val flags: DeviceFlags = DeviceFlags(createKeyValueStore()),
     private val settings: AppSettings = AppSettings(),
     private val skipOnboarding: Boolean = false, // demo mode jumps straight to discovery
 ) {
@@ -179,6 +181,7 @@ class BlepController(
     // for the hot overlay path and written through on every change.
     private val aliases = aliasStore.all().toMutableMap()
     private var favoriteIds: Set<String> = favorites.ids()
+    private var flaggedIds: Set<String> = flags.ids()
     private var scanJob: Job? = null
     private var trackJob: Job? = null
     private var motionJob: Job? = null
@@ -272,6 +275,7 @@ class BlepController(
         spatialTracker.reset()
         guidanceStabilizer.reset()
         BackgroundScan.setForeground(false) // leaving safety → drop the foreground service
+        syncFlagWatch() // …unless a flagged device still wants the continuous watch
         screen = Screen.Discovery
         restartScan()
     }
@@ -348,6 +352,25 @@ class BlepController(
         val nowFavorite = favorites.toggle(device.id)
         favoriteIds = favorites.ids()
         devices = devices.map { if (it.id == device.id) it.copy(isFavorite = nowFavorite) else it }
+    }
+
+    /** Flag/unflag a device for priority watching (persisted). A flag escalates the
+     *  background check to a continuous foreground watch (notifies while in range);
+     *  removing the last flag drops it again. Returns the new flagged state. */
+    fun toggleFlag(device: BleDevice): Boolean {
+        val nowFlagged = flags.toggle(device.id)
+        flaggedIds = flags.ids()
+        devices = devices.map { if (it.id == device.id) it.copy(isFlagged = nowFlagged) else it }
+        syncFlagWatch()
+        return nowFlagged
+    }
+
+    /** Keep a continuous foreground watch alive while any device is flagged (the
+     *  service reads the flag set + scans for it). Doesn't tear down the foreground
+     *  service while the safety screen still wants it. */
+    private fun syncFlagWatch() {
+        if (flaggedIds.isNotEmpty()) BackgroundScan.setForeground(true)
+        else if (screen !is Screen.Safety) BackgroundScan.setForeground(false)
     }
 
     /** Start the "is something tracking me?" scan and show its screen. */
@@ -509,7 +532,7 @@ class BlepController(
                         val nowMs = rotationClock.elapsedNow().inWholeMilliseconds
                         list.forEach { if (!it.rssiUnknown) rotationTracker.observe(it.id, it.rssi, nowMs) }
                         devices = list.map {
-                            it.copy(alias = aliases[it.id] ?: it.alias, isFavorite = it.id in favoriteIds)
+                            it.copy(alias = aliases[it.id] ?: it.alias, isFavorite = it.id in favoriteIds, isFlagged = it.id in flaggedIds)
                         }
                     }
                 } catch (c: CancellationException) {

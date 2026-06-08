@@ -210,4 +210,8 @@
     <string name="detail_no_rotation">Καμία αλλαγή id ακόμη.</string>
     <string name="detail_first_seen">Πρώτη εμφάνιση πριν από %1$s</string>
     <string name="detail_find">Βρες το</string>
+    <string name="detail_flag">Παρακολούθηση αυτής της συσκευής</string>
+    <string name="detail_flagged">Παρακολουθείται — πατήστε για διακοπή</string>
+    <string name="noti_flagged_title">Παρακολούθηση επισημασμένης συσκευής</string>
+    <string name="noti_flagged_text">%1$s είναι σε εμβέλεια</string>
 </resources>

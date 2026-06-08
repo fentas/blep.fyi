@@ -20,6 +20,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import fyi.blep.core.ble.DeviceAliases
+import fyi.blep.core.ble.DeviceFlags
 import fyi.blep.core.ble.createBleScanner
 import fyi.blep.core.platform.createKeyValueStore
 import fyi.blep.core.safety.SafetyHistory
@@ -39,6 +41,8 @@ import fyi.blep.resources.noti_alert_text
 import fyi.blep.resources.noti_alert_title
 import fyi.blep.resources.noti_channel_alert
 import fyi.blep.resources.noti_channel_ongoing
+import fyi.blep.resources.noti_flagged_text
+import fyi.blep.resources.noti_flagged_title
 import fyi.blep.resources.noti_ongoing_text
 import java.util.concurrent.TimeUnit
 
@@ -47,6 +51,7 @@ private const val CH_ALERT = "blep.safety.alert"
 private const val CH_ONGOING = "blep.safety.ongoing"
 private const val NOTI_ALERT = 1001
 private const val NOTI_ONGOING = 1002
+private const val NOTI_FLAGGED = 1003
 private const val SCAN_WINDOW_MS = 20_000L
 
 actual object BackgroundScan {
@@ -99,14 +104,40 @@ class BackgroundScanService : Service() {
         scope.launch {
             val text = loadNotiText()
             ensureChannels(this@BackgroundScanService, text)
-            ServiceCompat.startForeground(
-                this@BackgroundScanService, NOTI_ONGOING, ongoingNotification(this@BackgroundScanService, text),
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE else 0,
-            )
-            val safety = SafetyScanner(createBleScanner(), TrackerDetector(AppSettings().scanSensitivity().tuning), SafetyHistory(createKeyValueStore()))
-            runCatching {
-                safety.alerts().collect { list ->
-                    if (list.any { it.severity == Severity.ALERT }) notifyTracker(this@BackgroundScanService, text)
+            // startForeground can be rejected — the connected-device FGS type needs BLE
+            // permission, which may not be granted yet — so fail soft, never crash.
+            val started = runCatching {
+                ServiceCompat.startForeground(
+                    this@BackgroundScanService, NOTI_ONGOING, ongoingNotification(this@BackgroundScanService, text),
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE else 0,
+                )
+            }.isSuccess
+            if (!started) {
+                stopSelf()
+                return@launch
+            }
+            val scanner = createBleScanner()
+            val safety = SafetyScanner(scanner, TrackerDetector(AppSettings().scanSensitivity().tuning), SafetyHistory(createKeyValueStore()))
+            val flagStore = DeviceFlags(createKeyValueStore())
+            val aliasStore = DeviceAliases(createKeyValueStore())
+            // Safety scan → alert on a confirmed tracker.
+            launch {
+                runCatching {
+                    safety.alerts().collect { list ->
+                        if (list.any { it.severity == Severity.ALERT }) notifyTracker(this@BackgroundScanService, text)
+                    }
+                }
+            }
+            // Flag watch → an ongoing notification naming a flagged device while it's in
+            // range, cleared when it leaves. The flag set is re-read each tick (cheap),
+            // so flagging/unflagging takes effect without restarting the service.
+            launch {
+                runCatching {
+                    scanner.devices(includeUnnamed = true, measureConnectedSignal = false).collect { list ->
+                        val here = list.firstOrNull { it.id in flagStore.ids() && it.isPresent }
+                        if (here != null) notifyFlagged(this@BackgroundScanService, text, aliasStore.of(here.id) ?: here.displayName)
+                        else cancelFlagged(this@BackgroundScanService)
+                    }
                 }
             }
         }
@@ -129,6 +160,8 @@ private data class NotiText(
     val ongoingText: String,
     val alertTitle: String,
     val alertText: String,
+    val flaggedTitle: String,
+    val flaggedText: String,
 )
 
 private suspend fun loadNotiText() = NotiText(
@@ -137,6 +170,8 @@ private suspend fun loadNotiText() = NotiText(
     ongoingText = getString(Res.string.noti_ongoing_text),
     alertTitle = getString(Res.string.noti_alert_title),
     alertText = getString(Res.string.noti_alert_text),
+    flaggedTitle = getString(Res.string.noti_flagged_title),
+    flaggedText = getString(Res.string.noti_flagged_text),
 )
 
 /** The app's display name from its manifest label — single source of truth, no
@@ -181,4 +216,23 @@ private fun notifyTracker(ctx: Context, t: NotiText) {
         .setContentIntent(openAppIntent(ctx))
         .build()
     runCatching { NotificationManagerCompat.from(ctx).notify(NOTI_ALERT, n) }
+}
+
+/** Ongoing, low-key notification naming a flagged device that's currently in range. */
+private fun notifyFlagged(ctx: Context, t: NotiText, name: String) {
+    ensureChannels(ctx, t)
+    if (!NotificationManagerCompat.from(ctx).areNotificationsEnabled()) return
+    val n = NotificationCompat.Builder(ctx, CH_ONGOING)
+        .setContentTitle(t.flaggedTitle)
+        .setContentText(t.flaggedText.format(name))
+        .setSmallIcon(android.R.drawable.stat_notify_sync)
+        .setOngoing(true)
+        .setOnlyAlertOnce(true) // refreshes silently each scan tick while present
+        .setContentIntent(openAppIntent(ctx))
+        .build()
+    runCatching { NotificationManagerCompat.from(ctx).notify(NOTI_FLAGGED, n) }
+}
+
+private fun cancelFlagged(ctx: Context) {
+    runCatching { NotificationManagerCompat.from(ctx).cancel(NOTI_FLAGGED) }
 }

@@ -50,6 +50,8 @@ import fyi.blep.resources.detail_addr_opaque
 import fyi.blep.resources.detail_addr_rotating
 import fyi.blep.resources.detail_addr_stable
 import fyi.blep.resources.detail_find
+import fyi.blep.resources.detail_flag
+import fyi.blep.resources.detail_flagged
 import fyi.blep.resources.detail_first_seen
 import fyi.blep.resources.detail_identifier
 import fyi.blep.resources.detail_identity
@@ -77,6 +79,7 @@ fun DeviceDetailScreen(
     firstSeenAgoMs: Long?,
     onRename: (String?) -> Unit,
     onToggleFavorite: () -> Unit,
+    onToggleFlag: () -> Unit,
     onTrack: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -152,6 +155,23 @@ fun DeviceDetailScreen(
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
                 )
             }
+        }
+        Spacer(Modifier.height(12.dp))
+
+        // Flag → priority watch: keeps a continuous foreground scan + a notification
+        // while this device is in range (escalates the ambient interval check).
+        Surface(
+            onClick = onToggleFlag,
+            shape = RoundedCornerShape(18.dp),
+            color = if (device.isFlagged) BlepColors.Pink.copy(alpha = 0.22f) else MaterialTheme.colorScheme.surface,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                stringResource(if (device.isFlagged) Res.string.detail_flagged else Res.string.detail_flag),
+                style = MaterialTheme.typography.titleMedium,
+                color = if (device.isFlagged) BlepColors.Pink else MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(16.dp),
+            )
         }
         Spacer(Modifier.height(20.dp))
 

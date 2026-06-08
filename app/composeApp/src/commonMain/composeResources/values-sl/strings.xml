@@ -210,4 +210,8 @@
     <string name="detail_no_rotation">Sprememba id-ja še ni opažena.</string>
     <string name="detail_first_seen">Prvič opaženo pred %1$s</string>
     <string name="detail_find">Najdi</string>
+    <string name="detail_flag">Spremljaj to napravo</string>
+    <string name="detail_flagged">Spremljanje — tapnite za ustavitev</string>
+    <string name="noti_flagged_title">Spremljanje označene naprave</string>
+    <string name="noti_flagged_text">%1$s je v dosegu</string>
 </resources>

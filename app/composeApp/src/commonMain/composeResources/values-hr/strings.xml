@@ -210,4 +210,8 @@
     <string name="detail_no_rotation">Još nema promjene id-a.</string>
     <string name="detail_first_seen">Prvi put viđeno prije %1$s</string>
     <string name="detail_find">Pronađi</string>
+    <string name="detail_flag">Prati ovaj uređaj</string>
+    <string name="detail_flagged">Prati se — dodirni za zaustavljanje</string>
+    <string name="noti_flagged_title">Praćenje označenog uređaja</string>
+    <string name="noti_flagged_text">%1$s je u dometu</string>
 </resources>

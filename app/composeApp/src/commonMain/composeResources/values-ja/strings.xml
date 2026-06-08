@@ -210,4 +210,8 @@
     <string name="detail_no_rotation">まだ id の変化は見られません。</string>
     <string name="detail_first_seen">初回検出 %1$s前</string>
     <string name="detail_find">見つける</string>
+    <string name="detail_flag">このデバイスを監視</string>
+    <string name="detail_flagged">監視中 — タップで停止</string>
+    <string name="noti_flagged_title">フラグ付きデバイスを監視中</string>
+    <string name="noti_flagged_text">%1$s が範囲内です</string>
 </resources>

@@ -211,4 +211,8 @@
     <string name="detail_no_rotation">Noch kein ID-Wechsel beobachtet.</string>
     <string name="detail_first_seen">Zuerst gesehen vor %1$s</string>
     <string name="detail_find">Finden</string>
+    <string name="detail_flag">Dieses Gerät beobachten</string>
+    <string name="detail_flagged">Wird beobachtet — zum Stoppen tippen</string>
+    <string name="noti_flagged_title">Beobachte ein markiertes Gerät</string>
+    <string name="noti_flagged_text">%1$s ist in Reichweite</string>
 </resources>
