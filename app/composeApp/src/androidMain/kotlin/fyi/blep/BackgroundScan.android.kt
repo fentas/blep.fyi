@@ -109,7 +109,7 @@ class BackgroundScanService : Service() {
     }
 }
 
-// ── notifications (English for now; in-app UI is localized) ──────────────────
+// ── notifications (localized via Android string resources, locale-aware) ─────
 private fun ensureChannels(ctx: Context) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
     val nm = ctx.getSystemService(NotificationManager::class.java) ?: return
