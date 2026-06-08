@@ -23,20 +23,32 @@ object BlepColors {
         1.00f to Color(0xFFAEDD98), // close: pastel green
     )
 
+    // Darker, muted twin of the ramp for dark surfaces (e.g. the signal bars on
+    // the dark discovery screen). Same blue → green progression, lower lightness
+    // so the bright pastels don't glare against the dark background.
+    private val proximityStopsDark = listOf(
+        0.00f to Color(0xFF577CA3), // far: muted blue
+        0.45f to Color(0xFF5F9385), // muted teal
+        0.75f to Color(0xFF7FA06B), // muted sage
+        1.00f to Color(0xFF74A05C), // close: muted green
+    )
+
     /**
      * Colour for a proximity in [0f, 1f], linearly interpolated between stops.
      * Drives the tracking screen's background + arrow tint ("getting warmer").
+     * Pass [dark] for the muted ramp used on dark surfaces.
      */
-    fun proximity(fraction: Float): Color {
+    fun proximity(fraction: Float, dark: Boolean = false): Color {
+        val stops = if (dark) proximityStopsDark else proximityStops
         val f = fraction.coerceIn(0f, 1f)
-        for (i in 0 until proximityStops.lastIndex) {
-            val (p0, c0) = proximityStops[i]
-            val (p1, c1) = proximityStops[i + 1]
+        for (i in 0 until stops.lastIndex) {
+            val (p0, c0) = stops[i]
+            val (p1, c1) = stops[i + 1]
             if (f <= p1) {
                 val t = if (p1 == p0) 0f else (f - p0) / (p1 - p0)
                 return lerp(c0, c1, t)
             }
         }
-        return proximityStops.last().second
+        return stops.last().second
     }
 }

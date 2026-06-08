@@ -42,10 +42,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
@@ -84,6 +84,10 @@ import fyi.blep.resources.status_connected
 import fyi.blep.resources.status_paired
 import fyi.blep.ui.rememberAvailabilityAction
 import fyi.blep.ui.theme.BlepColors
+import fyi.blep.ui.theme.GiftIcon
+import fyi.blep.ui.theme.PencilIcon
+import fyi.blep.ui.theme.StarFilledIcon
+import fyi.blep.ui.theme.StarOutlineIcon
 import fyi.blep.ui.theme.BlepLogo
 import fyi.blep.ui.theme.HeartIcon
 import org.jetbrains.compose.resources.stringResource
@@ -195,7 +199,7 @@ fun DiscoveryScreen(
     if (showDonate) {
         AlertDialog(
             onDismissRequest = { showDonate = false },
-            icon = { Icon(rememberVectorPainter(HeartIcon), contentDescription = null, tint = BlepColors.Pink, modifier = Modifier.size(28.dp)) },
+            icon = { Icon(rememberVectorPainter(GiftIcon), contentDescription = null, tint = BlepColors.Blue, modifier = Modifier.size(28.dp)) },
             title = { Text(stringResource(Res.string.donate_dialog_title), color = MaterialTheme.colorScheme.onBackground) },
             text = {
                 Text(
@@ -206,6 +210,8 @@ fun DiscoveryScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showDonate = false; onDonate() }) {
+                    Icon(rememberVectorPainter(HeartIcon), contentDescription = null, tint = BlepColors.Pink, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
                     Text(stringResource(Res.string.donate_dialog_action), color = BlepColors.Blue)
                 }
             },
@@ -445,13 +451,6 @@ private fun DeviceCard(
 
 /** Star toggle: filled gold when starred, hollow otherwise. Starred devices pin to
  *  the top of the main list even when not advertising. */
-// Centre a single glyph within its line box so ★/☆/✎ sit at the same height
-// (their default font ascent/descent differ).
-private val CenteredGlyph = LineHeightStyle(
-    alignment = LineHeightStyle.Alignment.Center,
-    trim = LineHeightStyle.Trim.Both,
-)
-
 @Composable
 private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit) {
     val label = stringResource(Res.string.a11y_favorite)
@@ -459,11 +458,11 @@ private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit) {
         Modifier.size(30.dp).clip(CircleShape).clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            if (isFavorite) "★" else "☆",
-            style = MaterialTheme.typography.titleMedium.copy(lineHeightStyle = CenteredGlyph),
-            color = if (isFavorite) BlepColors.Gold else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.35f),
-            modifier = Modifier.semantics { contentDescription = label },
+        Icon(
+            rememberVectorPainter(if (isFavorite) StarFilledIcon else StarOutlineIcon),
+            contentDescription = label,
+            tint = if (isFavorite) BlepColors.Gold else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.35f),
+            modifier = Modifier.size(20.dp),
         )
     }
 }
@@ -513,7 +512,12 @@ private fun RenameButton(onRename: () -> Unit) {
         Modifier.size(30.dp).clip(CircleShape).clickable(onClick = onRename),
         contentAlignment = Alignment.Center,
     ) {
-        Text("✎", style = MaterialTheme.typography.titleMedium.copy(lineHeightStyle = CenteredGlyph), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.35f), modifier = Modifier.semantics { contentDescription = label })
+        Icon(
+            rememberVectorPainter(PencilIcon),
+            contentDescription = label,
+            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.35f),
+            modifier = Modifier.size(18.dp),
+        )
     }
 }
 
@@ -527,6 +531,8 @@ private fun SignalDots(rssi: Int) {
         rssi >= -92 -> 1
         else -> 0
     }
+    // On the dark theme the bright pastels glare, so use the muted ramp.
+    val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
     Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
         for (i in 1..4) {
             Box(
@@ -535,7 +541,7 @@ private fun SignalDots(rssi: Int) {
                     .height((6 + i * 3).dp)
                     .clip(RoundedCornerShape(3.dp))
                     .background(
-                        if (i <= strength) BlepColors.proximity(strength / 4f)
+                        if (i <= strength) BlepColors.proximity(strength / 4f, dark = dark)
                         else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.10f),
                     ),
             )
