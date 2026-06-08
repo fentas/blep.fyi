@@ -450,11 +450,12 @@ class BlepController(
                     if (latestMotion?.reorienting != true) {
                         val st = session.onSample(rssi, clock.elapsedNow().inWholeMilliseconds)
                         status = st
-                        if (st.phase == TrackingPhase.COMPLETE) {
+                        if (st.phase == TrackingPhase.COMPLETE && screen !is Screen.Done) {
                             screen = Screen.Done(device)
                             haptic.success()
-                            // Stop ranging — the Done screen doesn't need live RSSI.
-                            trackJob?.cancel()
+                            // Stop the Geiger pulse + motion, but keep ranging alive:
+                            // the Done screen shows the live dB so you can sweep the
+                            // last few cm to the exact spot.
                             motionJob?.cancel()
                             hapticJob?.cancel()
                         }

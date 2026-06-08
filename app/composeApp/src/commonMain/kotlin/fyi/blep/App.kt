@@ -143,6 +143,7 @@ fun App(demo: Boolean = false) {
                     deviceName = screen.device.displayName,
                     onDone = controller::startDiscovery,
                     onDonate = { uriHandler.openUri(DONATE_URL) },
+                    rssi = if (controller.signalLost) null else controller.lastRssi,
                 )
             }
         }

@@ -68,6 +68,7 @@ import fyi.blep.resources.celebrate_9
 import fyi.blep.resources.done_donate_blurb
 import fyi.blep.resources.done_donate_button
 import fyi.blep.resources.done_got_it
+import fyi.blep.resources.dbm
 import fyi.blep.resources.done_here
 import fyi.blep.resources.done_keep_looking
 import fyi.blep.resources.done_on_top
@@ -80,6 +81,7 @@ import fyi.blep.resources.subline_5
 import fyi.blep.resources.subline_6
 import fyi.blep.resources.subline_7
 import fyi.blep.resources.subline_8
+import fyi.blep.resources.tracking_db_hint
 import fyi.blep.ui.theme.BlepColors
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.PI
@@ -125,6 +127,7 @@ fun CompletionScreen(
     deviceName: String,
     onDone: () -> Unit,
     onDonate: () -> Unit,
+    rssi: Int? = null,      // live signal, so the found panel can pinpoint the spot
     modifier: Modifier = Modifier,
 ) {
     var celebrated by remember { mutableStateOf(false) }
@@ -160,7 +163,7 @@ fun CompletionScreen(
             label = "celebrate",
         ) { done ->
             if (!done) {
-                FoundPanel(deviceName = deviceName, ink = ink, onGotIt = { celebrated = true }, onKeepLooking = onDone)
+                FoundPanel(deviceName = deviceName, ink = ink, rssi = rssi, onGotIt = { celebrated = true }, onKeepLooking = onDone)
             } else {
                 CelebratePanel(headline = celebration, subline = subline, ink = ink, onDonate = onDonate, onAnother = onDone)
             }
@@ -169,7 +172,7 @@ fun CompletionScreen(
 }
 
 @Composable
-private fun FoundPanel(deviceName: String, ink: Color, onGotIt: () -> Unit, onKeepLooking: () -> Unit) {
+private fun FoundPanel(deviceName: String, ink: Color, rssi: Int?, onGotIt: () -> Unit, onKeepLooking: () -> Unit) {
     Column(
         Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -195,6 +198,18 @@ private fun FoundPanel(deviceName: String, ink: Color, onGotIt: () -> Unit, onKe
                 color = ink.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center,
             )
+            // Live signal so this panel is still a tool: sweep the phone to the
+            // exact spot and watch it peak.
+            if (rssi != null) {
+                Spacer(Modifier.height(22.dp))
+                Text(stringResource(Res.string.dbm, rssi), style = MaterialTheme.typography.displaySmall, color = ink)
+                Text(
+                    stringResource(Res.string.tracking_db_hint),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = ink.copy(alpha = 0.5f),
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
         Button(
             onClick = onGotIt,
