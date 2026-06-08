@@ -3,12 +3,12 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.kotlinCompose)
+    // Kotlin is provided by AGP's built-in Kotlin since AGP 9 — no separate
+    // org.jetbrains.kotlin.android plugin.
 }
 
-// AGP 9 / Kotlin 2.4 removed android { kotlinOptions { } } — set the JVM target on
-// the Kotlin plugin's compilerOptions instead.
+// JVM target on the built-in Kotlin's compilerOptions.
 kotlin {
     compilerOptions { jvmTarget.set(JvmTarget.JVM_11) }
 }

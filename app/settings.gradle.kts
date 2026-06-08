@@ -29,10 +29,9 @@ dependencyResolutionManagement {
 
 include(":core")
 include(":composeApp")
+include(":androidApp")
 
 // The Wear OS app is Android-only; skip it when building without an Android SDK
 // (e.g. `:core:jvmTest -Pblep.android=false`).
 val androidEnabled = (providers.gradleProperty("blep.android").orNull ?: "true") != "false"
-if (androidEnabled) {
-    include(":wearApp")
-}
+if (androidEnabled) { include(":wearApp") }

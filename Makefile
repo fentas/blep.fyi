@@ -18,7 +18,7 @@ SYSIMG      ?= system-images;android-35;google_apis;x86_64
 PLAY_KEY           ?= sa.json
 PLAY_PHONE_TRACK   ?= alpha       # phone closed-test track (the one with testers)
 PLAY_WEAR_TRACK    ?= wear:blep   # Wear OS form-factor track (API prefixes it `wear:`)
-PHONE_AAB          := app/composeApp/build/outputs/bundle/release/composeApp-release.aab
+PHONE_AAB          := app/androidApp/build/outputs/bundle/release/androidApp-release.aab
 WEAR_AAB           := app/wearApp/build/outputs/bundle/release/wearApp-release.aab
 PUBLISH_PY         := .venv-publish/bin/python
 # Dry-run unless PLAY_COMMIT is set (so a bare `make publish-*` only prints the plan).
@@ -79,15 +79,15 @@ robustness: ## Held-out generalisation over random worlds (ROBUST_N, ROBUST_SEED
 	$(print_sim)
 
 build: ## Build the phone + Wear debug APKs
-	cd app && $(GRADLE) :composeApp:assembleDebug :wearApp:assembleDebug
+	cd app && $(GRADLE) :androidApp:assembleDebug :wearApp:assembleDebug
 	@echo "APKs:"
 	@find app -path '*outputs/apk/debug/*.apk'
 
 apk: build ## Alias for `build`
 
 aab: ## Build the signed release AAB for Play (needs app/keystore.properties)
-	cd app && $(GRADLE) :composeApp:bundleRelease
-	@echo "AAB: app/composeApp/build/outputs/bundle/release/composeApp-release.aab"
+	cd app && $(GRADLE) :androidApp:bundleRelease
+	@echo "AAB: app/androidApp/build/outputs/bundle/release/androidApp-release.aab"
 
 clean: ## Clean Gradle + web build outputs
 	cd app && $(GRADLE) clean
@@ -113,7 +113,7 @@ devices: ## List connected devices (adb)
 	$(ADB) devices
 
 install: ## Build + install the phone app (DEVICE=<serial> to pick when several attached)
-	@$(call with_device,cd app && $(GRADLE) :composeApp:installDebug)
+	@$(call with_device,cd app && $(GRADLE) :androidApp:installDebug)
 
 run: install ## Install and launch blep on the phone
 	@$(call with_device,$(ADB) shell am start -n $(APP_ID)/.MainActivity)
@@ -122,8 +122,8 @@ install-wear: ## Build + install the Wear OS app (DEVICE=<serial> for the watch)
 	@$(call with_device,cd app && $(GRADLE) :wearApp:installDebug)
 
 demo: ## Install + launch the app in demo mode (scripted data, no BLE needed)
-	cd app && $(GRADLE) :composeApp:assembleDebug -q
-	@$(call with_device,$(ADB) install -r app/composeApp/build/outputs/apk/debug/composeApp-debug.apk \
+	cd app && $(GRADLE) :androidApp:assembleDebug -q
+	@$(call with_device,$(ADB) install -r app/androidApp/build/outputs/apk/debug/androidApp-debug.apk \
 		&& $(ADB) shell am start -n $(APP_ID)/.MainActivity --ez demo true)
 
 uninstall: ## Remove blep from the connected device
@@ -178,7 +178,7 @@ bump-version: ## Increment each module's versionCode (phone 1xxx, wear 2xxx band
 	tools/bump-version.sh
 
 release-build: ## Build the signed phone + Wear release AABs
-	cd app && $(GRADLE) :composeApp:bundleRelease :wearApp:bundleRelease
+	cd app && $(GRADLE) :androidApp:bundleRelease :wearApp:bundleRelease
 
 publish-release: release-build ## Upload + release the built AABs to their tracks (no bump; PLAY_COMMIT=1 to apply)
 	$(PUBLISH_PY) tools/publish-release.py --key $(PLAY_KEY) --aab $(PHONE_AAB) --track $(PLAY_PHONE_TRACK) $(COMMIT_FLAG)
