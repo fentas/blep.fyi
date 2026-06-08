@@ -42,7 +42,7 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
-      - run: ./gradlew :composeApp:assembleDebug :wearApp:assembleDebug --stacktrace
+      - run: ./gradlew :androidApp:assembleDebug :wearApp:assembleDebug --stacktrace
 
   apple:
     name: Compile Apple targets (iOS + watchOS)
