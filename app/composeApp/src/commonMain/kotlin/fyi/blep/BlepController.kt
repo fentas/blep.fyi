@@ -316,6 +316,11 @@ class BlepController(
     fun rotationFirstSeenAgoMs(id: String): Long? =
         rotationTracker.statsFor(id)?.let { rotationClock.elapsedNow().inWholeMilliseconds - it.firstSeenMs }
 
+    /** The ids this device has worn (its rotation lineage), current id last. For the
+     *  detail page's history list. Empty when there's nothing correlated. */
+    fun deviceHistory(id: String): List<String> =
+        rotationTracker.identityFor(id)?.addresses?.let { (it - id).sorted() + id } ?: listOf(id)
+
     // ── identity: rename/flag follow a device across its rotating addresses ──────
     // Resolved across the persisted identity's address set, so a label saved under one
     // address is found under all of them — even after a restart.

@@ -214,4 +214,6 @@
     <string name="detail_flagged">A vigiar — toque para parar</string>
     <string name="noti_flagged_title">A vigiar um dispositivo marcado</string>
     <string name="noti_flagged_text">%1$s está ao alcance</string>
+    <string name="detail_history">Histórico</string>
+    <string name="detail_alt">Também pode ser um destes id próximos:</string>
 </resources>

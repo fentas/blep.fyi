@@ -214,4 +214,6 @@
     <string name="detail_flagged">Παρακολουθείται — πατήστε για διακοπή</string>
     <string name="noti_flagged_title">Παρακολούθηση επισημασμένης συσκευής</string>
     <string name="noti_flagged_text">%1$s είναι σε εμβέλεια</string>
+    <string name="detail_history">Ιστορικό</string>
+    <string name="detail_alt">Μπορεί επίσης να είναι ένα από αυτά τα κοντινά id:</string>
 </resources>

@@ -214,4 +214,6 @@
     <string name="detail_flagged">Jälgitakse — peatamiseks puuduta</string>
     <string name="noti_flagged_title">Märgistatud seadme jälgimine</string>
     <string name="noti_flagged_text">%1$s on levialas</string>
+    <string name="detail_history">Ajalugu</string>
+    <string name="detail_alt">Võib olla ka üks neist lähedastest id-dest:</string>
 </resources>

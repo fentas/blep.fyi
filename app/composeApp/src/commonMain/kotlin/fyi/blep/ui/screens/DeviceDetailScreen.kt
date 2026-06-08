@@ -20,7 +20,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -49,10 +52,12 @@ import fyi.blep.resources.dbm
 import fyi.blep.resources.detail_addr_opaque
 import fyi.blep.resources.detail_addr_rotating
 import fyi.blep.resources.detail_addr_stable
+import fyi.blep.resources.detail_alt
 import fyi.blep.resources.detail_find
 import fyi.blep.resources.detail_flag
 import fyi.blep.resources.detail_flagged
 import fyi.blep.resources.detail_first_seen
+import fyi.blep.resources.detail_history
 import fyi.blep.resources.detail_identifier
 import fyi.blep.resources.detail_identity
 import fyi.blep.resources.detail_no_rotation
@@ -77,6 +82,7 @@ fun DeviceDetailScreen(
     device: BleDevice,
     rotation: RotationStats?,
     firstSeenAgoMs: Long?,
+    wornIds: List<String>,
     onRename: (String?) -> Unit,
     onToggleFavorite: () -> Unit,
     onToggleFlag: () -> Unit,
@@ -92,8 +98,7 @@ fun DeviceDetailScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(horizontal = 20.dp)
-            .verticalScroll(rememberScrollState()),
+            .padding(horizontal = 20.dp),
     ) {
         Spacer(Modifier.height(12.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -113,68 +118,91 @@ fun DeviceDetailScreen(
         }
         Spacer(Modifier.height(14.dp))
 
-        // Signal
-        Section(stringResource(Res.string.detail_signal)) {
-            val signal = when {
-                !device.rssiUnknown -> stringResource(Res.string.dbm, device.rssi)
-                device.isConnected -> stringResource(Res.string.status_connected)
-                else -> stringResource(Res.string.status_paired)
+        // Scrollable content; the actions stay pinned at the bottom.
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+            Section(stringResource(Res.string.detail_signal)) {
+                val signal = when {
+                    !device.rssiUnknown -> stringResource(Res.string.dbm, device.rssi)
+                    device.isConnected -> stringResource(Res.string.status_connected)
+                    else -> stringResource(Res.string.status_paired)
+                }
+                Text(signal, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
             }
-            Text(signal, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
+            Spacer(Modifier.height(12.dp))
+
+            Section(stringResource(Res.string.detail_identity)) {
+                Label(stringResource(Res.string.detail_identifier))
+                Text(device.id, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
+                Spacer(Modifier.height(8.dp))
+                val addressNote = when (addressKind(device.id)) {
+                    AddressKind.PUBLIC -> stringResource(Res.string.detail_addr_stable)
+                    AddressKind.RANDOM -> stringResource(Res.string.detail_addr_rotating)
+                    AddressKind.OPAQUE -> stringResource(Res.string.detail_addr_opaque)
+                }
+                Text(addressNote, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
+                if (firstSeenAgoMs != null) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        stringResource(Res.string.detail_first_seen, formatAge(firstSeenAgoMs)),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
+                    )
+                }
+                if (rotation == null || rotation.rotations == 0) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        stringResource(Res.string.detail_no_rotation),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
+                    )
+                }
+            }
+
+            // History — the id changes the correlator stitched together, with the
+            // contested fork (if any) shown plainly: the ids this might also be.
+            if (rotation != null && rotation.rotations > 0) {
+                Spacer(Modifier.height(12.dp))
+                Section(stringResource(Res.string.detail_history)) {
+                    val summary = if (rotation.contested) {
+                        stringResource(Res.string.detail_rotated_contested, rotation.rotations)
+                    } else {
+                        stringResource(Res.string.detail_rotated, rotation.rotations, (rotation.confidence * 100).roundToInt())
+                    }
+                    Text(summary, style = MaterialTheme.typography.bodyMedium, color = if (rotation.contested) BlepColors.Pink else MaterialTheme.colorScheme.onBackground)
+                    if (wornIds.size > 1) {
+                        Spacer(Modifier.height(8.dp))
+                        wornIds.forEach {
+                            Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
+                        }
+                    }
+                    if (rotation.contested && rotation.alternatives.isNotEmpty()) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(stringResource(Res.string.detail_alt), style = MaterialTheme.typography.labelLarge, color = BlepColors.Pink)
+                        rotation.alternatives.forEach {
+                            Text(it, style = MaterialTheme.typography.labelMedium, color = BlepColors.Pink.copy(alpha = 0.8f))
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(12.dp))
         }
-        Spacer(Modifier.height(12.dp))
 
-        // Identity
-        Section(stringResource(Res.string.detail_identity)) {
-            Label(stringResource(Res.string.detail_identifier))
-            Text(device.id, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
-            Spacer(Modifier.height(8.dp))
-            val addressNote = when (addressKind(device.id)) {
-                AddressKind.PUBLIC -> stringResource(Res.string.detail_addr_stable)
-                AddressKind.RANDOM -> stringResource(Res.string.detail_addr_rotating)
-                AddressKind.OPAQUE -> stringResource(Res.string.detail_addr_opaque)
-            }
-            Text(addressNote, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
-
-            val rotationLine = when {
-                rotation == null || rotation.rotations == 0 -> stringResource(Res.string.detail_no_rotation)
-                rotation.contested -> stringResource(Res.string.detail_rotated_contested, rotation.rotations)
-                else -> stringResource(Res.string.detail_rotated, rotation.rotations, (rotation.confidence * 100).roundToInt())
-            }
-            Spacer(Modifier.height(8.dp))
-            Text(
-                rotationLine,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (rotation?.contested == true) BlepColors.Pink else MaterialTheme.colorScheme.onBackground,
-            )
-            if (firstSeenAgoMs != null) {
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    stringResource(Res.string.detail_first_seen, formatAge(firstSeenAgoMs)),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
-                )
+        // Pinned actions at the bottom.
+        if (device.isFlagged) {
+            FilledTonalButton(
+                onClick = onToggleFlag,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.filledTonalButtonColors(
+                    containerColor = BlepColors.Pink.copy(alpha = 0.18f),
+                    contentColor = BlepColors.Pink,
+                ),
+            ) { Text(stringResource(Res.string.detail_flagged)) }
+        } else {
+            OutlinedButton(onClick = onToggleFlag, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(Res.string.detail_flag))
             }
         }
-        Spacer(Modifier.height(12.dp))
-
-        // Flag → priority watch: keeps a continuous foreground scan + a notification
-        // while this device is in range (escalates the ambient interval check).
-        Surface(
-            onClick = onToggleFlag,
-            shape = RoundedCornerShape(18.dp),
-            color = if (device.isFlagged) BlepColors.Pink.copy(alpha = 0.22f) else MaterialTheme.colorScheme.surface,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(
-                stringResource(if (device.isFlagged) Res.string.detail_flagged else Res.string.detail_flag),
-                style = MaterialTheme.typography.titleMedium,
-                color = if (device.isFlagged) BlepColors.Pink else MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(16.dp),
-            )
-        }
-        Spacer(Modifier.height(20.dp))
-
+        Spacer(Modifier.height(10.dp))
         Button(onClick = onTrack, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(Res.string.detail_find))
         }

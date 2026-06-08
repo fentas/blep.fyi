@@ -214,4 +214,6 @@
     <string name="detail_flagged">Spremljanje — tapnite za ustavitev</string>
     <string name="noti_flagged_title">Spremljanje označene naprave</string>
     <string name="noti_flagged_text">%1$s je v dosegu</string>
+    <string name="detail_history">Zgodovina</string>
+    <string name="detail_alt">Morda je tudi eden od teh bližnjih id-jev:</string>
 </resources>

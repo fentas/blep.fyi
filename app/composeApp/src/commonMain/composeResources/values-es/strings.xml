@@ -214,4 +214,6 @@
     <string name="detail_flagged">Vigilando — toca para parar</string>
     <string name="noti_flagged_title">Vigilando un dispositivo marcado</string>
     <string name="noti_flagged_text">%1$s está al alcance</string>
+    <string name="detail_history">Historial</string>
+    <string name="detail_alt">También podría ser uno de estos id cercanos:</string>
 </resources>

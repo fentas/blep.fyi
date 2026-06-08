@@ -159,6 +159,7 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                         device = live,
                         rotation = controller.rotationStats(live.id),
                         firstSeenAgoMs = controller.rotationFirstSeenAgoMs(live.id),
+                        wornIds = controller.deviceHistory(live.id),
                         onRename = { controller.rename(live, it) },
                         onToggleFavorite = { controller.toggleFavorite(live) },
                         onToggleFlag = { controller.toggleFlag(live) },

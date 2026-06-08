@@ -215,4 +215,6 @@
     <string name="detail_flagged">监视中 — 点按停止</string>
     <string name="noti_flagged_title">正在监视已标记的设备</string>
     <string name="noti_flagged_text">%1$s 在范围内</string>
+    <string name="detail_history">历史</string>
+    <string name="detail_alt">也可能是附近的以下某个 id：</string>
 </resources>

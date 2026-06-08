@@ -214,4 +214,6 @@
     <string name="detail_flagged">In sorveglianza — tocca per fermare</string>
     <string name="noti_flagged_title">Sorveglianza di un dispositivo contrassegnato</string>
     <string name="noti_flagged_text">%1$s è a portata</string>
+    <string name="detail_history">Cronologia</string>
+    <string name="detail_alt">Potrebbe anche essere uno di questi id vicini:</string>
 </resources>

@@ -214,4 +214,6 @@
     <string name="detail_flagged">Obserwowane — dotknij, aby zatrzymać</string>
     <string name="noti_flagged_title">Obserwowanie oznaczonego urządzenia</string>
     <string name="noti_flagged_text">%1$s jest w zasięgu</string>
+    <string name="detail_history">Historia</string>
+    <string name="detail_alt">Może to być też jeden z tych pobliskich id:</string>
 </resources>

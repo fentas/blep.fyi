@@ -234,6 +234,8 @@
     <string name="detail_find">Find it</string>
     <string name="detail_flag">Watch this device</string>
     <string name="detail_flagged">Watching — tap to stop</string>
+    <string name="detail_history">History</string>
+    <string name="detail_alt">Might also be one of these nearby ids:</string>
     <string name="noti_flagged_title">Watching a flagged device</string>
     <string name="noti_flagged_text">%1$s is in range</string>
 </resources>
