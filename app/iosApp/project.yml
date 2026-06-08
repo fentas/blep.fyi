@@ -4,7 +4,10 @@ name: iosApp
 options:
   bundleIdPrefix: fyi.blep
   deploymentTarget:
-    iOS: "15.0"
+    # Compose Multiplatform 1.11 ships a precompiled iOS binary that hard-references
+    # an iOS-18 UIKit symbol (UIViewLayoutRegion), so the app only links at an iOS-18
+    # floor (JetBrains/compose-multiplatform#4821). Lower this once CMP weak-links it.
+    iOS: "18.0"
   createIntermediateGroups: true
 
 targets:
