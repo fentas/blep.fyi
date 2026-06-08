@@ -175,6 +175,7 @@ fun TrackingScreen(
                 soundOn = soundOn,
                 onToggle = onToggleSound,
                 ink = ink,
+                bg = background,
                 modifier = Modifier.align(Alignment.CenterEnd),
             )
         }
@@ -354,7 +355,7 @@ private const val NOISY_FIELD_DB = 2.2
 /** A flat 2-D speaker glyph (no system emoji) that toggles the tracking tone:
  *  sound-wave arcs when on, a slash when muted. */
 @Composable
-private fun MuteToggle(soundOn: Boolean, onToggle: () -> Unit, ink: Color, modifier: Modifier = Modifier) {
+private fun MuteToggle(soundOn: Boolean, onToggle: () -> Unit, ink: Color, bg: Color, modifier: Modifier = Modifier) {
     val tint = ink.copy(alpha = 0.72f)
     val desc = stringResource(if (soundOn) Res.string.sound_on else Res.string.sound_off)
     Canvas(
@@ -390,7 +391,13 @@ private fun MuteToggle(soundOn: Boolean, onToggle: () -> Unit, ink: Color, modif
                 )
             }
         } else {
-            drawLine(tint, Offset(w * 0.58f, h * 0.22f), Offset(w * 0.96f, h * 0.78f), strokeWidth = w * 0.08f, cap = StrokeCap.Round)
+            // Muted: one diagonal strike across the whole glyph (the universal mute
+            // symbol). A wider background-coloured "cut" sits under the strike so it
+            // reads cleanly where it crosses the speaker cone.
+            val a = Offset(w * 0.14f, h * 0.14f)
+            val z = Offset(w * 0.86f, h * 0.86f)
+            drawLine(bg, a, z, strokeWidth = w * 0.20f, cap = StrokeCap.Round)
+            drawLine(tint, a, z, strokeWidth = w * 0.09f, cap = StrokeCap.Round)
         }
     }
 }
