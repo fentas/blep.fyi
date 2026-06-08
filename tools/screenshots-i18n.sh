@@ -47,22 +47,22 @@ pl-PL pl PL pl-PL 0
 pt-PT pt PT pt-PT 0
 EOF
 
-# Captions per language: H1|S1|H2|S2|H3|S3|H4|S4|H5|S5|TAGLINE
+# Captions per language: H1|S1|H2|S2|H3|S3|H4|S4|H5|S5|H6|S6|TAGLINE
 caps() { case "$1" in
-en) echo "Find what you lost|Every nearby Bluetooth thing, by signal.|Walk right to it|A warm/cold pointer — no map needed.|You're on top of it|Calibrate, sweep, walk, done.|Found it|Free & open source. No ads, no tracking.|Is something tracking you?|Catch unwanted AirTags & trackers.|Find lost Bluetooth things";;
-de) echo "Finde, was du verloren hast|Jedes Bluetooth-Gerät in der Nähe, nach Signal.|Geh direkt hin|Ein Warm/Kalt-Zeiger — keine Karte nötig.|Du bist direkt darüber|Kalibrieren, schwenken, gehen, fertig.|Gefunden|Kostenlos & quelloffen. Keine Werbung, kein Tracking.|Verfolgt dich etwas?|Unerwünschte AirTags & Tracker aufspüren.|Verlorene Bluetooth-Geräte finden";;
-sl) echo "Najdi, kar si izgubil|Vsaka naprava Bluetooth v bližini, po signalu.|Pojdi naravnost tja|Topel/hladen kazalnik — brez zemljevida.|Si točno nad njim|Umeri, zanihaj, pojdi, končano.|Najdeno|Brezplačno in odprtokodno. Brez oglasov, brez sledenja.|Te kaj zasleduje?|Zaznaj neželene AirTage in sledilnike.|Najdi izgubljene naprave Bluetooth";;
-it) echo "Trova ciò che hai perso|Ogni dispositivo Bluetooth vicino, per segnale.|Vai dritto da lui|Un puntatore caldo/freddo — senza mappa.|Ci sei proprio sopra|Calibra, ruota, cammina, fatto.|Trovato|Gratis e open source. Niente pubblicità, niente tracciamento.|Qualcosa ti sta seguendo?|Scopri AirTag e tracker indesiderati.|Ritrova oggetti Bluetooth smarriti";;
-nl) echo "Vind wat je kwijt bent|Elk Bluetooth-apparaat dichtbij, op signaal.|Loop er recht naartoe|Een warm/koud-aanwijzer — geen kaart nodig.|Je staat er precies op|Kalibreren, zwenken, lopen, klaar.|Gevonden|Gratis en open source. Geen advertenties, geen tracking.|Word je gevolgd?|Spoor ongewenste AirTags & trackers op.|Verloren Bluetooth-spullen vinden";;
-es) echo "Encuentra lo que perdiste|Cada dispositivo Bluetooth cercano, por señal.|Ve directo hacia él|Un puntero frío/caliente — sin mapa.|Estás justo encima|Calibra, gira, camina, listo.|Encontrado|Gratis y de código abierto. Sin anuncios, sin rastreo.|¿Algo te está siguiendo?|Detecta AirTags y rastreadores no deseados.|Encuentra cosas Bluetooth perdidas";;
-el) echo "Βρες ό,τι έχασες|Κάθε συσκευή Bluetooth κοντά, κατά σήμα.|Πήγαινε κατευθείαν σε αυτό|Δείκτης ζεστού/κρύου — χωρίς χάρτη.|Είσαι ακριβώς από πάνω|Βαθμονόμησε, σάρωσε, περπάτα, έτοιμο.|Βρέθηκε|Δωρεάν & ανοιχτού κώδικα. Χωρίς διαφημίσεις, χωρίς παρακολούθηση.|Σε παρακολουθεί κάτι;|Εντόπισε ανεπιθύμητα AirTag & ιχνηλάτες.|Βρες χαμένα αντικείμενα Bluetooth";;
-et) echo "Leia, mille kaotasid|Iga lähedal olev Bluetooth-seade, signaali järgi.|Mine otse selle juurde|Soe/külm osuti — kaarti pole vaja.|Oled otse selle peal|Kalibreeri, pööra, kõnni, valmis.|Leitud|Tasuta ja avatud lähtekoodiga. Reklaamideta, jälgimiseta.|Kas keegi jälgib sind?|Tuvasta soovimatud AirTagid ja jälgijad.|Leia kadunud Bluetooth-asjad";;
-fr) echo "Retrouve ce que tu as perdu|Chaque appareil Bluetooth proche, par signal.|Va droit dessus|Un pointeur chaud/froid — sans carte.|Tu es juste dessus|Calibre, balaie, marche, terminé.|Trouvé|Gratuit et open source. Sans pub, sans pistage.|Quelque chose te suit-il ?|Repère les AirTags & traceurs indésirables.|Retrouve des objets Bluetooth perdus";;
-zh) echo "找回你丢失的东西|附近每个蓝牙设备，按信号排序。|径直走过去|冷热指针引导——无需地图。|你正好在它上面|校准、扫动、行走、完成。|找到了|免费开源。无广告，无跟踪。|有东西在跟踪你吗？|发现不需要的 AirTag 和追踪器。|找回丢失的蓝牙物品";;
-ja) echo "なくした物を見つけよう|近くのすべての Bluetooth 機器を信号順に。|まっすぐ向かう|冷暖ポインターが案内——地図不要。|ちょうど真上にいます|較正、スイープ、歩く、完了。|見つけた|無料・オープンソース。広告なし、追跡なし。|誰かに追跡されていませんか？|不要な AirTag やトラッカーを発見。|なくした Bluetooth の物を見つける";;
-hr) echo "Pronađi što si izgubio|Svaki Bluetooth uređaj u blizini, po signalu.|Idi ravno do njega|Topli/hladni pokazivač — bez karte.|Točno si iznad njega|Kalibriraj, zakreni, hodaj, gotovo.|Pronađeno|Besplatno i otvorenog koda. Bez oglasa, bez praćenja.|Prati li te nešto?|Otkrij neželjene AirTagove i pratitelje.|Pronađi izgubljene Bluetooth stvari";;
-pl) echo "Znajdź to, co zgubiłeś|Każde urządzenie Bluetooth w pobliżu, wg sygnału.|Idź prosto do niego|Wskaźnik ciepło/zimno — bez mapy.|Jesteś dokładnie nad tym|Skalibruj, obróć, idź, gotowe.|Znalezione|Bezpłatne i open source. Bez reklam, bez śledzenia.|Czy coś cię śledzi?|Wykryj niechciane AirTagi i lokalizatory.|Znajdź zgubione rzeczy Bluetooth";;
-pt) echo "Encontra o que perdeste|Cada dispositivo Bluetooth perto, por sinal.|Vai direto até ele|Um ponteiro quente/frio — sem mapa.|Estás mesmo em cima dele|Calibra, roda, anda, concluído.|Encontrado|Gratuito e open source. Sem anúncios, sem rastreio.|Algo te está a seguir?|Deteta AirTags e rastreadores indesejados.|Encontra objetos Bluetooth perdidos";;
+en) echo "Find what you lost|Every nearby Bluetooth thing, by signal.|Walk right to it|A warm/cold pointer — no map needed.|You're on top of it|Calibrate, sweep, walk, done.|Found it|Free & open source. No ads, no tracking.|Is something tracking you?|Catch unwanted AirTags & trackers.|Dark mode, too|Easy on the eyes, day or night.|Find lost Bluetooth things";;
+de) echo "Finde, was du verloren hast|Jedes Bluetooth-Gerät in der Nähe, nach Signal.|Geh direkt hin|Ein Warm/Kalt-Zeiger — keine Karte nötig.|Du bist direkt darüber|Kalibrieren, schwenken, gehen, fertig.|Gefunden|Kostenlos & quelloffen. Keine Werbung, kein Tracking.|Verfolgt dich etwas?|Unerwünschte AirTags & Tracker aufspüren.|Auch im Dunkelmodus|Schont die Augen, Tag und Nacht.|Verlorene Bluetooth-Geräte finden";;
+sl) echo "Najdi, kar si izgubil|Vsaka naprava Bluetooth v bližini, po signalu.|Pojdi naravnost tja|Topel/hladen kazalnik — brez zemljevida.|Si točno nad njim|Umeri, zanihaj, pojdi, končano.|Najdeno|Brezplačno in odprtokodno. Brez oglasov, brez sledenja.|Te kaj zasleduje?|Zaznaj neželene AirTage in sledilnike.|Tudi temni način|Prijazno do oči, podnevi in ponoči.|Najdi izgubljene naprave Bluetooth";;
+it) echo "Trova ciò che hai perso|Ogni dispositivo Bluetooth vicino, per segnale.|Vai dritto da lui|Un puntatore caldo/freddo — senza mappa.|Ci sei proprio sopra|Calibra, ruota, cammina, fatto.|Trovato|Gratis e open source. Niente pubblicità, niente tracciamento.|Qualcosa ti sta seguendo?|Scopri AirTag e tracker indesiderati.|Anche in modalità scura|Riposante per gli occhi, giorno e notte.|Ritrova oggetti Bluetooth smarriti";;
+nl) echo "Vind wat je kwijt bent|Elk Bluetooth-apparaat dichtbij, op signaal.|Loop er recht naartoe|Een warm/koud-aanwijzer — geen kaart nodig.|Je staat er precies op|Kalibreren, zwenken, lopen, klaar.|Gevonden|Gratis en open source. Geen advertenties, geen tracking.|Word je gevolgd?|Spoor ongewenste AirTags & trackers op.|Ook donkere modus|Rustig voor je ogen, dag en nacht.|Verloren Bluetooth-spullen vinden";;
+es) echo "Encuentra lo que perdiste|Cada dispositivo Bluetooth cercano, por señal.|Ve directo hacia él|Un puntero frío/caliente — sin mapa.|Estás justo encima|Calibra, gira, camina, listo.|Encontrado|Gratis y de código abierto. Sin anuncios, sin rastreo.|¿Algo te está siguiendo?|Detecta AirTags y rastreadores no deseados.|También modo oscuro|Cómodo para la vista, de día o de noche.|Encuentra cosas Bluetooth perdidas";;
+el) echo "Βρες ό,τι έχασες|Κάθε συσκευή Bluetooth κοντά, κατά σήμα.|Πήγαινε κατευθείαν σε αυτό|Δείκτης ζεστού/κρύου — χωρίς χάρτη.|Είσαι ακριβώς από πάνω|Βαθμονόμησε, σάρωσε, περπάτα, έτοιμο.|Βρέθηκε|Δωρεάν & ανοιχτού κώδικα. Χωρίς διαφημίσεις, χωρίς παρακολούθηση.|Σε παρακολουθεί κάτι;|Εντόπισε ανεπιθύμητα AirTag & ιχνηλάτες.|Και σκοτεινό θέμα|Ξεκούραστο για τα μάτια, μέρα και νύχτα.|Βρες χαμένα αντικείμενα Bluetooth";;
+et) echo "Leia, mille kaotasid|Iga lähedal olev Bluetooth-seade, signaali järgi.|Mine otse selle juurde|Soe/külm osuti — kaarti pole vaja.|Oled otse selle peal|Kalibreeri, pööra, kõnni, valmis.|Leitud|Tasuta ja avatud lähtekoodiga. Reklaamideta, jälgimiseta.|Kas keegi jälgib sind?|Tuvasta soovimatud AirTagid ja jälgijad.|Ka tume režiim|Silmasõbralik, päeval ja öösel.|Leia kadunud Bluetooth-asjad";;
+fr) echo "Retrouve ce que tu as perdu|Chaque appareil Bluetooth proche, par signal.|Va droit dessus|Un pointeur chaud/froid — sans carte.|Tu es juste dessus|Calibre, balaie, marche, terminé.|Trouvé|Gratuit et open source. Sans pub, sans pistage.|Quelque chose te suit-il ?|Repère les AirTags & traceurs indésirables.|Mode sombre aussi|Reposant pour les yeux, jour et nuit.|Retrouve des objets Bluetooth perdus";;
+zh) echo "找回你丢失的东西|附近每个蓝牙设备，按信号排序。|径直走过去|冷热指针引导——无需地图。|你正好在它上面|校准、扫动、行走、完成。|找到了|免费开源。无广告，无跟踪。|有东西在跟踪你吗？|发现不需要的 AirTag 和追踪器。|还有深色模式|日夜护眼。|找回丢失的蓝牙物品";;
+ja) echo "なくした物を見つけよう|近くのすべての Bluetooth 機器を信号順に。|まっすぐ向かう|冷暖ポインターが案内——地図不要。|ちょうど真上にいます|較正、スイープ、歩く、完了。|見つけた|無料・オープンソース。広告なし、追跡なし。|誰かに追跡されていませんか？|不要な AirTag やトラッカーを発見。|ダークモードも|昼も夜も目にやさしい。|なくした Bluetooth の物を見つける";;
+hr) echo "Pronađi što si izgubio|Svaki Bluetooth uređaj u blizini, po signalu.|Idi ravno do njega|Topli/hladni pokazivač — bez karte.|Točno si iznad njega|Kalibriraj, zakreni, hodaj, gotovo.|Pronađeno|Besplatno i otvorenog koda. Bez oglasa, bez praćenja.|Prati li te nešto?|Otkrij neželjene AirTagove i pratitelje.|I tamni način|Ugodno za oči, danju i noću.|Pronađi izgubljene Bluetooth stvari";;
+pl) echo "Znajdź to, co zgubiłeś|Każde urządzenie Bluetooth w pobliżu, wg sygnału.|Idź prosto do niego|Wskaźnik ciepło/zimno — bez mapy.|Jesteś dokładnie nad tym|Skalibruj, obróć, idź, gotowe.|Znalezione|Bezpłatne i open source. Bez reklam, bez śledzenia.|Czy coś cię śledzi?|Wykryj niechciane AirTagi i lokalizatory.|Także tryb ciemny|Przyjazny dla oczu, dniem i nocą.|Znajdź zgubione rzeczy Bluetooth";;
+pt) echo "Encontra o que perdeste|Cada dispositivo Bluetooth perto, por sinal.|Vai direto até ele|Um ponteiro quente/frio — sem mapa.|Estás mesmo em cima dele|Calibra, roda, anda, concluído.|Encontrado|Gratuito e open source. Sem anúncios, sem rastreio.|Algo te está a seguir?|Deteta AirTags e rastreadores indesejados.|Também modo escuro|Suave para os olhos, de dia ou de noite.|Encontra objetos Bluetooth perdidos";;
 esac; }
 
 frame() { local in="$1" out="$2" R="$3" t; t="$(mktemp -d)"
@@ -118,7 +118,13 @@ capture_set() { local raw="$1"
   sleep 5; adb exec-out screencap -p > "$raw/03.png"
   adb shell input tap 540 2024; sleep 2; adb exec-out screencap -p > "$raw/04.png"
   adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
-  adb shell input tap 420 460; sleep 8; adb exec-out screencap -p > "$raw/05.png"; }
+  adb shell input tap 420 460; sleep 8; adb exec-out screencap -p > "$raw/05.png"
+  # 06: dark theme — the app follows the system, so flip night mode and show the
+  # discovery list in dark.
+  adb shell cmd uimode night yes >/dev/null 2>&1
+  adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
+  adb exec-out screencap -p > "$raw/06.png"
+  adb shell cmd uimode night no >/dev/null 2>&1; }
 
 # --feature-only: just re-composite the localized feature graphics (pure ImageMagick,
 # no emulator / no captures). Use it after tweaking the feature() layout or taglines.
@@ -127,8 +133,8 @@ if [ "${1:-}" = "--feature-only" ]; then FEATURE_ONLY=1; shift; fi
 
 if [ "$FEATURE_ONLY" = 0 ]; then
   echo "› building + installing demo build…"
-  ( cd "$APP" && ./gradlew :composeApp:assembleDebug -q )
-  adb install -r "$APP/composeApp/build/outputs/apk/debug/composeApp-debug.apk" >/dev/null
+  ( cd "$APP" && ./gradlew :androidApp:assembleDebug -q )
+  adb install -r "$APP/androidApp/build/outputs/apk/debug/androidApp-debug.apk" >/dev/null
 fi
 
 WANT=("$@")
@@ -138,7 +144,7 @@ while read -r folder lang country full cjk <&3; do
   if [ ${#WANT[@]} -gt 0 ] && [[ ! " ${WANT[*]} " == *" $folder "* ]]; then continue; fi
   echo "› $folder ($full)…"
   if [ "$cjk" = 1 ]; then CFB="$CJK_B"; CFR="$CJK_R"; else CFB="$DV_B"; CFR="$DV_R"; fi
-  IFS='|' read -r h1 s1 h2 s2 h3 s3 h4 s4 h5 s5 tag <<< "$(caps "$lang")"
+  IFS='|' read -r h1 s1 h2 s2 h3 s3 h4 s4 h5 s5 h6 s6 tag <<< "$(caps "$lang")"
   if [ "$FEATURE_ONLY" = 1 ]; then
     mkdir -p "$STORE/$folder"
     feature "$tag" "$STORE/$folder/feature-1024x500.png"
@@ -152,6 +158,7 @@ while read -r folder lang country full cjk <&3; do
   cap_portrait  "$raw/03.png" "$h3" "$s3" "$out/03.png"; cap_landscape "$raw/03.png" "$h3" "$s3" "$cr/03.png"
   cap_portrait  "$raw/04.png" "$h4" "$s4" "$out/04.png"; cap_landscape "$raw/04.png" "$h4" "$s4" "$cr/04.png"
   cap_portrait  "$raw/05.png" "$h5" "$s5" "$out/05.png"; cap_landscape "$raw/05.png" "$h5" "$s5" "$cr/05.png"
+  cap_portrait  "$raw/06.png" "$h6" "$s6" "$out/06.png"; cap_landscape "$raw/06.png" "$h6" "$s6" "$cr/06.png"
   cp -f "$out"/*.png "$tb"/                         # 9:16 phone set is valid for tablet too
   feature "$tag" "$STORE/$folder/feature-1024x500.png"
   rm -rf "$raw"
