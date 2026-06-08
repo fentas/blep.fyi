@@ -216,4 +216,7 @@
     <string name="noti_flagged_text">%1$s è a portata</string>
     <string name="detail_history">Cronologia</string>
     <string name="detail_alt">Potrebbe anche essere uno di questi id vicini:</string>
+    <string name="settings_remember_devices_title">Ricorda i dispositivi</string>
+    <string name="settings_remember_devices_desc">Per quanto tempo vengono conservati nome, contrassegno e prima rilevazione di un dispositivo dopo l'ultima volta visto.</string>
+    <string name="settings_days">%1$d giorni</string>
 </resources>

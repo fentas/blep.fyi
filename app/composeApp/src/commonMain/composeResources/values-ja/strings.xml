@@ -216,4 +216,7 @@
     <string name="noti_flagged_text">%1$s が範囲内です</string>
     <string name="detail_history">履歴</string>
     <string name="detail_alt">近くの次のいずれかの id かもしれません:</string>
+    <string name="settings_remember_devices_title">デバイスを記憶</string>
+    <string name="settings_remember_devices_desc">デバイスの名前・フラグ・初回検出を、最後に見かけてからどれくらい保持するか。</string>
+    <string name="settings_days">%1$d 日</string>
 </resources>

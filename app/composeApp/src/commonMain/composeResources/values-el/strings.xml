@@ -216,4 +216,7 @@
     <string name="noti_flagged_text">%1$s είναι σε εμβέλεια</string>
     <string name="detail_history">Ιστορικό</string>
     <string name="detail_alt">Μπορεί επίσης να είναι ένα από αυτά τα κοντινά id:</string>
+    <string name="settings_remember_devices_title">Απομνημόνευση συσκευών</string>
+    <string name="settings_remember_devices_desc">Πόσο καιρό διατηρούνται το όνομα, η επισήμανση και η πρώτη εμφάνιση μιας συσκευής μετά την τελευταία φορά που εμφανίστηκε.</string>
+    <string name="settings_days">%1$d ημέρες</string>
 </resources>

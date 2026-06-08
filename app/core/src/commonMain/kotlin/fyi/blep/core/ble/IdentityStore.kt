@@ -20,10 +20,13 @@ import fyi.blep.core.platform.epochMillis
  */
 class IdentityStore(
     private val store: KeyValueStore,
-    private val ttlMs: Long = 14L * 24 * 60 * 60_000, // 14 days
+    ttlMs: Long = 14L * 24 * 60 * 60_000, // 14 days
     private val maxIdentities: Int = 500,
     private val now: () -> Long = ::epochMillis,
 ) {
+    /** How long an unseen identity is kept before it's pruned. Live-settable (a user
+     *  preference); the next prune/save applies it. */
+    var ttlMs: Long = ttlMs
     private class Rec(val id: String, var firstSeenMs: Long, var lastSeenMs: Long, var fingerprint: String?, val addresses: MutableSet<String>)
 
     private val records: MutableList<Rec> = parse(store.getString(KEY))

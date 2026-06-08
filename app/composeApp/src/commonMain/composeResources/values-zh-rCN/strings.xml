@@ -217,4 +217,7 @@
     <string name="noti_flagged_text">%1$s 在范围内</string>
     <string name="detail_history">历史</string>
     <string name="detail_alt">也可能是附近的以下某个 id：</string>
+    <string name="settings_remember_devices_title">记住设备</string>
+    <string name="settings_remember_devices_desc">设备的名称、标记和首次发现在最后一次出现后保留多久。</string>
+    <string name="settings_days">%1$d 天</string>
 </resources>

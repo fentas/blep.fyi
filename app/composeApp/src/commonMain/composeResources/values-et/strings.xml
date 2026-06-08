@@ -216,4 +216,7 @@
     <string name="noti_flagged_text">%1$s on levialas</string>
     <string name="detail_history">Ajalugu</string>
     <string name="detail_alt">Võib olla ka üks neist lähedastest id-dest:</string>
+    <string name="settings_remember_devices_title">Jäta seadmed meelde</string>
+    <string name="settings_remember_devices_desc">Kui kaua hoitakse seadme nime, märgist ja esmakordset nägemist pärast viimast nägemist.</string>
+    <string name="settings_days">%1$d päeva</string>
 </resources>

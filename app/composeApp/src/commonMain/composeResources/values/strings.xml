@@ -169,6 +169,9 @@
     <string name="settings_unnamed_desc">Include devices that don't advertise a name.</string>
     <string name="settings_remember_title">Remember trackers across sessions</string>
     <string name="settings_remember_desc">Flag a tracker that keeps reappearing near you over hours. On-device only.</string>
+    <string name="settings_remember_devices_title">Remember devices</string>
+    <string name="settings_remember_devices_desc">How long a device's name, flag, and first-seen are kept after it was last seen.</string>
+    <string name="settings_days">%1$d days</string>
     <string name="settings_section_background">Background scanning</string>
     <string name="settings_foreground_title">Keep scanning when minimized</string>
     <string name="settings_foreground_desc">Keeps a live scan running when you leave blep — real-time, more battery.</string>

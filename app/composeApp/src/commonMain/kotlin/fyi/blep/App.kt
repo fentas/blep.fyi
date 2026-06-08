@@ -104,6 +104,8 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     onSelectSensitivity = controller::selectScanSensitivity,
                     locationAware = controller.locationAware,
                     onToggleLocation = controller::toggleLocationAware,
+                    rememberDeviceDays = controller.identityTtlDays,
+                    onRememberDeviceDaysChange = controller::setIdentityTtl,
                     foregroundScan = controller.foregroundScanEnabled,
                     onToggleForeground = controller::setForegroundScanning,
                     backgroundScan = controller.backgroundScanEnabled,

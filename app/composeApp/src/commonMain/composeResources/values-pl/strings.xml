@@ -216,4 +216,7 @@
     <string name="noti_flagged_text">%1$s jest w zasięgu</string>
     <string name="detail_history">Historia</string>
     <string name="detail_alt">Może to być też jeden z tych pobliskich id:</string>
+    <string name="settings_remember_devices_title">Zapamiętuj urządzenia</string>
+    <string name="settings_remember_devices_desc">Jak długo nazwa, oznaczenie i pierwsze wykrycie urządzenia są przechowywane po ostatnim zauważeniu.</string>
+    <string name="settings_days">%1$d dni</string>
 </resources>

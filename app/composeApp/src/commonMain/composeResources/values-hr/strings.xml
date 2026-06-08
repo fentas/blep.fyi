@@ -216,4 +216,7 @@
     <string name="noti_flagged_text">%1$s je u dometu</string>
     <string name="detail_history">Povijest</string>
     <string name="detail_alt">Možda je i jedan od ovih obližnjih id-ova:</string>
+    <string name="settings_remember_devices_title">Zapamti uređaje</string>
+    <string name="settings_remember_devices_desc">Koliko se dugo čuvaju naziv, oznaka i prvo viđenje uređaja nakon što je zadnji put viđen.</string>
+    <string name="settings_days">%1$d dana</string>
 </resources>

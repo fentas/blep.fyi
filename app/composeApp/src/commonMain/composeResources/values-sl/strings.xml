@@ -216,4 +216,7 @@
     <string name="noti_flagged_text">%1$s je v dosegu</string>
     <string name="detail_history">Zgodovina</string>
     <string name="detail_alt">Morda je tudi eden od teh bližnjih id-jev:</string>
+    <string name="settings_remember_devices_title">Zapomni si naprave</string>
+    <string name="settings_remember_devices_desc">Kako dolgo se ime, oznaka in prva zaznava naprave hranijo po zadnjem opažanju.</string>
+    <string name="settings_days">%1$d dni</string>
 </resources>

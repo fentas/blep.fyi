@@ -67,9 +67,19 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
     fun themeMode(): ThemeMode = ThemeMode.fromName(store.getString(KEY_THEME))
     fun setThemeMode(mode: ThemeMode) = store.putString(KEY_THEME, mode.name)
 
+    /** How long a device's identity (rename / flag / first-seen) is remembered after it
+     *  was last seen, in days. Clamped to [IDENTITY_TTL_MIN_DAYS]..[IDENTITY_TTL_MAX_DAYS]. */
+    fun identityTtlDays(): Int =
+        (store.getString(KEY_IDENTITY_TTL)?.toIntOrNull() ?: 14).coerceIn(IDENTITY_TTL_MIN_DAYS, IDENTITY_TTL_MAX_DAYS)
+    fun setIdentityTtlDays(days: Int) =
+        store.putString(KEY_IDENTITY_TTL, days.coerceIn(IDENTITY_TTL_MIN_DAYS, IDENTITY_TTL_MAX_DAYS).toString())
+
     companion object {
         const val INTERVAL_MIN = 15   // WorkManager periodic floor
         const val INTERVAL_MAX = 240  // 4 hours
+        const val IDENTITY_TTL_MIN_DAYS = 1
+        const val IDENTITY_TTL_MAX_DAYS = 90
+        const val DAY_MS = 24L * 60 * 60 * 1000
 
         private const val KEY_CONN_SIGNAL = "settings.connectedSignal"
         private const val KEY_SOUND = "settings.trackingSound"
@@ -82,5 +92,6 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
         private const val KEY_LOCATION = "settings.locationAware"
         private const val KEY_ONBOARDED = "settings.onboarded"
         private const val KEY_THEME = "settings.themeMode"
+        private const val KEY_IDENTITY_TTL = "settings.identityTtlDays"
     }
 }

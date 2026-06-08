@@ -217,4 +217,7 @@
     <string name="noti_flagged_text">%1$s ist in Reichweite</string>
     <string name="detail_history">Verlauf</string>
     <string name="detail_alt">Könnte auch eine dieser nahen IDs sein:</string>
+    <string name="settings_remember_devices_title">Geräte merken</string>
+    <string name="settings_remember_devices_desc">Wie lange Name, Markierung und Erstkontakt eines Geräts nach dem letzten Sehen behalten werden.</string>
+    <string name="settings_days">%1$d Tage</string>
 </resources>

@@ -73,8 +73,8 @@ class BlepController(
     private val favorites: DeviceFavorites = DeviceFavorites(createKeyValueStore()),
     private val aliasStore: DeviceAliases = DeviceAliases(createKeyValueStore()),
     private val flags: DeviceFlags = DeviceFlags(createKeyValueStore()),
-    private val identityStore: IdentityStore = IdentityStore(createKeyValueStore()),
     private val settings: AppSettings = AppSettings(),
+    private val identityStore: IdentityStore = IdentityStore(createKeyValueStore(), ttlMs = settings.identityTtlDays().toLong() * AppSettings.DAY_MS),
     private val skipOnboarding: Boolean = false, // demo mode jumps straight to discovery
 ) {
     var screen by mutableStateOf<Screen>(Screen.Discovery)
@@ -140,6 +140,10 @@ class BlepController(
     /** Location-aware detection (opt-in): sample a coarse on-device place on a
      *  suspect sighting to count distinct places. */
     var locationAware by mutableStateOf(settings.locationAware())
+        private set
+    /** How long device identities (rename/flag/first-seen) are remembered after last
+     *  seen, in days — user-configurable. */
+    var identityTtlDays by mutableStateOf(settings.identityTtlDays())
         private set
 
     /**
@@ -357,6 +361,15 @@ class BlepController(
     fun toggleLocationAware(on: Boolean) {
         locationAware = on
         settings.setLocationAware(on)
+    }
+
+    /** Set how long device identities are remembered (days, persisted); applies to the
+     *  store live so the next prune uses it. */
+    fun setIdentityTtl(days: Int) {
+        val d = days.coerceIn(AppSettings.IDENTITY_TTL_MIN_DAYS, AppSettings.IDENTITY_TTL_MAX_DAYS)
+        identityTtlDays = d
+        settings.setIdentityTtlDays(d)
+        identityStore.ttlMs = d.toLong() * AppSettings.DAY_MS
     }
 
     /** Switch the detection sensitivity preset (persisted); re-runs the safety scan

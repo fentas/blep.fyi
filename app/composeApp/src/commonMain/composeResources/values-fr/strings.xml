@@ -216,4 +216,7 @@
     <string name="noti_flagged_text">%1$s est à portée</string>
     <string name="detail_history">Historique</string>
     <string name="detail_alt">Pourrait aussi être l'un de ces id proches :</string>
+    <string name="settings_remember_devices_title">Mémoriser les appareils</string>
+    <string name="settings_remember_devices_desc">Durée de conservation du nom, du marquage et de la première détection d'un appareil après l'avoir vu pour la dernière fois.</string>
+    <string name="settings_days">%1$d jours</string>
 </resources>

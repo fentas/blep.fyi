@@ -68,6 +68,9 @@ import fyi.blep.resources.settings_location_title
 import fyi.blep.resources.settings_section_background
 import fyi.blep.resources.settings_remember_desc
 import fyi.blep.resources.settings_remember_title
+import fyi.blep.resources.settings_remember_devices_desc
+import fyi.blep.resources.settings_remember_devices_title
+import fyi.blep.resources.settings_days
 import fyi.blep.resources.settings_haptics_desc
 import fyi.blep.resources.settings_haptics_title
 import fyi.blep.resources.settings_sound_desc
@@ -101,6 +104,8 @@ fun SettingsScreen(
     onSelectSensitivity: (ScanSensitivity) -> Unit,
     locationAware: Boolean,
     onToggleLocation: (Boolean) -> Unit,
+    rememberDeviceDays: Int,
+    onRememberDeviceDaysChange: (Int) -> Unit,
     foregroundScan: Boolean,
     onToggleForeground: (Boolean) -> Unit,
     backgroundScan: Boolean,
@@ -183,6 +188,7 @@ fun SettingsScreen(
                 checked = rememberTrackers,
                 onToggle = onToggleRemember,
             )
+            RememberDevicesRow(rememberDeviceDays, onRememberDeviceDaysChange)
 
             SettingRow(
                 title = stringResource(Res.string.settings_location_title),
@@ -250,6 +256,45 @@ fun SettingsScreen(
                 TextButton(onClick = { showBgInfo = false }) { Text(stringResource(Res.string.action_done)) }
             },
         )
+    }
+}
+
+/** Slider for how long device identities (rename / flag / first-seen) are remembered
+ *  after a device was last seen. */
+@Composable
+private fun RememberDevicesRow(days: Int, onChange: (Int) -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                stringResource(Res.string.settings_remember_devices_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(Res.string.settings_remember_devices_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
+            )
+            Spacer(Modifier.height(4.dp))
+            Slider(
+                value = days.toFloat(),
+                onValueChange = { onChange(it.roundToInt()) },
+                valueRange = AppSettings.IDENTITY_TTL_MIN_DAYS.toFloat()..AppSettings.IDENTITY_TTL_MAX_DAYS.toFloat(),
+                colors = SliderDefaults.colors(thumbColor = BlepColors.Blue, activeTrackColor = BlepColors.Blue),
+            )
+            Text(
+                stringResource(Res.string.settings_days, days),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
+        }
     }
 }
 

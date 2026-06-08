@@ -216,4 +216,7 @@
     <string name="noti_flagged_text">%1$s is binnen bereik</string>
     <string name="detail_history">Geschiedenis</string>
     <string name="detail_alt">Kan ook een van deze id's in de buurt zijn:</string>
+    <string name="settings_remember_devices_title">Apparaten onthouden</string>
+    <string name="settings_remember_devices_desc">Hoe lang de naam, markering en eerste waarneming van een apparaat bewaard blijven nadat het voor het laatst is gezien.</string>
+    <string name="settings_days">%1$d dagen</string>
 </resources>
