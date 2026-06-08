@@ -77,7 +77,7 @@ pluginManager.withPlugin("com.android.application") {
             // (which share applicationId and so must have globally-unique codes)
             // never collide: phone = 1xxx, Wear OS = 2xxx (see :wearApp). Bump within
             // the band. 1000 clears the early phone uploads (5/6/7).
-            versionCode = 1004
+            versionCode = 1005
             versionName = "1.4.0"
         }
         // Release signing from a gitignored keystore.properties (created locally, or

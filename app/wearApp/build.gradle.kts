@@ -29,7 +29,7 @@ android {
         // Wear OS = 2xxx here) so the two bundles — same applicationId, so codes
         // must be globally unique — never collide. Bump within the band. 2000
         // clears the early watch uploads (10/11).
-        versionCode = 2002
+        versionCode = 2003
         versionName = "0.4.0"
     }
 
