@@ -23,12 +23,14 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         # Link the Kotlin/Native framework produced by Gradle.
         FRAMEWORK_SEARCH_PATHS: "$(SRCROOT)/../composeApp/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
-        # -U lets this one iOS-18 UIKit symbol be missing at link time (resolved
-        # dynamically at runtime). Compose Multiplatform 1.11 hard-references it
-        # without an @available guard, so it'd otherwise fail to link below iOS 18;
-        # CMP guards it at runtime, so the iOS 15 floor stays safe. Remove once CMP
+        # -Wl,-U,<sym> lets this one iOS-18 UIKit symbol be missing at link time
+        # (resolved dynamically at runtime). Compose Multiplatform 1.11 hard-references
+        # it without an @available guard, so it'd otherwise fail to link below iOS 18;
+        # CMP guards it at runtime, so the iOS 15 floor stays safe. The -Wl, prefix is
+        # required: OTHER_LDFLAGS goes to the clang driver, which reads a bare `-U` as a
+        # preprocessor macro-undefine and never forwards it to ld. Remove once CMP
         # weak-links it (JetBrains CMP-10179 / compose-multiplatform#4821).
-        OTHER_LDFLAGS: "$(inherited) -framework ComposeApp -U _OBJC_CLASS_$_UIViewLayoutRegion"
+        OTHER_LDFLAGS: "$(inherited) -framework ComposeApp -Wl,-U,_OBJC_CLASS_$_UIViewLayoutRegion"
     preBuildScripts:
       - name: Compile Kotlin Framework
         basedOnDependencyAnalysis: false
