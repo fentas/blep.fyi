@@ -53,6 +53,8 @@
     <string name="dur_minutes">%1$d min</string>
     <string name="tracking_no_signal">Ni signala</string>
     <string name="tracking_out_of_range">Izven dosega ali izklopljeno</string>
+    <string name="tracking_right_here">Tukaj je, na dosegu roke</string>
+    <string name="tracking_right_here_detail">Na dosegu roke — preveri žepe, torbe in pod predmeti.</string>
     <string name="tracking_last_heard">· nazadnje slišano pred %1$ds</string>
     <string name="tracking_no_signal_lc">ni signala</string>
     <string name="tracking_scanning">iščem …</string>

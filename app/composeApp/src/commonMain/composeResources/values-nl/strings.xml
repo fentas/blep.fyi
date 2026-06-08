@@ -53,6 +53,8 @@
     <string name="dur_minutes">%1$d min</string>
     <string name="tracking_no_signal">Geen signaal</string>
     <string name="tracking_out_of_range">Buiten bereik of uit</string>
+    <string name="tracking_right_here">Het is vlakbij</string>
+    <string name="tracking_right_here_detail">Binnen handbereik — kijk in zakken, tassen en onder dingen.</string>
     <string name="tracking_last_heard">· laatst gehoord %1$ds geleden</string>
     <string name="tracking_no_signal_lc">geen signaal</string>
     <string name="tracking_scanning">scannen…</string>

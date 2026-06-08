@@ -107,6 +107,8 @@ import fyi.blep.resources.tracking_last_heard
 import fyi.blep.resources.tracking_no_signal
 import fyi.blep.resources.tracking_no_signal_lc
 import fyi.blep.resources.tracking_out_of_range
+import fyi.blep.resources.tracking_right_here
+import fyi.blep.resources.tracking_right_here_detail
 import fyi.blep.resources.tracking_scanning
 import fyi.blep.resources.turn_ahead
 import fyi.blep.resources.turn_left
@@ -199,11 +201,21 @@ fun TrackingScreen(
             null
         }
         val instruction = lineText ?: fallback
+        // Point-blank: a strong live signal means it's basically on you. Trust that
+        // over the spatial distance, which can stick far (seeded from an early weak
+        // sample) and read e.g. "8 m" while you're standing on it. Show "right here"
+        // and drop the misleading turn/distance cue.
+        val onIt = !signalLost && status.proximity >= POINT_BLANK_PROXIMITY
         // No fresh signal trumps everything — don't guide on a stale reading.
-        val headline = if (signalLost) stringResource(Res.string.tracking_no_signal) else instruction ?: phaseTitle(status.guidance)
+        val headline = when {
+            signalLost -> stringResource(Res.string.tracking_no_signal)
+            onIt -> stringResource(Res.string.tracking_right_here)
+            else -> instruction ?: phaseTitle(status.guidance)
+        }
         val detail = when {
             signalLost -> stringResource(Res.string.tracking_out_of_range) +
                 (if (signalAgeSec > 0) " " + stringResource(Res.string.tracking_last_heard, signalAgeSec) else "")
+            onIt -> stringResource(Res.string.tracking_right_here_detail)
             instruction != null -> null
             else -> phaseDetail(status.guidance)
         }
@@ -351,6 +363,11 @@ private fun floorHint(delta: Int): String? = when {
 // Above this much signal jitter (dB) the field reads as "noisy" — mirrors
 // GuidanceStabilizer.noisyVolatilityDb, which gates directional commitment.
 private const val NOISY_FIELD_DB = 2.2
+
+// At/above this proximity (which saturates at ≈ -58 dBm) the target is within a
+// metre or two: directional guidance is moot and the spatial distance is unreliable,
+// so we switch to a plain "it's right here". Mirrors the controller's VERY_CLOSE.
+private const val POINT_BLANK_PROXIMITY = 0.95f
 
 /** A flat 2-D speaker glyph (no system emoji) that toggles the tracking tone:
  *  sound-wave arcs when on, a slash when muted. */

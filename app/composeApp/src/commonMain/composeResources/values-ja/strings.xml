@@ -53,6 +53,8 @@
     <string name="dur_minutes">%1$d 分</string>
     <string name="tracking_no_signal">信号なし</string>
     <string name="tracking_out_of_range">範囲外またはオフ</string>
+    <string name="tracking_right_here">すぐここにあります</string>
+    <string name="tracking_right_here_detail">手の届く範囲です — ポケットやバッグ、物の下を確認してください。</string>
     <string name="tracking_last_heard">· %1$d 秒前に最後に検出</string>
     <string name="tracking_no_signal_lc">信号なし</string>
     <string name="tracking_scanning">スキャン中…</string>

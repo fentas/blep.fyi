@@ -54,6 +54,8 @@
     <string name="dur_minutes">%1$d 分钟</string>
     <string name="tracking_no_signal">无信号</string>
     <string name="tracking_out_of_range">超出范围或已关闭</string>
+    <string name="tracking_right_here">就在这附近</string>
+    <string name="tracking_right_here_detail">触手可及 — 检查口袋、包里和物品下方。</string>
     <string name="tracking_last_heard">· 上次出现于 %1$d 秒前</string>
     <string name="tracking_no_signal_lc">无信号</string>
     <string name="tracking_scanning">扫描中…</string>

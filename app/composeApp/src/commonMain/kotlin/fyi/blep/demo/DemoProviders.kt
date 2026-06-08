@@ -106,8 +106,9 @@ private fun scriptedRssi(t: Double): Int {
         t < 2.5 -> -80.0                                  // calibrate
         t < 3.8 -> -80.0 + (t - 2.5) / 1.3 * 7.0          // sweep: rise -80 → -73 (facing it)
         t < 5.5 -> -73.0 - (t - 3.8) / 1.7 * 5.0          // sweep: dip -73 → -78 (turned past → lock)
-        t < 11.0 -> -78.0 + (t - 5.5) / 5.5 * 35.0        // walk in: -78 → -43
-        else -> -43.0                                     // arrived, held
+        t < 11.0 -> -78.0 + (t - 5.5) / 5.5 * 33.0        // walk in: -78 → -45 (right in front)
+        t < 13.0 -> -45.0                                 // pause "right in front of you"
+        else -> -36.0                                     // on you: point-blank, "it's right here"
     }
     return (base + 0.5 * sin(t * 5.1)).toInt()
 }

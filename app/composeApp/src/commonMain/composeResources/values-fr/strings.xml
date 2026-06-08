@@ -53,6 +53,8 @@
     <string name="dur_minutes">%1$d min</string>
     <string name="tracking_no_signal">Aucun signal</string>
     <string name="tracking_out_of_range">Hors de portée ou éteint</string>
+    <string name="tracking_right_here">C'est juste ici</string>
+    <string name="tracking_right_here_detail">À portée de main — vérifie poches, sacs et sous les objets.</string>
     <string name="tracking_last_heard">· entendu il y a %1$ds</string>
     <string name="tracking_no_signal_lc">aucun signal</string>
     <string name="tracking_scanning">recherche…</string>

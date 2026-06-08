@@ -53,6 +53,8 @@
     <string name="dur_minutes">%1$d min</string>
     <string name="tracking_no_signal">Signaal puudub</string>
     <string name="tracking_out_of_range">Levialast väljas või väljas</string>
+    <string name="tracking_right_here">See on otse siin</string>
+    <string name="tracking_right_here_detail">Käeulatuses — vaata taskutesse, kottidesse ja asjade alla.</string>
     <string name="tracking_last_heard">· viimati kuuldud %1$ds tagasi</string>
     <string name="tracking_no_signal_lc">signaal puudub</string>
     <string name="tracking_scanning">otsin…</string>
