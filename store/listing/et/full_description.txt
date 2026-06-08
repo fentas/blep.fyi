@@ -18,6 +18,12 @@ MIKS SEE HEA ON
 • Ütleb, millal keskkond on puhas või häiritud ja millal signaali pole.
 • Valikuline heli ja vibratsioon, mis pulseerib kiiremini, mida lähemale jõuad.
 
+TUNNE OMA SEADMEID
+Puuduta lähedalolevat seadet, et avada selle paneel: reaalajas signaal, püsiv või vahelduv (privaatne) Bluetoothi aadress ja millal nägid seda esimest korda.
+• Nimeta seade ümber — nimi püsib ka siis, kui id vahetub.
+• „Jälgi seda seadet" — blep hoiab sellel silma peal ja teavitab, kuni see on levialas.
+• Vahelduv id ühendatakse tagasi üheks seadmeks, nii et ajalugu ja ümbernimetused ei lähtestu. Seadmes — sina valid, kui kaua seadet mäletatakse.
+
 KAS KEEGI JÄLGIB SIND?
 Puuduta „Kas keegi jälgib sind?", et otsida soovimatuid jälgijaid, kes sinuga kaasas
 reisivad — AirTag, Tile, SmartTag või Find My majakas, mille keegi võis su kotti, jope

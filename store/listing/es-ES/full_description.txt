@@ -18,6 +18,12 @@ POR QUÉ ES BUENO
 • Te dice cuándo el entorno está limpio o con interferencias y cuándo no hay señal.
 • Sonido y vibración opcionales que laten más rápido a medida que te acercas.
 
+CONOCE TUS DISPOSITIVOS
+Toca cualquier dispositivo cercano para abrir su panel: señal en vivo, dirección Bluetooth fija o rotativa (privada), y hace cuánto lo viste por primera vez.
+• Renombra un dispositivo: el nombre se mantiene aunque cambie de id.
+• „Vigilar este dispositivo": blep lo vigila y te avisa mientras está al alcance.
+• Un id rotativo se vuelve a unir en un solo dispositivo, así el historial y los nombres no se reinician. En el dispositivo; tú eliges cuánto se recuerda.
+
 ¿ALGO TE ESTÁ SIGUIENDO?
 Toca „¿Algo te está siguiendo?" para buscar rastreadores no deseados que viajan
 contigo — un AirTag, Tile, SmartTag o baliza Find My que alguien podría haber metido en

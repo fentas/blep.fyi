@@ -18,6 +18,12 @@ ZAŠTO JE DOBAR
 • Govori ti kada je okruženje čisto ili bučno i kada uopće nema signala.
 • Izborni zvuk i vibracije koje pulsiraju brže kako se približavaš.
 
+UPOZNAJ SVOJE UREĐAJE
+Dodirni obližnji uređaj da otvoriš njegovu ploču: signal uživo, stalna ili promjenjiva (privatna) Bluetooth adresa i koliko davno si ga prvi put vidio.
+• Preimenuj uređaj — naziv ostaje i kad promijeni id.
+• „Prati ovaj uređaj" — blep ga drži na oku i obavještava te dok je u dometu.
+• Promjenjivi id ponovno se spaja u jedan uređaj, pa se povijest i preimenovanja ne resetiraju. Na uređaju — ti biraš koliko se uređaj pamti.
+
 PRATI LI TE NEŠTO?
 Dodirni „Prati li te nešto?" da pretražiš nepoželjne pratitelje koji putuju s tobom —
 AirTag, Tile, SmartTag ili Find My odašiljač koji ti je netko možda podmetnuo u torbu,

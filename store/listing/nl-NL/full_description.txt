@@ -18,6 +18,12 @@ WAT HET GOED MAAKT
 • Vertelt je wanneer het veld schoon of verstoord is en wanneer er geen signaal is.
 • Optioneel geluid + trilling die sneller pulseert naarmate je dichterbij komt.
 
+KEN JE APPARATEN
+Tik op een apparaat in de buurt om het paneel te openen: live signaal, vast of wisselend (privé) Bluetooth-adres, en hoe lang geleden je het voor het eerst zag.
+• Hernoem een apparaat — de naam blijft ook als het id wisselt.
+• „Dit apparaat volgen" — blep houdt het in de gaten en waarschuwt je zolang het in bereik is.
+• Een wisselend id wordt weer tot één apparaat samengevoegd, zodat geschiedenis en namen niet resetten. Op het apparaat — jij kiest hoe lang een apparaat wordt onthouden.
+
 WORD JE GEVOLGD?
 Tik op „Word je gevolgd?" om te scannen op ongewenste trackers die met je meereizen —
 een AirTag, Tile, SmartTag of Find My-baken dat iemand in je tas, jas of auto kan

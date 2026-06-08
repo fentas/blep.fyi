@@ -18,6 +18,12 @@ CO GO WYRÓŻNIA
 • Mówi ci, kiedy otoczenie jest czyste lub zakłócone i kiedy w ogóle nie ma sygnału.
 • Opcjonalny dźwięk i wibracje, które pulsują szybciej, im bliżej jesteś.
 
+POZNAJ SWOJE URZĄDZENIA
+Dotknij pobliskiego urządzenia, aby otworzyć jego panel: sygnał na żywo, stały lub zmienny (prywatny) adres Bluetooth oraz jak dawno widziano je po raz pierwszy.
+• Zmień nazwę urządzenia — nazwa zostaje, nawet gdy zmienia id.
+• „Obserwuj to urządzenie" — blep ma je na oku i powiadamia, póki jest w zasięgu.
+• Zmienny id jest z powrotem łączony w jedno urządzenie, więc historia i nazwy się nie resetują. Na urządzeniu — sam wybierasz, jak długo jest pamiętane.
+
 CZY COŚ CIĘ ŚLEDZI?
 Dotknij „Czy coś cię śledzi?", aby wyszukać niechciane lokalizatory podróżujące z tobą —
 AirTag, Tile, SmartTag lub nadajnik Find My, który ktoś mógł wsunąć do twojej torby,

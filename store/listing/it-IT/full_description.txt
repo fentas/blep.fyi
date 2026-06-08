@@ -20,6 +20,12 @@ PERCHÉ È VALIDO
 • Ti dice quando il campo è pulito o disturbato e quando non c'è segnale.
 • Suono e vibrazione opzionali che pulsano più veloci man mano che ti avvicini.
 
+CONOSCI I TUOI DISPOSITIVI
+Tocca un dispositivo vicino per aprire il suo pannello: segnale in tempo reale, indirizzo Bluetooth fisso o rotante (privato) e da quanto l'hai visto la prima volta.
+• Rinomina un dispositivo: il nome resta anche quando cambia id.
+• „Sorveglia questo dispositivo": blep lo tiene d'occhio e ti avvisa finché è a portata.
+• Un id rotante viene ricucito in un solo dispositivo, così cronologia e rinomine non si azzerano. Sul dispositivo — scegli tu per quanto viene ricordato.
+
 QUALCOSA TI STA SEGUENDO?
 Tocca „Qualcosa ti sta seguendo?" per cercare tracker indesiderati che viaggiano con
 te — un AirTag, Tile, SmartTag o beacon Find My che qualcuno potrebbe averti infilato

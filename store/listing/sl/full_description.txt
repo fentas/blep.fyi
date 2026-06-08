@@ -18,6 +18,12 @@ ZAKAJ JE DOBER
 • Pove ti, kdaj je okolje čisto ali moteno in kdaj signala sploh ni.
 • Izbirni zvok in vibracije, ki utripajo hitreje, ko se približuješ.
 
+SPOZNAJ SVOJE NAPRAVE
+Pritisni bližnjo napravo, da odpreš njeno ploščo: signal v živo, stalni ali spreminjajoči (zasebni) naslov Bluetooth in kako dolgo nazaj si jo prvič videl.
+• Preimenuj napravo — ime ostane, tudi ko zamenja id.
+• „Spremljaj to napravo" — blep jo ima na očeh in te obvešča, dokler je v dosegu.
+• Spreminjajoči id se spet poveže v eno napravo, tako da se zgodovina in preimenovanja ne ponastavijo. Na napravi — sam izbereš, kako dolgo si jo zapomni.
+
 TE KAJ ZASLEDUJE?
 Pritisni „Te kaj zasleduje?", da poiščeš neželene sledilnike, ki potujejo s teboj —
 AirTag, Tile, SmartTag ali oddajnik Find My, ki ti ga je morda kdo podtaknil v torbo,

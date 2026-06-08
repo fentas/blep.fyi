@@ -20,6 +20,16 @@ WHAT MAKES IT GOOD
 • Optional sound and vibration that quicken as you close in — each on its own toggle.
 • Light, dark or system theme — your call.
 
+KNOW YOUR DEVICES
+Tap any nearby device to open its panel — its live signal, whether its Bluetooth
+address is fixed or a rotating privacy one, and how long ago you first saw it.
+• Rename a device, and the name follows it even when it rotates its ID.
+• "Watch this device" — flag one and blep keeps a live eye on it, with a
+  notification whenever it's in range.
+• blep stitches a rotating ID back into one device, so its history and your rename
+  don't reset every few minutes. All on-device, and you choose how long a device
+  is remembered.
+
 IS SOMETHING TRACKING YOU?
 Tap "Is something tracking you?" to scan for unwanted trackers travelling with
 you — an AirTag, Tile, SmartTag or Find My beacon someone may have slipped into

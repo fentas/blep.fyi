@@ -19,6 +19,12 @@ CE QUI LE REND BON
 • Il te dit quand l'environnement est clair ou perturbé et quand il n'y a aucun signal.
 • Son et vibration en option, qui pulsent plus vite à mesure que tu t'approches.
 
+CONNAIS TES APPAREILS
+Touche un appareil proche pour ouvrir son panneau : signal en direct, adresse Bluetooth fixe ou tournante (privée), et depuis quand tu l'as vu.
+• Renomme un appareil — le nom reste même quand son id change.
+• « Surveiller cet appareil » — blep le garde à l'œil et te prévient tant qu'il est à portée.
+• Un id tournant est recousu en un seul appareil, donc l'historique et les renommages ne se réinitialisent pas. Sur l'appareil — tu choisis la durée de mémorisation.
+
 QUELQUE CHOSE TE SUIT-IL ?
 Touche « Quelque chose te suit-il ? » pour rechercher des traceurs indésirables qui
 voyagent avec toi — un AirTag, un Tile, un SmartTag ou une balise Find My que quelqu'un

@@ -18,6 +18,12 @@ PORQUE É BOM
 • Diz-te quando o ambiente está limpo ou com ruído e quando não há sinal nenhum.
 • Som e vibração opcionais que pulsam mais depressa à medida que te aproximas.
 
+CONHECE OS TEUS DISPOSITIVOS
+Toca num dispositivo próximo para abrir o seu painel: sinal em tempo real, endereço Bluetooth fixo ou rotativo (privado) e há quanto tempo o viste pela primeira vez.
+• Muda o nome de um dispositivo — o nome mantém-se mesmo quando muda de id.
+• „Vigiar este dispositivo" — o blep mantém-no debaixo de olho e avisa-te enquanto está ao alcance.
+• Um id rotativo é reunido num só dispositivo, por isso o histórico e os nomes não são repostos. No dispositivo — escolhes durante quanto tempo é lembrado.
+
 ALGO TE ESTÁ A SEGUIR?
 Toca em „Algo te está a seguir?" para procurar rastreadores indesejados que viajam contigo
 — um AirTag, Tile, SmartTag ou baliza Find My que alguém possa ter metido na tua mala,
