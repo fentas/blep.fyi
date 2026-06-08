@@ -15,6 +15,7 @@ import fyi.blep.demo.DemoBleScanner
 import fyi.blep.demo.DemoMotionProvider
 import fyi.blep.ui.screens.CompletionScreen
 import androidx.compose.foundation.isSystemInDarkTheme
+import fyi.blep.ui.BuildInfo
 import fyi.blep.ui.rememberBlePermissionRequest
 import fyi.blep.ui.screens.DiscoveryScreen
 import fyi.blep.ui.screens.OnboardingScreen
@@ -28,9 +29,11 @@ import fyi.blep.ui.theme.BlepTheme
 const val DONATE_URL: String = "https://blep.fyi/donate.html"
 
 /** Root composable shared by the Android and iOS phone apps. [demo] swaps in
- *  scripted data sources (no Bluetooth/sensors needed) for screenshots/previews. */
+ *  scripted data sources (no Bluetooth/sensors needed) for screenshots/previews.
+ *  [buildInfo] is the running build's identity for the on-screen version stamp;
+ *  null (iOS/Wear, or demo) hides it. */
 @Composable
-fun App(demo: Boolean = false) {
+fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
     val scope = rememberCoroutineScope()
     val controller = remember(scope) {
         if (demo) BlepController(
@@ -82,6 +85,7 @@ fun App(demo: Boolean = false) {
                     onSafetyScan = controller::openSafetyScan,
                     onSettings = controller::openSettings,
                     onDonate = { uriHandler.openUri(DONATE_URL) },
+                    buildInfo = buildInfo,
                 )
 
                 is Screen.Settings -> SettingsScreen(

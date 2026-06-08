@@ -13,6 +13,14 @@ kotlin {
     compilerOptions { jvmTarget.set(JvmTarget.JVM_11) }
 }
 
+// Short commit SHA stamped into BuildConfig.GIT_SHA so the running build is
+// identifiable on-screen (the version footer links to a prefilled GitHub issue).
+// providers.exec keeps it configuration-cache friendly; "unknown" if git is absent.
+val gitSha: String = runCatching {
+    providers.exec { commandLine("git", "rev-parse", "--short=7", "HEAD") }
+        .standardOutput.asText.get().trim()
+}.getOrDefault("unknown")
+
 android {
     namespace = "fyi.blep"
     compileSdk = libs.versions.androidCompileSdk.get().toInt()
@@ -23,6 +31,7 @@ android {
         // Phone band = 1xxx (Wear = 2xxx in :wearApp); globally-unique per upload.
         versionCode = 1008
         versionName = "1.4.1"
+        buildConfigField("String", "GIT_SHA", "\"$gitSha\"")
     }
     // Release signing from a gitignored keystore.properties; absent → debug signing.
     val keystoreProps = rootProject.file("keystore.properties").takeIf { it.exists() }
@@ -50,7 +59,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    buildFeatures { compose = true }
+    buildFeatures { compose = true; buildConfig = true }
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }

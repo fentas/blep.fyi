@@ -49,6 +49,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
+import fyi.blep.ui.BuildInfo
+import fyi.blep.ui.VersionStamp
 import fyi.blep.resources.Res
 import fyi.blep.resources.app_tagline
 import fyi.blep.resources.action_cancel
@@ -108,6 +110,7 @@ fun DiscoveryScreen(
     onSettings: () -> Unit,
     onDonate: () -> Unit,
     modifier: Modifier = Modifier,
+    buildInfo: BuildInfo? = null,
 ) {
     var renaming by remember { mutableStateOf<BleDevice?>(null) }
     var showPaired by remember { mutableStateOf(false) }
@@ -168,6 +171,12 @@ fun DiscoveryScreen(
             }
         }
         Spacer(Modifier.height(16.dp))
+        // Quiet build stamp on the background; tap → prefilled GitHub issue. Hidden
+        // on iOS/Wear and in demo/screenshot runs (buildInfo == null).
+        buildInfo?.let {
+            VersionStamp(it, Modifier.align(Alignment.CenterHorizontally))
+            Spacer(Modifier.height(4.dp))
+        }
     }
 
         DonateHeart(
