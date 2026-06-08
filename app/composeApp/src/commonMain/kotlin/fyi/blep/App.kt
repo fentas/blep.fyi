@@ -86,6 +86,7 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     onSafetyScan = controller::openSafetyScan,
                     onSettings = controller::openSettings,
                     onDonate = { uriHandler.openUri(DONATE_URL) },
+                    rotationOf = controller::rotationStats,
                 )
 
                 is Screen.Settings -> SettingsScreen(

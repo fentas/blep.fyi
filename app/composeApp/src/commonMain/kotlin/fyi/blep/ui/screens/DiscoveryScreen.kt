@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import fyi.blep.core.ble.RotationStats
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
 import fyi.blep.resources.Res
@@ -111,6 +112,7 @@ fun DiscoveryScreen(
     onSettings: () -> Unit,
     onDonate: () -> Unit,
     modifier: Modifier = Modifier,
+    rotationOf: (String) -> RotationStats? = { null },
 ) {
     var showPaired by remember { mutableStateOf(false) }
     var showDonate by remember { mutableStateOf(false) }
@@ -155,6 +157,7 @@ fun DiscoveryScreen(
                     onClick = { onSelect(device) },
                     onDetails = { onDetails(device) },
                     onToggleFavorite = { onToggleFavorite(device) },
+                    rotation = rotationOf(device.id),
                     modifier = Modifier.animateItem(),
                 )
             }
@@ -393,6 +396,7 @@ private fun DeviceCard(
     onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier,
     onDetails: (() -> Unit)? = null,
+    rotation: RotationStats? = null,
 ) {
     Surface(
         onClick = onClick,
@@ -432,6 +436,10 @@ private fun DeviceCard(
                     device.isConnected -> StatusChip(stringResource(Res.string.status_connected), showDot = true)
                     else -> StatusChip(stringResource(Res.string.status_paired), showDot = false)
                 }
+                if (rotation != null && rotation.rotations > 0) {
+                    Spacer(Modifier.height(3.dp))
+                    RotationBadge(rotation)
+                }
             }
             if (!device.rssiUnknown) {
                 SignalDots(rssi = device.rssi)
@@ -441,6 +449,17 @@ private fun DeviceCard(
             if (onDetails != null) DetailsButton(onDetails)
         }
     }
+}
+
+/** Compact "this device has changed its id N times" badge — pink when the match is
+ *  still contested (an unresolved fork). Only shown once the correlator has evidence. */
+@Composable
+private fun RotationBadge(rotation: RotationStats) {
+    Text(
+        "↻ ${rotation.rotations}×",
+        style = MaterialTheme.typography.labelMedium,
+        color = if (rotation.contested) BlepColors.Pink else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+    )
 }
 
 /** Star toggle: filled gold when starred, hollow otherwise. Starred devices pin to
