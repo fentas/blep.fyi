@@ -6,6 +6,9 @@ options:
   deploymentTarget:
     iOS: "15.0"
   createIntermediateGroups: true
+  # Xcode 15.4 (pinned in CI for the iOS-17 SDK) can't read XcodeGen's newer
+  # default project format; emit the older objectVersion it understands.
+  objectVersion: 56
 
 targets:
   iosApp:

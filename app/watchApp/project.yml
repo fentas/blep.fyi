@@ -6,6 +6,8 @@ options:
   deploymentTarget:
     watchOS: "9.0"
   createIntermediateGroups: true
+  # CI pins Xcode 15.4 (see the swift-apps job); emit the older project format it reads.
+  objectVersion: 56
 
 targets:
   watchApp:
