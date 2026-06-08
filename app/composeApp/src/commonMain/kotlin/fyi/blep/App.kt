@@ -14,6 +14,7 @@ import fyi.blep.core.safety.TrackerTuning
 import fyi.blep.demo.DemoBleScanner
 import fyi.blep.demo.DemoMotionProvider
 import fyi.blep.ui.screens.CompletionScreen
+import androidx.compose.foundation.isSystemInDarkTheme
 import fyi.blep.ui.rememberBlePermissionRequest
 import fyi.blep.ui.screens.DiscoveryScreen
 import fyi.blep.ui.screens.OnboardingScreen
@@ -30,17 +31,22 @@ const val DONATE_URL: String = "https://blep.fyi/donate.html"
  *  scripted data sources (no Bluetooth/sensors needed) for screenshots/previews. */
 @Composable
 fun App(demo: Boolean = false) {
-    BlepTheme {
-        val scope = rememberCoroutineScope()
-        val controller = remember(scope) {
-            if (demo) BlepController(
-                DemoBleScanner(), scope, DemoMotionProvider(),
-                // fast thresholds so the demo safety scan escalates within seconds
-                safetyTuning = TrackerTuning(nearbyMs = 1_000, followingMs = 6_000, rotationMinDistinct = 3, bucketMs = 4_000),
-                skipOnboarding = true, // screenshots/demo jump straight to discovery
-            )
-            else BlepController(createBleScanner(), scope)
-        }
+    val scope = rememberCoroutineScope()
+    val controller = remember(scope) {
+        if (demo) BlepController(
+            DemoBleScanner(), scope, DemoMotionProvider(),
+            // fast thresholds so the demo safety scan escalates within seconds
+            safetyTuning = TrackerTuning(nearbyMs = 1_000, followingMs = 6_000, rotationMinDistinct = 3, bucketMs = 4_000),
+            skipOnboarding = true, // screenshots/demo jump straight to discovery
+        )
+        else BlepController(createBleScanner(), scope)
+    }
+    val dark = when (controller.themeMode) {
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+    }
+    BlepTheme(darkTheme = dark) {
         val uriHandler = LocalUriHandler.current
         val requestBlePermission = rememberBlePermissionRequest()
 
@@ -97,6 +103,8 @@ fun App(demo: Boolean = false) {
                     onToggleBackground = controller::setBackgroundScanning,
                     intervalMinutes = controller.scanIntervalMinutes,
                     onIntervalChange = controller::setScanInterval,
+                    themeMode = controller.themeMode,
+                    onSelectTheme = controller::selectTheme,
                     onBack = controller::startDiscovery,
                 )
 

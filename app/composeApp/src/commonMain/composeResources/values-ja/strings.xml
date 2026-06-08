@@ -180,4 +180,11 @@
     <string name="onboard_body_2">あなたの体が後ろからの信号を遮るので、方向がわかります。スマホを胸に平らに当てて、ゆっくり回ってください——探しているものに近づくと blep が温かくなります。</string>
     <string name="onboard_title_3">設計からプライベート</string>
     <string name="onboard_body_3">すべて端末内で動作します——アカウントも、広告も、解析もありません。何一つあなたのスマホから出ることはありません。blep はデバイスを見つけ、トラッカーを監視するために Bluetooth が必要なだけです。</string>
+    <string name="donate_dialog_title">blep を応援</string>
+    <string name="donate_dialog_body">blep は無料でオープンソースです——少しのチップで運営を続けられます。</string>
+    <string name="donate_dialog_action">支援 &amp; 寄付</string>
+    <string name="settings_theme_title">テーマ</string>
+    <string name="theme_system">システム</string>
+    <string name="theme_light">ライト</string>
+    <string name="theme_dark">ダーク</string>
 </resources>

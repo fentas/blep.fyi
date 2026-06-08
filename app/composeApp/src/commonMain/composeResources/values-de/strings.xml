@@ -181,4 +181,11 @@
     <string name="onboard_title_3">Privat von Grund auf</string>
     <string name="onboard_body_3">Alles läuft auf deinem Gerät — keine Konten, keine Werbung, kein Tracking. Nichts verlässt jemals dein Handy. blep braucht nur Bluetooth, um Geräte zu finden und nach Trackern Ausschau zu halten.</string>
     <string name="safety_need_help">Tracker gefunden? Was nun</string>
+    <string name="donate_dialog_title">blep unterstützen</string>
+    <string name="donate_dialog_body">blep ist kostenlos und Open Source — ein kleiner Tipp hält es am Laufen.</string>
+    <string name="donate_dialog_action">Helfen &amp; spenden</string>
+    <string name="settings_theme_title">Erscheinungsbild</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_dark">Dunkel</string>
 </resources>

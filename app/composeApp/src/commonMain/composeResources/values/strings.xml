@@ -199,4 +199,13 @@
     <string name="onboard_body_2">Your body blocks the signal from behind, making it directional. Hold the phone flat to your chest and turn slowly — blep gets warmer toward what you're looking for.</string>
     <string name="onboard_title_3">Private by design</string>
     <string name="onboard_body_3">Everything runs on your device — no accounts, no ads, no analytics. Nothing ever leaves your phone. blep just needs Bluetooth to find devices and watch for trackers.</string>
+    <!-- Donate dialog (kept to a single heart — the icon) -->
+    <string name="donate_dialog_title">Support blep</string>
+    <string name="donate_dialog_body">blep is free and open source — a small tip keeps it going.</string>
+    <string name="donate_dialog_action">Help &amp; donate</string>
+    <!-- Theme selector -->
+    <string name="settings_theme_title">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
 </resources>

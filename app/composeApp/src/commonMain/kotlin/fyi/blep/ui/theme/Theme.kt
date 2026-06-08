@@ -35,11 +35,12 @@ private val BlepShapes = Shapes(
     large = RoundedCornerShape(28.dp),
 )
 
-/** Root theme: minimalist, pastel, geometric — follows the system light/dark setting. */
+/** Root theme: minimalist, pastel, geometric. [darkTheme] defaults to the system
+ *  setting; the in-app Theme selector overrides it. */
 @Composable
-fun BlepTheme(content: @Composable () -> Unit) {
+fun BlepTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) DarkScheme else LightScheme,
+        colorScheme = if (darkTheme) DarkScheme else LightScheme,
         typography = BlepTypography,
         shapes = BlepShapes,
         content = content,

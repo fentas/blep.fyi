@@ -209,6 +209,15 @@ class BlepController(
         startDiscovery()
     }
 
+    /** Light/dark/system theme preference (persisted; the root theme reads it). */
+    var themeMode by mutableStateOf(settings.themeMode())
+        private set
+
+    fun selectTheme(mode: ThemeMode) {
+        themeMode = mode
+        settings.setThemeMode(mode)
+    }
+
     /** Foreground service that keeps a safety scan alive off-screen (persisted). */
     fun setForegroundScanning(on: Boolean) {
         foregroundScanEnabled = on

@@ -180,4 +180,11 @@
     <string name="onboard_body_2">Το σώμα σου μπλοκάρει το σήμα από πίσω, κάνοντάς το κατευθυντικό. Κράτησε το τηλέφωνο επίπεδο στο στήθος σου και γύρνα αργά — το blep γίνεται πιο ζεστό προς αυτό που ψάχνεις.</string>
     <string name="onboard_title_3">Ιδιωτικό εκ κατασκευής</string>
     <string name="onboard_body_3">Όλα τρέχουν στη συσκευή σου — χωρίς λογαριασμούς, χωρίς διαφημίσεις, χωρίς analytics. Τίποτα δεν φεύγει ποτέ από το τηλέφωνό σου. Το blep χρειάζεται μόνο Bluetooth για να βρίσκει συσκευές και να προσέχει για ιχνηλάτες.</string>
+    <string name="donate_dialog_title">Στήριξε το blep</string>
+    <string name="donate_dialog_body">Το blep είναι δωρεάν και ανοιχτού κώδικα — ένα μικρό φιλοδώρημα το κρατά ζωντανό.</string>
+    <string name="donate_dialog_action">Βοήθησε &amp; δώρισε</string>
+    <string name="settings_theme_title">Θέμα</string>
+    <string name="theme_system">Συστήματος</string>
+    <string name="theme_light">Φωτεινό</string>
+    <string name="theme_dark">Σκοτεινό</string>
 </resources>

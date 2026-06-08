@@ -180,4 +180,11 @@
     <string name="onboard_body_2">Tvoje telo zadaj zapira signal in ga naredi usmerjenega. Telefon drži ploščato ob prsih in se počasi obračaj — blep postaja topleje proti temu, kar iščeš.</string>
     <string name="onboard_title_3">Zasebnost že po zasnovi</string>
     <string name="onboard_body_3">Vse teče na tvoji napravi — brez računov, brez oglasov, brez analitike. Nič nikoli ne zapusti tvojega telefona. blep potrebuje le Bluetooth za iskanje naprav in opazovanje sledilnikov.</string>
+    <string name="donate_dialog_title">Podpri blep</string>
+    <string name="donate_dialog_body">blep je brezplačen in odprtokoden — majhna napitnina poskrbi, da deluje naprej.</string>
+    <string name="donate_dialog_action">Pomagaj &amp; podari</string>
+    <string name="settings_theme_title">Tema</string>
+    <string name="theme_system">Sistemska</string>
+    <string name="theme_light">Svetla</string>
+    <string name="theme_dark">Temna</string>
 </resources>

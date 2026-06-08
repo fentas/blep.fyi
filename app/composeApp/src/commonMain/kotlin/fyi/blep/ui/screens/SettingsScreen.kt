@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -44,6 +45,11 @@ import fyi.blep.resources.Res
 import fyi.blep.resources.a11y_back
 import fyi.blep.resources.a11y_more_info
 import fyi.blep.AppSettings
+import fyi.blep.ThemeMode
+import fyi.blep.resources.settings_theme_title
+import fyi.blep.resources.theme_dark
+import fyi.blep.resources.theme_light
+import fyi.blep.resources.theme_system
 import fyi.blep.core.safety.ScanSensitivity
 import fyi.blep.ui.components.SensitivitySelector
 import fyi.blep.resources.action_done
@@ -95,6 +101,8 @@ fun SettingsScreen(
     onToggleBackground: (Boolean) -> Unit,
     intervalMinutes: Int,
     onIntervalChange: (Int) -> Unit,
+    themeMode: ThemeMode,
+    onSelectTheme: (ThemeMode) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -137,6 +145,7 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            ThemeSelector(themeMode, onSelectTheme)
             SettingRow(
                 title = stringResource(Res.string.settings_connected_signal_title),
                 desc = stringResource(Res.string.settings_connected_signal_desc),
@@ -299,6 +308,52 @@ private fun intervalLabel(minutes: Int): String = when {
     minutes < 60 -> stringResource(Res.string.settings_interval_min, minutes)
     minutes % 60 == 0 -> stringResource(Res.string.settings_interval_h, minutes / 60)
     else -> stringResource(Res.string.settings_interval_hm, minutes / 60, minutes % 60)
+}
+
+@Composable
+private fun ThemeSelector(mode: ThemeMode, onSelect: (ThemeMode) -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                stringResource(Res.string.settings_theme_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f),
+            )
+            Row(
+                Modifier
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.06f))
+                    .padding(2.dp),
+            ) {
+                ThemeChip(stringResource(Res.string.theme_system), mode == ThemeMode.SYSTEM) { onSelect(ThemeMode.SYSTEM) }
+                ThemeChip(stringResource(Res.string.theme_light), mode == ThemeMode.LIGHT) { onSelect(ThemeMode.LIGHT) }
+                ThemeChip(stringResource(Res.string.theme_dark), mode == ThemeMode.DARK) { onSelect(ThemeMode.DARK) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ThemeChip(label: String, selected: Boolean, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .clip(RoundedCornerShape(999.dp))
+            .background(if (selected) BlepColors.Blue else Color.Transparent)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+    ) {
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium,
+            color = if (selected) BlepColors.Cream else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+        )
+    }
 }
 
 @Composable

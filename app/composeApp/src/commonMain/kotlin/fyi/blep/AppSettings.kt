@@ -4,6 +4,15 @@ import fyi.blep.core.platform.KeyValueStore
 import fyi.blep.core.platform.createKeyValueStore
 import fyi.blep.core.safety.ScanSensitivity
 
+/** App theme preference: follow the OS, or force light/dark. */
+enum class ThemeMode {
+    SYSTEM, LIGHT, DARK;
+
+    companion object {
+        fun fromName(name: String?): ThemeMode = entries.firstOrNull { it.name == name } ?: SYSTEM
+    }
+}
+
 /**
  * Persisted app preferences shown on the Settings screen. Thin typed wrapper over
  * [KeyValueStore]; the controller reads these as the live values (the inline
@@ -50,6 +59,10 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
     fun onboarded(): Boolean = store.getBoolean(KEY_ONBOARDED, false)
     fun setOnboarded(on: Boolean) = store.putBoolean(KEY_ONBOARDED, on)
 
+    /** Light/dark/system theme preference. */
+    fun themeMode(): ThemeMode = ThemeMode.fromName(store.getString(KEY_THEME))
+    fun setThemeMode(mode: ThemeMode) = store.putString(KEY_THEME, mode.name)
+
     companion object {
         const val INTERVAL_MIN = 15   // WorkManager periodic floor
         const val INTERVAL_MAX = 240  // 4 hours
@@ -63,5 +76,6 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
         private const val KEY_SENSITIVITY = "settings.scanSensitivity"
         private const val KEY_LOCATION = "settings.locationAware"
         private const val KEY_ONBOARDED = "settings.onboarded"
+        private const val KEY_THEME = "settings.themeMode"
     }
 }

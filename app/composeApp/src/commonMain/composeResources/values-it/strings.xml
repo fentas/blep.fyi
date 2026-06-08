@@ -180,4 +180,11 @@
     <string name="onboard_body_2">Il tuo corpo blocca il segnale da dietro, rendendolo direzionale. Tieni il telefono piatto contro il petto e gira lentamente — blep si fa più caldo verso ciò che stai cercando.</string>
     <string name="onboard_title_3">Privato per natura</string>
     <string name="onboard_body_3">Tutto funziona sul tuo dispositivo — niente account, niente pubblicità, niente analisi. Nulla lascia mai il tuo telefono. A blep serve solo il Bluetooth per trovare i dispositivi e tenere d'occhio i tracker.</string>
+    <string name="donate_dialog_title">Sostieni blep</string>
+    <string name="donate_dialog_body">blep è gratuito e open source — una piccola mancia lo mantiene in vita.</string>
+    <string name="donate_dialog_action">Aiuta &amp; dona</string>
+    <string name="settings_theme_title">Tema</string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Chiaro</string>
+    <string name="theme_dark">Scuro</string>
 </resources>

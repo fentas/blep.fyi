@@ -181,4 +181,11 @@
     <string name="onboard_body_2">你的身体会挡住背后的信号，使其具有方向性。将手机平贴在胸前并缓慢转动——越靠近目标，blep 就越热。</string>
     <string name="onboard_title_3">隐私至上的设计</string>
     <string name="onboard_body_3">一切都在你的设备上运行——没有账户、没有广告、没有分析。任何数据都不会离开你的手机。blep 只需要蓝牙来查找设备并留意追踪器。</string>
+    <string name="donate_dialog_title">支持 blep</string>
+    <string name="donate_dialog_body">blep 是免费的开源软件——一点小费可以让它继续运行。</string>
+    <string name="donate_dialog_action">帮助 &amp; 捐赠</string>
+    <string name="settings_theme_title">主题</string>
+    <string name="theme_system">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
 </resources>

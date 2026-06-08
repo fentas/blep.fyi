@@ -36,6 +36,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
@@ -95,10 +96,10 @@ fun OnboardingScreen(onDone: () -> Unit, onSkip: () -> Unit, modifier: Modifier 
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                if (page == 1) {
-                    ChestShieldDiagram(Modifier.size(190.dp))
-                } else {
-                    Image(rememberVectorPainter(BlepLogo), contentDescription = null, modifier = Modifier.size(150.dp))
+                when (page) {
+                    1 -> ChestShieldDiagram(Modifier.size(190.dp))
+                    2 -> ShieldIcon(Modifier.size(150.dp))
+                    else -> Image(rememberVectorPainter(BlepLogo), contentDescription = null, modifier = Modifier.size(150.dp))
                 }
                 Spacer(Modifier.height(40.dp))
                 Text(
@@ -138,6 +139,33 @@ fun OnboardingScreen(onDone: () -> Unit, onSkip: () -> Unit, modifier: Modifier 
         ) {
             Text(stringResource(if (onLast) Res.string.onboard_done else Res.string.onboard_next))
         }
+    }
+}
+
+/** A shield with a check — the privacy/permission card's icon. */
+@Composable
+private fun ShieldIcon(modifier: Modifier) {
+    val blue = BlepColors.Blue
+    Canvas(modifier) {
+        val w = size.width
+        val h = size.height
+        val shield = Path().apply {
+            moveTo(w * 0.5f, h * 0.08f)
+            lineTo(w * 0.84f, h * 0.22f)
+            lineTo(w * 0.84f, h * 0.5f)
+            cubicTo(w * 0.84f, h * 0.78f, w * 0.68f, h * 0.9f, w * 0.5f, h * 0.95f)
+            cubicTo(w * 0.32f, h * 0.9f, w * 0.16f, h * 0.78f, w * 0.16f, h * 0.5f)
+            lineTo(w * 0.16f, h * 0.22f)
+            close()
+        }
+        drawPath(shield, blue.copy(alpha = 0.12f))
+        drawPath(shield, blue, style = Stroke(width = w * 0.03f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        val check = Path().apply {
+            moveTo(w * 0.36f, h * 0.5f)
+            lineTo(w * 0.46f, h * 0.62f)
+            lineTo(w * 0.66f, h * 0.4f)
+        }
+        drawPath(check, blue, style = Stroke(width = w * 0.05f, cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }
 

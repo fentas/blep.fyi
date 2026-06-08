@@ -180,4 +180,11 @@
     <string name="onboard_body_2">Je lichaam blokkeert het signaal van achteren, waardoor het richting krijgt. Houd de telefoon plat tegen je borst en draai langzaam — blep wordt warmer richting wat je zoekt.</string>
     <string name="onboard_title_3">Privé van ontwerp</string>
     <string name="onboard_body_3">Alles draait op je apparaat — geen accounts, geen advertenties, geen analyse. Niets verlaat ooit je telefoon. blep heeft alleen Bluetooth nodig om apparaten te vinden en op trackers te letten.</string>
+    <string name="donate_dialog_title">blep steunen</string>
+    <string name="donate_dialog_body">blep is gratis en open source — een kleine fooi houdt het draaiende.</string>
+    <string name="donate_dialog_action">Help &amp; doneer</string>
+    <string name="settings_theme_title">Thema</string>
+    <string name="theme_system">Systeem</string>
+    <string name="theme_light">Licht</string>
+    <string name="theme_dark">Donker</string>
 </resources>

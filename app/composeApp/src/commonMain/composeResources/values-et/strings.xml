@@ -180,4 +180,11 @@
     <string name="onboard_body_2">Su keha blokeerib signaali tagantpoolt, muutes selle suunatuks. Hoia telefoni lapiti vastu rinda ja pööra aeglaselt — blep läheb soojemaks selle poole, mida otsid.</string>
     <string name="onboard_title_3">Privaatne juba kavandilt</string>
     <string name="onboard_body_3">Kõik toimub sinu seadmes — ei mingeid kontosid, reklaame ega analüütikat. Miski ei lahku kunagi su telefonist. blepil on vaja vaid Bluetoothi, et seadmeid leida ja jälgijaid valvata.</string>
+    <string name="donate_dialog_title">Toeta blepi</string>
+    <string name="donate_dialog_body">blep on tasuta ja avatud lähtekoodiga — väike jootraha hoiab selle käigus.</string>
+    <string name="donate_dialog_action">Aita &amp; anneta</string>
+    <string name="settings_theme_title">Teema</string>
+    <string name="theme_system">Süsteemne</string>
+    <string name="theme_light">Hele</string>
+    <string name="theme_dark">Tume</string>
 </resources>

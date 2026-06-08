@@ -54,8 +54,9 @@ import fyi.blep.resources.app_tagline
 import fyi.blep.resources.action_cancel
 import fyi.blep.resources.action_clear
 import fyi.blep.resources.action_save
-import fyi.blep.resources.done_donate_blurb
-import fyi.blep.resources.done_donate_button
+import fyi.blep.resources.donate_dialog_action
+import fyi.blep.resources.donate_dialog_body
+import fyi.blep.resources.donate_dialog_title
 import fyi.blep.resources.avail_bluetooth_off
 import fyi.blep.resources.avail_location_off
 import fyi.blep.resources.avail_permission
@@ -194,17 +195,18 @@ fun DiscoveryScreen(
     if (showDonate) {
         AlertDialog(
             onDismissRequest = { showDonate = false },
-            icon = { Text("♥", style = MaterialTheme.typography.headlineMedium, color = BlepColors.Pink) },
+            icon = { Icon(rememberVectorPainter(HeartIcon), contentDescription = null, tint = BlepColors.Pink, modifier = Modifier.size(28.dp)) },
+            title = { Text(stringResource(Res.string.donate_dialog_title), color = MaterialTheme.colorScheme.onBackground) },
             text = {
                 Text(
-                    stringResource(Res.string.done_donate_blurb),
+                    stringResource(Res.string.donate_dialog_body),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
             },
             confirmButton = {
                 TextButton(onClick = { showDonate = false; onDonate() }) {
-                    Text(stringResource(Res.string.done_donate_button), color = BlepColors.Blue)
+                    Text(stringResource(Res.string.donate_dialog_action), color = BlepColors.Blue)
                 }
             },
             dismissButton = {
@@ -223,7 +225,7 @@ private fun DonateHeart(onClick: () -> Unit, modifier: Modifier = Modifier) {
         modifier = modifier
             .size(52.dp)
             .clip(CircleShape)
-            .background(Color(0xFFE6E7EA)) // light gray
+            .background(MaterialTheme.colorScheme.surfaceVariant) // soft gray, flips with the theme
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
@@ -298,7 +300,7 @@ private fun Header(deviceCount: Int) {
         )
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text("blep", style = MaterialTheme.typography.displayLarge)
+            Text("blep", style = MaterialTheme.typography.displayLarge, color = MaterialTheme.colorScheme.onBackground)
             Text(
                 stringResource(Res.string.app_tagline),
                 style = MaterialTheme.typography.bodyLarge,

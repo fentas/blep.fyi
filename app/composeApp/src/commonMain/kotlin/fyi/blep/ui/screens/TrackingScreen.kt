@@ -34,8 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -131,7 +133,9 @@ fun TrackingScreen(
 ) {
     KeepScreenOn() // don't let the display sleep mid-hunt
     val background by animateColorAsState(
-        targetValue = BlepColors.proximity(status.proximity),
+        // Softened: blend the warm/cold proximity colour toward a calm neutral so the
+        // full-bleed background isn't harsh. The radar/arrow keep the vivid signal.
+        targetValue = lerp(BlepColors.proximity(status.proximity), Color(0xFFEFF2F6), 0.32f),
         animationSpec = tween(durationMillis = 800),
         label = "trackingBackground",
     )
