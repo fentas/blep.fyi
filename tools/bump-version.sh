@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Increment the build number (versionCode) of both app modules, each within its
-# form-factor band (phone 1xxx in :composeApp, Wear OS 2xxx in :wearApp). Play
+# form-factor band (phone 1xxx in :androidApp, Wear OS 2xxx in :wearApp). Play
 # requires a strictly-higher versionCode for every upload; this bumps both by one.
 #
 # versionName (the marketing version, e.g. 1.1.0) is intentionally NOT touched —
@@ -23,5 +23,5 @@ bump() { # build.gradle.kts
 }
 
 echo "Bumping build numbers:"
-bump "$ROOT/app/composeApp/build.gradle.kts"
+bump "$ROOT/app/androidApp/build.gradle.kts"
 bump "$ROOT/app/wearApp/build.gradle.kts"

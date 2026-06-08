@@ -21,8 +21,8 @@ android {
         minSdk = libs.versions.androidMinSdk.get().toInt()
         targetSdk = libs.versions.androidTargetSdk.get().toInt()
         // Phone band = 1xxx (Wear = 2xxx in :wearApp); globally-unique per upload.
-        versionCode = 1007
-        versionName = "1.4.0"
+        versionCode = 1008
+        versionName = "1.4.1"
     }
     // Release signing from a gitignored keystore.properties; absent → debug signing.
     val keystoreProps = rootProject.file("keystore.properties").takeIf { it.exists() }
