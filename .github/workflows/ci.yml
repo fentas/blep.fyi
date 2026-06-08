@@ -72,10 +72,8 @@ jobs:
     # (UIViewLayoutRegion) without an @available guard, so the Swift app fails to link
     # below iOS 18. Fix: a `-Wl,-U,_OBJC_CLASS_$_UIViewLayoutRegion` linker flag in
     # iosApp/project.yml lets that one symbol resolve dynamically at runtime (CMP
-    # guards it), keeping the iOS 15 floor. Kept non-blocking for ONE confirming run;
-    # drop continue-on-error once this job is green.
+    # guards it), keeping the iOS 15 floor. Remove that flag once CMP weak-links it.
     # Track: JetBrains/compose-multiplatform#4821 (CMP-10179).
-    continue-on-error: true
     defaults:
       run:
         working-directory: app
