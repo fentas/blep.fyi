@@ -205,7 +205,7 @@ private fun ChestShieldDiagram(modifier: Modifier) {
         val torso = Path().apply {
             moveTo(cx - w * 0.20f, h * 0.86f)
             lineTo(cx - w * 0.16f, h * 0.46f)
-            quadraticBezierTo(cx, h * 0.40f, cx + w * 0.16f, h * 0.46f)
+            quadraticTo(cx, h * 0.40f, cx + w * 0.16f, h * 0.46f)
             lineTo(cx + w * 0.20f, h * 0.86f)
         }
         drawPath(torso, ink, style = line)

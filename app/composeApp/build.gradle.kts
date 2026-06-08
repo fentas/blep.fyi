@@ -16,6 +16,9 @@ if (enableAndroid) {
 }
 
 kotlin {
+    // expect/actual classes (e.g. BackgroundScan) are still flagged Beta; opt in.
+    compilerOptions { freeCompilerArgs.add("-Xexpect-actual-classes") }
+
     if (enableAndroid) {
         androidTarget {
             compilerOptions { jvmTarget.set(JvmTarget.JVM_11) }

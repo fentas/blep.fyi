@@ -13,14 +13,14 @@ object TargetEstimator {
         if (points.size < 3) return null
         var wSum = 0.0; var cx = 0.0; var cy = 0.0; var rMean = 0.0
         for (p in points) {
-            val w = (p.strength01 + 0.05).toDouble()
+            val w = p.strength01 + 0.05
             wSum += w; cx += w * p.pos.x; cy += w * p.pos.y; rMean += w * p.rssi
         }
         if (wSum < 1e-9) return null
         cx /= wSum; cy /= wSum; rMean /= wSum
         var sxx = 0.0; var sxy = 0.0; var syy = 0.0; var sxr = 0.0; var syr = 0.0
         for (p in points) {
-            val w = (p.strength01 + 0.05).toDouble()
+            val w = p.strength01 + 0.05
             val dx = p.pos.x - cx; val dy = p.pos.y - cy; val dr = p.rssi - rMean
             sxx += w * dx * dx; sxy += w * dx * dy; syy += w * dy * dy
             sxr += w * dx * dr; syr += w * dy * dr

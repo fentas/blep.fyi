@@ -22,7 +22,7 @@ object PathLossCalibrator {
         for (p in points) {
             val d = max((p.pos - target).length, 0.5)
             val x = log10(d)
-            val w = (p.strength01 + 0.05).toDouble()
+            val w = p.strength01 + 0.05
             wSum += w; sx += w * x; sy += w * p.rssi
             if (x < minX) minX = x; if (x > maxX) maxX = x
         }
@@ -32,7 +32,7 @@ object PathLossCalibrator {
         for (p in points) {
             val d = max((p.pos - target).length, 0.5)
             val x = log10(d) - mx
-            val w = (p.strength01 + 0.05).toDouble()
+            val w = p.strength01 + 0.05
             sxx += w * x * x; sxy += w * x * (p.rssi - my)
         }
         if (sxx < 1e-9) return null

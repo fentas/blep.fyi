@@ -73,7 +73,7 @@ class TrackingSession(
 
         // Accumulate how far we've turned this sweep leg, when a heading exists.
         if ((phase == TrackingPhase.AXIS_SWEEP || phase == TrackingPhase.REORIENT) && motion?.headingRad != null) {
-            prevHeading?.let { rotatedRad += abs(angleDelta(motion.headingRad!!, it)) }
+            prevHeading?.let { rotatedRad += abs(angleDelta(motion.headingRad, it)) }
             prevHeading = motion.headingRad
             sweepHeadingKnown = true
         }

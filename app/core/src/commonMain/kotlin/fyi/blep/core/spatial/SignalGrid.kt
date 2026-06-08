@@ -31,7 +31,7 @@ class SignalGrid(private val cellM: Double = 1.0, private val zCellM: Double = 3
     /** The warmest cell visited so far, or null if empty. */
     fun strongest(): Cell? {
         var best: Cell? = null
-        for (c in cells.values) if (best == null || c.rssi > best!!.rssi) best = c
+        for (c in cells.values) if (best == null || c.rssi > best.rssi) best = c
         return best
     }
 
