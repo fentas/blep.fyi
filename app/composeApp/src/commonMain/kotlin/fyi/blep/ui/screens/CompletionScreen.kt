@@ -42,6 +42,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -133,8 +135,15 @@ fun CompletionScreen(
     val subline = remember { subs[Random.nextInt(subs.size)] }
     val kind = remember { CelebrationKind.entries[Random.nextInt(CelebrationKind.entries.size)] }
 
+    // Dark theme: a dark background tinted by the close-range "success" green
+    // (still celebratory, not black) with light ink; light theme keeps the bright
+    // pastel green it always had.
+    val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val ink = if (dark) Color(0xFFE7EBEF) else BlepColors.Ink
+    val bg = if (dark) lerp(BlepColors.proximity(1f, dark = true), Color(0xFF14181D), 0.45f) else BlepColors.proximity(1f)
+
     Box(
-        modifier = modifier.fillMaxSize().background(BlepColors.proximity(1f)),
+        modifier = modifier.fillMaxSize().background(bg),
         contentAlignment = Alignment.Center,
     ) {
         if (celebrated) {
@@ -151,34 +160,34 @@ fun CompletionScreen(
             label = "celebrate",
         ) { done ->
             if (!done) {
-                FoundPanel(deviceName = deviceName, onGotIt = { celebrated = true }, onKeepLooking = onDone)
+                FoundPanel(deviceName = deviceName, ink = ink, onGotIt = { celebrated = true }, onKeepLooking = onDone)
             } else {
-                CelebratePanel(headline = celebration, subline = subline, onDonate = onDonate, onAnother = onDone)
+                CelebratePanel(headline = celebration, subline = subline, ink = ink, onDonate = onDonate, onAnother = onDone)
             }
         }
     }
 }
 
 @Composable
-private fun FoundPanel(deviceName: String, onGotIt: () -> Unit, onKeepLooking: () -> Unit) {
+private fun FoundPanel(deviceName: String, ink: Color, onGotIt: () -> Unit, onKeepLooking: () -> Unit) {
     Column(
         Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Bottom,
     ) {
-        Text(deviceName, style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink.copy(alpha = 0.6f))
+        Text(deviceName, style = MaterialTheme.typography.titleMedium, color = ink.copy(alpha = 0.6f))
         Spacer(Modifier.height(4.dp))
         Text(
             stringResource(Res.string.done_here),
             style = MaterialTheme.typography.displayLarge,
-            color = BlepColors.Ink,
+            color = ink,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(6.dp))
         Text(
             stringResource(Res.string.done_on_top),
             style = MaterialTheme.typography.bodyLarge,
-            color = BlepColors.Ink.copy(alpha = 0.7f),
+            color = ink.copy(alpha = 0.7f),
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(36.dp))
@@ -189,23 +198,26 @@ private fun FoundPanel(deviceName: String, onGotIt: () -> Unit, onKeepLooking: (
         ) { Text(stringResource(Res.string.done_got_it), style = MaterialTheme.typography.titleMedium) }
         Spacer(Modifier.height(8.dp))
         TextButton(onClick = onKeepLooking, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(Res.string.done_keep_looking), color = BlepColors.Ink.copy(alpha = 0.6f))
+            Text(stringResource(Res.string.done_keep_looking), color = ink.copy(alpha = 0.6f))
         }
         Spacer(Modifier.height(8.dp))
     }
 }
 
 @Composable
-private fun CelebratePanel(headline: String, subline: String, onDonate: () -> Unit, onAnother: () -> Unit) {
+private fun CelebratePanel(headline: String, subline: String, ink: Color, onDonate: () -> Unit, onAnother: () -> Unit) {
     val pop by animateFloatAsState(
         targetValue = 1f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
         label = "pop",
     )
+    // Bottom-anchored like the FoundPanel so the buttons line up across both
+    // states; the celebration (seal + headline) sits just above, particles fill
+    // the space overhead.
     Column(
         Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Bottom,
     ) {
         // Hero: a ring + checkmark that draw themselves on, for the satisfying beat.
         SuccessSeal(Modifier.size(96.dp))
@@ -213,7 +225,7 @@ private fun CelebratePanel(headline: String, subline: String, onDonate: () -> Un
         Text(
             headline,
             style = MaterialTheme.typography.displayLarge,
-            color = BlepColors.Ink,
+            color = ink,
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer { scaleX = pop; scaleY = pop },
         )
@@ -221,14 +233,14 @@ private fun CelebratePanel(headline: String, subline: String, onDonate: () -> Un
         Text(
             subline,
             style = MaterialTheme.typography.titleMedium,
-            color = BlepColors.Ink.copy(alpha = 0.8f),
+            color = ink.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(28.dp))
         Text(
             stringResource(Res.string.done_donate_blurb),
             style = MaterialTheme.typography.bodyLarge,
-            color = BlepColors.Ink.copy(alpha = 0.7f),
+            color = ink.copy(alpha = 0.7f),
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(16.dp))
@@ -239,8 +251,9 @@ private fun CelebratePanel(headline: String, subline: String, onDonate: () -> Un
         ) { Text(stringResource(Res.string.done_donate_button), style = MaterialTheme.typography.titleMedium) }
         Spacer(Modifier.height(10.dp))
         OutlinedButton(onClick = onAnother, modifier = Modifier.fillMaxWidth().height(54.dp)) {
-            Text(stringResource(Res.string.done_track_another), style = MaterialTheme.typography.titleMedium, color = BlepColors.Ink)
+            Text(stringResource(Res.string.done_track_another), style = MaterialTheme.typography.titleMedium, color = ink)
         }
+        Spacer(Modifier.height(8.dp))
     }
 }
 
