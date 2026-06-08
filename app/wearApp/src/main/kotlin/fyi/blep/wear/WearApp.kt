@@ -46,6 +46,9 @@ import fyi.blep.core.tracking.GuidanceCue
 import fyi.blep.core.tracking.TrackingStatus
 
 private val Ink = Color(0xFF27313B)
+// At/above this raw RSSI you're on top of it — show "it's right here" + the dB
+// instead of the (then unreliable) spatial distance. Mirrors the phone.
+private const val POINT_BLANK_DBM = -50
 private val proximityStops = listOf(
     0.00f to Color(0xFF7FA8D4),
     0.40f to Color(0xFF8FD0CB),
@@ -129,7 +132,11 @@ fun WearApp(controller: WearController) {
         DiscoveryList(controller)
     } else {
         controller.status?.let {
-            TrackingView(tracked.displayName, it, controller.spatial, controller.guidance, onCancel = controller::startDiscovery)
+            TrackingView(
+                tracked.displayName, it, controller.spatial, controller.guidance,
+                rssi = controller.lastRssi, signalLost = controller.signalLost,
+                onCancel = controller::startDiscovery,
+            )
         }
     }
 }
@@ -153,8 +160,12 @@ private fun DiscoveryList(controller: WearController) {
 }
 
 @Composable
-private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialSnapshot?, guidanceLine: GuidanceLine?, onCancel: () -> Unit) {
+private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialSnapshot?, guidanceLine: GuidanceLine?, rssi: Int?, signalLost: Boolean, onCancel: () -> Unit) {
     val bg by animateColorAsState(proximityColor(status.proximity), tween(800), label = "wearBg")
+    // Point-blank: a strong live signal means it's on you. The spatial distance can
+    // stick far at this range (shared with the phone), so trust the raw reading and
+    // show "it's right here" + the live dB to sweep the last few cm. Mirrors phone.
+    val onIt = !signalLost && rssi != null && rssi >= POINT_BLANK_DBM
     Box(
         modifier = Modifier.fillMaxSize().background(bg).clickable(onClick = onCancel),
         contentAlignment = Alignment.Center,
@@ -163,14 +174,15 @@ private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialS
             // Spatial map when motion sensors feed it; otherwise the shape arrow.
             if (spatial != null) WearRadar(spatial) else WearArrow(status.arrow.curl, status.arrow.scale)
             Text(
-                phaseTitle(status.guidance),
+                if (onIt) stringResource(R.string.tracking_right_here) else phaseTitle(status.guidance),
                 color = Ink,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
             )
-            val line = guidanceLine?.let { guidanceLineText(it) }
-                ?: spatial?.target?.takeIf { it.confidence >= 0.35f && it.distanceM != null }
-                    ?.let { wearDistanceLabel(it.distanceM!!) }
+            val line = if (onIt) rssi?.let { stringResource(R.string.dbm, it) }
+                else guidanceLine?.let { guidanceLineText(it) }
+                    ?: spatial?.target?.takeIf { it.confidence >= 0.35f && it.distanceM != null }
+                        ?.let { wearDistanceLabel(it.distanceM!!) }
             if (line != null) {
                 Text(
                     line,

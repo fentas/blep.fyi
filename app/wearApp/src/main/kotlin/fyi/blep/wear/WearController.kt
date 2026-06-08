@@ -19,12 +19,14 @@ import fyi.blep.core.spatial.createMotionProvider
 import fyi.blep.core.tracking.TrackingPhase
 import fyi.blep.core.tracking.TrackingSession
 import fyi.blep.core.tracking.TrackingStatus
+import fyi.blep.core.tracking.signalFreshness
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
 /**
@@ -52,7 +54,16 @@ class WearController(
      *  can translate it the same way the phone does. */
     var guidance by mutableStateOf<GuidanceLine?>(null)
         private set
+    /** Live signal — the watch shows the dB and a plain "it's right here" at point-blank. */
+    var lastRssi by mutableStateOf<Int?>(null)
+        private set
+    /** No fresh RSSI recently (out of range / off). */
+    var signalLost by mutableStateOf(false)
+        private set
 
+    private var lastRssiMark: TimeMark? = null
+    private var trackStartMark: TimeMark? = null
+    private var arrived = false
     private var scanJob: Job? = null
     private var trackJob: Job? = null
     private var motionJob: Job? = null
@@ -70,6 +81,7 @@ class WearController(
         hapticJob?.cancel(); hapticJob = null
         tracking = null; status = null
         spatial = null; guidance = null; latestMotion = null
+        lastRssi = null; lastRssiMark = null; signalLost = false; arrived = false
         spatialTracker.reset(); guidanceStabilizer.reset()
         scanJob?.cancel()
         scanJob = scope.launch {
@@ -93,8 +105,9 @@ class WearController(
         val session = TrackingSession()
         status = session.status
         spatialTracker.reset(); guidanceStabilizer.reset(); spatial = null; guidance = null; latestMotion = null
+        lastRssi = null; lastRssiMark = null; signalLost = false; arrived = false
+        trackStartMark = TimeSource.Monotonic.markNow()
 
-        var lastRssi: Int? = null
         motionJob = scope.launch {
             try {
                 motionProvider.motion().collect { sample ->
@@ -102,6 +115,11 @@ class WearController(
                     val snap = spatialTracker.update((lastRssi ?: -100).toDouble(), sample)
                     spatial = snap
                     guidance = guidanceStabilizer.guideLine(snap, spatialTuning)
+                    val fresh = signalFreshness(
+                        sinceLastRssiMs = lastRssiMark?.elapsedNow()?.inWholeMilliseconds,
+                        sinceStartMs = trackStartMark?.elapsedNow()?.inWholeMilliseconds,
+                    )
+                    signalLost = fresh.lost
                 }
             } catch (c: CancellationException) {
                 throw c
@@ -121,12 +139,18 @@ class WearController(
             try {
                 scanner.rssi(device.id).collect { rssi ->
                     lastRssi = rssi
+                    lastRssiMark = TimeSource.Monotonic.markNow()
                     // Discount RSSI swings caused by rotating/tilting the watch.
                     if (latestMotion?.reorienting != true) {
                         val st = session.onSample(rssi, clock.elapsedNow().inWholeMilliseconds)
                         status = st
-                        if (st.phase == TrackingPhase.COMPLETE) {
-                            haptic.success(); trackJob?.cancel(); motionJob?.cancel(); hapticJob?.cancel()
+                        if (st.phase == TrackingPhase.COMPLETE && !arrived) {
+                            arrived = true
+                            haptic.success()
+                            // Keep ranging (trackJob) alive so the live dB still drives the
+                            // point-blank "it's right here" pinpoint on this screen; only
+                            // the Geiger pulse + motion stop.
+                            motionJob?.cancel(); hapticJob?.cancel()
                         }
                     }
                 }
