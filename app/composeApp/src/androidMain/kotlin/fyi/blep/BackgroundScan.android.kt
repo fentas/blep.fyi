@@ -20,7 +20,6 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import fyi.blep.R
 import fyi.blep.core.ble.createBleScanner
 import fyi.blep.core.platform.createKeyValueStore
 import fyi.blep.core.safety.SafetyHistory
@@ -34,6 +33,13 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import org.jetbrains.compose.resources.getString
+import fyi.blep.resources.Res
+import fyi.blep.resources.noti_alert_text
+import fyi.blep.resources.noti_alert_title
+import fyi.blep.resources.noti_channel_alert
+import fyi.blep.resources.noti_channel_ongoing
+import fyi.blep.resources.noti_ongoing_text
 import java.util.concurrent.TimeUnit
 
 private const val WORK_NAME = "blep.background.scan"
@@ -75,7 +81,7 @@ class BackgroundScanWorker(ctx: Context, params: WorkerParameters) : CoroutineWo
         val hit = withTimeoutOrNull(SCAN_WINDOW_MS) {
             safety.alerts().first { list -> list.any { it.severity == Severity.ALERT } }
         }
-        hit?.firstOrNull { it.severity == Severity.ALERT }?.let { notifyTracker(applicationContext) }
+        hit?.firstOrNull { it.severity == Severity.ALERT }?.let { notifyTracker(applicationContext, loadNotiText()) }
         return Result.success()
     }
 }
@@ -87,16 +93,20 @@ class BackgroundScanService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        ensureChannels(this)
-        ServiceCompat.startForeground(
-            this, NOTI_ONGOING, ongoingNotification(this),
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE else 0,
-        )
+        // Load the localized notification text (shared Compose resources, suspend) and
+        // go foreground first — an in-memory resource read is well within the FGS
+        // start window — then keep the safety scan running.
         scope.launch {
+            val text = loadNotiText()
+            ensureChannels(this@BackgroundScanService, text)
+            ServiceCompat.startForeground(
+                this@BackgroundScanService, NOTI_ONGOING, ongoingNotification(this@BackgroundScanService, text),
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE else 0,
+            )
             val safety = SafetyScanner(createBleScanner(), TrackerDetector(AppSettings().scanSensitivity().tuning), SafetyHistory(createKeyValueStore()))
             runCatching {
                 safety.alerts().collect { list ->
-                    if (list.any { it.severity == Severity.ALERT }) notifyTracker(this@BackgroundScanService)
+                    if (list.any { it.severity == Severity.ALERT }) notifyTracker(this@BackgroundScanService, text)
                 }
             }
         }
@@ -109,40 +119,62 @@ class BackgroundScanService : Service() {
     }
 }
 
-// ── notifications (localized via Android string resources, locale-aware) ─────
-private fun ensureChannels(ctx: Context) {
+// ── notifications ────────────────────────────────────────────────────────────
+// Text comes from the shared, 14-locale Compose resources (the same set the UI
+// uses) — read in a coroutine via the suspend [loadNotiText], then passed to the
+// pure builders below. No Android R / per-module string duplication.
+private data class NotiText(
+    val channelAlert: String,
+    val channelOngoing: String,
+    val ongoingText: String,
+    val alertTitle: String,
+    val alertText: String,
+)
+
+private suspend fun loadNotiText() = NotiText(
+    channelAlert = getString(Res.string.noti_channel_alert),
+    channelOngoing = getString(Res.string.noti_channel_ongoing),
+    ongoingText = getString(Res.string.noti_ongoing_text),
+    alertTitle = getString(Res.string.noti_alert_title),
+    alertText = getString(Res.string.noti_alert_text),
+)
+
+/** The app's display name from its manifest label — single source of truth, no
+ *  duplicated app_name string in this library. */
+private fun appLabel(ctx: Context): String =
+    ctx.applicationInfo.loadLabel(ctx.packageManager).toString()
+
+private fun ensureChannels(ctx: Context, t: NotiText) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
     val nm = ctx.getSystemService(NotificationManager::class.java) ?: return
-    nm.createNotificationChannel(
-        NotificationChannel(CH_ALERT, ctx.getString(R.string.noti_channel_alert), NotificationManager.IMPORTANCE_HIGH),
-    )
-    nm.createNotificationChannel(
-        NotificationChannel(CH_ONGOING, ctx.getString(R.string.noti_channel_ongoing), NotificationManager.IMPORTANCE_LOW),
-    )
+    nm.createNotificationChannel(NotificationChannel(CH_ALERT, t.channelAlert, NotificationManager.IMPORTANCE_HIGH))
+    nm.createNotificationChannel(NotificationChannel(CH_ONGOING, t.channelOngoing, NotificationManager.IMPORTANCE_LOW))
 }
 
+/** Open the app without hard-coding its Activity (it lives in the app module). */
 private fun openAppIntent(ctx: Context): PendingIntent {
-    val i = Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    val i = (ctx.packageManager.getLaunchIntentForPackage(ctx.packageName) ?: Intent())
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     return PendingIntent.getActivity(ctx, 0, i, PendingIntent.FLAG_IMMUTABLE)
 }
 
-private fun ongoingNotification(ctx: Context): Notification {
-    ensureChannels(ctx)
+private fun ongoingNotification(ctx: Context, t: NotiText): Notification {
+    ensureChannels(ctx, t)
     return NotificationCompat.Builder(ctx, CH_ONGOING)
-        .setContentTitle(ctx.getString(R.string.app_name))
-        .setContentText(ctx.getString(R.string.noti_ongoing_text))
+        .setContentTitle(appLabel(ctx))
+        .setContentText(t.ongoingText)
         .setSmallIcon(android.R.drawable.stat_notify_sync)
         .setOngoing(true)
         .setContentIntent(openAppIntent(ctx))
         .build()
 }
 
-private fun notifyTracker(ctx: Context) {
-    ensureChannels(ctx)
+private fun notifyTracker(ctx: Context, t: NotiText) {
+    ensureChannels(ctx, t)
     if (!NotificationManagerCompat.from(ctx).areNotificationsEnabled()) return
     val n = NotificationCompat.Builder(ctx, CH_ALERT)
-        .setContentTitle(ctx.getString(R.string.noti_alert_title))
-        .setContentText(ctx.getString(R.string.noti_alert_text))
+        .setContentTitle(t.alertTitle)
+        .setContentText(t.alertText)
         .setSmallIcon(android.R.drawable.stat_sys_warning)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setAutoCancel(true)

@@ -192,4 +192,9 @@
     <string name="theme_system">Sistemska</string>
     <string name="theme_light">Svetla</string>
     <string name="theme_dark">Temna</string>
+    <string name="noti_ongoing_text">Pazim na sledilnike v bližini</string>
+    <string name="noti_alert_title">Morda ti sledi sledilnik</string>
+    <string name="noti_alert_text">Sledilnik se vedno znova pojavlja blizu tebe. Odpri blep, da ga poiščeš.</string>
+    <string name="noti_channel_alert">Opozorila o sledilnikih</string>
+    <string name="noti_channel_ongoing">Skeniranje v ozadju</string>
 </resources>

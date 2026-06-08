@@ -192,4 +192,9 @@
     <string name="theme_system">Süsteemne</string>
     <string name="theme_light">Hele</string>
     <string name="theme_dark">Tume</string>
+    <string name="noti_ongoing_text">Jälgijate otsimine läheduses</string>
+    <string name="noti_alert_title">Võimalik, et jälgija jälgib sind</string>
+    <string name="noti_alert_text">Jälgija ilmub aina uuesti sinu lähedale. Ava blep, et see üles leida.</string>
+    <string name="noti_channel_alert">Jälgija hoiatused</string>
+    <string name="noti_channel_ongoing">Taustaskannimine</string>
 </resources>

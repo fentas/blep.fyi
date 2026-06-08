@@ -213,4 +213,9 @@
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
+    <string name="noti_ongoing_text">Watching for trackers nearby</string>
+    <string name="noti_alert_title">Possible tracker following you</string>
+    <string name="noti_alert_text">A tracker keeps showing up near you. Open blep to locate it.</string>
+    <string name="noti_channel_alert">Tracker alerts</string>
+    <string name="noti_channel_ongoing">Background scanning</string>
 </resources>

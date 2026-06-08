@@ -1,8 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="noti_ongoing_text">Παρακολούθηση για ιχνηλάτες κοντά</string>
-    <string name="noti_alert_title">Πιθανός ιχνηλάτης σε ακολουθεί</string>
-    <string name="noti_alert_text">Ένας ιχνηλάτης συνεχίζει να εμφανίζεται κοντά σου. Άνοιξε το blep για να τον εντοπίσεις.</string>
-    <string name="noti_channel_alert">Ειδοποιήσεις ιχνηλατών</string>
-    <string name="noti_channel_ongoing">Σάρωση στο παρασκήνιο</string>
-</resources>
+                    </resources>

@@ -1,8 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="noti_ongoing_text">Szukam lokalizatorów w pobliżu</string>
-    <string name="noti_alert_title">Lokalizator może cię śledzić</string>
-    <string name="noti_alert_text">Lokalizator wciąż pojawia się blisko ciebie. Otwórz blep, aby go namierzyć.</string>
-    <string name="noti_channel_alert">Alerty o lokalizatorach</string>
-    <string name="noti_channel_ongoing">Skanowanie w tle</string>
-</resources>
+                    </resources>

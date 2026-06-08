@@ -192,4 +192,9 @@
     <string name="theme_system">Sistema</string>
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Escuro</string>
+    <string name="noti_ongoing_text">A vigiar rastreadores por perto</string>
+    <string name="noti_alert_title">Possível rastreador a seguir-te</string>
+    <string name="noti_alert_text">Um rastreador continua a aparecer perto de ti. Abre o blep para o localizar.</string>
+    <string name="noti_channel_alert">Alertas de rastreadores</string>
+    <string name="noti_channel_ongoing">Análise em segundo plano</string>
 </resources>

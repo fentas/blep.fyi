@@ -192,4 +192,9 @@
     <string name="theme_system">Système</string>
     <string name="theme_light">Clair</string>
     <string name="theme_dark">Sombre</string>
+    <string name="noti_ongoing_text">Recherche de traceurs à proximité</string>
+    <string name="noti_alert_title">Un traceur te suit peut-être</string>
+    <string name="noti_alert_text">Un traceur réapparaît sans cesse près de toi. Ouvre blep pour le localiser.</string>
+    <string name="noti_channel_alert">Alertes de traceur</string>
+    <string name="noti_channel_ongoing">Analyse en arrière-plan</string>
 </resources>

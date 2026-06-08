@@ -1,8 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="noti_ongoing_text">正在监测附近的追踪器</string>
-    <string name="noti_alert_title">可能有追踪器在跟踪你</string>
-    <string name="noti_alert_text">有一个追踪器不断出现在你附近。打开 blep 来查找它。</string>
-    <string name="noti_channel_alert">追踪器警报</string>
-    <string name="noti_channel_ongoing">后台扫描</string>
-</resources>
+                    </resources>
