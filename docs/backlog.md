@@ -11,16 +11,17 @@ via the RSSI handover (one id goes quiet as a new one appears at the same range)
 with branching for ambiguous collisions. The items below build a real **identity
 layer** on top of it. Suggested order is 1 → 4; each step ships value on its own.
 
-### 1. Internal-identity spine (`IdentityStore`)  ⟵ start here
-- Give each `RotationTracker` lineage a **stable internal id**. Expose
-  `resolve(observation) → [(identityId, probability, why)]` — return **provenance**
-  (`why`: payload-match / same-range-as-dying-id / strong-co-presence), not a bare score.
-- **Re-key `DeviceAliases` / `DeviceFlags` on the internal id** → renames and flags
-  **survive rotation** (today they die with the address). This is the user-visible win
-  and the reason to do any of this.
-- Degrade gracefully: when evidence can't carry the link across a rotation, lose it
-  (like today) — **never mis-attach** (a wrong merge would move your rename onto a
-  stranger's device).
+### 1. Internal-identity spine (`IdentityStore`)  ✅ SHIPPED
+- `RotationTracker.identityFor(address)` exposes the lineage (worn addresses +
+  confidence + contested); `IdentityStore` (core/ble) persists the address↔identity
+  groupings with a **14-day TTL** that self-prunes. Renames/flags resolve across the
+  identity's address set (kept address-keyed — backward compatible), so they **follow
+  a device across rotations** within a session, and across a restart for stable-id +
+  already-linked devices. Only high-confidence, uncontested lineages are persisted, so
+  a weak match never mis-attaches a label. The detail page shows the worn-id history +
+  the contested branch. Tested incl. `IdentitySimulationTest`.
+- Still open here: re-identifying a device that rotates **and** was last seen before a
+  restart needs a content fingerprint to re-link — that's items 2 + 4 below.
 
 ### 2. Feature enrichment — payload bridge (existing task #46)
 - Plumb the advertisement payload from the scanner into the correlator: manufacturer-
