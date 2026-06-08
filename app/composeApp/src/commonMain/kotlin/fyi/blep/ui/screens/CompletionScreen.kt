@@ -173,24 +173,29 @@ private fun FoundPanel(deviceName: String, ink: Color, onGotIt: () -> Unit, onKe
     Column(
         Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom,
     ) {
-        Text(deviceName, style = MaterialTheme.typography.titleMedium, color = ink.copy(alpha = 0.6f))
-        Spacer(Modifier.height(4.dp))
-        Text(
-            stringResource(Res.string.done_here),
-            style = MaterialTheme.typography.displayLarge,
-            color = ink,
-            textAlign = TextAlign.Center,
-        )
-        Spacer(Modifier.height(6.dp))
-        Text(
-            stringResource(Res.string.done_on_top),
-            style = MaterialTheme.typography.bodyLarge,
-            color = ink.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center,
-        )
-        Spacer(Modifier.height(36.dp))
+        // Text block centred in the space above the bottom-anchored buttons.
+        Column(
+            Modifier.weight(1f).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(deviceName, style = MaterialTheme.typography.titleMedium, color = ink.copy(alpha = 0.6f))
+            Spacer(Modifier.height(4.dp))
+            Text(
+                stringResource(Res.string.done_here),
+                style = MaterialTheme.typography.displayLarge,
+                color = ink,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                stringResource(Res.string.done_on_top),
+                style = MaterialTheme.typography.bodyLarge,
+                color = ink.copy(alpha = 0.7f),
+                textAlign = TextAlign.Center,
+            )
+        }
         Button(
             onClick = onGotIt,
             colors = ButtonDefaults.buttonColors(containerColor = BlepColors.Blue, contentColor = BlepColors.Cream),
@@ -211,39 +216,42 @@ private fun CelebratePanel(headline: String, subline: String, ink: Color, onDona
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
         label = "pop",
     )
-    // Bottom-anchored like the FoundPanel so the buttons line up across both
-    // states; the celebration (seal + headline) sits just above, particles fill
-    // the space overhead.
+    // Text + seal centred in the space above the bottom-anchored buttons, so the
+    // buttons line up with the FoundPanel's; particles fill the space overhead.
     Column(
         Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing).padding(28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom,
     ) {
-        // Hero: a ring + checkmark that draw themselves on, for the satisfying beat.
-        SuccessSeal(Modifier.size(96.dp))
-        Spacer(Modifier.height(20.dp))
-        Text(
-            headline,
-            style = MaterialTheme.typography.displayLarge,
-            color = ink,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.graphicsLayer { scaleX = pop; scaleY = pop },
-        )
-        Spacer(Modifier.height(10.dp))
-        Text(
-            subline,
-            style = MaterialTheme.typography.titleMedium,
-            color = ink.copy(alpha = 0.8f),
-            textAlign = TextAlign.Center,
-        )
-        Spacer(Modifier.height(28.dp))
-        Text(
-            stringResource(Res.string.done_donate_blurb),
-            style = MaterialTheme.typography.bodyLarge,
-            color = ink.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center,
-        )
-        Spacer(Modifier.height(16.dp))
+        Column(
+            Modifier.weight(1f).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            // Hero: a ring + checkmark that draw themselves on, for the satisfying beat.
+            SuccessSeal(Modifier.size(96.dp))
+            Spacer(Modifier.height(20.dp))
+            Text(
+                headline,
+                style = MaterialTheme.typography.displayLarge,
+                color = ink,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.graphicsLayer { scaleX = pop; scaleY = pop },
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(
+                subline,
+                style = MaterialTheme.typography.titleMedium,
+                color = ink.copy(alpha = 0.8f),
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(28.dp))
+            Text(
+                stringResource(Res.string.done_donate_blurb),
+                style = MaterialTheme.typography.bodyLarge,
+                color = ink.copy(alpha = 0.7f),
+                textAlign = TextAlign.Center,
+            )
+        }
         Button(
             onClick = onDonate,
             colors = ButtonDefaults.buttonColors(containerColor = BlepColors.Blue, contentColor = BlepColors.Cream),
