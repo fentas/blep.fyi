@@ -7,6 +7,8 @@ import fyi.blep.core.platform.epochMillis
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Runs the "is something tracking me?" scan: feeds the scanner's raw advertisement
@@ -41,6 +43,9 @@ class SafetyScanner(
 ) {
     /** Addresses the user marked "it's mine" — never observed, never alerted. */
     private val muted: MutableSet<String> = history?.mutedAddresses()?.toMutableSet() ?: mutableSetOf()
+
+    /** Serialises identity-store access between this collector and the background probe. */
+    private val storeLock = Mutex()
 
     fun reset() = detector.reset()
 
@@ -81,32 +86,41 @@ class SafetyScanner(
             val base = enrich(detector.evaluate(now), here, context)
 
             val store = identityStore
+            // All IdentityStore access (here + the background probe) is serialised by
+            // storeLock: on the watch the flow runs on Dispatchers.Default, so the probe
+            // child and this collector can be on different threads, racing the store's
+            // plain MutableList. The lock gives mutual exclusion without changing dispatchers.
             val persistent = if (store != null) {
-                if (now - lastSeenSyncMs > SEEN_SYNC_MS && closePresent.isNotEmpty()) {
-                    lastSeenSyncMs = now
-                    store.seen(closePresent.keys.toSet()) // persist first-seen across checks/sessions
+                storeLock.withLock {
+                    if (now - lastSeenSyncMs > SEEN_SYNC_MS && closePresent.isNotEmpty()) {
+                        lastSeenSyncMs = now
+                        store.seen(closePresent.keys.toSet()) // persist first-seen across checks/sessions
+                    }
+                    persistentTrackerAlerts(
+                        store, closePresent, nowEpochMs(), followerWindowMs, muted,
+                        excluded = base.mapNotNull { it.trackingAddress }.toSet(),
+                    )
                 }
-                persistentTrackerAlerts(
-                    store, closePresent, nowEpochMs(), followerWindowMs, muted,
-                    excluded = base.mapNotNull { it.trackingAddress }.toSet(),
-                )
             } else {
                 emptyList()
             }
 
             send((base + persistent).filter { it.trackingAddress !in muted })
 
-            // Probe one close, unprobed suspect — one at a time, gently — so its
+            // Probe one close, unprobed, un-muted suspect — one at a time, gently — so its
             // rotation-stable identity is learned + persisted (re-linking it next time).
             if (store != null && !probing && now - lastProbeMs > PROBE_GAP_MS) {
-                val target = closePresent.keys.firstOrNull { !store.isProbed(it) }
+                val target = storeLock.withLock { closePresent.keys.firstOrNull { it !in muted && !store.isProbed(it) } }
                 if (target != null) {
                     probing = true
                     lastProbeMs = now
                     launch {
-                        val r = runCatching { scanner.probe(target) }.getOrNull() ?: ProbeResult(connectable = false)
-                        store.recordProbe(target, r)
-                        probing = false
+                        try {
+                            val r = runCatching { scanner.probe(target) }.getOrNull() ?: ProbeResult(connectable = false)
+                            storeLock.withLock { runCatching { store.recordProbe(target, r) } } // a store failure mustn't cancel the scan
+                        } finally {
+                            probing = false // always clear, even if the probe/record threw
+                        }
                     }
                 }
             }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
@@ -249,5 +250,25 @@ class SafetyScannerTest {
         // Old + rotated, but muted or already in the base alerts ⇒ suppressed.
         assertTrue(persistentTrackerAlerts(store, mapOf("B" to -50), old, followerWindow, setOf("B"), emptySet()).isEmpty())
         assertTrue(persistentTrackerAlerts(store, mapOf("B" to -50), old, followerWindow, emptySet(), setOf("B")).isEmpty())
+    }
+
+    @Test
+    fun a_persistent_alert_surfaces_through_the_whole_flow() = runTest {
+        // Exercises the channelFlow path (not just the pure helper): close-present
+        // tracking + the persistent emission, with a pre-known rotating identity.
+        var clock = 10_000_000L
+        val store = IdentityStore(createKeyValueStore(), now = { clock })
+        store.seen(setOf("A")); store.recordProbe("A", ProbeResult(connectable = true, name = "Buds", serial = "S"))
+        clock += 30 * 60_000
+        store.seen(setOf("B")); store.recordProbe("B", ProbeResult(connectable = true, name = "Buds", serial = "S"))
+        val now = 10_000_000L + 120 * 60_000 // 2 h after first sight; B is close + present
+        val s = SafetyScanner(
+            scanner(listOf(anon("B", -60, 0), anon("B", -60, 1_000))),
+            TrackerDetector(tuning), identityStore = store, nowEpochMs = { now },
+        )
+        val persistent = lastAlerts(s).firstOrNull { it.reason == AlertReason.PERSISTENT }
+        assertNotNull(persistent)
+        assertEquals("B", persistent.trackingAddress)
+        assertEquals("Buds", persistent.label)
     }
 }

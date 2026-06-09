@@ -57,6 +57,8 @@ class WearSafetyWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker
         // Identity layer: an interval scan can't see a rotating tracker's churn, so it
         // probes close suspects and persists their stable identity — letting it catch a
         // follower that keeps coming back across checks even as its address rotates.
+        // Inherently ≥2-cycle latency: one check learns/persists the identity (the probe
+        // takes up to ~12 s of this 20 s window), a later check sees it recur → alerts.
         val safety = SafetyScanner(
             createBleScanner(), TrackerDetector(), SafetyHistory(createKeyValueStore()),
             identityStore = IdentityStore(createKeyValueStore()),
