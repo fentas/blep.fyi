@@ -254,4 +254,7 @@
     <string name="settings_storage_clear">Löschen</string>
     <string name="settings_storage_confirm_title">Gespeicherte Daten löschen?</string>
     <string name="settings_storage_confirm_body">blep vergisst jedes gelernte Gerät — Namen, Verlauf, identifizierte Infos und das Tracker-Protokoll. Deine Einstellungen bleiben.</string>
+    <string name="alert_persistent_title">Ein Gerät taucht immer wieder auf</string>
+    <string name="alert_persistent_named">%1$s taucht immer wieder auf</string>
+    <string name="alert_persistent_detail">Seit %1$s in deiner Nähe — es hat seine ID geändert, aber blep hat es als dasselbe Gerät wiedererkannt.</string>
 </resources>

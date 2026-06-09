@@ -38,4 +38,5 @@
     <string name="floor_up_many">↑ 上 %1$d 层</string>
     <string name="floor_down_one">↓ 下 %1$d 层</string>
     <string name="floor_down_many">↓ 下 %1$d 层</string>
+    <string name="noti_alert_named">%1$s 一直出现在你附近。打开 blep 进行定位。</string>
 </resources>

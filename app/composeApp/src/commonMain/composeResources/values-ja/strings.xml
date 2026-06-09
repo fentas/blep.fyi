@@ -253,4 +253,7 @@
     <string name="settings_storage_clear">消去</string>
     <string name="settings_storage_confirm_title">保存データを消去しますか？</string>
     <string name="settings_storage_confirm_body">blep は学習したすべてのデバイスを忘れます——名前、履歴、識別情報、トラッカーの記録。設定は保持されます。</string>
+    <string name="alert_persistent_title">あるデバイスが繰り返し現れます</string>
+    <string name="alert_persistent_named">%1$s が繰り返し現れます</string>
+    <string name="alert_persistent_detail">%1$s の間あなたの近くにいます——ID を変えましたが、blep は同じデバイスだと再識別しました。</string>
 </resources>

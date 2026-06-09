@@ -38,4 +38,5 @@
     <string name="floor_up_many">↑ %1$d 階上</string>
     <string name="floor_down_one">↓ %1$d 階下</string>
     <string name="floor_down_many">↓ %1$d 階下</string>
+    <string name="noti_alert_named">%1$s が近くに繰り返し現れています。blep を開いて位置を確認してください。</string>
 </resources>

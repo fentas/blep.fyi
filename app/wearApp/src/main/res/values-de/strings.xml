@@ -38,4 +38,5 @@
     <string name="floor_up_many">↑ %1$d Etagen hoch</string>
     <string name="floor_down_one">↓ %1$d Etage runter</string>
     <string name="floor_down_many">↓ %1$d Etagen runter</string>
+    <string name="noti_alert_named">%1$s taucht immer wieder bei dir auf. Öffne blep, um es zu orten.</string>
 </resources>

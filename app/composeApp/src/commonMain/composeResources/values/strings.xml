@@ -58,6 +58,9 @@
     <string name="alert_nearby_detail">A tracker that's separated from its owner is advertising close to you. Often that's harmless — check whether it's yours or someone's with you.</string>
     <string name="alert_rotation_title">Something keeps reappearing near you</string>
     <string name="alert_rotation_detail">%1$d anonymous devices have shown up close to you — possibly one tracker rotating its ID.</string>
+    <string name="alert_persistent_title">A device keeps coming back</string>
+    <string name="alert_persistent_named">%1$s keeps coming back</string>
+    <string name="alert_persistent_detail">Near you for %1$s — it changed its ID, but blep re-identified it as the same device.</string>
     <string name="alert_cross_session">It's shown up near you across %1$d separate hours — a sign it may be travelling with you.</string>
     <string name="dur_a_little_while">a little while</string>
     <string name="dur_minutes">%1$d min</string>

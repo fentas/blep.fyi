@@ -254,4 +254,7 @@
     <string name="settings_storage_clear">清除</string>
     <string name="settings_storage_confirm_title">清除已存储的数据？</string>
     <string name="settings_storage_confirm_body">blep 会忘记它学到的每台设备——名称、历史、识别信息和追踪器日志。你的设置会保留。</string>
+    <string name="alert_persistent_title">某台设备反复出现</string>
+    <string name="alert_persistent_named">%1$s 反复出现</string>
+    <string name="alert_persistent_detail">已在你附近 %1$s——它更改了 ID，但 blep 将其重新识别为同一设备。</string>
 </resources>

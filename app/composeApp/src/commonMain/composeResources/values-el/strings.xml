@@ -253,4 +253,7 @@
     <string name="settings_storage_clear">Εκκαθάριση</string>
     <string name="settings_storage_confirm_title">Εκκαθάριση αποθηκευμένων δεδομένων;</string>
     <string name="settings_storage_confirm_body">Το blep ξεχνά κάθε συσκευή που έμαθε — ονόματα, ιστορικό, πληροφορίες και το αρχείο ιχνηλατών. Οι ρυθμίσεις σου παραμένουν.</string>
+    <string name="alert_persistent_title">Μια συσκευή εμφανίζεται ξανά και ξανά</string>
+    <string name="alert_persistent_named">%1$s εμφανίζεται ξανά και ξανά</string>
+    <string name="alert_persistent_detail">Κοντά σου για %1$s — άλλαξε το ID του, αλλά το blep το αναγνώρισε ως την ίδια συσκευή.</string>
 </resources>

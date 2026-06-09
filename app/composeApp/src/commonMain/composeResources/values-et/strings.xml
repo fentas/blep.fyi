@@ -253,4 +253,7 @@
     <string name="settings_storage_clear">Tühjenda</string>
     <string name="settings_storage_confirm_title">Kustutada salvestatud andmed?</string>
     <string name="settings_storage_confirm_body">blep unustab iga õpitud seadme — nimed, ajaloo, tuvastatud teabe ja jälgijate logi. Sinu seaded jäävad alles.</string>
+    <string name="alert_persistent_title">Üks seade ilmub aina uuesti</string>
+    <string name="alert_persistent_named">%1$s ilmub aina uuesti</string>
+    <string name="alert_persistent_detail">Sinu lähedal %1$s — see muutis oma ID-d, kuid blep tuvastas selle sama seadmena.</string>
 </resources>

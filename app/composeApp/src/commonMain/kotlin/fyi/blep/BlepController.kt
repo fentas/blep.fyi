@@ -241,6 +241,9 @@ class BlepController(
             scanner,
             TrackerDetector(safetyTuning ?: scanSensitivity.tuning),
             safetyHistory,
+            // The shared identity layer: probe close suspects + persist their stable id,
+            // so a rotating follower is caught + named (here and on the watch). Off in demo.
+            identityStore = identityStore.takeIf { demoIdentity.isEmpty() },
             place = { if (locationAware) coarsePlaceCell() else null },
         )
     private var safetyJob: Job? = null
@@ -629,33 +632,14 @@ class BlepController(
         safetyJob?.cancel()
         safetyJob = scope.launch {
             try {
-                safetyScanner.alerts().collect {
-                    safetyAlerts = it
-                    maybeProbeSafetyTarget() // identify a suspected follower (one at a time)
-                }
+                // The SafetyScanner now probes suspects + persists identity itself (shared
+                // with the watch), so the controller just surfaces the alerts.
+                safetyScanner.alerts().collect { safetyAlerts = it }
             } catch (c: CancellationException) {
                 throw c
             } catch (_: Throwable) {
                 // Radio unavailable — leave the list empty.
             }
-        }
-    }
-
-    /** During the safety scan, actively identify a suspected tracker: probe one unprobed
-     *  alert at a time (they're already dwell-qualified by the detector). A serial/name —
-     *  or the structure+battery telemetry — can then re-link it across its rotations, and
-     *  the Device-info card tells the user *what* is following them. */
-    private fun maybeProbeSafetyTarget() {
-        if (!probeEnabled || probing || demoIdentity.isNotEmpty()) return
-        val target = safetyAlerts.asSequence()
-            .mapNotNull { it.trackingAddress }
-            .firstOrNull { !identityStore.isProbed(it) } ?: return
-        probing = true
-        scope.launch {
-            val result = runCatching { scanner.probe(target) }.getOrNull() ?: ProbeResult(connectable = false)
-            probeResults[target] = result
-            identityStore.recordProbe(target, result)
-            probing = false
         }
     }
 

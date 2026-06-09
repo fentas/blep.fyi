@@ -38,4 +38,5 @@
     <string name="floor_up_many">↑ %1$d étages au-dessus</string>
     <string name="floor_down_one">↓ %1$d étage en dessous</string>
     <string name="floor_down_many">↓ %1$d étages en dessous</string>
+    <string name="noti_alert_named">%1$s revient sans cesse près de vous. Ouvrez blep pour le localiser.</string>
 </resources>

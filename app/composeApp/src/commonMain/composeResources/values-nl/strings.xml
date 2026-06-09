@@ -253,4 +253,7 @@
     <string name="settings_storage_clear">Wissen</string>
     <string name="settings_storage_confirm_title">Opgeslagen gegevens wissen?</string>
     <string name="settings_storage_confirm_body">blep vergeet elk geleerd apparaat — namen, geschiedenis, geïdentificeerde info en het tracker-logboek. Je instellingen blijven.</string>
+    <string name="alert_persistent_title">Een apparaat blijft terugkomen</string>
+    <string name="alert_persistent_named">%1$s blijft terugkomen</string>
+    <string name="alert_persistent_detail">Al %1$s in je buurt — het wijzigde zijn ID, maar blep herkende het als hetzelfde apparaat.</string>
 </resources>

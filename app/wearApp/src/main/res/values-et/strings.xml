@@ -38,4 +38,5 @@
     <string name="floor_up_many">↑ %1$d korrust üles</string>
     <string name="floor_down_one">↓ %1$d korrus alla</string>
     <string name="floor_down_many">↓ %1$d korrust alla</string>
+    <string name="noti_alert_named">%1$s ilmub pidevalt sinu lähedusse. Ava blep, et see üles leida.</string>
 </resources>

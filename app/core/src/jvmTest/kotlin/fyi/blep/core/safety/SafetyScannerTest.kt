@@ -1,6 +1,8 @@
 package fyi.blep.core.safety
 
 import fyi.blep.core.ble.BleScanner
+import fyi.blep.core.ble.IdentityStore
+import fyi.blep.core.ble.ProbeResult
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
 import fyi.blep.core.platform.createKeyValueStore
@@ -203,5 +205,49 @@ class SafetyScannerTest {
         val out = lastAlerts(s)
         assertEquals(Severity.ALERT, out[0].severity)
         assertEquals(2, out[0].crossSessionPlaces)
+    }
+
+    // ── persistent-identity follower (the interval-scan / wear catch) ──────────────
+    private val followerWindow = 90L * 60_000
+
+    @Test
+    fun persistent_alert_fires_for_a_re_linked_rotating_identity() {
+        var clock = 1_000_000L
+        val store = IdentityStore(createKeyValueStore(), now = { clock })
+        // Check 1: device A probed, learns a serial.
+        store.seen(setOf("A"))
+        store.recordProbe("A", ProbeResult(connectable = true, name = "Buds", serial = "S"))
+        // Check 2 (30 min later): it has rotated to B; the serial re-links it to A.
+        clock += 30 * 60_000
+        store.seen(setOf("B"))
+        store.recordProbe("B", ProbeResult(connectable = true, name = "Buds", serial = "S"))
+        // 100 min after first sight, B is still present — the interval scan now "sees" the
+        // same physical device persisting across its rotations.
+        val now = 1_000_000L + 100 * 60_000
+        val alerts = persistentTrackerAlerts(store, mapOf("B" to -50), now, followerWindow, emptySet(), emptySet())
+        assertEquals(1, alerts.size)
+        assertEquals(AlertReason.PERSISTENT, alerts[0].reason)
+        assertEquals("B", alerts[0].trackingAddress)
+        assertEquals("Buds", alerts[0].label)
+        assertTrue(alerts[0].durationMs >= followerWindow)
+    }
+
+    @Test
+    fun no_persistent_alert_without_rotation_age_or_when_muted() {
+        var clock = 1_000_000L
+        val store = IdentityStore(createKeyValueStore(), now = { clock })
+        val old = 1_000_000L + 100 * 60_000
+        // A single, never-rotated address — even if old — isn't "persistent" (likely your own).
+        store.seen(setOf("X"))
+        assertTrue(persistentTrackerAlerts(store, mapOf("X" to -50), old, followerWindow, emptySet(), emptySet()).isEmpty())
+        // A re-linked rotating identity, but younger than the window.
+        store.seen(setOf("A")); store.recordProbe("A", ProbeResult(connectable = true, serial = "S2"))
+        clock += 5 * 60_000
+        store.seen(setOf("B")); store.recordProbe("B", ProbeResult(connectable = true, serial = "S2"))
+        val soon = 1_000_000L + 30 * 60_000
+        assertTrue(persistentTrackerAlerts(store, mapOf("B" to -50), soon, followerWindow, emptySet(), emptySet()).isEmpty())
+        // Old + rotated, but muted or already in the base alerts ⇒ suppressed.
+        assertTrue(persistentTrackerAlerts(store, mapOf("B" to -50), old, followerWindow, setOf("B"), emptySet()).isEmpty())
+        assertTrue(persistentTrackerAlerts(store, mapOf("B" to -50), old, followerWindow, emptySet(), setOf("B")).isEmpty())
     }
 }

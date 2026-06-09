@@ -253,4 +253,7 @@
     <string name="settings_storage_clear">Obriši</string>
     <string name="settings_storage_confirm_title">Obrisati pohranjene podatke?</string>
     <string name="settings_storage_confirm_body">blep zaboravlja svaki naučeni uređaj — imena, povijest, prepoznate informacije i zapisnik pratitelja. Tvoje postavke ostaju.</string>
+    <string name="alert_persistent_title">Uređaj se stalno vraća</string>
+    <string name="alert_persistent_named">%1$s se stalno vraća</string>
+    <string name="alert_persistent_detail">Blizu tebe %1$s — promijenio je ID, ali blep ga je prepoznao kao isti uređaj.</string>
 </resources>

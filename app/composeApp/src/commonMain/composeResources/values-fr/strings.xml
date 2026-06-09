@@ -253,4 +253,7 @@
     <string name="settings_storage_clear">Effacer</string>
     <string name="settings_storage_confirm_title">Effacer les données stockées ?</string>
     <string name="settings_storage_confirm_body">blep oublie chaque appareil appris — noms, historique, infos identifiées et le journal des traceurs. Vos réglages restent.</string>
+    <string name="alert_persistent_title">Un appareil revient sans cesse</string>
+    <string name="alert_persistent_named">%1$s revient sans cesse</string>
+    <string name="alert_persistent_detail">Près de vous depuis %1$s — il a changé d'ID, mais blep l'a reconnu comme le même appareil.</string>
 </resources>

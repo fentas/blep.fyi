@@ -14,6 +14,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import fyi.blep.core.ble.IdentityStore
 import fyi.blep.core.ble.createBleScanner
 import fyi.blep.core.platform.createKeyValueStore
 import fyi.blep.core.safety.SafetyHistory
@@ -53,15 +54,22 @@ class WearSafetyWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker
         val pm = applicationContext.getSystemService(Context.POWER_SERVICE) as? PowerManager
         if (pm?.isPowerSaveMode == true) return Result.success()
 
-        val safety = SafetyScanner(createBleScanner(), TrackerDetector(), SafetyHistory(createKeyValueStore()))
+        // Identity layer: an interval scan can't see a rotating tracker's churn, so it
+        // probes close suspects and persists their stable identity — letting it catch a
+        // follower that keeps coming back across checks even as its address rotates.
+        val safety = SafetyScanner(
+            createBleScanner(), TrackerDetector(), SafetyHistory(createKeyValueStore()),
+            identityStore = IdentityStore(createKeyValueStore()),
+        )
         val hit = withTimeoutOrNull(SCAN_WINDOW_MS) {
             safety.alerts().first { list -> list.any { it.severity == Severity.ALERT } }
         }
-        if (hit != null) notifyTracker(applicationContext)
+        val alert = hit?.firstOrNull { it.severity == Severity.ALERT }
+        if (alert != null) notifyTracker(applicationContext, alert.label)
         return Result.success()
     }
 
-    private fun notifyTracker(ctx: Context) {
+    private fun notifyTracker(ctx: Context, label: String?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             ctx.getSystemService(NotificationManager::class.java)?.createNotificationChannel(
                 NotificationChannel(CH_ALERT, ctx.getString(R.string.noti_channel_alert), NotificationManager.IMPORTANCE_HIGH),
@@ -72,9 +80,11 @@ class WearSafetyWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker
             ctx, 0, Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             PendingIntent.FLAG_IMMUTABLE,
         )
+        val text = label?.takeIf { it.isNotBlank() }?.let { ctx.getString(R.string.noti_alert_named, it) }
+            ?: ctx.getString(R.string.noti_alert_text)
         val n = NotificationCompat.Builder(ctx, CH_ALERT)
             .setContentTitle(ctx.getString(R.string.noti_alert_title))
-            .setContentText(ctx.getString(R.string.noti_alert_text))
+            .setContentText(text)
             .setSmallIcon(android.R.drawable.stat_sys_warning)
             .setAutoCancel(true)
             .setContentIntent(open)

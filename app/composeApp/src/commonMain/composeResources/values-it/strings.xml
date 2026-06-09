@@ -253,4 +253,7 @@
     <string name="settings_storage_clear">Cancella</string>
     <string name="settings_storage_confirm_title">Cancellare i dati salvati?</string>
     <string name="settings_storage_confirm_body">blep dimentica ogni dispositivo appreso — nomi, cronologia, info identificate e il registro dei tracker. Le tue impostazioni restano.</string>
+    <string name="alert_persistent_title">Un dispositivo continua a tornare</string>
+    <string name="alert_persistent_named">%1$s continua a tornare</string>
+    <string name="alert_persistent_detail">Vicino a te da %1$s — ha cambiato ID, ma blep lo ha riconosciuto come lo stesso dispositivo.</string>
 </resources>

@@ -38,4 +38,5 @@
     <string name="floor_up_many">↑ %1$d ορόφους πάνω</string>
     <string name="floor_down_one">↓ %1$d όροφο κάτω</string>
     <string name="floor_down_many">↓ %1$d ορόφους κάτω</string>
+    <string name="noti_alert_named">%1$s εμφανίζεται συνέχεια κοντά σου. Άνοιξε το blep για να το εντοπίσεις.</string>
 </resources>

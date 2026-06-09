@@ -253,4 +253,7 @@
     <string name="settings_storage_clear">Limpar</string>
     <string name="settings_storage_confirm_title">Limpar os dados guardados?</string>
     <string name="settings_storage_confirm_body">o blep esquece cada dispositivo aprendido — nomes, histórico, info identificada e o registo de rastreadores. As tuas definições ficam.</string>
+    <string name="alert_persistent_title">Um dispositivo continua a voltar</string>
+    <string name="alert_persistent_named">%1$s continua a voltar</string>
+    <string name="alert_persistent_detail">Perto de ti há %1$s — mudou o seu ID, mas o blep reconheceu-o como o mesmo dispositivo.</string>
 </resources>

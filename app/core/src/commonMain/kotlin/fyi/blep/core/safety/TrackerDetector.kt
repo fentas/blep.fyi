@@ -22,8 +22,11 @@ data class TrackerSighting(
 )
 
 /** Why a tracker is being surfaced. The UI turns this (+ [TrackerAlert.kind] and the
- *  params) into localized title/detail text — no English lives in the detector. */
-enum class AlertReason { FOLLOWING, SEPARATED_NEARBY, ROTATION }
+ *  params) into localized title/detail text — no English lives in the detector.
+ *  PERSISTENT: the same *physical device* (re-identified by an active probe — serial /
+ *  GATT structure / battery) keeps recurring across checks even though its address
+ *  rotated, which an interval scan can't otherwise see. */
+enum class AlertReason { FOLLOWING, SEPARATED_NEARBY, ROTATION, PERSISTENT }
 
 /** A suspected unwanted tracker to surface — and an address to hand the finder.
  *  Structured (not pre-rendered text) so the UI can localize it. */
@@ -33,10 +36,11 @@ data class TrackerAlert(
     val reason: AlertReason,
     val rssi: Int,                    // strongest recent reading, for the "find it" step
     val trackingAddress: String?,     // best current address to track down
-    val durationMs: Long = 0L,        // FOLLOWING: how long it's been near you
+    val durationMs: Long = 0L,        // FOLLOWING / PERSISTENT: how long it's been near you
     val distinctCount: Int = 0,       // ROTATION: number of anonymous IDs seen
     val crossSessionHours: Int = 0,   // set when promoted by cross-session history
     val crossSessionPlaces: Int = 0,  // distinct coarse places seen (location-aware only)
+    val label: String? = null,        // a name an active probe learned for it, if any
 )
 
 /** Thresholds for [TrackerDetector] (all overridable / unit-tunable). */
@@ -91,6 +95,9 @@ enum class ScanSensitivity(val tuning: TrackerTuning) {
  */
 class TrackerDetector(private val tuning: TrackerTuning = TrackerTuning()) {
     private val recent = ArrayDeque<TrackerSighting>()
+
+    /** "Near you" threshold (dBm) — the probe/persistence layer only bothers with close devices. */
+    val closeDbm: Int get() = tuning.closeDbm
 
     fun reset() = recent.clear()
 

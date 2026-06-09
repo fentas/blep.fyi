@@ -38,4 +38,5 @@
     <string name="floor_up_many">↑ %1$d verdiepingen omhoog</string>
     <string name="floor_down_one">↓ %1$d verdieping omlaag</string>
     <string name="floor_down_many">↓ %1$d verdiepingen omlaag</string>
+    <string name="noti_alert_named">%1$s blijft in je buurt opduiken. Open blep om het te lokaliseren.</string>
 </resources>

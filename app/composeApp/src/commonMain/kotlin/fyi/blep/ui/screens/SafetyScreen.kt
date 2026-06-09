@@ -53,6 +53,9 @@ import fyi.blep.resources.alert_nearby_detail
 import fyi.blep.resources.alert_nearby_title
 import fyi.blep.resources.alert_rotation_detail
 import fyi.blep.resources.alert_rotation_title
+import fyi.blep.resources.alert_persistent_title
+import fyi.blep.resources.alert_persistent_named
+import fyi.blep.resources.alert_persistent_detail
 import fyi.blep.resources.dbm
 import fyi.blep.resources.dur_a_little_while
 import fyi.blep.resources.dur_minutes
@@ -218,6 +221,9 @@ private fun alertTitle(alert: TrackerAlert): String = when (alert.reason) {
     AlertReason.FOLLOWING -> stringResource(Res.string.alert_following_title, kindLabel(alert.kind))
     AlertReason.SEPARATED_NEARBY -> stringResource(Res.string.alert_nearby_title, kindLabel(alert.kind))
     AlertReason.ROTATION -> stringResource(Res.string.alert_rotation_title)
+    AlertReason.PERSISTENT -> alert.label?.takeIf { it.isNotBlank() }
+        ?.let { stringResource(Res.string.alert_persistent_named, it) }
+        ?: stringResource(Res.string.alert_persistent_title)
 }
 
 /** Localized detail for a structured [TrackerAlert], incl. the cross-session note. */
@@ -227,6 +233,7 @@ private fun alertDetail(alert: TrackerAlert): String {
         AlertReason.FOLLOWING -> stringResource(Res.string.alert_following_detail, durLabel(alert.durationMs))
         AlertReason.SEPARATED_NEARBY -> stringResource(Res.string.alert_nearby_detail)
         AlertReason.ROTATION -> stringResource(Res.string.alert_rotation_detail, alert.distinctCount)
+        AlertReason.PERSISTENT -> stringResource(Res.string.alert_persistent_detail, durLabel(alert.durationMs))
     }
     var out = base
     if (alert.crossSessionPlaces >= 2) {

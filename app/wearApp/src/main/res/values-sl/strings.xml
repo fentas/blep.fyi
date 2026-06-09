@@ -38,4 +38,5 @@
     <string name="floor_up_many">↑ %1$d nadstropij gor</string>
     <string name="floor_down_one">↓ %1$d nadstropje dol</string>
     <string name="floor_down_many">↓ %1$d nadstropij dol</string>
+    <string name="noti_alert_named">%1$s se nenehno pojavlja blizu tebe. Odpri blep, da ga najdeš.</string>
 </resources>

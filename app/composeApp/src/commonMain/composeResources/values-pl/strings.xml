@@ -253,4 +253,7 @@
     <string name="settings_storage_clear">Wyczyść</string>
     <string name="settings_storage_confirm_title">Wyczyścić zapisane dane?</string>
     <string name="settings_storage_confirm_body">blep zapomina każde poznane urządzenie — nazwy, historię, zidentyfikowane informacje i dziennik lokalizatorów. Twoje ustawienia zostają.</string>
+    <string name="alert_persistent_title">Pewne urządzenie wciąż wraca</string>
+    <string name="alert_persistent_named">%1$s wciąż wraca</string>
+    <string name="alert_persistent_detail">W pobliżu od %1$s — zmieniło swój ID, ale blep rozpoznał je jako to samo urządzenie.</string>
 </resources>

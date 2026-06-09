@@ -38,4 +38,5 @@
     <string name="floor_up_many">↑ %1$d piani su</string>
     <string name="floor_down_one">↓ %1$d piano giù</string>
     <string name="floor_down_many">↓ %1$d piani giù</string>
+    <string name="noti_alert_named">%1$s continua a comparire vicino a te. Apri blep per localizzarlo.</string>
 </resources>
