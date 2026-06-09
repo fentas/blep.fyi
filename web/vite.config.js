@@ -14,6 +14,7 @@ export default defineConfig({
         deviceRecognition: 'device-recognition.html',
         backgroundScanning: 'background-scanning.html',
         donate: 'donate.html',
+        platforms: 'platforms.html',
         privacy: 'privacy.html',
       },
     },
