@@ -33,6 +33,7 @@ import fyi.blep.core.tether.PresenceMonitor
 import fyi.blep.core.tether.TetherAlertDirection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
@@ -133,14 +134,19 @@ class BackgroundScanWorker(ctx: Context, params: WorkerParameters) : CoroutineWo
 class BackgroundScanService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var aclWatch: AclTetherWatch? = null
+    private var workJob: Job? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // A tether/flag toggle re-delivers onStartCommand; tear down the previous work first
+        // so we re-evaluate what to run (and never stack duplicate scans).
+        workJob?.cancel()
+        aclWatch?.unregister()
         // Load the localized notification text (shared Compose resources, suspend) and
         // go foreground first — an in-memory resource read is well within the FGS
-        // start window — then keep the safety scan running.
-        scope.launch {
+        // start window — then run only what's needed.
+        workJob = scope.launch {
             val text = loadNotiText()
             ensureChannels(this@BackgroundScanService, text)
             // startForeground can be rejected — the connected-device FGS type needs BLE
@@ -165,30 +171,39 @@ class BackgroundScanService : Service() {
             // event-driven, scan-free, rotation-proof — so they're excluded from the scan
             // path below. Unbonded advertising tags stay on the scan-based monitor.
             val btAdapter = (getSystemService(Context.BLUETOOTH_SERVICE) as? android.bluetooth.BluetoothManager)?.adapter
+            val bondedStart = runCatching { btAdapter?.bondedDevices?.map { it.address }?.toSet() }.getOrNull().orEmpty()
             aclWatch = AclTetherWatch(
                 this@BackgroundScanService, scope,
                 onLeft = { id, name -> notifyTetherLeft(this@BackgroundScanService, text, name, id) },
                 onReturned = { id, name -> notifyTetherReturned(this@BackgroundScanService, text, name, id) },
             ).also { it.register() }
-            // Safety scan → alert on a confirmed tracker.
-            launch {
-                runCatching {
-                    safety.alerts().collect { list ->
-                        if (list.any { it.severity == Severity.ALERT }) notifyTracker(this@BackgroundScanService, text)
+            // Tracker (safety) scan — the battery-heavy continuous scan. Run it ONLY when
+            // tracker-scanning is actually enabled, so a service that's up purely to watch a
+            // tethered device doesn't drag in a scan the user never asked for.
+            if (AppSettings().foregroundScan()) {
+                launch {
+                    runCatching {
+                        safety.alerts().collect { list ->
+                            if (list.any { it.severity == Severity.ALERT }) notifyTracker(this@BackgroundScanService, text)
+                        }
                     }
                 }
             }
-            // Flag watch (ongoing in-range notice) + tether watch (leave/return alert) share
-            // the one scan stream. Both stores are re-read each tick (cheap), so toggles take
-            // effect without restarting the service.
-            launch {
-                runCatching {
-                    scanner.devices(includeUnnamed = true, measureConnectedSignal = false).collect { list ->
-                        val here = list.firstOrNull { it.id in flagStore.ids() && it.isPresent }
-                        if (here != null) notifyFlagged(this@BackgroundScanService, text, aliasStore.of(here.id) ?: here.displayName)
-                        else cancelFlagged(this@BackgroundScanService)
-                        val bonded = runCatching { btAdapter?.bondedDevices?.map { it.address }?.toSet() }.getOrNull().orEmpty()
-                        checkTethers(this@BackgroundScanService, text, list, tetherStore, presence, aliasStore, AppSettings().tetherAlert(), bonded)
+            // Flag watch (ongoing in-range notice) + unbonded-tether watch share one scan
+            // stream — but only spin it up when something actually needs scanning: a flag, or
+            // a tether on an UNbonded advertising tag. Bonded tethers ride the ACL hook above
+            // (no scan), so tethering only paired devices runs the service completely scan-free.
+            val needScan = flagStore.ids().isNotEmpty() || (tetherStore.ids() - bondedStart).isNotEmpty()
+            if (needScan) {
+                launch {
+                    runCatching {
+                        scanner.devices(includeUnnamed = true, measureConnectedSignal = false).collect { list ->
+                            val here = list.firstOrNull { it.id in flagStore.ids() && it.isPresent }
+                            if (here != null) notifyFlagged(this@BackgroundScanService, text, aliasStore.of(here.id) ?: here.displayName)
+                            else cancelFlagged(this@BackgroundScanService)
+                            val bonded = runCatching { btAdapter?.bondedDevices?.map { it.address }?.toSet() }.getOrNull().orEmpty()
+                            checkTethers(this@BackgroundScanService, text, list, tetherStore, presence, aliasStore, AppSettings().tetherAlert(), bonded)
+                        }
                     }
                 }
             }
