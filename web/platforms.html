@@ -102,14 +102,14 @@
                   <td class="p-3 font-medium">Recognise a device across its rotating IDs</td>
                   <td class="p-3 text-center text-blue">✓</td>
                   <td class="p-3 text-center text-xs text-ink/45">Limited<sup>1</sup></td>
-                  <td class="p-3 text-center text-ink/30">—</td>
+                  <td class="p-3 text-center text-blue">✓<sup class="text-ink/40">*</sup></td>
                   <td class="p-3 text-center text-ink/30">—</td>
                 </tr>
                 <tr>
                   <td class="p-3 font-medium">Identify a device (name, maker, model)</td>
                   <td class="p-3 text-center text-blue">✓</td>
                   <td class="p-3 text-center text-ink/30">—</td>
-                  <td class="p-3 text-center text-ink/30">—</td>
+                  <td class="p-3 text-center text-blue">✓<sup class="text-ink/40">*</sup></td>
                   <td class="p-3 text-center text-ink/30">—</td>
                 </tr>
                 <tr>
@@ -130,13 +130,13 @@
                   <td class="p-3 font-medium">Catch a rotating follower across checks</td>
                   <td class="p-3 text-center text-blue">✓</td>
                   <td class="p-3 text-center text-ink/30">—</td>
-                  <td class="p-3 text-center text-blue">✓<sup class="text-ink/45">2</sup></td>
+                  <td class="p-3 text-center text-blue">✓</td>
                   <td class="p-3 text-center text-ink/30">—</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <p class="mt-3 text-xs text-ink/50">✓ full · <span class="text-ink/45">Limited / Periodic</span> partial · — not on this platform.</p>
+          <p class="mt-3 text-xs text-ink/50">✓ full · ✓<sup>*</sup> no browse screen — runs automatically in the watch's anti-tracking scan · <span class="text-ink/45">Limited / Periodic</span> partial · — not on this platform.</p>
         </section>
 
         <section id="why" class="scroll-mt-20">
@@ -147,7 +147,7 @@
           <ul class="mt-3 space-y-3 text-ink/80">
             <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Android phone</strong> — the full app. The radio gives blep everything: it can recognise a device across its rotating IDs, briefly connect to <em>identify</em> one, and watch for trackers continuously or on a timer.</span></li>
             <li class="flex gap-2"><span class="text-blue">•</span><span><strong>iPhone</strong> — <sup>1</sup>Apple hands apps a private, already-rotation-proof ID instead of the hardware address, and tightly limits background Bluetooth. So blep finds your things and flags recognised trackers, but the deeper ID-stitching and the connect-to-identify step aren't available the way they are on Android.</span></li>
-            <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Wear OS</strong> — find a thing from your wrist, plus a light <strong>periodic</strong> anti-tracking watch. <sup>2</sup>To make up for only checking now and then, it briefly identifies a suspect so it can recognise the same physical device across its rotations — catching a follower a periodic scan would otherwise miss. No full device browser; that lives on the phone.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Wear OS</strong> — find a thing from your wrist, plus a light <strong>periodic</strong> anti-tracking watch. It recognises and identifies a device too (<span class="font-mono">✓*</span> above) — but automatically, inside that scan: it briefly identifies a suspect to recognise the same physical device across its rotations, catching a follower a periodic scan would otherwise miss. There's just no device-browser or panel on the watch; that's the phone.</span></li>
             <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Apple Watch</strong> — focused on the find: the signal pointer with motion guidance, right on your wrist.</span></li>
           </ul>
           <aside class="mt-5 rounded-2xl border border-blue/20 bg-blue/10 p-4 text-sm text-ink/80">
