@@ -180,7 +180,7 @@ class IdentityStore(
         val out = ArrayList<Rec>()
         raw?.takeIf { it.isNotBlank() }?.split('\n')?.forEach { line ->
             val p = line.split('\t')
-            if (p.size >= 5) { // 5 = pre-probe records; 8 = with probe cache
+            if (p.size >= 5) { // 5 = pre-probe records; 8 = +label/key; 9 = +packed probe detail
                 val fs = p[1].toLongOrNull() ?: return@forEach
                 val ls = p[2].toLongOrNull() ?: return@forEach
                 val addrs = p[4].split(',').filter { it.isNotBlank() }.toMutableSet()

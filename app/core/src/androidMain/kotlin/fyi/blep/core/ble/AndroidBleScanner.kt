@@ -304,9 +304,13 @@ internal class AndroidBleScanner : BleScanner {
                     }
 
                     override fun onConnectionStateChange(g: BluetoothGatt, status: Int, newState: Int) {
-                        when (newState) {
-                            BluetoothProfile.STATE_CONNECTED -> if (!runCatching { g.discoverServices() }.getOrDefault(false)) finish(true)
-                            BluetoothProfile.STATE_DISCONNECTED -> finish(connectable = false) // refused / dropped before we read
+                        when {
+                            // A clean connect reports GATT_SUCCESS; a non-zero status here
+                            // (e.g. 133) is a flaky/failed connect, not a real one.
+                            newState == BluetoothProfile.STATE_CONNECTED && status == BluetoothGatt.GATT_SUCCESS ->
+                                if (!runCatching { g.discoverServices() }.getOrDefault(false)) finish(true)
+                            newState == BluetoothProfile.STATE_CONNECTED -> finish(connectable = false)
+                            newState == BluetoothProfile.STATE_DISCONNECTED -> finish(connectable = false) // refused / dropped before we read
                         }
                     }
 

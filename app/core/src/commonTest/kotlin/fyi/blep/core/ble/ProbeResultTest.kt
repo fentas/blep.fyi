@@ -57,9 +57,14 @@ class ProbeResultTest {
             serviceCount = 7, batteryPct = 82, needsPairing = true,
         )
         val r = ProbeResult.unpack(p.pack())
+        // Assert *every* persisted field — an index drift in pack/unpack would corrupt
+        // data silently, so the roundtrip must pin each position.
         assertEquals(p.name, r.name)
-        assertEquals(p.serial, r.serial)
+        assertEquals(p.manufacturer, r.manufacturer)
+        assertEquals(p.model, r.model)
+        assertEquals(p.firmware, r.firmware)
         assertEquals(p.hardware, r.hardware)
+        assertEquals(p.serial, r.serial)
         assertEquals(p.structure, r.structure)
         assertEquals(p.serviceCount, r.serviceCount)
         assertEquals(p.batteryPct, r.batteryPct)
