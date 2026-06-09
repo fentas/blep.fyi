@@ -8,6 +8,7 @@ import fyi.blep.core.ble.DeviceAliases
 import fyi.blep.core.ble.DeviceFavorites
 import fyi.blep.core.ble.DeviceFlags
 import fyi.blep.core.ble.IdentityStore
+import fyi.blep.core.ble.ProbeResult
 import fyi.blep.core.ble.RotationStats
 import fyi.blep.core.ble.RotationTracker
 import fyi.blep.core.ble.ScanAvailability
@@ -150,6 +151,17 @@ class BlepController(
     var identityTtlDays by mutableStateOf(settings.identityTtlDays())
         private set
 
+    /** Actively probe a lingering device (one short GATT connect) to learn its identity.
+     *  On by default; one-shot + cached per device. */
+    var probeEnabled by mutableStateOf(settings.probeEnabled())
+        private set
+    /** Minutes a device must have been around before it's worth a probe (ignores passers-by). */
+    var probeThresholdMinutes by mutableStateOf(settings.probeThresholdMinutes())
+        private set
+    /** A probe is in flight for the device whose detail page is open (drives a spinner). */
+    var probing by mutableStateOf(false)
+        private set
+
     /**
      * The main discovery list: everything genuinely **nearby** ([BleDevice.isPresent]
      * — a live signal or an active connection, paired or not) plus the user's
@@ -196,6 +208,7 @@ class BlepController(
     private var flaggedIds: Set<String> = flags.ids()
     private var scanJob: Job? = null
     private var detailSignalJob: Job? = null
+    private var probeJob: Job? = null
     private var trackJob: Job? = null
     private var motionJob: Job? = null
     private var hapticJob: Job? = null
@@ -350,6 +363,72 @@ class BlepController(
         detailRssi = null
     }
 
+    // ── active probe: learn a lingering device's identity with one GATT connect ──────
+    // Amortised to once-per-identity (the IdentityStore caches the outcome, refusals
+    // included), dwell-gated so passers-by are ignored, one-at-a-time. Tied to the
+    // discovery scan; demo's auto-worker is off (the on-demand button still works).
+    private fun startProbeWorker() {
+        probeJob?.cancel(); probeJob = null
+        if (!probeEnabled || demoIdentity.isNotEmpty()) return
+        probeJob = scope.launch {
+            while (isActive) {
+                delay(PROBE_TICK_MS)
+                val target = nextProbeCandidate() ?: continue
+                val result = runCatching { scanner.probe(target) }.getOrNull() ?: continue
+                identityStore.recordProbe(target, result.connectable, result.label, result.identityKey)
+                refreshProbeNames()
+                delay(PROBE_COOLDOWN_MS) // gentle on the radio; never hammer
+            }
+        }
+    }
+
+    /** The longest-resident, present, still-unprobed device past the dwell threshold —
+     *  oldest first-seen wins (most likely to matter; passers-by never qualify). */
+    private fun nextProbeCandidate(): String? {
+        val thresholdMs = probeThresholdMinutes.toLong() * 60_000L
+        val nowEpoch = epochMillis()
+        return devices.asSequence()
+            .filter { it.isPresent && !it.rssiUnknown && !identityStore.isProbed(it.id) }
+            .mapNotNull { d -> identityStore.firstSeenOf(d.id)?.let { d.id to it } }
+            .filter { (it.second) <= nowEpoch - thresholdMs }
+            .minByOrNull { it.second }?.first
+    }
+
+    /** On-demand probe from the detail page — bypasses the dwell gate (the user asked). */
+    fun probeNow(device: BleDevice) {
+        if (probing) return
+        probing = true
+        scope.launch {
+            val result = runCatching { scanner.probe(device.id) }.getOrNull() ?: ProbeResult(connectable = false)
+            identityStore.recordProbe(device.id, result.connectable, result.label, result.identityKey)
+            refreshProbeNames()
+            probing = false
+        }
+    }
+
+    /** The label a probe found for this device (or its lineage), shown on the detail page. */
+    fun probeLabel(id: String): String? = identityStore.probeLabelOf(id)
+    fun isProbed(id: String): Boolean = identityStore.isProbed(id)
+
+    /** Re-map the list so a freshly-probed name appears immediately (the next scan tick
+     *  would do it anyway via the devices() mapping; this just makes it snappy). */
+    private fun refreshProbeNames() {
+        devices = devices.map { if (it.name == null) it.copy(name = identityStore.probeLabelOf(it.id)) else it }
+    }
+
+    /** Toggle the active-probe feature (persisted); (re)starts the worker if discovering.
+     *  Named to avoid clashing with the generated `probeEnabled` setter. */
+    fun toggleProbe(on: Boolean) {
+        probeEnabled = on
+        settings.setProbeEnabled(on)
+        if (screen is Screen.Discovery) startProbeWorker() else probeJob?.cancel()
+    }
+
+    fun setProbeThreshold(minutes: Int) {
+        probeThresholdMinutes = minutes.coerceIn(AppSettings.PROBE_MIN_MINUTES, AppSettings.PROBE_MAX_MINUTES)
+        settings.setProbeThresholdMinutes(probeThresholdMinutes)
+    }
+
     /** Rotation/identity-churn stats for a device id, or null if uncorrelated yet. */
     fun rotationStats(id: String): RotationStats? = demoIdentity[id]?.stats ?: rotationTracker.statsFor(id)
 
@@ -485,7 +564,7 @@ class BlepController(
 
     /** Start the "is something tracking me?" scan and show its screen. */
     fun openSafetyScan() {
-        scanJob?.cancel(); scanJob = null
+        scanJob?.cancel(); scanJob = null; probeJob?.cancel(); probeJob = null
         safetyScanner.reset()
         safetyAlerts = emptyList()
         if (foregroundScanEnabled) BackgroundScan.setForeground(true)
@@ -536,7 +615,7 @@ class BlepController(
     }
 
     fun track(device: BleDevice) {
-        scanJob?.cancel(); scanJob = null
+        scanJob?.cancel(); scanJob = null; probeJob?.cancel(); probeJob = null
         screen = Screen.Tracking(device)
         val session = TrackingSession()
         status = session.status
@@ -662,7 +741,13 @@ class BlepController(
                         // per-advert timestamps, so an id that stops is seen to stop.
                         syncIdentities(list)
                         devices = list.map {
-                            it.copy(alias = effectiveAlias(it.id) ?: it.alias, isFavorite = it.id in favoriteIds, isFlagged = effectiveFlagged(it.id))
+                            it.copy(
+                                // an unnamed device shows the name a probe learned for it, if any
+                                name = it.name ?: identityStore.probeLabelOf(it.id),
+                                alias = effectiveAlias(it.id) ?: it.alias,
+                                isFavorite = it.id in favoriteIds,
+                                isFlagged = effectiveFlagged(it.id),
+                            )
                         }
                     }
                 } catch (c: CancellationException) {
@@ -676,6 +761,7 @@ class BlepController(
                 delay(2000)
             }
         }
+        startProbeWorker()
     }
 
     private companion object {
@@ -692,5 +778,9 @@ class BlepController(
         const val IDENTITY_MIN_CONF = 0.6
         /** How often the persisted identity groupings are written (throttle). */
         val IDENTITY_SYNC_INTERVAL = 30.seconds
+        /** How often the probe worker looks for a candidate to interrogate. */
+        const val PROBE_TICK_MS = 4_000L
+        /** Quiet gap after a probe before the next, so the radio is never hammered. */
+        const val PROBE_COOLDOWN_MS = 6_000L
     }
 }

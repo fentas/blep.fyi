@@ -74,11 +74,25 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
     fun setIdentityTtlDays(days: Int) =
         store.putString(KEY_IDENTITY_TTL, days.coerceIn(IDENTITY_TTL_MIN_DAYS, IDENTITY_TTL_MAX_DAYS).toString())
 
+    /** Actively probe a device (one short GATT connection) to learn its name/identity
+     *  once it has lingered. On by default; the connection is one-shot and cached. */
+    fun probeEnabled(): Boolean = store.getBoolean(KEY_PROBE, true)
+    fun setProbeEnabled(on: Boolean) = store.putBoolean(KEY_PROBE, on)
+
+    /** How long a device must have been around before it's worth a probe (minutes) —
+     *  so passers-by are ignored. Clamped to [PROBE_MIN_MINUTES]..[PROBE_MAX_MINUTES]. */
+    fun probeThresholdMinutes(): Int =
+        (store.getString(KEY_PROBE_MINS)?.toIntOrNull() ?: 2).coerceIn(PROBE_MIN_MINUTES, PROBE_MAX_MINUTES)
+    fun setProbeThresholdMinutes(min: Int) =
+        store.putString(KEY_PROBE_MINS, min.coerceIn(PROBE_MIN_MINUTES, PROBE_MAX_MINUTES).toString())
+
     companion object {
         const val INTERVAL_MIN = 15   // WorkManager periodic floor
         const val INTERVAL_MAX = 240  // 4 hours
         const val IDENTITY_TTL_MIN_DAYS = 1
         const val IDENTITY_TTL_MAX_DAYS = 90
+        const val PROBE_MIN_MINUTES = 1
+        const val PROBE_MAX_MINUTES = 30
         const val DAY_MS = 24L * 60 * 60 * 1000
 
         private const val KEY_CONN_SIGNAL = "settings.connectedSignal"
@@ -93,5 +107,7 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
         private const val KEY_ONBOARDED = "settings.onboarded"
         private const val KEY_THEME = "settings.themeMode"
         private const val KEY_IDENTITY_TTL = "settings.identityTtlDays"
+        private const val KEY_PROBE = "settings.probeEnabled"
+        private const val KEY_PROBE_MINS = "settings.probeThresholdMinutes"
     }
 }
