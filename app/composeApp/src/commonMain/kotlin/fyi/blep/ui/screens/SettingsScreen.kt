@@ -57,6 +57,13 @@ import fyi.blep.resources.settings_tether_desc
 import fyi.blep.resources.settings_tether_leave
 import fyi.blep.resources.settings_tether_return
 import fyi.blep.resources.settings_tether_both
+import fyi.blep.resources.settings_section_sync
+import fyi.blep.resources.settings_sync_title
+import fyi.blep.resources.settings_sync_desc
+import fyi.blep.resources.settings_sync_favorites
+import fyi.blep.resources.settings_sync_names
+import fyi.blep.resources.settings_sync_tethered
+import fyi.blep.resources.settings_sync_alerts
 import fyi.blep.ui.components.SensitivitySelector
 import fyi.blep.resources.action_done
 import fyi.blep.resources.settings_background_desc
@@ -137,6 +144,16 @@ fun SettingsScreen(
     onToggleBackground: (Boolean) -> Unit,
     intervalMinutes: Int,
     onIntervalChange: (Int) -> Unit,
+    syncEnabled: Boolean,
+    onToggleSync: (Boolean) -> Unit,
+    syncFavorites: Boolean,
+    onToggleSyncFavorites: (Boolean) -> Unit,
+    syncNames: Boolean,
+    onToggleSyncNames: (Boolean) -> Unit,
+    syncTethered: Boolean,
+    onToggleSyncTethered: (Boolean) -> Unit,
+    syncAlerts: Boolean,
+    onToggleSyncAlerts: (Boolean) -> Unit,
     themeMode: ThemeMode,
     onSelectTheme: (ThemeMode) -> Unit,
     onBack: () -> Unit,
@@ -273,6 +290,27 @@ fun SettingsScreen(
                 intervalMinutes = intervalMinutes,
                 onIntervalChange = onIntervalChange,
             )
+
+            Spacer(Modifier.height(6.dp))
+            Text(
+                stringResource(Res.string.settings_section_sync).uppercase(),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
+                modifier = Modifier.padding(start = 4.dp),
+            )
+            SettingRow(
+                title = stringResource(Res.string.settings_sync_title),
+                desc = stringResource(Res.string.settings_sync_desc),
+                checked = syncEnabled,
+                onToggle = onToggleSync,
+            )
+            if (syncEnabled) {
+                SettingRow(stringResource(Res.string.settings_sync_favorites), "", syncFavorites, onToggleSyncFavorites)
+                SettingRow(stringResource(Res.string.settings_sync_names), "", syncNames, onToggleSyncNames)
+                SettingRow(stringResource(Res.string.settings_sync_tethered), "", syncTethered, onToggleSyncTethered)
+                SettingRow(stringResource(Res.string.settings_sync_alerts), "", syncAlerts, onToggleSyncAlerts)
+            }
+
             Spacer(Modifier.height(20.dp))
             // Build identity, tap → prefilled GitHub issue. Hidden on iOS/Wear (null).
             buildInfo?.let {

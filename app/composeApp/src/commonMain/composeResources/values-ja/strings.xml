@@ -281,4 +281,11 @@
     <string name="settings_watch_tether_title">時計を置き忘れたら通知</string>
     <string name="settings_watch_tether_desc">ペアリング済みの時計が Bluetooth の圏外に出たら、このスマホを振動させます</string>
     <string name="noti_ongoing_watch">デバイスを見守っています</string>
+    <string name="settings_section_sync">時計と同期</string>
+    <string name="settings_sync_title">時計と同期</string>
+    <string name="settings_sync_desc">お気に入りや名前などをペアリング済みの時計と同期し続けます</string>
+    <string name="settings_sync_favorites">お気に入り</string>
+    <string name="settings_sync_names">デバイス名</string>
+    <string name="settings_sync_tethered">置き忘れアラート</string>
+    <string name="settings_sync_alerts">トラッカー警告を時計へ</string>
 </resources>

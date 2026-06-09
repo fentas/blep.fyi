@@ -51,6 +51,12 @@ class DeviceAliases(
         return clean
     }
 
+    /** Replace all renames at once (applies merged names synced from the paired device). */
+    fun replaceAll(map: Map<String, String>) {
+        val capped = if (map.size > maxEntries) map.entries.toList().takeLast(maxEntries).associate { it.key to it.value } else map
+        store.putString(KEY, capped.entries.joinToString("\n") { "${it.key}\t${it.value.replace('\t', ' ').replace('\n', ' ')}" })
+    }
+
     /** Bytes this store currently occupies on disk. */
     fun sizeBytes(): Int = (store.getString(KEY) ?: "").encodeToByteArray().size
 

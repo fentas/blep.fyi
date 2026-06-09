@@ -14,10 +14,12 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.android.gms.tasks.Tasks
+import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
 import fyi.blep.core.platform.createKeyValueStore
+import fyi.blep.core.sync.SyncMessage
 import java.util.concurrent.TimeUnit
 
 /**
@@ -37,6 +39,13 @@ class PhoneTetherService : WearableListenerService() {
 
     override fun onPeerConnected(node: Node) {
         PhoneTether.onPhoneBack(this)
+    }
+
+    /** Relayed events from the phone (item 5: phone scans, watch buzzes). Delivered even
+     *  when the watch app is closed. */
+    override fun onMessageReceived(event: MessageEvent) {
+        if (event.path != "/blep/msg") return
+        SyncMessage.decode(event.data.decodeToString())?.let { PhoneTether.notifyRelayed(this, it) }
     }
 }
 
@@ -101,6 +110,38 @@ object PhoneTether {
             .setContentIntent(openApp(ctx))
             .build()
         runCatching { NotificationManagerCompat.from(ctx).notify(NOTI_PHONE, n) }
+    }
+
+    /** Show a relayed phone event on the watch (tracker found / tethered device left). */
+    fun notifyRelayed(ctx: Context, msg: SyncMessage) {
+        ensureChannels(ctx)
+        if (!NotificationManagerCompat.from(ctx).areNotificationsEnabled()) return
+        val (title, text, high) = when (msg) {
+            is SyncMessage.TrackerAlert -> Triple(
+                ctx.getString(R.string.noti_alert_title),
+                msg.label?.takeIf { it.isNotBlank() }?.let { ctx.getString(R.string.noti_alert_named, it) } ?: ctx.getString(R.string.noti_alert_text),
+                true,
+            )
+            is SyncMessage.TetherLeft -> Triple(
+                ctx.getString(R.string.noti_tether_left_title),
+                ctx.getString(R.string.noti_tether_left_text, msg.name),
+                true,
+            )
+            is SyncMessage.TetherReturned -> Triple(
+                ctx.getString(R.string.noti_tether_back_title),
+                ctx.getString(R.string.noti_tether_back_text, msg.name),
+                false,
+            )
+        }
+        val n = NotificationCompat.Builder(ctx, if (high) CH_TETHER else CH_TETHER_INFO)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setSmallIcon(if (high) android.R.drawable.stat_sys_warning else android.R.drawable.stat_notify_sync)
+            .setPriority(if (high) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_LOW)
+            .setAutoCancel(true)
+            .setContentIntent(openApp(ctx))
+            .build()
+        runCatching { NotificationManagerCompat.from(ctx).notify(2300 + (msg.hashCode() and 0xFF), n) }
     }
 
     private fun notifyPhoneBack(ctx: Context) {

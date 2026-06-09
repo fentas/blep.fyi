@@ -281,4 +281,11 @@
     <string name="settings_watch_tether_title">Ostrzeż, gdy zostawię zegarek</string>
     <string name="settings_watch_tether_desc">Zawibruj ten telefon, gdy sparowany zegarek wyjdzie poza zasięg Bluetooth</string>
     <string name="noti_ongoing_watch">Czuwam nad Twoimi urządzeniami</string>
+    <string name="settings_section_sync">Synchronizuj z moim zegarkiem</string>
+    <string name="settings_sync_title">Synchronizuj z moim zegarkiem</string>
+    <string name="settings_sync_desc">Utrzymuj ulubione, nazwy i więcej w zgodzie ze sparowanym zegarkiem</string>
+    <string name="settings_sync_favorites">Ulubione</string>
+    <string name="settings_sync_names">Nazwy urządzeń</string>
+    <string name="settings_sync_tethered">Alerty o pozostawieniu</string>
+    <string name="settings_sync_alerts">Alerty o trackerach na zegarek</string>
 </resources>

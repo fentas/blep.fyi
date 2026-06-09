@@ -281,4 +281,11 @@
     <string name="settings_watch_tether_title">Upozori ako ostavim sat</string>
     <string name="settings_watch_tether_desc">Zavibriraj ovaj telefon kad tvoj upareni sat izađe iz dometa Bluetootha</string>
     <string name="noti_ongoing_watch">Nadziru tvoje uređaje</string>
+    <string name="settings_section_sync">Sinkroniziraj s mojim satom</string>
+    <string name="settings_sync_title">Sinkroniziraj s mojim satom</string>
+    <string name="settings_sync_desc">Drži favorite, nazive i više usklađenima s uparenim satom</string>
+    <string name="settings_sync_favorites">Favoriti</string>
+    <string name="settings_sync_names">Nazivi uređaja</string>
+    <string name="settings_sync_tethered">Upozorenja na zaboravljeno</string>
+    <string name="settings_sync_alerts">Upozorenja o pratiteljima na sat</string>
 </resources>

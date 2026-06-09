@@ -32,6 +32,10 @@ class DeviceTether(
         return id in next
     }
 
+    /** Replace the whole set (applies merged state synced from the paired device). */
+    fun replace(ids: Set<String>) =
+        store.putString(KEY, ids.toList().takeLast(maxEntries).joinToString("\n"))
+
     /** Bytes this store currently occupies on disk. */
     fun sizeBytes(): Int = (store.getString(KEY) ?: "").encodeToByteArray().size
 

@@ -45,6 +45,11 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }
+        androidMain.dependencies {
+            // Wear Data Layer — backs the phone↔watch sync transport (DataClient state,
+            // MessageClient events, CapabilityClient presence).
+            implementation(libs.play.services.wearable)
+        }
         val kableMain by creating {
             dependsOn(commonMain.get())
             dependencies { implementation(libs.kable.core) }

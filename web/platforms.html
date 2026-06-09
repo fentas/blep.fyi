@@ -133,6 +133,20 @@
                   <td class="p-3 text-center text-blue">✓</td>
                   <td class="p-3 text-center text-ink/30">—</td>
                 </tr>
+                <tr>
+                  <td class="p-3 font-medium">Left-behind alerts (a device leaves you)</td>
+                  <td class="p-3 text-center text-blue">✓</td>
+                  <td class="p-3 text-center text-ink/30">—</td>
+                  <td class="p-3 text-center text-blue">✓</td>
+                  <td class="p-3 text-center text-ink/30">—</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-medium">Phone ↔ watch sync (favourites, names, alerts)</td>
+                  <td class="p-3 text-center text-blue">✓</td>
+                  <td class="p-3 text-center text-ink/30">—</td>
+                  <td class="p-3 text-center text-blue">✓</td>
+                  <td class="p-3 text-center text-ink/30">—</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -149,6 +163,7 @@
             <li class="flex gap-2"><span class="text-blue">•</span><span><strong>iPhone</strong> — <sup>1</sup>Apple hands apps a private, already-rotation-proof ID instead of the hardware address, and tightly limits background Bluetooth. So blep finds your things and flags recognised trackers, but the deeper ID-stitching and the connect-to-identify step aren't available the way they are on Android.</span></li>
             <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Wear OS</strong> — find a thing from your wrist, plus a light <strong>periodic</strong> anti-tracking watch. It recognises and identifies a device too (<span class="font-mono">✓*</span> above) — but automatically, inside that scan: it briefly identifies a suspect to recognise the same physical device across its rotations, catching a follower a periodic scan would otherwise miss. There's just no device-browser or panel on the watch; that's the phone.</span></li>
             <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Apple Watch</strong> — focused on the find: the signal pointer with motion guidance, right on your wrist.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Phone&nbsp;↔&nbsp;watch</strong> — on Android, your phone and Wear&nbsp;OS watch act like one device over the Wear Data Layer: favourites, names and settings stay in step, and the phone (better antenna, better battery, in your pocket) does the continuous scan and <em>buzzes the watch</em> when it finds a tracker or you leave something behind. The Apple side (WatchConnectivity) is in progress.</span></li>
           </ul>
           <aside class="mt-5 rounded-2xl border border-blue/20 bg-blue/10 p-4 text-sm text-ink/80">
             Whatever the platform, it's the same promise: on-device only, no account, nothing leaves your phone or watch.

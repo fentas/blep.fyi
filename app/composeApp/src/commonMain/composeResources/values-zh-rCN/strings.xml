@@ -282,4 +282,11 @@
     <string name="settings_watch_tether_title">忘带手表时提醒我</string>
     <string name="settings_watch_tether_desc">当配对的手表超出蓝牙范围时，让这部手机震动</string>
     <string name="noti_ongoing_watch">正在看护你的设备</string>
+    <string name="settings_section_sync">与我的手表同步</string>
+    <string name="settings_sync_title">与我的手表同步</string>
+    <string name="settings_sync_desc">让收藏、名称等与配对的手表保持一致</string>
+    <string name="settings_sync_favorites">收藏</string>
+    <string name="settings_sync_names">设备名称</string>
+    <string name="settings_sync_tethered">遗落提醒</string>
+    <string name="settings_sync_alerts">向手表发送追踪器警报</string>
 </resources>

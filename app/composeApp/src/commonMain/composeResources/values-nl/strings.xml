@@ -281,4 +281,11 @@
     <string name="settings_watch_tether_title">Waarschuw als ik mijn horloge achterlaat</string>
     <string name="settings_watch_tether_desc">Laat deze telefoon trillen wanneer je gekoppelde horloge buiten Bluetooth-bereik raakt</string>
     <string name="noti_ongoing_watch">Je apparaten in de gaten</string>
+    <string name="settings_section_sync">Synchroniseren met mijn horloge</string>
+    <string name="settings_sync_title">Synchroniseren met mijn horloge</string>
+    <string name="settings_sync_desc">Houd favorieten, namen en meer in lijn met je gekoppelde horloge</string>
+    <string name="settings_sync_favorites">Favorieten</string>
+    <string name="settings_sync_names">Apparaatnamen</string>
+    <string name="settings_sync_tethered">Waarschuwingen voor achtergelaten spullen</string>
+    <string name="settings_sync_alerts">Trackerwaarschuwingen naar het horloge</string>
 </resources>

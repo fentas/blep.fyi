@@ -28,6 +28,10 @@ import fyi.blep.core.safety.SafetyHistory
 import fyi.blep.core.safety.SafetyScanner
 import fyi.blep.core.safety.Severity
 import fyi.blep.core.safety.TrackerDetector
+import fyi.blep.core.sync.SyncMessage
+import fyi.blep.core.sync.SyncSettings
+import fyi.blep.core.sync.SyncTransport
+import fyi.blep.core.sync.createSyncTransport
 import fyi.blep.core.tether.DeviceTether
 import fyi.blep.core.tether.PresenceMonitor
 import fyi.blep.core.tether.TetherAlertDirection
@@ -136,6 +140,13 @@ class BackgroundScanService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var aclWatch: AclTetherWatch? = null
     private var workJob: Job? = null
+    private var sync: SyncTransport? = null
+
+    /** Relay an event to the paired watch (item 5: phone detects, watch buzzes), if the
+     *  user left tracker-alert sync on. Fire-and-forget. */
+    private fun relay(msg: SyncMessage) {
+        if (SyncSettings(createKeyValueStore()).alerts()) sync?.sendMessage(msg.encode())
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -178,10 +189,11 @@ class BackgroundScanService : Service() {
             // path below. Unbonded advertising tags stay on the scan-based monitor.
             val btAdapter = (getSystemService(Context.BLUETOOTH_SERVICE) as? android.bluetooth.BluetoothManager)?.adapter
             val bondedStart = runCatching { btAdapter?.bondedDevices?.map { it.address }?.toSet() }.getOrNull().orEmpty()
+            sync = createSyncTransport()
             aclWatch = AclTetherWatch(
                 this@BackgroundScanService, scope,
-                onLeft = { id, name -> notifyTetherLeft(this@BackgroundScanService, text, name, id) },
-                onReturned = { id, name -> notifyTetherReturned(this@BackgroundScanService, text, name, id) },
+                onLeft = { id, name -> notifyTetherLeft(this@BackgroundScanService, text, name, id); relay(SyncMessage.TetherLeft(id, name)) },
+                onReturned = { id, name -> notifyTetherReturned(this@BackgroundScanService, text, name, id); relay(SyncMessage.TetherReturned(id, name)) },
             ).also { it.register() }
             // Tracker (safety) scan — the battery-heavy continuous scan. Run it ONLY when
             // tracker-scanning is actually enabled, so a service that's up purely to watch a
@@ -190,7 +202,10 @@ class BackgroundScanService : Service() {
                 launch {
                     runCatching {
                         safety.alerts().collect { list ->
-                            if (list.any { it.severity == Severity.ALERT }) notifyTracker(this@BackgroundScanService, text)
+                            list.firstOrNull { it.severity == Severity.ALERT }?.let {
+                                notifyTracker(this@BackgroundScanService, text)
+                                relay(SyncMessage.TrackerAlert(it.label)) // buzz the watch too
+                            }
                         }
                     }
                 }
@@ -208,7 +223,7 @@ class BackgroundScanService : Service() {
                             if (here != null) notifyFlagged(this@BackgroundScanService, text, aliasStore.of(here.id) ?: here.displayName)
                             else cancelFlagged(this@BackgroundScanService)
                             val bonded = runCatching { btAdapter?.bondedDevices?.map { it.address }?.toSet() }.getOrNull().orEmpty()
-                            checkTethers(this@BackgroundScanService, text, list, tetherStore, presence, aliasStore, AppSettings().tetherAlert(), bonded)
+                            checkTethers(this@BackgroundScanService, text, list, tetherStore, presence, aliasStore, AppSettings().tetherAlert(), bonded, onEvent = { relay(it) })
                         }
                     }
                 }
@@ -219,6 +234,7 @@ class BackgroundScanService : Service() {
 
     override fun onDestroy() {
         aclWatch?.unregister()
+        sync?.close()
         scope.cancel()
         super.onDestroy()
     }
@@ -296,6 +312,7 @@ private fun checkTethers(
     aliases: DeviceAliases,
     dir: TetherAlertDirection,
     bondedExcluded: Set<String> = emptySet(),
+    onEvent: (SyncMessage) -> Unit = {},
 ) {
     // Bonded devices are handled by the ACL connection-state watch — don't double-track
     // them on the scan path (and a bonded, non-advertising device would otherwise read as
@@ -309,8 +326,8 @@ private fun checkTethers(
     for ((id, ev) in events) {
         val name = monitor.labelOf(id) ?: aliases.of(id) ?: t.tetherLeftTitle
         when (ev) {
-            PresenceMonitor.Event.LEFT -> if (dir.onLeave) notifyTetherLeft(ctx, t, name, id)
-            PresenceMonitor.Event.RETURNED -> if (dir.onReturn) notifyTetherReturned(ctx, t, name, id)
+            PresenceMonitor.Event.LEFT -> if (dir.onLeave) { notifyTetherLeft(ctx, t, name, id); onEvent(SyncMessage.TetherLeft(id, name)) }
+            PresenceMonitor.Event.RETURNED -> if (dir.onReturn) { notifyTetherReturned(ctx, t, name, id); onEvent(SyncMessage.TetherReturned(id, name)) }
         }
     }
 }

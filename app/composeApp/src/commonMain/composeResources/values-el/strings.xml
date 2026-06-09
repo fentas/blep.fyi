@@ -281,4 +281,11 @@
     <string name="settings_watch_tether_title">Ειδοποίηση αν ξεχάσω το ρολόι μου</string>
     <string name="settings_watch_tether_desc">Δόνηση σε αυτό το τηλέφωνο όταν το συζευγμένο ρολόι σου βγει εκτός εμβέλειας Bluetooth</string>
     <string name="noti_ongoing_watch">Παρακολούθηση των συσκευών σου</string>
+    <string name="settings_section_sync">Συγχρονισμός με το ρολόι μου</string>
+    <string name="settings_sync_title">Συγχρονισμός με το ρολόι μου</string>
+    <string name="settings_sync_desc">Διατήρησε αγαπημένα, ονόματα και άλλα σε αρμονία με το συζευγμένο ρολόι σου</string>
+    <string name="settings_sync_favorites">Αγαπημένα</string>
+    <string name="settings_sync_names">Ονόματα συσκευών</string>
+    <string name="settings_sync_tethered">Ειδοποιήσεις για ξεχασμένα αντικείμενα</string>
+    <string name="settings_sync_alerts">Ειδοποιήσεις ιχνηλατών στο ρολόι</string>
 </resources>

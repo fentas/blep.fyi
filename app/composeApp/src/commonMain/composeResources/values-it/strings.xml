@@ -281,4 +281,11 @@
     <string name="settings_watch_tether_title">Avvisami se lascio l'orologio</string>
     <string name="settings_watch_tether_desc">Fai vibrare questo telefono quando il tuo orologio abbinato esce dalla portata del Bluetooth</string>
     <string name="noti_ongoing_watch">Controllo i tuoi dispositivi</string>
+    <string name="settings_section_sync">Sincronizza con il mio orologio</string>
+    <string name="settings_sync_title">Sincronizza con il mio orologio</string>
+    <string name="settings_sync_desc">Mantieni preferiti, nomi e altro in sintonia con l'orologio abbinato</string>
+    <string name="settings_sync_favorites">Preferiti</string>
+    <string name="settings_sync_names">Nomi dei dispositivi</string>
+    <string name="settings_sync_tethered">Avvisi di oggetto dimenticato</string>
+    <string name="settings_sync_alerts">Avvisi sui tracker all'orologio</string>
 </resources>

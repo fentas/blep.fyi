@@ -29,8 +29,8 @@ android {
         // Wear OS = 2xxx here) so the two bundles — same applicationId, so codes
         // must be globally unique — never collide. Bump within the band. 2000
         // clears the early watch uploads (10/11).
-        versionCode = 2009
-        versionName = "0.6.1"
+        versionCode = 2010
+        versionName = "0.7.0"
     }
 
     // Release signing from the same gitignored keystore.properties as the phone app.

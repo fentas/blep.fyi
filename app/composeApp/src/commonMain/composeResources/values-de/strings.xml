@@ -282,4 +282,11 @@
     <string name="settings_watch_tether_title">Warnen, wenn ich meine Uhr zurücklasse</string>
     <string name="settings_watch_tether_desc">Dieses Handy vibrieren lassen, wenn deine gekoppelte Uhr die Bluetooth-Reichweite verlässt</string>
     <string name="noti_ongoing_watch">Überwacht deine Geräte</string>
+    <string name="settings_section_sync">Mit meiner Uhr synchronisieren</string>
+    <string name="settings_sync_title">Mit meiner Uhr synchronisieren</string>
+    <string name="settings_sync_desc">Favoriten, Namen und mehr mit deiner gekoppelten Uhr abgleichen</string>
+    <string name="settings_sync_favorites">Favoriten</string>
+    <string name="settings_sync_names">Gerätenamen</string>
+    <string name="settings_sync_tethered">Zurückgelassen-Warnungen</string>
+    <string name="settings_sync_alerts">Tracker-Warnungen an die Uhr</string>
 </resources>

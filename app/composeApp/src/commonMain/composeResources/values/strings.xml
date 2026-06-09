@@ -303,4 +303,11 @@
     <string name="settings_watch_tether_title">Alert if I leave my watch</string>
     <string name="settings_watch_tether_desc">Buzz this phone when your paired watch goes out of Bluetooth range</string>
     <string name="noti_ongoing_watch">Watching your devices</string>
+    <string name="settings_section_sync">Sync with my watch</string>
+    <string name="settings_sync_title">Sync with my watch</string>
+    <string name="settings_sync_desc">Keep favourites, names and more in step with your paired watch</string>
+    <string name="settings_sync_favorites">Favourites</string>
+    <string name="settings_sync_names">Device names</string>
+    <string name="settings_sync_tethered">Left-behind alerts</string>
+    <string name="settings_sync_alerts">Tracker alerts to the watch</string>
 </resources>

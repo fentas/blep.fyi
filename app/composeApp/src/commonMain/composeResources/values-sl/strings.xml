@@ -281,4 +281,11 @@
     <string name="settings_watch_tether_title">Opozori, če pustim uro</string>
     <string name="settings_watch_tether_desc">Zavibriraj ta telefon, ko tvoja seznanjena ura zapusti doseg Bluetootha</string>
     <string name="noti_ongoing_watch">Bdim nad tvojimi napravami</string>
+    <string name="settings_section_sync">Sinhroniziraj z mojo uro</string>
+    <string name="settings_sync_title">Sinhroniziraj z mojo uro</string>
+    <string name="settings_sync_desc">Ohranjaj priljubljene, imena in več usklajene s seznanjeno uro</string>
+    <string name="settings_sync_favorites">Priljubljeni</string>
+    <string name="settings_sync_names">Imena naprav</string>
+    <string name="settings_sync_tethered">Opozorila na pozabljene predmete</string>
+    <string name="settings_sync_alerts">Opozorila o sledilnikih na uro</string>
 </resources>

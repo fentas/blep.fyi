@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wear Data Layer: the watch advertises this capability so the phone can discover it
+     (and its nearby status) for the phone↔watch sync. The phone declares the same. -->
+<resources>
+    <string-array name="android_wear_capabilities">
+        <item>blep_companion</item>
+    </string-array>
+</resources>

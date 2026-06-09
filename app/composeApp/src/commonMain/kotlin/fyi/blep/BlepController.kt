@@ -35,6 +35,12 @@ import fyi.blep.core.spatial.SpatialTracker
 import fyi.blep.core.spatial.SpatialTuning
 import fyi.blep.core.spatial.createHaptic
 import fyi.blep.core.spatial.createMotionProvider
+import fyi.blep.core.sync.SyncManager
+import fyi.blep.core.sync.SyncMessage
+import fyi.blep.core.sync.SyncSettings
+import fyi.blep.core.sync.SyncSink
+import fyi.blep.core.sync.SyncSource
+import fyi.blep.core.sync.createSyncTransport
 import fyi.blep.core.tether.DeviceTether
 import fyi.blep.core.tether.PresenceMonitor
 import fyi.blep.core.tether.TetherAlertDirection
@@ -51,6 +57,10 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
+
+// Keys for settings that sync between phone and watch (see SyncSource.settings()).
+private const val SETTING_SENSITIVITY = "sensitivity"
+private const val SETTING_TETHER_ALERT = "tetherAlert"
 
 /** Top-level navigation destinations. */
 sealed interface Screen {
@@ -220,6 +230,27 @@ class BlepController(
     // Shares the same on-disk key as the service/worker monitors (same prefs file), so the
     // Settings storage row + Clear cover the remembered presence state too.
     private val presence = PresenceMonitor(createKeyValueStore())
+
+    // ── phone↔watch sync (Wear Data Layer) ────────────────────────────────────
+    /** Per-category sync toggles ("Sync" settings menu). */
+    val syncSettings = SyncSettings(createKeyValueStore())
+    /** Whether the paired watch is reachable + nearby (for the UI / future role split). */
+    var watchNearby by mutableStateOf(false)
+        private set
+    private var sync: SyncManager? = null
+
+    // "Sync" settings menu — master + per-category, mirrored as Compose state.
+    var syncEnabled by mutableStateOf(syncSettings.enabled()); private set
+    var syncFavorites by mutableStateOf(syncSettings.favorites()); private set
+    var syncNames by mutableStateOf(syncSettings.names()); private set
+    var syncTethered by mutableStateOf(syncSettings.tethered()); private set
+    var syncAlerts by mutableStateOf(syncSettings.alerts()); private set
+
+    fun toggleSync(on: Boolean) { syncSettings.setEnabled(on); syncEnabled = on; sync?.start() }
+    fun toggleSyncFavorites(on: Boolean) { syncSettings.setFavorites(on); syncFavorites = on; syncPush() }
+    fun toggleSyncNames(on: Boolean) { syncSettings.setNames(on); syncNames = on; syncPush() }
+    fun toggleSyncTethered(on: Boolean) { syncSettings.setTethered(on); syncTethered = on; syncPush() }
+    fun toggleSyncAlerts(on: Boolean) { syncSettings.setAlerts(on); syncAlerts = on }
     private var scanJob: Job? = null
     private var detailSignalJob: Job? = null
     private var probeJob: Job? = null
@@ -272,7 +303,53 @@ class BlepController(
         // exception's message.
         scope.launch { scanner.availability.collect { availability = it } }
         if (skipOnboarding || settings.onboarded()) startDiscovery() else screen = Screen.Onboarding
+        if (demoIdentity.isEmpty()) startSync() // no Data Layer noise in demo/screenshots
     }
+
+    // ── phone↔watch sync wiring ────────────────────────────────────────────────
+    private fun startSync() {
+        val source = object : SyncSource {
+            override fun favorites() = favorites.ids()
+            override fun tethered() = tether.ids()
+            override fun muted() = emptySet<String>() // mutes not synced yet (see SyncState.muted)
+            override fun aliases() = aliasStore.all()
+            override fun settings() = mapOf(
+                SETTING_SENSITIVITY to scanSensitivity.name,
+                SETTING_TETHER_ALERT to tetherAlert.name,
+            )
+        }
+        val sink = object : SyncSink {
+            override fun applyFavorites(ids: Set<String>) {
+                favorites.replace(ids); favoriteIds = ids
+                devices = devices.map { it.copy(isFavorite = it.id in ids) }
+            }
+            override fun applyTethered(ids: Set<String>) {
+                tether.replace(ids); tetheredIds = ids; syncWatch()
+            }
+            override fun applyMuted(ids: Set<String>) {}
+            override fun applyAliases(map: Map<String, String>) {
+                aliasStore.replaceAll(map)
+                aliases.clear(); aliases.putAll(map)
+                devices = devices.map { it.copy(alias = aliases[it.id]) }
+            }
+            override fun applySetting(name: String, value: String) {
+                when (name) {
+                    SETTING_SENSITIVITY -> ScanSensitivity.fromName(value).let {
+                        if (it != scanSensitivity) { scanSensitivity = it; settings.setScanSensitivity(it); safetyScanner = buildSafetyScanner() }
+                    }
+                    SETTING_TETHER_ALERT -> TetherAlertDirection.fromName(value).let {
+                        if (it != tetherAlert) { tetherAlert = it; settings.setTetherAlert(it) }
+                    }
+                }
+            }
+            override fun onMessage(msg: SyncMessage) { /* phone is usually the detector; relay is phone→watch */ }
+            override fun onPeerNearby(nearby: Boolean) { watchNearby = nearby }
+        }
+        sync = SyncManager(createSyncTransport(), syncSettings, source, sink, scope).also { it.start() }
+    }
+
+    /** Re-publish local state after the user changed something synced. */
+    private fun syncPush() = sync?.localChanged()
 
     /** First-run intro finished (completed or skipped) — never show it again. */
     fun finishOnboarding() {
@@ -600,6 +677,7 @@ class BlepController(
             safetyScanner = buildSafetyScanner()
             if (screen is Screen.Safety) openSafetyScan()
         }
+        syncPush()
     }
 
     /** Toggle GATT ranging of connected devices; persisted, re-runs discovery so
@@ -616,6 +694,7 @@ class BlepController(
         val clean = aliasStore.set(device.id, alias) // persist + normalize (null = cleared)
         if (clean == null) aliases.remove(device.id) else aliases[device.id] = clean
         devices = devices.map { if (it.id == device.id) it.copy(alias = aliases[it.id]) else it }
+        syncPush()
     }
 
     /** Star/unstar a device so it always shows in the main list (persisted). */
@@ -623,6 +702,7 @@ class BlepController(
         val nowFavorite = favorites.toggle(device.id)
         favoriteIds = favorites.ids()
         devices = devices.map { if (it.id == device.id) it.copy(isFavorite = nowFavorite) else it }
+        syncPush()
     }
 
     /** Flag/unflag a device for priority watching (persisted). A flag escalates the
@@ -646,6 +726,7 @@ class BlepController(
         val now = tether.toggle(device.id)
         tetheredIds = tether.ids()
         syncWatch()
+        syncPush()
         return now
     }
 
@@ -656,6 +737,7 @@ class BlepController(
     fun selectTetherAlert(dir: TetherAlertDirection) {
         tetherAlert = dir
         settings.setTetherAlert(dir)
+        syncPush()
     }
 
     /** Keep a continuous foreground watch alive while any device is flagged or tethered

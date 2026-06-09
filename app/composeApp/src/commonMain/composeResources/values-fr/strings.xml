@@ -281,4 +281,11 @@
     <string name="settings_watch_tether_title">M'alerter si je laisse ma montre</string>
     <string name="settings_watch_tether_desc">Fais vibrer ce téléphone quand ta montre associée sort de portée Bluetooth</string>
     <string name="noti_ongoing_watch">Surveille tes appareils</string>
+    <string name="settings_section_sync">Synchroniser avec ma montre</string>
+    <string name="settings_sync_title">Synchroniser avec ma montre</string>
+    <string name="settings_sync_desc">Garde favoris, noms et plus encore en phase avec ta montre associée</string>
+    <string name="settings_sync_favorites">Favoris</string>
+    <string name="settings_sync_names">Noms des appareils</string>
+    <string name="settings_sync_tethered">Alertes d'oubli</string>
+    <string name="settings_sync_alerts">Alertes de traceurs vers la montre</string>
 </resources>

@@ -281,4 +281,11 @@
     <string name="settings_watch_tether_title">Hoiata, kui jätan oma kella maha</string>
     <string name="settings_watch_tether_desc">Pane see telefon värisema, kui sinu seotud kell väljub Bluetoothi levialast</string>
     <string name="noti_ongoing_watch">Valvan su seadmeid</string>
+    <string name="settings_section_sync">Sünkrooni minu kellaga</string>
+    <string name="settings_sync_title">Sünkrooni minu kellaga</string>
+    <string name="settings_sync_desc">Hoia lemmikud, nimed ja muu sinu seotud kellaga kooskõlas</string>
+    <string name="settings_sync_favorites">Lemmikud</string>
+    <string name="settings_sync_names">Seadmete nimed</string>
+    <string name="settings_sync_tethered">Mahajäetud eseme hoiatused</string>
+    <string name="settings_sync_alerts">Jälgija hoiatused kellale</string>
 </resources>

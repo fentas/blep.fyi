@@ -199,6 +199,36 @@ so a blip doesn't cry wolf. Toggle it in the watch's Settings.
 
 &nbsp;
 
+### 🔗 Phone ↔ watch sync
+
+Your phone and watch act like one device. Over the **Wear Data Layer** they keep a
+small shared state in step and relay live events:
+
+- **Converged state** — favourites, device names, the tether set and a couple of
+  settings (sensitivity, left-behind direction) sync both ways. It's a tiny
+  **last-write-wins CRDT** ([`core/sync/SyncState`](app/core/src/commonMain/kotlin/fyi/blep/core/sync/SyncState.kt)),
+  so the two converge no matter the order things sync — and a removal (un-favourite,
+  rename-clear) really propagates instead of being resurrected by a stale replica.
+- **Relayed events** — the phone, in your pocket with the better antenna and
+  battery, runs the continuous scan and **buzzes the watch** when it finds a tracker
+  or a tethered thing drops out of range (`MessageClient`). The watch gets
+  phone-grade detection for almost no watch battery.
+- **Presence** — `CapabilityClient` reports whether the peer is reachable + nearby
+  (the foundation for splitting scan duty by who's better placed).
+
+Every category is gated by a **Sync** settings menu (master switch + per-category,
+so you can share favourites but keep names private). The whole engine is pure and
+**unit-tested** ([`SyncManager`](app/core/src/commonMain/kotlin/fyi/blep/core/sync/SyncManager.kt)
++ [`SyncState`](app/core/src/commonMain/kotlin/fyi/blep/core/sync/SyncState.kt)); the
+transport is an `expect`/`actual` ([Data Layer on Android](app/core/src/androidMain/kotlin/fyi/blep/core/sync/SyncTransport.android.kt)).
+
+> In progress: the watch reflecting synced names/favourites in its own list, live
+> **scan fusion** (relaying sightings for better coverage), and the **Apple** side
+> (WatchConnectivity is the WCSession analog of the Data Layer). Design in
+> [`docs/sync.md`](docs/sync.md).
+
+&nbsp;
+
 ### 🗂 Repository layout
 
 ```

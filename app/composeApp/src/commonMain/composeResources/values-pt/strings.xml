@@ -281,4 +281,11 @@
     <string name="settings_watch_tether_title">Avisar se eu deixar o relógio</string>
     <string name="settings_watch_tether_desc">Fazer este telemóvel vibrar quando o relógio emparelhado sair do alcance do Bluetooth</string>
     <string name="noti_ongoing_watch">A vigiar os teus dispositivos</string>
+    <string name="settings_section_sync">Sincronizar com o meu relógio</string>
+    <string name="settings_sync_title">Sincronizar com o meu relógio</string>
+    <string name="settings_sync_desc">Mantém favoritos, nomes e mais em sintonia com o teu relógio emparelhado</string>
+    <string name="settings_sync_favorites">Favoritos</string>
+    <string name="settings_sync_names">Nomes dos dispositivos</string>
+    <string name="settings_sync_tethered">Avisos de objeto esquecido</string>
+    <string name="settings_sync_alerts">Avisos de rastreadores para o relógio</string>
 </resources>
