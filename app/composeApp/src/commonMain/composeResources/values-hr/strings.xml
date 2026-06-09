@@ -288,4 +288,9 @@
     <string name="settings_sync_names">Nazivi uređaja</string>
     <string name="settings_sync_tethered">Upozorenja na zaboravljeno</string>
     <string name="settings_sync_alerts">Upozorenja o pratiteljima na sat</string>
+    <string name="settings_sync_scans">Kombiniraj skeniranja (više baterije)</string>
+    <string name="settings_cat_appearance">Izgled</string>
+    <string name="settings_cat_finding">Pronalaženje</string>
+    <string name="settings_cat_detection">Otkrivanje pratitelja</string>
+    <string name="settings_cat_devices">Uređaji i pohrana</string>
 </resources>

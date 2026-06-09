@@ -64,6 +64,12 @@ import fyi.blep.resources.settings_sync_favorites
 import fyi.blep.resources.settings_sync_names
 import fyi.blep.resources.settings_sync_tethered
 import fyi.blep.resources.settings_sync_alerts
+import fyi.blep.resources.settings_sync_scans
+import fyi.blep.resources.settings_cat_appearance
+import fyi.blep.resources.settings_cat_finding
+import fyi.blep.resources.settings_cat_detection
+import fyi.blep.resources.settings_cat_devices
+import org.jetbrains.compose.resources.StringResource
 import fyi.blep.ui.components.SensitivitySelector
 import fyi.blep.resources.action_done
 import fyi.blep.resources.settings_background_desc
@@ -154,6 +160,8 @@ fun SettingsScreen(
     onToggleSyncTethered: (Boolean) -> Unit,
     syncAlerts: Boolean,
     onToggleSyncAlerts: (Boolean) -> Unit,
+    syncScans: Boolean,
+    onToggleSyncScans: (Boolean) -> Unit,
     themeMode: ThemeMode,
     onSelectTheme: (ThemeMode) -> Unit,
     onBack: () -> Unit,
@@ -164,6 +172,7 @@ fun SettingsScreen(
     val requestNotifications = rememberNotificationPermissionRequest()
     val requestLocation = rememberLocationPermissionRequest()
     var showBgInfo by remember { mutableStateOf(false) }
+    var page by remember { mutableStateOf(SettingsCat.HOME) }
     val backLabel = stringResource(Res.string.a11y_back)
     val infoLabel = stringResource(Res.string.a11y_more_info)
     Column(
@@ -180,12 +189,12 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.headlineMedium,
                 color = BlepColors.Blue,
                 modifier = Modifier
-                    .clickable(onClick = onBack)
+                    .clickable { if (page == SettingsCat.HOME) onBack() else page = SettingsCat.HOME }
                     .padding(end = 12.dp)
                     .semantics { contentDescription = backLabel },
             )
             Text(
-                stringResource(Res.string.settings_title),
+                if (page == SettingsCat.HOME) stringResource(Res.string.settings_title) else stringResource(page.title),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold,
@@ -199,124 +208,57 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            ThemeSelector(themeMode, onSelectTheme)
-            SettingRow(
-                title = stringResource(Res.string.settings_connected_signal_title),
-                desc = stringResource(Res.string.settings_connected_signal_desc),
-                checked = measureConnectedSignal,
-                onToggle = onToggleConnectedSignal,
-            )
-            SettingRow(
-                title = stringResource(Res.string.settings_sound_title),
-                desc = stringResource(Res.string.settings_sound_desc),
-                checked = soundOn,
-                onToggle = onToggleSound,
-            )
-            SettingRow(
-                title = stringResource(Res.string.settings_haptics_title),
-                desc = stringResource(Res.string.settings_haptics_desc),
-                checked = hapticsOn,
-                onToggle = onToggleHaptics,
-            )
-            SettingRow(
-                title = stringResource(Res.string.settings_unnamed_title),
-                desc = stringResource(Res.string.settings_unnamed_desc),
-                checked = showUnnamed,
-                onToggle = onToggleUnnamed,
-            )
-            SettingRow(
-                title = stringResource(Res.string.settings_remember_title),
-                desc = stringResource(Res.string.settings_remember_desc),
-                checked = rememberTrackers,
-                onToggle = onToggleRemember,
-            )
-            RememberDevicesRow(rememberDeviceDays, onRememberDeviceDaysChange)
-
-            SettingRow(
-                title = stringResource(Res.string.settings_probe_title),
-                desc = stringResource(Res.string.settings_probe_desc),
-                checked = probeEnabled,
-                onToggle = onToggleProbe,
-            )
-            if (probeEnabled) ProbeAfterRow(probeThresholdMinutes, onProbeThresholdChange)
-            StorageRow(storageBytes, onClearStorage)
-
-            SettingRow(
-                title = stringResource(Res.string.settings_location_title),
-                desc = stringResource(Res.string.settings_location_desc),
-                checked = locationAware,
-                onToggle = { on -> if (on) requestLocation(); onToggleLocation(on) },
-            )
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                SensitivitySelector(
-                    scanSensitivity, onSelectSensitivity,
-                    Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
-                )
+            when (page) {
+                SettingsCat.HOME -> {
+                    SettingsNavRow(stringResource(Res.string.settings_cat_appearance)) { page = SettingsCat.APPEARANCE }
+                    SettingsNavRow(stringResource(Res.string.settings_cat_finding)) { page = SettingsCat.FINDING }
+                    SettingsNavRow(stringResource(Res.string.settings_cat_detection)) { page = SettingsCat.DETECTION }
+                    SettingsNavRow(stringResource(Res.string.settings_tether_title)) { page = SettingsCat.LEFTBEHIND }
+                    SettingsNavRow(stringResource(Res.string.settings_cat_devices)) { page = SettingsCat.DEVICES }
+                    SettingsNavRow(stringResource(Res.string.settings_section_sync)) { page = SettingsCat.SYNC }
+                    Spacer(Modifier.height(20.dp))
+                    buildInfo?.let { VersionStamp(it, Modifier.align(Alignment.CenterHorizontally)) }
+                    Spacer(Modifier.height(16.dp))
+                }
+                SettingsCat.APPEARANCE -> ThemeSelector(themeMode, onSelectTheme)
+                SettingsCat.FINDING -> {
+                    SettingRow(stringResource(Res.string.settings_connected_signal_title), stringResource(Res.string.settings_connected_signal_desc), measureConnectedSignal, onToggleConnectedSignal)
+                    SettingRow(stringResource(Res.string.settings_sound_title), stringResource(Res.string.settings_sound_desc), soundOn, onToggleSound)
+                    SettingRow(stringResource(Res.string.settings_haptics_title), stringResource(Res.string.settings_haptics_desc), hapticsOn, onToggleHaptics)
+                    SettingRow(stringResource(Res.string.settings_unnamed_title), stringResource(Res.string.settings_unnamed_desc), showUnnamed, onToggleUnnamed)
+                }
+                SettingsCat.DETECTION -> {
+                    SettingRow(stringResource(Res.string.settings_remember_title), stringResource(Res.string.settings_remember_desc), rememberTrackers, onToggleRemember)
+                    SettingRow(stringResource(Res.string.settings_location_title), stringResource(Res.string.settings_location_desc), locationAware) { on -> if (on) requestLocation(); onToggleLocation(on) }
+                    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f), modifier = Modifier.fillMaxWidth()) {
+                        SensitivitySelector(scanSensitivity, onSelectSensitivity, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp))
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(Res.string.settings_section_background).uppercase(), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f), modifier = Modifier.weight(1f).padding(start = 4.dp))
+                        Text("?", style = MaterialTheme.typography.labelLarge, color = BlepColors.Blue, modifier = Modifier.clip(CircleShape).clickable { showBgInfo = true }.padding(horizontal = 10.dp, vertical = 4.dp).semantics { contentDescription = infoLabel })
+                    }
+                    SettingRow(stringResource(Res.string.settings_foreground_title), stringResource(Res.string.settings_foreground_desc), foregroundScan) { on -> if (on) requestNotifications(); onToggleForeground(on) }
+                    BackgroundScanRow(backgroundScan, { on -> if (on) requestNotifications(); onToggleBackground(on) }, intervalMinutes, onIntervalChange)
+                }
+                SettingsCat.LEFTBEHIND -> TetherAlertSelector(tetherAlert, onSelectTetherAlert)
+                SettingsCat.DEVICES -> {
+                    SettingRow(stringResource(Res.string.settings_probe_title), stringResource(Res.string.settings_probe_desc), probeEnabled, onToggleProbe)
+                    if (probeEnabled) ProbeAfterRow(probeThresholdMinutes, onProbeThresholdChange)
+                    RememberDevicesRow(rememberDeviceDays, onRememberDeviceDaysChange)
+                    StorageRow(storageBytes, onClearStorage)
+                }
+                SettingsCat.SYNC -> {
+                    SettingRow(stringResource(Res.string.settings_sync_title), stringResource(Res.string.settings_sync_desc), syncEnabled, onToggleSync)
+                    if (syncEnabled) {
+                        SettingRow(stringResource(Res.string.settings_sync_favorites), "", syncFavorites, onToggleSyncFavorites)
+                        SettingRow(stringResource(Res.string.settings_sync_names), "", syncNames, onToggleSyncNames)
+                        SettingRow(stringResource(Res.string.settings_sync_tethered), "", syncTethered, onToggleSyncTethered)
+                        SettingRow(stringResource(Res.string.settings_sync_alerts), "", syncAlerts, onToggleSyncAlerts)
+                        SettingRow(stringResource(Res.string.settings_sync_scans), "", syncScans, onToggleSyncScans)
+                    }
+                }
             }
-            TetherAlertSelector(tetherAlert, onSelectTetherAlert)
-
-            Spacer(Modifier.height(6.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    stringResource(Res.string.settings_section_background).uppercase(),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
-                    modifier = Modifier.weight(1f).padding(start = 4.dp),
-                )
-                Text(
-                    "?",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = BlepColors.Blue,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable { showBgInfo = true }
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
-                        .semantics { contentDescription = infoLabel },
-                )
-            }
-            SettingRow(
-                title = stringResource(Res.string.settings_foreground_title),
-                desc = stringResource(Res.string.settings_foreground_desc),
-                checked = foregroundScan,
-                onToggle = { on -> if (on) requestNotifications(); onToggleForeground(on) },
-            )
-            BackgroundScanRow(
-                checked = backgroundScan,
-                onToggle = { on -> if (on) requestNotifications(); onToggleBackground(on) },
-                intervalMinutes = intervalMinutes,
-                onIntervalChange = onIntervalChange,
-            )
-
-            Spacer(Modifier.height(6.dp))
-            Text(
-                stringResource(Res.string.settings_section_sync).uppercase(),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
-                modifier = Modifier.padding(start = 4.dp),
-            )
-            SettingRow(
-                title = stringResource(Res.string.settings_sync_title),
-                desc = stringResource(Res.string.settings_sync_desc),
-                checked = syncEnabled,
-                onToggle = onToggleSync,
-            )
-            if (syncEnabled) {
-                SettingRow(stringResource(Res.string.settings_sync_favorites), "", syncFavorites, onToggleSyncFavorites)
-                SettingRow(stringResource(Res.string.settings_sync_names), "", syncNames, onToggleSyncNames)
-                SettingRow(stringResource(Res.string.settings_sync_tethered), "", syncTethered, onToggleSyncTethered)
-                SettingRow(stringResource(Res.string.settings_sync_alerts), "", syncAlerts, onToggleSyncAlerts)
-            }
-
-            Spacer(Modifier.height(20.dp))
-            // Build identity, tap → prefilled GitHub issue. Hidden on iOS/Wear (null).
-            buildInfo?.let {
-                VersionStamp(it, Modifier.align(Alignment.CenterHorizontally))
-            }
-            Spacer(Modifier.height(16.dp))
         }
     }
 
@@ -614,6 +556,33 @@ private fun ThemeChip(label: String, selected: Boolean, onClick: () -> Unit) {
             style = MaterialTheme.typography.labelMedium,
             color = if (selected) BlepColors.Cream else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
         )
+    }
+}
+
+/** Settings is grouped into sub-pages; HOME lists these and each opens its own page. */
+private enum class SettingsCat(val title: StringResource) {
+    HOME(Res.string.settings_title),
+    APPEARANCE(Res.string.settings_cat_appearance),
+    FINDING(Res.string.settings_cat_finding),
+    DETECTION(Res.string.settings_cat_detection),
+    LEFTBEHIND(Res.string.settings_tether_title),
+    DEVICES(Res.string.settings_cat_devices),
+    SYNC(Res.string.settings_section_sync),
+}
+
+/** A row on the Settings home that opens a sub-page. */
+@Composable
+private fun SettingsNavRow(title: String, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Text("›", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f))
+        }
     }
 }
 

@@ -14,8 +14,8 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.android.gms.tasks.Tasks
+import com.google.android.gms.wearable.CapabilityInfo
 import com.google.android.gms.wearable.MessageEvent
-import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
 import fyi.blep.core.platform.createKeyValueStore
@@ -33,12 +33,14 @@ import java.util.concurrent.TimeUnit
  * just toggling Bluetooth doesn't cry wolf; a reconnect within that window cancels it.
  */
 class PhoneTetherService : WearableListenerService() {
-    override fun onPeerDisconnected(node: Node) {
-        PhoneTether.onPhoneMaybeAway(this)
-    }
-
-    override fun onPeerConnected(node: Node) {
-        PhoneTether.onPhoneBack(this)
+    /** The phone advertises the `blep_companion` capability; this fires when its
+     *  reachability changes. `isNearby` distinguishes "out of Bluetooth range" from a
+     *  cloud-relayed connection — exactly the "did I leave my phone" signal, and the
+     *  modern, non-deprecated successor to the old peer-connected listener. */
+    override fun onCapabilityChanged(info: CapabilityInfo) {
+        if (info.name != PhoneTether.CAPABILITY) return
+        if (info.nodes.any { it.isNearby }) PhoneTether.onPhoneBack(this)
+        else PhoneTether.onPhoneMaybeAway(this)
     }
 
     /** Relayed events from the phone (item 5: phone scans, watch buzzes). Delivered even
@@ -63,6 +65,7 @@ class PhoneAwayWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(
 }
 
 object PhoneTether {
+    const val CAPABILITY = "blep_companion" // advertised by both apps via res/values/wear.xml
     private const val WORK_AWAY = "blep.wear.phoneAway"
     private const val CH_TETHER = "blep.tether.alert"
     private const val CH_TETHER_INFO = "blep.tether.info"
@@ -132,6 +135,7 @@ object PhoneTether {
                 ctx.getString(R.string.noti_tether_back_text, msg.name),
                 false,
             )
+            is SyncMessage.Sightings -> return // scan fusion data, not a notification
         }
         val n = NotificationCompat.Builder(ctx, if (high) CH_TETHER else CH_TETHER_INFO)
             .setContentTitle(title)

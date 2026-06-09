@@ -22,6 +22,15 @@ class SyncMessageTest {
         assertEquals("AA:BB", d.id)
     }
 
+    @Test fun roundtripsSightings() {
+        val m = SyncMessage.Sightings(listOf(
+            Sighting("AA:BB", -55, "My keys"),
+            Sighting("CC:DD", -80, ""),
+        ))
+        assertEquals(m, SyncMessage.decode(m.encode()))
+        assertEquals(SyncMessage.Sightings(emptyList()), SyncMessage.decode(SyncMessage.Sightings(emptyList()).encode()))
+    }
+
     @Test fun unknownReturnsNull() {
         assertNull(SyncMessage.decode("WAT\tx"))
         assertNull(SyncMessage.decode(""))

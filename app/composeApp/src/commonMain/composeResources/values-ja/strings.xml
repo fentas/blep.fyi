@@ -288,4 +288,9 @@
     <string name="settings_sync_names">デバイス名</string>
     <string name="settings_sync_tethered">置き忘れアラート</string>
     <string name="settings_sync_alerts">トラッカー警告を時計へ</string>
+    <string name="settings_sync_scans">スキャンを統合（電池消費増）</string>
+    <string name="settings_cat_appearance">外観</string>
+    <string name="settings_cat_finding">探す</string>
+    <string name="settings_cat_detection">トラッカー検出</string>
+    <string name="settings_cat_devices">デバイスと保存</string>
 </resources>

@@ -310,4 +310,9 @@
     <string name="settings_sync_names">Device names</string>
     <string name="settings_sync_tethered">Left-behind alerts</string>
     <string name="settings_sync_alerts">Tracker alerts to the watch</string>
+    <string name="settings_sync_scans">Combine scans (more battery)</string>
+    <string name="settings_cat_appearance">Appearance</string>
+    <string name="settings_cat_finding">Finding</string>
+    <string name="settings_cat_detection">Tracker detection</string>
+    <string name="settings_cat_devices">Devices &amp; storage</string>
 </resources>

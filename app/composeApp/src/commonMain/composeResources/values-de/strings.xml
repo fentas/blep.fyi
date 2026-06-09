@@ -289,4 +289,9 @@
     <string name="settings_sync_names">Gerätenamen</string>
     <string name="settings_sync_tethered">Zurückgelassen-Warnungen</string>
     <string name="settings_sync_alerts">Tracker-Warnungen an die Uhr</string>
+    <string name="settings_sync_scans">Scans kombinieren (mehr Akku)</string>
+    <string name="settings_cat_appearance">Darstellung</string>
+    <string name="settings_cat_finding">Finden</string>
+    <string name="settings_cat_detection">Tracker-Erkennung</string>
+    <string name="settings_cat_devices">Geräte &amp; Speicher</string>
 </resources>

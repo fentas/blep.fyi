@@ -288,4 +288,9 @@
     <string name="settings_sync_names">Ονόματα συσκευών</string>
     <string name="settings_sync_tethered">Ειδοποιήσεις για ξεχασμένα αντικείμενα</string>
     <string name="settings_sync_alerts">Ειδοποιήσεις ιχνηλατών στο ρολόι</string>
+    <string name="settings_sync_scans">Συνδυασμός σαρώσεων (περισσότερη μπαταρία)</string>
+    <string name="settings_cat_appearance">Εμφάνιση</string>
+    <string name="settings_cat_finding">Εύρεση</string>
+    <string name="settings_cat_detection">Ανίχνευση ιχνηλατών</string>
+    <string name="settings_cat_devices">Συσκευές &amp; αποθήκευση</string>
 </resources>

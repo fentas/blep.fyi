@@ -289,4 +289,9 @@
     <string name="settings_sync_names">设备名称</string>
     <string name="settings_sync_tethered">遗落提醒</string>
     <string name="settings_sync_alerts">向手表发送追踪器警报</string>
+    <string name="settings_sync_scans">合并扫描（更耗电）</string>
+    <string name="settings_cat_appearance">外观</string>
+    <string name="settings_cat_finding">查找</string>
+    <string name="settings_cat_detection">追踪器检测</string>
+    <string name="settings_cat_devices">设备与存储</string>
 </resources>

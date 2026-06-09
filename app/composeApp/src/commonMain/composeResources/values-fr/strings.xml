@@ -288,4 +288,9 @@
     <string name="settings_sync_names">Noms des appareils</string>
     <string name="settings_sync_tethered">Alertes d'oubli</string>
     <string name="settings_sync_alerts">Alertes de traceurs vers la montre</string>
+    <string name="settings_sync_scans">Combiner les scans (plus de batterie)</string>
+    <string name="settings_cat_appearance">Apparence</string>
+    <string name="settings_cat_finding">Recherche</string>
+    <string name="settings_cat_detection">Détection de traceurs</string>
+    <string name="settings_cat_devices">Appareils et stockage</string>
 </resources>

@@ -288,4 +288,9 @@
     <string name="settings_sync_names">Nazwy urządzeń</string>
     <string name="settings_sync_tethered">Alerty o pozostawieniu</string>
     <string name="settings_sync_alerts">Alerty o trackerach na zegarek</string>
+    <string name="settings_sync_scans">Łącz skanowania (więcej baterii)</string>
+    <string name="settings_cat_appearance">Wygląd</string>
+    <string name="settings_cat_finding">Wyszukiwanie</string>
+    <string name="settings_cat_detection">Wykrywanie lokalizatorów</string>
+    <string name="settings_cat_devices">Urządzenia i pamięć</string>
 </resources>

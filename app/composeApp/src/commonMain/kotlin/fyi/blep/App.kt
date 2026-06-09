@@ -131,6 +131,8 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     onToggleSyncTethered = controller::toggleSyncTethered,
                     syncAlerts = controller.syncAlerts,
                     onToggleSyncAlerts = controller::toggleSyncAlerts,
+                    syncScans = controller.syncScans,
+                    onToggleSyncScans = controller::toggleSyncScans,
                     themeMode = controller.themeMode,
                     onSelectTheme = controller::selectTheme,
                     onBack = controller::startDiscovery,

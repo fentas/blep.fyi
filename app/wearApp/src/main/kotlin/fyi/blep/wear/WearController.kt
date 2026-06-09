@@ -4,8 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
+import fyi.blep.core.ble.DeviceAliases
+import fyi.blep.core.ble.DeviceFavorites
 import fyi.blep.core.model.BleDevice
 import fyi.blep.core.platform.createKeyValueStore
+import fyi.blep.core.sync.SyncManager
+import fyi.blep.core.sync.SyncMessage
+import fyi.blep.core.sync.SyncSettings
+import fyi.blep.core.sync.SyncSink
+import fyi.blep.core.sync.SyncSource
+import fyi.blep.core.sync.Sighting
+import fyi.blep.core.sync.createSyncTransport
 import fyi.blep.core.tether.DeviceTether
 import fyi.blep.core.spatial.GuidanceLine
 import fyi.blep.core.spatial.GuidanceStabilizer
@@ -67,6 +76,10 @@ class WearController(
         private set
 
     private val tether = DeviceTether(createKeyValueStore())
+    // Synced from the phone so the watch shows your names + favourites too.
+    private val aliasStore = DeviceAliases(createKeyValueStore())
+    private val favStore = DeviceFavorites(createKeyValueStore())
+    private var sync: SyncManager? = null
     private var lastRssiMark: TimeMark? = null
     private var trackStartMark: TimeMark? = null
     private var arrived = false
@@ -81,8 +94,42 @@ class WearController(
 
     init {
         tetheredIds = tether.ids()
+        startSync()
         startDiscovery()
     }
+
+    /** Overlay the phone-synced name + favourite onto a scanned device. */
+    private fun overlay(d: BleDevice): BleDevice =
+        d.copy(alias = aliasStore.of(d.id) ?: d.alias, isFavorite = favStore.isFavorite(d.id))
+
+    private fun startSync() {
+        val source = object : SyncSource {
+            override fun favorites() = favStore.ids()
+            override fun tethered() = tether.ids()
+            override fun muted() = emptySet<String>()
+            override fun aliases() = aliasStore.all()
+            override fun settings() = emptyMap<String, String>()
+        }
+        val sink = object : SyncSink {
+            override fun applyFavorites(ids: Set<String>) { favStore.replace(ids); reoverlay() }
+            override fun applyTethered(ids: Set<String>) { tether.replace(ids); tetheredIds = ids; reoverlay() }
+            override fun applyMuted(ids: Set<String>) {}
+            override fun applyAliases(map: Map<String, String>) { aliasStore.replaceAll(map); reoverlay() }
+            override fun applySetting(name: String, value: String) {}
+            override fun onMessage(msg: SyncMessage) {} // PhoneTetherService handles relayed alerts
+        }
+        sync = SyncManager(createSyncTransport(), SyncSettings(createKeyValueStore()), source, sink, scope).also { it.start() }
+        // Scan fusion: relay what the watch sees to the phone (opt-in; no-op unless on).
+        scope.launch {
+            while (isActive) {
+                delay(5000)
+                sync?.sendSightings(devices.map { Sighting(it.id, it.rssi, it.displayName) })
+            }
+        }
+    }
+
+    /** Re-apply name/favourite overlays to the current list after a sync. */
+    private fun reoverlay() { devices = devices.map(::overlay) }
 
     fun isTethered(id: String): Boolean = id in tetheredIds
 
@@ -92,6 +139,7 @@ class WearController(
         tether.toggle(device.id)
         tetheredIds = tether.ids()
         haptic.success()
+        sync?.localChanged()
     }
 
     fun startDiscovery() {
@@ -107,7 +155,7 @@ class WearController(
             // Self-healing: scanning throws until the BLE permission is granted.
             while (isActive) {
                 try {
-                    scanner.devices(includeUnnamed = false).collect { devices = it }
+                    scanner.devices(includeUnnamed = false).collect { list -> devices = list.map(::overlay) }
                 } catch (c: CancellationException) {
                     throw c
                 } catch (_: Throwable) {

@@ -90,6 +90,11 @@ class SyncManager(
         if (settings.enabled() && settings.alerts()) transport.sendMessage(msg.encode())
     }
 
+    /** Relay a scan snapshot (scan fusion) — gated by the separate, opt-in "scans" toggle. */
+    fun sendSightings(devices: List<Sighting>) {
+        if (settings.enabled() && settings.scans()) transport.sendMessage(SyncMessage.Sightings(devices).encode())
+    }
+
     private fun onIncoming(encoded: String) {
         if (!settings.enabled()) return
         val merged = state.merge(SyncState.decode(encoded))

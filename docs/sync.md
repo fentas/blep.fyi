@@ -50,18 +50,23 @@ except live scan-fusion (opt-in).
 
 ## What's wired vs next
 
-**Wired (Android):** state sync (favourites, names, tether set, settings) phone-side; the
-Sync settings menu; phone→watch alert/tether relay; `peerNearby`; the watch receiving
-relayed alerts; the watch's "you left your phone" via the companion link.
+**Wired (Android, both directions):**
+- State sync — favourites, **names**, tether set, **mutes** ("it's mine"), settings.
+- The **Sync settings** menu (master + per-category, incl. opt-in scan fusion).
+- Phone→watch alert/tether relay; the watch receiving relayed alerts; `peerNearby`.
+- The watch **reflecting** synced names + favourites in its own device list (`WearController`
+  overlays them).
+- The watch's "you left your phone" now via **`CapabilityClient`** (`onCapabilityChanged` +
+  `isNearby`) — the deprecated `BIND_LISTENER` is gone.
+- **Scan fusion** (item 3): both devices relay throttled sighting snapshots
+  (`SyncMessage.Sightings`, gated by the opt-in `SyncSettings.scans()`); the phone exposes
+  the watch's extra sightings (`remoteSightings` / `watchOnlyCount`).
 
 **Next:**
-- The **watch reflecting** synced names/favourites in its own list (it receives the state;
-  the wear UI doesn't overlay it yet).
-- **Scan fusion** (item 3): relay throttled sighting snapshots both ways and merge for
-  better coverage + rotation correlation. `SyncSettings.scans()` gates it (opt-in, off by
-  default) — the message + manager hooks are in place.
-- **Mutes** ("it's mine") in the converged state (the `SyncState.muted` field exists; not
-  wired to `SafetyHistory` yet).
-- **Apple**: the WatchConnectivity `actual` of `SyncTransport`, on iOS + watchOS.
-- Migrate the legacy `BIND_LISTENER` "left phone" listener to `CapabilityClient`
-  (the capability is already declared in `res/values/wear.xml` on both apps).
+- **Apple**: a WatchConnectivity `actual` of `SyncTransport` exists in `appleMain`
+  (`SyncTransport.apple.kt`) but is **verified only by the macOS CI build**, not the
+  Android/JVM path. The watchOS Swift app still needs to *activate* sync (it has its own
+  UI today), and the whole Apple path needs on-device testing.
+- Surface `remoteSightings` visually in the discovery list (data flows; no UI chip yet).
+- Feed remote sightings into the safety correlator (deeper fusion than the current
+  "combined view").

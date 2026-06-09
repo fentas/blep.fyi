@@ -288,4 +288,9 @@
     <string name="settings_sync_names">Seadmete nimed</string>
     <string name="settings_sync_tethered">Mahajäetud eseme hoiatused</string>
     <string name="settings_sync_alerts">Jälgija hoiatused kellale</string>
+    <string name="settings_sync_scans">Ühenda skannid (rohkem akut)</string>
+    <string name="settings_cat_appearance">Välimus</string>
+    <string name="settings_cat_finding">Otsimine</string>
+    <string name="settings_cat_detection">Jälgijate tuvastus</string>
+    <string name="settings_cat_devices">Seadmed ja mälu</string>
 </resources>

@@ -288,4 +288,9 @@
     <string name="settings_sync_names">Nomi dei dispositivi</string>
     <string name="settings_sync_tethered">Avvisi di oggetto dimenticato</string>
     <string name="settings_sync_alerts">Avvisi sui tracker all'orologio</string>
+    <string name="settings_sync_scans">Combina le scansioni (più batteria)</string>
+    <string name="settings_cat_appearance">Aspetto</string>
+    <string name="settings_cat_finding">Ricerca</string>
+    <string name="settings_cat_detection">Rilevamento tracker</string>
+    <string name="settings_cat_devices">Dispositivi e spazio</string>
 </resources>

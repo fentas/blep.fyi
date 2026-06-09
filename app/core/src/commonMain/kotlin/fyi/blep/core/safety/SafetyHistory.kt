@@ -125,6 +125,9 @@ class SafetyHistory(
 
     fun unmute(address: String) = writeLines(KEY_MUTED, (mutedAddresses() - address).toList())
 
+    /** Replace the whole mute list (applies merged state synced from the paired device). */
+    fun replaceMuted(addresses: Set<String>) = writeLines(KEY_MUTED, addresses.toList().takeLast(maxMuted))
+
     private fun load(): List<Encounter> = readLines(KEY_LOG).mapNotNull { line ->
         val p = line.split(':')          // "ord:ms[:place[:context]]" (place/context are comma/hex, never ':')
         if (p.size < 2) return@mapNotNull null

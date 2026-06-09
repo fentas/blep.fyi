@@ -288,4 +288,9 @@
     <string name="settings_sync_names">Nomes dos dispositivos</string>
     <string name="settings_sync_tethered">Avisos de objeto esquecido</string>
     <string name="settings_sync_alerts">Avisos de rastreadores para o relógio</string>
+    <string name="settings_sync_scans">Combinar análises (mais bateria)</string>
+    <string name="settings_cat_appearance">Aparência</string>
+    <string name="settings_cat_finding">Procura</string>
+    <string name="settings_cat_detection">Deteção de rastreadores</string>
+    <string name="settings_cat_devices">Dispositivos e armazenamento</string>
 </resources>

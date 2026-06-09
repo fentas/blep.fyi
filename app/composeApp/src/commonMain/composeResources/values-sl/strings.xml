@@ -288,4 +288,9 @@
     <string name="settings_sync_names">Imena naprav</string>
     <string name="settings_sync_tethered">Opozorila na pozabljene predmete</string>
     <string name="settings_sync_alerts">Opozorila o sledilnikih na uro</string>
+    <string name="settings_sync_scans">Združi pregledovanja (več baterije)</string>
+    <string name="settings_cat_appearance">Videz</string>
+    <string name="settings_cat_finding">Iskanje</string>
+    <string name="settings_cat_detection">Zaznavanje sledilnikov</string>
+    <string name="settings_cat_devices">Naprave in shramba</string>
 </resources>

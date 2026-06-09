@@ -29,8 +29,8 @@ android {
         // Wear OS = 2xxx here) so the two bundles — same applicationId, so codes
         // must be globally unique — never collide. Bump within the band. 2000
         // clears the early watch uploads (10/11).
-        versionCode = 2010
-        versionName = "0.7.0"
+        versionCode = 2011
+        versionName = "0.7.1"
     }
 
     // Release signing from the same gitignored keystore.properties as the phone app.
@@ -67,11 +67,6 @@ android {
     }
     buildFeatures { compose = true }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
-    // The phone-left listener uses the legacy BIND_LISTENER Data Layer filter (onPeer*
-    // node events have no modern filter). It still works on current Play Services; the
-    // upcoming phone↔watch comms work migrates it to the capability API. Suppress the
-    // deprecation-as-fatal so the release builds meanwhile.
-    lint { disable += "WearableBindListener" }
 }
 
 dependencies {

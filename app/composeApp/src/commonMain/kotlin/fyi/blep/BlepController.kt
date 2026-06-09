@@ -38,6 +38,7 @@ import fyi.blep.core.spatial.createMotionProvider
 import fyi.blep.core.sync.SyncManager
 import fyi.blep.core.sync.SyncMessage
 import fyi.blep.core.sync.SyncSettings
+import fyi.blep.core.sync.Sighting
 import fyi.blep.core.sync.SyncSink
 import fyi.blep.core.sync.SyncSource
 import fyi.blep.core.sync.createSyncTransport
@@ -237,6 +238,11 @@ class BlepController(
     /** Whether the paired watch is reachable + nearby (for the UI / future role split). */
     var watchNearby by mutableStateOf(false)
         private set
+    /** Devices the paired watch is currently seeing (scan fusion; empty unless opted in). */
+    var remoteSightings by mutableStateOf<List<Sighting>>(emptyList())
+        private set
+    /** How many devices the watch sees that the phone currently doesn't (fusion gain). */
+    val watchOnlyCount: Int get() = remoteSightings.count { s -> devices.none { it.id == s.id } }
     private var sync: SyncManager? = null
 
     // "Sync" settings menu — master + per-category, mirrored as Compose state.
@@ -245,8 +251,10 @@ class BlepController(
     var syncNames by mutableStateOf(syncSettings.names()); private set
     var syncTethered by mutableStateOf(syncSettings.tethered()); private set
     var syncAlerts by mutableStateOf(syncSettings.alerts()); private set
+    var syncScans by mutableStateOf(syncSettings.scans()); private set
 
     fun toggleSync(on: Boolean) { syncSettings.setEnabled(on); syncEnabled = on; sync?.start() }
+    fun toggleSyncScans(on: Boolean) { syncSettings.setScans(on); syncScans = on; if (!on) remoteSightings = emptyList() }
     fun toggleSyncFavorites(on: Boolean) { syncSettings.setFavorites(on); syncFavorites = on; syncPush() }
     fun toggleSyncNames(on: Boolean) { syncSettings.setNames(on); syncNames = on; syncPush() }
     fun toggleSyncTethered(on: Boolean) { syncSettings.setTethered(on); syncTethered = on; syncPush() }
@@ -311,7 +319,7 @@ class BlepController(
         val source = object : SyncSource {
             override fun favorites() = favorites.ids()
             override fun tethered() = tether.ids()
-            override fun muted() = emptySet<String>() // mutes not synced yet (see SyncState.muted)
+            override fun muted() = safetyHistory.mutedAddresses()
             override fun aliases() = aliasStore.all()
             override fun settings() = mapOf(
                 SETTING_SENSITIVITY to scanSensitivity.name,
@@ -326,7 +334,7 @@ class BlepController(
             override fun applyTethered(ids: Set<String>) {
                 tether.replace(ids); tetheredIds = ids; syncWatch()
             }
-            override fun applyMuted(ids: Set<String>) {}
+            override fun applyMuted(ids: Set<String>) { safetyHistory.replaceMuted(ids) }
             override fun applyAliases(map: Map<String, String>) {
                 aliasStore.replaceAll(map)
                 aliases.clear(); aliases.putAll(map)
@@ -342,10 +350,20 @@ class BlepController(
                     }
                 }
             }
-            override fun onMessage(msg: SyncMessage) { /* phone is usually the detector; relay is phone→watch */ }
+            override fun onMessage(msg: SyncMessage) {
+                if (msg is SyncMessage.Sightings) remoteSightings = msg.devices // scan fusion
+            }
             override fun onPeerNearby(nearby: Boolean) { watchNearby = nearby }
         }
         sync = SyncManager(createSyncTransport(), syncSettings, source, sink, scope).also { it.start() }
+        // Scan fusion: relay what we're seeing to the watch on a throttle (opt-in; the
+        // send is a no-op unless "sync scans" is on).
+        scope.launch {
+            while (isActive) {
+                delay(5.seconds)
+                sync?.sendSightings(devices.filter { it.isPresent }.map { Sighting(it.id, it.rssi, it.displayName) })
+            }
+        }
     }
 
     /** Re-publish local state after the user changed something synced. */
@@ -783,12 +801,14 @@ class BlepController(
         safetyScanner.mute(addr)
         safetyAlerts = safetyAlerts.filterNot { it.trackingAddress == addr }
         lastMuted = alert
+        syncPush()
     }
 
     /** Undo the most recent [muteTracker] — the tracker is watched (and flagged) again. */
     fun undoMute() {
         lastMuted?.trackingAddress?.let { safetyScanner.unmute(it) }
         lastMuted = null
+        syncPush()
     }
 
     /** Dismiss the "muted" undo affordance without undoing. */

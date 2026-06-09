@@ -288,4 +288,9 @@
     <string name="settings_sync_names">Apparaatnamen</string>
     <string name="settings_sync_tethered">Waarschuwingen voor achtergelaten spullen</string>
     <string name="settings_sync_alerts">Trackerwaarschuwingen naar het horloge</string>
+    <string name="settings_sync_scans">Scans combineren (meer batterij)</string>
+    <string name="settings_cat_appearance">Weergave</string>
+    <string name="settings_cat_finding">Vinden</string>
+    <string name="settings_cat_detection">Trackerdetectie</string>
+    <string name="settings_cat_devices">Apparaten en opslag</string>
 </resources>
