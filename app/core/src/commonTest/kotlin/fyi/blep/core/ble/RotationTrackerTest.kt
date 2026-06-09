@@ -81,6 +81,26 @@ class RotationTrackerTest {
     }
 
     @Test
+    fun jitter_around_an_unchanged_mean_stays_high_confidence() {
+        val rt = RotationTracker()
+        // A real phone-to-tag link swings ±4 dB while nothing moves. A jitters around
+        // -83 and builds up a jitter estimate…
+        var t = 0L
+        listOf(-83, -79, -87, -82, -85, -81, -83).forEach { rt.observe("A", it, t); t += 700 }
+        // …then rotates to B, the *same* device, so the mean is unchanged — only the
+        // noisy swing differs. B persists until A retires.
+        rt.observe("B", -85, t + 1_000)
+        var bt = t + 1_000
+        listOf(-81, -87, -83, -86, -82, -84).forEach { bt += 7_000; rt.observe("B", it, bt) }
+        val b = rt.statsFor("B")!!
+        assertEquals(1, b.rotations, "a jittery handover should still correlate")
+        // The means barely differ; the spread is just RF noise. The old flat 1−Δ/7 curve
+        // read the noise as evidence-against and gave ~0.6 — now a within-jitter Δ is the
+        // strong match it actually is.
+        assertTrue(b.confidence >= 0.85, "within-jitter Δ should read as high confidence, was ${b.confidence}")
+    }
+
+    @Test
     fun a_collision_keeps_both_candidates_as_a_contested_branch() {
         val rt = RotationTracker()
         rt.observe("X", -50, 0)

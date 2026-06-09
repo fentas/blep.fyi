@@ -1,6 +1,7 @@
 package fyi.blep.core.ble
 
 import kotlin.math.abs
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 /** Tunable thresholds for [RotationTracker]. */
@@ -8,8 +9,15 @@ data class RotationTuning(
     val staleMs: Long = 30_000L,    // a track unseen this long has left range (or fully handed over)
     val handoverMs: Long = 20_000L, // a successor id must appear within this AFTER the old id goes quiet
     val overlapMs: Long = 3_000L,   // brief window both ids may co-advertise during a handover
-    val dbGate: Int = 6,            // |Δrssi| (dBm) for a successor to count as the same device's new range
+    val dbGate: Int = 6,            // *floor* for the |Δrssi| gate; widened to the device's own jitter
     val emaWeight: Double = 0.5,    // smoothing of the running RSSI estimate
+    // RSSI is noisy: a phone-to-tag link routinely swings several dB even when nothing
+    // moves. So the gate and the handover confidence are scaled to each device's *own*
+    // measured jitter — a Δ within the noise is a great match, not a weak one.
+    val minNoise: Double = 2.0,     // assumed jitter floor (dBm) even for a rock-steady device
+    val gateK: Double = 2.5,        // gate ≈ this × the device's jitter (never below dbGate)
+    val slowWeight: Double = 0.15,  // slow mean used as the baseline the jitter is measured against
+    val devWeight: Double = 0.25,   // smoothing of the running jitter estimate
 )
 
 /** What the UI can show about a device's identity churn. */
@@ -68,6 +76,8 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
     private class Track(
         var address: String,
         var rssi: Double,
+        var slowMean: Double = rssi, // steadier baseline the jitter is measured against
+        var dev: Double = 0.0,       // running estimate of this id's RSSI jitter (dBm)
         var firstSeenMs: Long,
         var lastSeenMs: Long,
         val bornMs: Long,
@@ -86,6 +96,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         val addressesSeen: Int,
         val qualitySum: Double,
         val rssi: Double,
+        val dev: Double,
         val fingerprint: String?,
         val origin: String,
         val addresses: Set<String>,
@@ -108,6 +119,11 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         reconcile(timeMs)
         val exact = tracks.firstOrNull { it.address == address }
         if (exact != null) {
+            // Measure jitter against the slow baseline (the fast EMA chases the signal,
+            // so it would under-report the spread), then advance both.
+            val d = abs(rssi - exact.slowMean)
+            exact.dev = exact.dev * (1 - tuning.devWeight) + d * tuning.devWeight
+            exact.slowMean = exact.slowMean * (1 - tuning.slowWeight) + rssi * tuning.slowWeight
             exact.rssi = ema(exact.rssi, rssi)
             exact.lastSeenMs = timeMs
             if (fingerprint != null) exact.fingerprint = fingerprint
@@ -128,7 +144,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         }
         // Contested: tentatively fold in the branch lineage, but split its quality by
         // how many candidates still claim it (so confidence reflects the fork).
-        val hopQ = quality(branch.rssi, tr.rssi, branch.candidates.size, fpMatch(branch.fingerprint, tr.fingerprint))
+        val hopQ = quality(branch.rssi, tr.rssi, noise(branch.dev, tr.dev), branch.candidates.size, fpMatch(branch.fingerprint, tr.fingerprint))
         val rot = tr.rotations + branch.rotations + 1
         val addr = tr.addressesSeen + branch.addressesSeen
         val confidence = ((tr.qualitySum + branch.qualitySum + hopQ) / rot).coerceIn(0.0, 1.0)
@@ -177,6 +193,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
                     addressesSeen = old.addressesSeen,
                     qualitySum = old.qualitySum,
                     rssi = old.rssi,
+                    dev = old.dev,
                     fingerprint = old.fingerprint,
                     origin = old.origin,
                     addresses = old.addresses.toSet(),
@@ -202,7 +219,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
                 1 -> {
                     val s = survivors[0]
                     if (s.address !in claimed) {
-                        val q = quality(b.rssi, s.rssi, candidateCount = 1, fpMatch(b.fingerprint, s.fingerprint))
+                        val q = quality(b.rssi, s.rssi, noise(b.dev, s.dev), candidateCount = 1, fpMatch(b.fingerprint, s.fingerprint))
                         s.firstSeenMs = minOf(s.firstSeenMs, b.firstSeenMs)
                         s.rotations += b.rotations + 1
                         s.addressesSeen += b.addressesSeen
@@ -228,12 +245,12 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         // Payload veto/boost: a different device class can't be the same device (veto);
         // a matching one corroborates the range, so we tolerate a wider dB jump.
         if (fpMismatch(old.fingerprint, heir.fingerprint)) return false
-        val gate = if (fpMatch(old.fingerprint, heir.fingerprint)) tuning.dbGate * 2 else tuning.dbGate
+        val gate = effectiveGate(noise(old.dev, heir.dev), fpMatch(old.fingerprint, heir.fingerprint))
         return abs(heir.rssi - old.rssi) <= gate
     }
 
     private fun mergeInto(heir: Track, old: Track, candidateCount: Int) {
-        val q = quality(old.rssi, heir.rssi, candidateCount, fpMatch(old.fingerprint, heir.fingerprint))
+        val q = quality(old.rssi, heir.rssi, noise(old.dev, heir.dev), candidateCount, fpMatch(old.fingerprint, heir.fingerprint))
         heir.firstSeenMs = minOf(heir.firstSeenMs, old.firstSeenMs)
         heir.rotations += old.rotations + 1
         heir.addressesSeen += old.addressesSeen
@@ -243,10 +260,24 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         heir.origin = old.origin // the older lineage's origin wins (continuity)
     }
 
-    /** Handover quality: closer range ⇒ higher, divided across rival candidates;
-     *  a payload-fingerprint match lifts a loose range match (it corroborates). */
-    private fun quality(r1: Double, r2: Double, candidateCount: Int, fpMatch: Boolean = false): Double {
-        val range = (1.0 - abs(r1 - r2) / (tuning.dbGate + 1.0)).coerceIn(0.0, 1.0)
+    /** The jitter the two ids share — at least [RotationTuning.minNoise], so we never
+     *  claim a perfectly steady reading (RSSI is never truly noiseless). */
+    private fun noise(devA: Double, devB: Double): Double = maxOf(devA, devB, tuning.minNoise)
+
+    /** |Δrssi| a successor may sit from the old id: the bigger of the [RotationTuning.dbGate]
+     *  floor and a multiple of the device's own jitter, doubled when a payload matches. */
+    private fun effectiveGate(noise: Double, fpMatch: Boolean): Double {
+        val g = maxOf(tuning.dbGate.toDouble(), ceil(tuning.gateK * noise))
+        return if (fpMatch) g * 2 else g
+    }
+
+    /** Handover quality, *relative to the device's own jitter*: a Δ within the noise is a
+     *  full match (RSSI wobbles that much for free), decaying to 0 at the jitter-aware
+     *  gate. Divided across rival candidates; a payload match lifts a loose range match. */
+    private fun quality(r1: Double, r2: Double, noise: Double, candidateCount: Int, fpMatch: Boolean = false): Double {
+        val over = (abs(r1 - r2) - noise).coerceAtLeast(0.0)        // how far past the noise floor
+        val span = (effectiveGate(noise, fpMatch = false) - noise).coerceAtLeast(1.0)
+        val range = (1.0 - over / span).coerceIn(0.0, 1.0)
         val base = if (fpMatch) maxOf(range, 0.85) else range
         return base / candidateCount.coerceAtLeast(1)
     }
