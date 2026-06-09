@@ -159,8 +159,9 @@ class BlepController(
     /** Minutes a device must have been around before it's worth a probe (ignores passers-by). */
     var probeThresholdMinutes by mutableStateOf(settings.probeThresholdMinutes())
         private set
-    /** A probe is in flight for the device whose detail page is open (drives a spinner). */
-    var probing by mutableStateOf(false)
+    /** The address an on-demand probe is in flight for (drives the detail-page spinner —
+     *  per-device, so it can't bleed onto a different device's panel). */
+    var probingId by mutableStateOf<String?>(null)
         private set
     /** Bytes of on-device data blep is storing (identities, names, history, the safety
      *  log) — shown in Settings with a Clear action. Refreshed when Settings opens. */
@@ -416,13 +417,20 @@ class BlepController(
             while (isActive) {
                 delay(PROBE_TICK_MS)
                 val target = nextProbeCandidate() ?: continue
-                val result = runCatching { scanner.probe(target) }.getOrNull() ?: continue
-                probeResults[target] = result
-                identityStore.recordProbe(target, result)
-                refreshProbeNames()
+                probeAndRecord(target)
                 delay(PROBE_COOLDOWN_MS) // gentle on the radio; never hammer
             }
         }
+    }
+
+    /** Probe one device, cache the result (in-memory + persisted), and refresh the list.
+     *  A failed/refused probe records a non-connectable result so we don't re-poke it. */
+    private suspend fun probeAndRecord(address: String): ProbeResult {
+        val result = runCatching { scanner.probe(address) }.getOrNull() ?: ProbeResult(connectable = false)
+        probeResults[address] = result
+        identityStore.recordProbe(address, result)
+        refreshProbeNames()
+        return result
     }
 
     /** The longest-resident, present, still-unprobed device past the dwell threshold —
@@ -440,14 +448,14 @@ class BlepController(
     /** On-demand probe from the detail page — bypasses the dwell gate (the user asked),
      *  and re-probes even a known device to refresh the live device-info card. */
     fun probeNow(device: BleDevice) {
-        if (probing) return
-        probing = true
+        if (probingId != null) return // one on-demand probe at a time
+        probingId = device.id
         scope.launch {
-            val result = runCatching { scanner.probe(device.id) }.getOrNull() ?: ProbeResult(connectable = false)
-            probeResults[device.id] = result
-            identityStore.recordProbe(device.id, result)
-            refreshProbeNames()
-            probing = false
+            try {
+                probeAndRecord(device.id)
+            } finally {
+                probingId = null
+            }
         }
     }
 

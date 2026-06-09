@@ -368,11 +368,11 @@ private fun StorageRow(bytes: Int, onClear: () -> Unit) {
     }
 }
 
-/** Bytes → a compact human size (B / KB / MB). */
+/** Bytes → a compact human size (B / KB / MB). Long math so it can't overflow. */
 private fun formatBytes(b: Int): String = when {
     b < 1024 -> "$b B"
     b < 1024 * 1024 -> "${b / 1024} KB"
-    else -> "${(b * 10 / (1024 * 1024)) / 10.0} MB"
+    else -> "${(b.toLong() * 10 / (1024 * 1024)) / 10.0} MB"
 }
 
 /** Sub-option under "Identify devices": how long a device must linger before a probe. */

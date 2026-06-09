@@ -179,7 +179,7 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                         rotation = controller.rotationStats(live.id),
                         firstSeenAgoMs = controller.rotationFirstSeenAgoMs(live.id),
                         correlating = controller.isCorrelating(live.id),
-                        probing = controller.probing,
+                        probing = controller.probingId == live.id,
                         probed = controller.isProbed(live.id),
                         probeLabel = controller.probeLabel(live.id),
                         probeInfo = controller.probeInfo(live.id),
