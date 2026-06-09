@@ -33,9 +33,10 @@ class IdentityStore(
         var lastSeenMs: Long,
         var fingerprint: String?,
         val addresses: MutableSet<String>,
-        var probedAtMs: Long = 0L,      // 0 = never actively probed (so we probe it once)
-        var probeLabel: String? = null, // human label the probe found, if any
-        var probeKey: String? = null,   // stable cross-rotation key from the probe, if any
+        var probedAtMs: Long = 0L,       // 0 = never actively probed (so we probe it once)
+        var probeLabel: String? = null,  // human label the probe found, if any
+        var probeKey: String? = null,    // stable cross-rotation key from the probe, if any
+        var probeDetail: String? = null, // packed ProbeResult (Device-info card + telemetry match)
     )
 
     private val records: MutableList<Rec> = parse(store.getString(KEY))
@@ -73,6 +74,7 @@ class IdentityStore(
                 survivor.probedAtMs = r.probedAtMs
                 survivor.probeLabel = r.probeLabel
                 survivor.probeKey = r.probeKey
+                survivor.probeDetail = r.probeDetail
             }
             records.remove(r)
         }
@@ -91,25 +93,49 @@ class IdentityStore(
     fun probeLabelOf(address: String): String? =
         records.firstOrNull { address in it.addresses }?.probeLabel
 
+    /** The packed probe detail for this device's identity (for the Device-info card),
+     *  or null if never probed. Survives a restart. */
+    fun probeDetailOf(address: String): String? =
+        records.firstOrNull { address in it.addresses }?.probeDetail
+
     /**
-     * Cache the outcome of an active [probe] of [address]. If the probe carries a stable
-     * key (a serial, or a personalised name) that matches a *different* identity we've
-     * already probed, the two are the same physical device wearing a new address — so we
-     * merge them. This recovers a rotation the RSSI handover lost: the address churned,
-     * but the device's serial/name didn't.
+     * Cache the outcome of an active probe of [address] (persisted, so it survives a
+     * restart and an interval scan can match it). Re-correlates to a *different* identity:
+     *  - by a stable key (a serial, or a personalised name) — definitive; or
+     *  - failing that, by the **structural fingerprint + temporally-consistent battery**:
+     *    the same model whose battery ticked down a hair within a short window is almost
+     *    certainly the same unit (the user's "temporal glue"). Heuristic, so it's
+     *    deliberately conservative (a tiny drop, a short window).
+     * Either way it recovers a rotation the RSSI handover lost.
      */
-    fun recordProbe(address: String, connectable: Boolean, label: String?, key: String?) {
+    fun recordProbe(address: String, result: ProbeResult) {
         val t = now()
-        if (key != null) {
-            val twin = records.firstOrNull { address !in it.addresses && it.probeKey == key }
-            if (twin != null) link(twin.addresses + address) // merge; survivor = lowest id
-        }
+        val key = result.identityKey
+        val twin = if (key != null) records.firstOrNull { address !in it.addresses && it.probeKey == key }
+        else matchByTelemetry(address, result, t)
+        if (twin != null) link(twin.addresses + address) // merge; survivor = lowest id
         val rec = records.firstOrNull { address in it.addresses }
             ?: Rec(address, t, t, null, mutableSetOf(address)).also { records += it }
         rec.probedAtMs = t
-        rec.probeLabel = label
+        rec.probeLabel = result.label
         rec.probeKey = key
+        rec.probeDetail = result.pack()
         persist()
+    }
+
+    /** A keyless re-correlation: same GATT structure + a battery that only ticked down a
+     *  little since a recent probe of a different identity ⇒ the same physical device.
+     *  Requires both (structure alone is a model, not a unit; battery is the temporal id). */
+    private fun matchByTelemetry(address: String, result: ProbeResult, t: Long): Rec? {
+        val struct = result.structure ?: return null
+        val batt = result.batteryPct ?: return null
+        return records.firstOrNull { r ->
+            if (address in r.addresses || r.probeDetail == null) return@firstOrNull false
+            val other = ProbeResult.unpack(r.probeDetail!!)
+            val otherBatt = other.batteryPct ?: return@firstOrNull false
+            other.structure == struct && batt <= otherBatt && otherBatt - batt <= MAX_BATTERY_DROP &&
+                (t - r.probedAtMs) in 1..TELEMETRY_WINDOW_MS
+        }
     }
 
     /** Note that [addresses] are present now: refresh last-seen for ones we know, and
@@ -134,7 +160,7 @@ class IdentityStore(
         }
         store.putString(KEY, records.joinToString("\n") { r ->
             "${r.id}\t${r.firstSeenMs}\t${r.lastSeenMs}\t${r.fingerprint ?: ""}\t${r.addresses.joinToString(",")}" +
-                "\t${r.probedAtMs}\t${sanitize(r.probeLabel)}\t${sanitize(r.probeKey)}"
+                "\t${r.probedAtMs}\t${sanitize(r.probeLabel)}\t${sanitize(r.probeKey)}\t${sanitize(r.probeDetail)}"
         })
     }
 
@@ -156,6 +182,7 @@ class IdentityStore(
                     rec.probeLabel = p[6].ifBlank { null }
                     rec.probeKey = p[7].ifBlank { null }
                 }
+                if (p.size >= 9) rec.probeDetail = p[8].ifBlank { null }
                 out += rec
             }
         }
@@ -164,5 +191,7 @@ class IdentityStore(
 
     private companion object {
         const val KEY = "devices.identities"
+        const val MAX_BATTERY_DROP = 2        // %: a keyless telemetry match tolerates only a tiny drop
+        const val TELEMETRY_WINDOW_MS = 15L * 60_000 // …within this since the other id was probed
     }
 }

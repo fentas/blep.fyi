@@ -386,7 +386,7 @@ class BlepController(
                 val target = nextProbeCandidate() ?: continue
                 val result = runCatching { scanner.probe(target) }.getOrNull() ?: continue
                 probeResults[target] = result
-                identityStore.recordProbe(target, result.connectable, result.label, result.identityKey)
+                identityStore.recordProbe(target, result)
                 refreshProbeNames()
                 delay(PROBE_COOLDOWN_MS) // gentle on the radio; never hammer
             }
@@ -413,7 +413,7 @@ class BlepController(
         scope.launch {
             val result = runCatching { scanner.probe(device.id) }.getOrNull() ?: ProbeResult(connectable = false)
             probeResults[device.id] = result
-            identityStore.recordProbe(device.id, result.connectable, result.label, result.identityKey)
+            identityStore.recordProbe(device.id, result)
             refreshProbeNames()
             probing = false
         }
@@ -424,10 +424,12 @@ class BlepController(
     fun isProbed(id: String): Boolean = identityStore.isProbed(id)
 
     /** The full probe result for this device (or any id in its lineage), for the detail
-     *  page's device-info card — in-memory for the session. */
+     *  page's device-info card. The live session's result (incl. battery) wins; otherwise
+     *  the descriptive blob persisted in the IdentityStore (so the card survives a restart). */
     fun probeInfo(id: String): ProbeResult? =
         demoIdentity[id]?.let { DEMO_PROBE }
             ?: probeResults[id] ?: identityStore.addressesFor(id).firstNotNullOfOrNull { probeResults[it] }
+            ?: identityStore.probeDetailOf(id)?.let { runCatching { ProbeResult.unpack(it) }.getOrNull() }
 
     /** Re-map the list so a freshly-probed name appears immediately (the next scan tick
      *  would do it anyway via the devices() mapping; this just makes it snappy). */

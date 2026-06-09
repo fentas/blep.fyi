@@ -48,4 +48,22 @@ class ProbeResultTest {
         val p = ProbeResult(connectable = true, name = "Jan's Buds", manufacturer = "Google", model = "GA03201")
         assertEquals("Jan's Buds", p.label)
     }
+
+    @Test
+    fun pack_then_unpack_round_trips_the_descriptive_fields() {
+        val p = ProbeResult(
+            connectable = true, name = "Jan's Buds", manufacturer = "Google", model = "GA03201",
+            firmware = "4.0.1", hardware = "1.2", serial = "SN-7", structure = "k3f9qz",
+            serviceCount = 7, batteryPct = 82, needsPairing = true,
+        )
+        val r = ProbeResult.unpack(p.pack())
+        assertEquals(p.name, r.name)
+        assertEquals(p.serial, r.serial)
+        assertEquals(p.hardware, r.hardware)
+        assertEquals(p.structure, r.structure)
+        assertEquals(p.serviceCount, r.serviceCount)
+        assertEquals(p.batteryPct, r.batteryPct)
+        assertTrue(r.connectable)
+        assertTrue(r.needsPairing)
+    }
 }

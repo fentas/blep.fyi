@@ -31,7 +31,7 @@ data class ProbeResult(
     val serviceUuids: List<String> = emptyList(), // every advertised service (incl. 128-bit custom)
     val structure: String? = null,     // stable hash of the GATT skeleton (services + char properties)
     val serviceCount: Int = 0,
-    val batteryPct: Int? = null,       // 0x2A19 — temporal glue (not persisted; it changes)
+    val batteryPct: Int? = null,       // 0x2A19 — temporal glue; persisted as last-known + its probe time
     val needsPairing: Boolean = false, // a protected read returned an auth/encryption error
 ) {
     /** Did we learn anything beyond "(non-)connectable"? */
@@ -59,5 +59,30 @@ data class ProbeResult(
     private fun looksGeneric(name: String): Boolean {
         val n = name.trim().lowercase()
         return model?.takeIf { it.isNotBlank() }?.let { n == it.trim().lowercase() } ?: false
+    }
+
+    /** Serialise for the IdentityStore so the Device-info card + telemetry re-correlation
+     *  survive a restart (and an interval scan can match across sessions). Unit-separator
+     *  delimited; the separators are stripped from values. Battery is included as the
+     *  temporal anchor (it's "last known" once persisted). */
+    fun pack(): String = listOf(
+        name, manufacturer, model, firmware, hardware, serial, structure,
+        serviceCount.toString(), if (connectable) "1" else "0", if (needsPairing) "1" else "0",
+        batteryPct?.toString(),
+    ).joinToString(US) { (it ?: "").replace(US, " ").replace('\t', ' ').replace('\n', ' ') }
+
+    companion object {
+        private const val US = "\u001F" // ASCII unit separator — absent from device strings
+
+        fun unpack(s: String): ProbeResult {
+            val p = s.split(US)
+            fun g(i: Int) = p.getOrNull(i)?.takeIf { it.isNotEmpty() }
+            return ProbeResult(
+                connectable = g(8) == "1",
+                name = g(0), manufacturer = g(1), model = g(2), firmware = g(3), hardware = g(4),
+                serial = g(5), structure = g(6), serviceCount = g(7)?.toIntOrNull() ?: 0,
+                needsPairing = g(9) == "1", batteryPct = g(10)?.toIntOrNull(),
+            )
+        }
     }
 }

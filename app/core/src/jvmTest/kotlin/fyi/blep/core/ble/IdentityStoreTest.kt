@@ -82,46 +82,81 @@ class IdentityStoreTest {
     }
 
     @Test
-    fun a_probe_is_cached_and_not_repeated() {
+    fun a_probe_is_cached_with_its_detail_and_not_repeated() {
         val store = createKeyValueStore()
         val s = IdentityStore(store)
         s.seen(setOf("A"))
         assertTrue(!s.isProbed("A"))
-        s.recordProbe("A", connectable = true, label = "Pixel Buds Pro", key = "ser:SN-1")
+        s.recordProbe("A", ProbeResult(connectable = true, name = "Pixel Buds Pro", serial = "SN-1", model = "GA1", batteryPct = 80, serviceCount = 7))
         assertTrue(s.isProbed("A"))
         assertEquals("Pixel Buds Pro", s.probeLabelOf("A"))
-        // survives a restart so we never re-poke a known device.
-        assertTrue(IdentityStore(store).isProbed("A"))
-        assertEquals("Pixel Buds Pro", IdentityStore(store).probeLabelOf("A"))
+        // the full descriptive blob survives a restart (so the Device-info card persists).
+        val restored = IdentityStore(store)
+        assertTrue(restored.isProbed("A"))
+        val info = ProbeResult.unpack(restored.probeDetailOf("A")!!)
+        assertEquals("SN-1", info.serial)
+        assertEquals("GA1", info.model)
+        assertEquals(7, info.serviceCount)
     }
 
     @Test
     fun a_non_connectable_probe_still_marks_it_probed() {
         val s = IdentityStore(createKeyValueStore())
         s.seen(setOf("A"))
-        s.recordProbe("A", connectable = false, label = null, key = null)
+        s.recordProbe("A", ProbeResult(connectable = false))
         assertTrue(s.isProbed("A")) // a refusal is a stable trait — don't keep retrying
     }
 
     @Test
     fun a_matching_probe_key_re_identifies_a_rotated_device() {
         val s = IdentityStore(createKeyValueStore())
-        // We probe address A and learn its serial.
         s.seen(setOf("A"))
-        s.recordProbe("A", connectable = true, label = "Jan's Buds", key = "ser:SN-9")
+        s.recordProbe("A", ProbeResult(connectable = true, name = "Jan's Buds", serial = "SN-9"))
         // Later it rotates to B — the RSSI handover missed it, so B looks brand new.
         s.seen(setOf("B"))
-        s.recordProbe("B", connectable = true, label = "Jan's Buds", key = "ser:SN-9")
+        s.recordProbe("B", ProbeResult(connectable = true, name = "Jan's Buds", serial = "SN-9"))
         // Same serial ⇒ same device: A and B are now one identity, carrying the label.
         assertEquals(s.identityOf("A"), s.identityOf("B"))
         assertEquals("Jan's Buds", s.probeLabelOf("B"))
     }
 
     @Test
+    fun battery_telemetry_re_identifies_a_serial_less_device() {
+        val store = createKeyValueStore()
+        var clock = 1_000_000L
+        val s = IdentityStore(store, now = { clock })
+        // No serial exposed — only the GATT structure + battery. A reports 82%.
+        s.seen(setOf("A"))
+        s.recordProbe("A", ProbeResult(connectable = true, structure = "skel-42", batteryPct = 82))
+        clock += 3 * 60_000 // 3 min later it has rotated to B, battery ticked to 81%.
+        s.seen(setOf("B"))
+        s.recordProbe("B", ProbeResult(connectable = true, structure = "skel-42", batteryPct = 81))
+        assertEquals(s.identityOf("A"), s.identityOf("B")) // same model + plausible drain ⇒ same unit
+    }
+
+    @Test
+    fun battery_telemetry_does_not_merge_a_big_drop_or_a_different_model() {
+        val store = createKeyValueStore()
+        var clock = 1_000_000L
+        val s = IdentityStore(store, now = { clock })
+        s.seen(setOf("A"))
+        s.recordProbe("A", ProbeResult(connectable = true, structure = "skel-42", batteryPct = 82))
+        clock += 3 * 60_000
+        // Battery dropped 6% in 3 min — implausible for the same unit ⇒ stays separate.
+        s.seen(setOf("B"))
+        s.recordProbe("B", ProbeResult(connectable = true, structure = "skel-42", batteryPct = 76))
+        assertTrue(s.identityOf("A") != s.identityOf("B"))
+        // A different model at the same battery is also not merged.
+        s.seen(setOf("C"))
+        s.recordProbe("C", ProbeResult(connectable = true, structure = "other-skel", batteryPct = 82))
+        assertTrue(s.identityOf("A") != s.identityOf("C"))
+    }
+
+    @Test
     fun a_probe_result_carries_across_a_later_rotation_merge() {
         val s = IdentityStore(createKeyValueStore())
         s.seen(setOf("A"))
-        s.recordProbe("A", connectable = true, label = "Buds", key = "ser:SN-2")
+        s.recordProbe("A", ProbeResult(connectable = true, name = "Buds", serial = "SN-2"))
         s.seen(setOf("B"))
         s.link(setOf("A", "B")) // RSSI handover stitches A→B afterwards
         assertEquals("Buds", s.probeLabelOf("B")) // the probe followed the merge
