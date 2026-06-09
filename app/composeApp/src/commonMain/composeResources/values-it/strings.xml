@@ -248,4 +248,9 @@
     <string name="detail_info_services">%1$d servizi</string>
     <string name="detail_info_signature">Firma GATT</string>
     <string name="detail_info_locked">Bloccato — richiede accoppiamento</string>
+    <string name="settings_storage_title">Dati dei dispositivi salvati</string>
+    <string name="settings_storage_desc">Nomi, cronologia e info identificate che blep ricorda. Le impostazioni restano.</string>
+    <string name="settings_storage_clear">Cancella</string>
+    <string name="settings_storage_confirm_title">Cancellare i dati salvati?</string>
+    <string name="settings_storage_confirm_body">blep dimentica ogni dispositivo appreso — nomi, cronologia, info identificate e il registro dei tracker. Le tue impostazioni restano.</string>
 </resources>

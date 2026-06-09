@@ -248,4 +248,9 @@
     <string name="detail_info_services">%1$d serviços</string>
     <string name="detail_info_signature">Assinatura GATT</string>
     <string name="detail_info_locked">Bloqueado — requer emparelhamento</string>
+    <string name="settings_storage_title">Dados de dispositivos guardados</string>
+    <string name="settings_storage_desc">Nomes, histórico e info identificada que o blep memoriza. As definições ficam.</string>
+    <string name="settings_storage_clear">Limpar</string>
+    <string name="settings_storage_confirm_title">Limpar os dados guardados?</string>
+    <string name="settings_storage_confirm_body">o blep esquece cada dispositivo aprendido — nomes, histórico, info identificada e o registo de rastreadores. As tuas definições ficam.</string>
 </resources>

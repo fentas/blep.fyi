@@ -248,4 +248,9 @@
     <string name="detail_info_services">%1$d services</string>
     <string name="detail_info_signature">Signature GATT</string>
     <string name="detail_info_locked">Verrouillé — appairage requis</string>
+    <string name="settings_storage_title">Données d'appareils stockées</string>
+    <string name="settings_storage_desc">Noms, historique et infos identifiées que blep mémorise. Les réglages sont conservés.</string>
+    <string name="settings_storage_clear">Effacer</string>
+    <string name="settings_storage_confirm_title">Effacer les données stockées ?</string>
+    <string name="settings_storage_confirm_body">blep oublie chaque appareil appris — noms, historique, infos identifiées et le journal des traceurs. Vos réglages restent.</string>
 </resources>

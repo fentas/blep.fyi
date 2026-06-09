@@ -76,6 +76,12 @@ import fyi.blep.resources.settings_probe_desc
 import fyi.blep.resources.settings_probe_after_title
 import fyi.blep.resources.settings_probe_after_desc
 import fyi.blep.resources.settings_minutes
+import fyi.blep.resources.action_cancel
+import fyi.blep.resources.settings_storage_title
+import fyi.blep.resources.settings_storage_desc
+import fyi.blep.resources.settings_storage_clear
+import fyi.blep.resources.settings_storage_confirm_title
+import fyi.blep.resources.settings_storage_confirm_body
 import fyi.blep.resources.settings_haptics_desc
 import fyi.blep.resources.settings_haptics_title
 import fyi.blep.resources.settings_sound_desc
@@ -115,6 +121,8 @@ fun SettingsScreen(
     onToggleProbe: (Boolean) -> Unit,
     probeThresholdMinutes: Int,
     onProbeThresholdChange: (Int) -> Unit,
+    storageBytes: Int,
+    onClearStorage: () -> Unit,
     foregroundScan: Boolean,
     onToggleForeground: (Boolean) -> Unit,
     backgroundScan: Boolean,
@@ -206,6 +214,7 @@ fun SettingsScreen(
                 onToggle = onToggleProbe,
             )
             if (probeEnabled) ProbeAfterRow(probeThresholdMinutes, onProbeThresholdChange)
+            StorageRow(storageBytes, onClearStorage)
 
             SettingRow(
                 title = stringResource(Res.string.settings_location_title),
@@ -313,6 +322,57 @@ private fun RememberDevicesRow(days: Int, onChange: (Int) -> Unit) {
             )
         }
     }
+}
+
+/** Stored-data footprint + a Clear action (with a confirm dialog). */
+@Composable
+private fun StorageRow(bytes: Int, onClear: () -> Unit) {
+    var confirm by remember { mutableStateOf(false) }
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    stringResource(Res.string.settings_storage_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    stringResource(Res.string.settings_storage_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Column(horizontalAlignment = Alignment.End) {
+                Text(formatBytes(bytes), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f))
+                TextButton(onClick = { confirm = true }) {
+                    Text(stringResource(Res.string.settings_storage_clear), color = BlepColors.Pink)
+                }
+            }
+        }
+    }
+    if (confirm) {
+        AlertDialog(
+            onDismissRequest = { confirm = false },
+            title = { Text(stringResource(Res.string.settings_storage_confirm_title)) },
+            text = { Text(stringResource(Res.string.settings_storage_confirm_body)) },
+            confirmButton = { TextButton(onClick = { onClear(); confirm = false }) { Text(stringResource(Res.string.settings_storage_clear), color = BlepColors.Pink) } },
+            dismissButton = { TextButton(onClick = { confirm = false }) { Text(stringResource(Res.string.action_cancel)) } },
+        )
+    }
+}
+
+/** Bytes → a compact human size (B / KB / MB). */
+private fun formatBytes(b: Int): String = when {
+    b < 1024 -> "$b B"
+    b < 1024 * 1024 -> "${b / 1024} KB"
+    else -> "${(b * 10 / (1024 * 1024)) / 10.0} MB"
 }
 
 /** Sub-option under "Identify devices": how long a device must linger before a probe. */

@@ -248,4 +248,9 @@
     <string name="detail_info_services">%1$d storitev</string>
     <string name="detail_info_signature">Podpis GATT</string>
     <string name="detail_info_locked">Zaklenjeno — potrebno seznanjanje</string>
+    <string name="settings_storage_title">Shranjeni podatki naprav</string>
+    <string name="settings_storage_desc">Imena, zgodovina in prepoznani podatki, ki si jih blep zapomni. Nastavitve ostanejo.</string>
+    <string name="settings_storage_clear">Počisti</string>
+    <string name="settings_storage_confirm_title">Počisti shranjene podatke?</string>
+    <string name="settings_storage_confirm_body">blep pozabi vsako naučeno napravo — imena, zgodovino, prepoznane podatke in dnevnik sledilnikov. Tvoje nastavitve ostanejo.</string>
 </resources>

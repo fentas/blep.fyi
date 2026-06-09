@@ -104,6 +104,9 @@ class SafetyHistory(
 
     fun clear() = store.putString(KEY_LOG, "")
 
+    /** Bytes the safety log + muted set occupy on disk. */
+    fun sizeBytes(): Int = ((store.getString(KEY_LOG) ?: "") + (store.getString(KEY_MUTED) ?: "")).encodeToByteArray().size
+
     // --- "It's mine" mute list ----------------------------------------------
     // Persisted addresses the user marked as their own — note these *are* device
     // identifiers (the user's own trackers), unlike the identity-free encounter log;

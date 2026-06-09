@@ -249,4 +249,9 @@
     <string name="detail_info_services">%1$d 项服务</string>
     <string name="detail_info_signature">GATT 签名</string>
     <string name="detail_info_locked">已锁定 — 需要配对</string>
+    <string name="settings_storage_title">已存储的设备数据</string>
+    <string name="settings_storage_desc">blep 记住的名称、历史和识别信息。设置会保留。</string>
+    <string name="settings_storage_clear">清除</string>
+    <string name="settings_storage_confirm_title">清除已存储的数据？</string>
+    <string name="settings_storage_confirm_body">blep 会忘记它学到的每台设备——名称、历史、识别信息和追踪器日志。你的设置会保留。</string>
 </resources>

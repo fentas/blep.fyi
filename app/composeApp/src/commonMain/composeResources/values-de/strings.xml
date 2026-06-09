@@ -249,4 +249,9 @@
     <string name="detail_info_services">%1$d Dienste</string>
     <string name="detail_info_signature">GATT-Signatur</string>
     <string name="detail_info_locked">Gesperrt — Kopplung nötig</string>
+    <string name="settings_storage_title">Gespeicherte Gerätedaten</string>
+    <string name="settings_storage_desc">Namen, Verlauf und identifizierte Infos, die blep speichert. Einstellungen bleiben.</string>
+    <string name="settings_storage_clear">Löschen</string>
+    <string name="settings_storage_confirm_title">Gespeicherte Daten löschen?</string>
+    <string name="settings_storage_confirm_body">blep vergisst jedes gelernte Gerät — Namen, Verlauf, identifizierte Infos und das Tracker-Protokoll. Deine Einstellungen bleiben.</string>
 </resources>

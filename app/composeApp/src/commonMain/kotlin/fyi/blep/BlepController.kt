@@ -162,6 +162,10 @@ class BlepController(
     /** A probe is in flight for the device whose detail page is open (drives a spinner). */
     var probing by mutableStateOf(false)
         private set
+    /** Bytes of on-device data blep is storing (identities, names, history, the safety
+     *  log) — shown in Settings with a Clear action. Refreshed when Settings opens. */
+    var storageBytes by mutableStateOf(0)
+        private set
 
     /**
      * The main discovery list: everything genuinely **nearby** ([BleDevice.isPresent]
@@ -337,7 +341,32 @@ class BlepController(
         settings.setHaptics(hapticsOn)
     }
 
-    fun openSettings() { screen = Screen.Settings }
+    fun openSettings() {
+        refreshStorage()
+        screen = Screen.Settings
+    }
+
+    /** Sum the on-disk footprint of everything blep remembers (for the Settings row). */
+    fun refreshStorage() {
+        storageBytes = identityStore.sizeBytes() + aliasStore.sizeBytes() + flags.sizeBytes() +
+            favorites.sizeBytes() + safetyHistory.sizeBytes()
+    }
+
+    /** Forget everything blep has learned about devices — identities, names, flags,
+     *  favourites, rotation history, identified info, and the tracker log. Settings and
+     *  the "it's mine" mutes are kept. */
+    fun clearStorage() {
+        identityStore.clear()
+        aliasStore.clear(); aliases.clear()
+        flags.clear(); flaggedIds = emptySet()
+        favorites.clear(); favoriteIds = emptySet()
+        safetyHistory.clear()
+        probeResults.clear()
+        rotationTracker.reset()
+        devices = devices.map { it.copy(alias = null, isFavorite = false, isFlagged = false) }
+        syncFlagWatch() // nothing flagged now → the watch service can stand down
+        refreshStorage()
+    }
 
     /** Open the per-device detail page (identity, rename, rotation history). The fast
      *  detail signal is driven by the screen via [startDetailSignal], keyed on the

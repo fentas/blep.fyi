@@ -177,6 +177,11 @@
     <string name="settings_probe_after_title">Identify after</string>
     <string name="settings_probe_after_desc">How long a device must be around first, so passers-by are skipped.</string>
     <string name="settings_minutes">%1$d min</string>
+    <string name="settings_storage_title">Stored device data</string>
+    <string name="settings_storage_desc">Names, history and identified info blep remembers. Settings are kept.</string>
+    <string name="settings_storage_clear">Clear</string>
+    <string name="settings_storage_confirm_title">Clear stored data?</string>
+    <string name="settings_storage_confirm_body">blep forgets every device it has learned — names, history, identified info, and the tracker log. Your settings stay.</string>
     <string name="settings_section_background">Background scanning</string>
     <string name="settings_foreground_title">Keep scanning when minimized</string>
     <string name="settings_foreground_desc">Keeps a live scan running when you leave blep — real-time, more battery.</string>

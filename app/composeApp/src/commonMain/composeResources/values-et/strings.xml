@@ -248,4 +248,9 @@
     <string name="detail_info_services">%1$d teenust</string>
     <string name="detail_info_signature">GATT-allkiri</string>
     <string name="detail_info_locked">Lukus — vajab sidumist</string>
+    <string name="settings_storage_title">Salvestatud seadmeandmed</string>
+    <string name="settings_storage_desc">Nimed, ajalugu ja tuvastatud teave, mida blep mäletab. Seaded jäävad alles.</string>
+    <string name="settings_storage_clear">Tühjenda</string>
+    <string name="settings_storage_confirm_title">Kustutada salvestatud andmed?</string>
+    <string name="settings_storage_confirm_body">blep unustab iga õpitud seadme — nimed, ajaloo, tuvastatud teabe ja jälgijate logi. Sinu seaded jäävad alles.</string>
 </resources>

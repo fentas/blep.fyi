@@ -248,4 +248,9 @@
     <string name="detail_info_services">%1$d usług</string>
     <string name="detail_info_signature">Sygnatura GATT</string>
     <string name="detail_info_locked">Zablokowane — wymaga parowania</string>
+    <string name="settings_storage_title">Zapisane dane urządzeń</string>
+    <string name="settings_storage_desc">Nazwy, historia i zidentyfikowane informacje, które blep pamięta. Ustawienia zostają.</string>
+    <string name="settings_storage_clear">Wyczyść</string>
+    <string name="settings_storage_confirm_title">Wyczyścić zapisane dane?</string>
+    <string name="settings_storage_confirm_body">blep zapomina każde poznane urządzenie — nazwy, historię, zidentyfikowane informacje i dziennik lokalizatorów. Twoje ustawienia zostają.</string>
 </resources>

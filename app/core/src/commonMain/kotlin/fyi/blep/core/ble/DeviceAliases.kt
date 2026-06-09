@@ -51,6 +51,12 @@ class DeviceAliases(
         return clean
     }
 
+    /** Bytes this store currently occupies on disk. */
+    fun sizeBytes(): Int = (store.getString(KEY) ?: "").encodeToByteArray().size
+
+    /** Wipe this store (part of "clear stored data"). */
+    fun clear() = store.putString(KEY, "")
+
     private companion object {
         const val KEY = "devices.aliases"
     }

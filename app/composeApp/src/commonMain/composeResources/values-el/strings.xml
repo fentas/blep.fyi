@@ -248,4 +248,9 @@
     <string name="detail_info_services">%1$d υπηρεσίες</string>
     <string name="detail_info_signature">Υπογραφή GATT</string>
     <string name="detail_info_locked">Κλειδωμένο — απαιτείται σύζευξη</string>
+    <string name="settings_storage_title">Αποθηκευμένα δεδομένα συσκευών</string>
+    <string name="settings_storage_desc">Ονόματα, ιστορικό και πληροφορίες που θυμάται το blep. Οι ρυθμίσεις διατηρούνται.</string>
+    <string name="settings_storage_clear">Εκκαθάριση</string>
+    <string name="settings_storage_confirm_title">Εκκαθάριση αποθηκευμένων δεδομένων;</string>
+    <string name="settings_storage_confirm_body">Το blep ξεχνά κάθε συσκευή που έμαθε — ονόματα, ιστορικό, πληροφορίες και το αρχείο ιχνηλατών. Οι ρυθμίσεις σου παραμένουν.</string>
 </resources>

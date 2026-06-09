@@ -248,4 +248,9 @@
     <string name="detail_info_services">%1$d services</string>
     <string name="detail_info_signature">GATT-handtekening</string>
     <string name="detail_info_locked">Vergrendeld — koppelen vereist</string>
+    <string name="settings_storage_title">Opgeslagen apparaatgegevens</string>
+    <string name="settings_storage_desc">Namen, geschiedenis en geïdentificeerde info die blep onthoudt. Instellingen blijven.</string>
+    <string name="settings_storage_clear">Wissen</string>
+    <string name="settings_storage_confirm_title">Opgeslagen gegevens wissen?</string>
+    <string name="settings_storage_confirm_body">blep vergeet elk geleerd apparaat — namen, geschiedenis, geïdentificeerde info en het tracker-logboek. Je instellingen blijven.</string>
 </resources>

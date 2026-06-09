@@ -111,6 +111,8 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     onToggleProbe = controller::toggleProbe,
                     probeThresholdMinutes = controller.probeThresholdMinutes,
                     onProbeThresholdChange = controller::setProbeThreshold,
+                    storageBytes = controller.storageBytes,
+                    onClearStorage = controller::clearStorage,
                     foregroundScan = controller.foregroundScanEnabled,
                     onToggleForeground = controller::setForegroundScanning,
                     backgroundScan = controller.backgroundScanEnabled,

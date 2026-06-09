@@ -98,6 +98,15 @@ class IdentityStore(
     fun probeDetailOf(address: String): String? =
         records.firstOrNull { address in it.addresses }?.probeDetail
 
+    /** Bytes this store currently occupies on disk (the serialised records). */
+    fun sizeBytes(): Int = (store.getString(KEY) ?: "").encodeToByteArray().size
+
+    /** Forget every remembered device identity (a "clear stored data" action). */
+    fun clear() {
+        records.clear()
+        store.putString(KEY, "")
+    }
+
     /**
      * Cache the outcome of an active probe of [address] (persisted, so it survives a
      * restart and an interval scan can match it). Re-correlates to a *different* identity:

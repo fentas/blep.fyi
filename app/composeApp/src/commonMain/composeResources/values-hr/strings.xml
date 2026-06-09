@@ -248,4 +248,9 @@
     <string name="detail_info_services">%1$d usluga</string>
     <string name="detail_info_signature">GATT potpis</string>
     <string name="detail_info_locked">Zaključano — potrebno uparivanje</string>
+    <string name="settings_storage_title">Pohranjeni podaci uređaja</string>
+    <string name="settings_storage_desc">Imena, povijest i prepoznate informacije kojih se blep sjeća. Postavke ostaju.</string>
+    <string name="settings_storage_clear">Obriši</string>
+    <string name="settings_storage_confirm_title">Obrisati pohranjene podatke?</string>
+    <string name="settings_storage_confirm_body">blep zaboravlja svaki naučeni uređaj — imena, povijest, prepoznate informacije i zapisnik pratitelja. Tvoje postavke ostaju.</string>
 </resources>
