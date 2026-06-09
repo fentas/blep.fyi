@@ -151,6 +151,14 @@ you to the tag with the same warm/cold guidance. Everything stays **on-device**;
 location is **opt-in, coarse, and never leaves the phone**. It lives in
 [`core/safety`](app/core/src/commonMain/kotlin/fyi/blep/core/safety)
 (`SafetyScanner` · `TrackerDetector` · `SafetyHistory`) — pure and unit-tested.
+
+> [!WARNING]
+> **Tracker detection is new and not yet widely field-tested.** It can produce
+> **false negatives** (miss a real tracker) and **false positives** (flag a
+> harmless device). Treat it as a helpful signal — not a guarantee — and don't
+> rely on it alone for your safety. blep is a free side project, so real-world
+> use *is* the testing: it gets better as people use it, and bug reports of a
+> missed or mis-flagged tracker are very welcome.
 Design notes: [`docs/detection.md`](docs/detection.md).
 
 &nbsp;

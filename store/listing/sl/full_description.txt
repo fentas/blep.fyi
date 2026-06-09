@@ -37,6 +37,7 @@ enaki bližini — prav nepovezanost je povezava. In ker je blep iskalnik, ne le
   urniku, ki varčuje z baterijo.
 • Občutljivost — Sproščeno, Uravnoteženo ali Strogo, da nastaviš, kako vneto opozarja.
 Samo na napravi — nič ne zapusti telefona — in vse lahko kadar koli izklopiš.
+Opomba: zaznavanje sledilnikov je novo in še ni široko preizkušeno v praksi. Lahko spregleda pravega sledilnika (lažno negativno) ali označi neškodljivo napravo (lažno pozitivno) — vzemi ga kot koristen namig, ne jamstvo, in se za svojo varnost ne zanašaj le nanj.
 
 ZASNOVANO ZASEBNO
 Brez računov. Brez oglasov. Brez analitike. Brez zbiranja podatkov. Vse se dogaja na

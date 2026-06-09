@@ -42,6 +42,7 @@ ci porta.
   segnala.
 Solo sul dispositivo — nulla lascia il telefono — e puoi disattivare tutto in
 qualsiasi momento.
+Nota: il rilevamento dei tracker è nuovo e non ancora ampiamente testato sul campo. Può non rilevare un tracker reale (falso negativo) o segnalare un dispositivo innocuo (falso positivo); consideralo un segnale utile, non una garanzia, e non affidarti solo a esso per la tua sicurezza.
 
 PRIVATO PER PROGETTAZIONE
 Nessun account. Nessuna pubblicità. Nessuna analisi. Nessuna raccolta dati. Tutto

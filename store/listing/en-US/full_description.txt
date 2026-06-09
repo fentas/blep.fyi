@@ -46,6 +46,10 @@ And because blep is a finder, it doesn't just warn — it points you to it.
 • Sensitivity — Relaxed, Balanced or Strict, to tune how eagerly it flags.
 On-device only — nothing ever leaves your phone — and you can turn it all off any
 time.
+Heads-up: tracker detection is new and not yet widely field-tested. It can miss a
+real tracker (a false negative) or flag a harmless device (a false positive), so
+treat it as a helpful signal — not a guarantee — and don't rely on it alone for
+your safety.
 
 PRIVATE BY DESIGN
 No accounts. No ads. No analytics. No data collection. Everything happens on

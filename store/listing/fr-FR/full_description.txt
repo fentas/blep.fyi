@@ -42,6 +42,7 @@ il ne se contente pas d'avertir — il t'y conduit.
   signaler.
 Uniquement sur l'appareil — rien ne quitte ton téléphone — et tu peux tout désactiver
 à tout moment.
+À noter : la détection de traceurs est récente et pas encore largement testée sur le terrain. Elle peut manquer un vrai traceur (faux négatif) ou signaler un appareil inoffensif (faux positif) ; considérez-la comme un indice utile, pas une garantie, et ne comptez pas uniquement dessus pour votre sécurité.
 
 PRIVÉ PAR CONCEPTION
 Pas de comptes. Pas de publicités. Pas d'analyses. Aucune collecte de données. Tout se

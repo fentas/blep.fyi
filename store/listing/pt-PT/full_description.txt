@@ -39,6 +39,7 @@ blep é um localizador, não se limita a avisar — leva-te até ele.
   assinala.
 Apenas no dispositivo — nada sai do teu telemóvel — e podes desativar tudo a qualquer
 momento.
+Nota: a deteção de rastreadores é nova e ainda não foi amplamente testada no terreno. Pode não detetar um rastreador real (falso negativo) ou assinalar um dispositivo inofensivo (falso positivo); encara-a como um sinal útil, não uma garantia, e não dependas só dela para a tua segurança.
 
 PRIVADO POR CONCEÇÃO
 Sem contas. Sem anúncios. Sem análises. Sem recolha de dados. Tudo acontece no teu

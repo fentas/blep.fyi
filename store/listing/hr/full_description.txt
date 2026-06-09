@@ -39,6 +39,7 @@ upozorava — vodi te do njega.
   označava.
 Samo na uređaju — ništa ne napušta tvoj telefon — i sve to možeš isključiti u
 svakom trenutku.
+Napomena: otkrivanje pratitelja je novo i još nije široko testirano u praksi. Može propustiti pravog pratitelja (lažno negativno) ili označiti bezopasan uređaj (lažno pozitivno) — shvati ga kao koristan znak, ne jamstvo, i ne oslanjaj se samo na njega za svoju sigurnost.
 
 PRIVATNOST OD TEMELJA
 Bez računa. Bez oglasa. Bez analitike. Bez prikupljanja podataka. Sve se događa na tvom

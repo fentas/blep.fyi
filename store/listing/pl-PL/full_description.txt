@@ -39,6 +39,7 @@ niego.
 • Czułość — Łagodna, Zrównoważona lub Surowa, aby dostroić, jak chętnie oznacza.
 Tylko na urządzeniu — nic nie opuszcza twojego telefonu — i można to wszystko wyłączyć
 w każdej chwili.
+Uwaga: wykrywanie lokalizatorów jest nowe i nie zostało jeszcze szeroko przetestowane w praktyce. Może przeoczyć prawdziwy lokalizator (wynik fałszywie negatywny) lub oznaczyć nieszkodliwe urządzenie (fałszywie pozytywny) — traktuj je jako pomocną wskazówkę, nie gwarancję, i nie polegaj wyłącznie na nim dla swojego bezpieczeństwa.
 
 PRYWATNOŚĆ Z ZAŁOŻENIA
 Bez kont. Bez reklam. Bez analityki. Bez zbierania danych. Wszystko dzieje się na twoim

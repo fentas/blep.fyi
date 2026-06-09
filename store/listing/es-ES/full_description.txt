@@ -39,6 +39,7 @@ correlación. Y como blep es un buscador, no solo avisa — te lleva hasta él.
   marca algo.
 Solo en el dispositivo — nada sale de tu teléfono — y se puede desactivar todo en
 cualquier momento.
+Aviso: la detección de rastreadores es nueva y aún no se ha probado ampliamente en la práctica. Puede pasar por alto un rastreador real (falso negativo) o marcar un dispositivo inofensivo (falso positivo); tómala como una señal útil, no como una garantía, y no dependas solo de ella para tu seguridad.
 
 PRIVADO POR DISEÑO
 Sin cuentas. Sin anuncios. Sin analíticas. Sin recopilación de datos. Todo ocurre en tu

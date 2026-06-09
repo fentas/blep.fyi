@@ -39,6 +39,7 @@ omdat blep een zoeker is, waarschuwt het niet alleen — het brengt je erheen.
   het markeert.
 Alleen op het apparaat — niets verlaat je telefoon — en je kunt het op elk moment
 helemaal uitzetten.
+Let op: trackerdetectie is nieuw en nog niet breed in de praktijk getest. Het kan een echte tracker missen (vals negatief) of een onschuldig apparaat markeren (vals positief) — zie het als een nuttig signaal, geen garantie, en vertrouw voor je veiligheid niet alleen hierop.
 
 PRIVÉ VAN ONTWERP
 Geen accounts. Geen advertenties. Geen analyse. Geen gegevensverzameling. Alles

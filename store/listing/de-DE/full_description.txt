@@ -40,6 +40,7 @@ nur — es führt dich hin.
   bereitwillig es markiert.
 Nur auf dem Gerät — nichts verlässt dein Handy — und du kannst alles jederzeit
 abschalten.
+Hinweis: Die Tracker-Erkennung ist neu und noch nicht umfassend in der Praxis getestet. Sie kann einen echten Tracker übersehen (falsch-negativ) oder ein harmloses Gerät melden (falsch-positiv) — betrachte sie als hilfreichen Hinweis, nicht als Garantie, und verlasse dich für deine Sicherheit nicht allein darauf.
 
 PRIVAT VON GRUND AUF
 Keine Konten. Keine Werbung. Keine Analyse. Keine Datenerfassung. Alles passiert auf

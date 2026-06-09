@@ -37,6 +37,7 @@ korrelatsioon. Ja kuna blep on otsija, ei hoiata see ainult — see viib su koha
   ajakavas.
 • Tundlikkus — Lõdvem, Tasakaalus või Range, et timmida, kui agaralt ta märgistab.
 Ainult seadmes — miski ei lahku su telefonist — ja kõik on igal ajal välja lülitatav.
+Märkus: jälgijate tuvastus on uus ja pole veel laialdaselt praktikas katsetatud. See võib jätta märkamata päris jälgija (valenegatiivne) või märgistada kahjutu seadme (valepositiivne) — võta seda kui kasulikku vihjet, mitte garantiid, ja ära toetu oma turvalisuses ainult sellele.
 
 PRIVAATNE JUBA DISAINILT
 Ei kontosid. Ei reklaame. Ei analüütikat. Ei andmete kogumist. Kõik toimub su seadmes —
