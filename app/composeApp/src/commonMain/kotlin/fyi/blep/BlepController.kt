@@ -81,6 +81,10 @@ class BlepController(
         private set
     var devices by mutableStateOf<List<BleDevice>>(emptyList())
         private set
+    // Dedicated low-latency signal for the device whose detail page is open (the same
+    // fast stream the hunt uses) — refreshes ~3–10× quicker than the shared scan snapshot.
+    var detailRssi by mutableStateOf<Int?>(null)
+        private set
     var availability by mutableStateOf(ScanAvailability.READY)
         private set
     var includeUnnamed by mutableStateOf(settings.showUnnamed())
@@ -191,6 +195,7 @@ class BlepController(
     private var favoriteIds: Set<String> = favorites.ids()
     private var flaggedIds: Set<String> = flags.ids()
     private var scanJob: Job? = null
+    private var detailSignalJob: Job? = null
     private var trackJob: Job? = null
     private var motionJob: Job? = null
     private var hapticJob: Job? = null
@@ -311,8 +316,39 @@ class BlepController(
 
     fun openSettings() { screen = Screen.Settings }
 
-    /** Open the per-device detail page (identity, rename, rotation history). */
+    /** Open the per-device detail page (identity, rename, rotation history). The fast
+     *  detail signal is driven by the screen via [startDetailSignal], keyed on the
+     *  current (possibly rotated) address so it follows the device. */
     fun openDeviceDetail(device: BleDevice) { screen = Screen.DeviceDetail(device) }
+
+    /** The device's current live address, following any id rotation since the detail
+     *  page was opened — so a watched device's page tracks its lineage instead of
+     *  dying on the id it has since rotated away from. Returns the input id if nothing
+     *  is correlated (or in demo, where the seeded id is the head). */
+    fun currentAddressFor(id: String): String? {
+        if (id in demoIdentity) return id
+        rotationTracker.currentAddressFor(id)?.let { return it }
+        return identityStore.addressesFor(id).firstOrNull { addr -> devices.any { it.id == addr } } ?: id
+    }
+
+    /** While the detail page is open, subscribe to the dedicated low-latency RSSI for
+     *  this device (≈0.3 s GATT poll for a bonded device, no batching for an
+     *  advertiser) — far quicker than the shared scan's coarse snapshot. Re-keyed by
+     *  the screen when the device rotates. Demo keeps the scripted list value. */
+    fun startDetailSignal(id: String) {
+        detailSignalJob?.cancel()
+        detailRssi = null
+        if (demoIdentity.isNotEmpty()) return // demo: the scripted curve isn't a real signal
+        detailSignalJob = scope.launch {
+            runCatching { scanner.rssi(id).collect { detailRssi = it } }
+        }
+    }
+
+    /** Stop the fast detail signal (the detail page left the composition). */
+    fun stopDetailSignal() {
+        detailSignalJob?.cancel(); detailSignalJob = null
+        detailRssi = null
+    }
 
     /** Rotation/identity-churn stats for a device id, or null if uncorrelated yet. */
     fun rotationStats(id: String): RotationStats? = demoIdentity[id]?.stats ?: rotationTracker.statsFor(id)

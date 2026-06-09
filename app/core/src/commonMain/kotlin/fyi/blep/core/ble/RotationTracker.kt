@@ -137,6 +137,15 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
 
     fun all(): List<RotationStats> = tracks.mapNotNull { statsFor(it.address) }
 
+    /** Follow a (possibly already-rotated) address to the current live id carrying its
+     *  lineage. If [address] is still a live track it's returned as-is; otherwise we
+     *  return whichever live track has worn it. Lets a detail page pinned to an old id
+     *  move to the device's new id once the handover resolves, instead of going dead. */
+    fun currentAddressFor(address: String): String? {
+        tracks.firstOrNull { it.address == address }?.let { return it.address }
+        return tracks.firstOrNull { address in it.addresses }?.address
+    }
+
     /** The stable identity behind a current address (its lineage of worn addresses +
      *  how sure we are), or null if we've never seen it. The caller decides whether to
      *  trust [Identity.addresses] for propagating a label, based on the confidence. */

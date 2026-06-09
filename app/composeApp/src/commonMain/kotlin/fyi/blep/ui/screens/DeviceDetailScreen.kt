@@ -79,6 +79,7 @@ import kotlin.math.roundToInt
 @Composable
 fun DeviceDetailScreen(
     device: BleDevice,
+    liveRssi: Int?,
     rotation: RotationStats?,
     firstSeenAgoMs: Long?,
     wornIds: List<String>,
@@ -122,8 +123,11 @@ fun DeviceDetailScreen(
             // Signal + connection status.
             Section(stringResource(Res.string.detail_signal)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    // The dedicated fast stream wins when present (it also gives bonded
+                    // devices a live dBm, which the shared snapshot reports as unknown).
+                    val rssi = liveRssi ?: device.rssi.takeUnless { device.rssiUnknown }
                     val signal = when {
-                        !device.rssiUnknown -> stringResource(Res.string.dbm, device.rssi)
+                        rssi != null -> stringResource(Res.string.dbm, rssi)
                         device.isConnected -> stringResource(Res.string.status_connected)
                         else -> stringResource(Res.string.status_paired)
                     }
@@ -133,7 +137,7 @@ fun DeviceDetailScreen(
                         device.isPaired -> stringResource(Res.string.status_paired)
                         else -> null
                     }
-                    if (!device.rssiUnknown && status != null) {
+                    if (rssi != null && status != null) {
                         Spacer(Modifier.width(10.dp))
                         Text("· $status", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
                     }

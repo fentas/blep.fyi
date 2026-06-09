@@ -134,6 +134,20 @@ class RotationTrackerTest {
     }
 
     @Test
+    fun current_address_follows_a_device_across_its_rotation() {
+        val rt = RotationTracker()
+        rt.observe("A", -50, 0)
+        rt.observe("A", -50, 5_000)
+        assertEquals("A", rt.currentAddressFor("A")) // still its own head
+        rt.observe("B", -50, 6_000)
+        rt.observe("B", -50, 30_000)
+        rt.observe("B", -50, 36_000)                 // A→B handover resolved
+        assertEquals("B", rt.currentAddressFor("A")) // a page pinned to A now follows to B
+        assertEquals("B", rt.currentAddressFor("B"))
+        assertNull(rt.currentAddressFor("Z"))        // never seen
+    }
+
+    @Test
     fun a_stable_device_is_its_own_identity() {
         val rt = RotationTracker()
         rt.observe("solo", -60, 0)

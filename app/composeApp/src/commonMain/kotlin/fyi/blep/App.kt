@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalUriHandler
@@ -155,10 +156,19 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                 )
 
                 is Screen.DeviceDetail -> {
-                    // Look up the live device so signal + rotation stats refresh each tick.
-                    val live = controller.devices.firstOrNull { it.id == screen.device.id } ?: screen.device
+                    // Follow the device across any id rotation since the page opened, so a
+                    // watched device tracks its live lineage instead of dying on a stale id.
+                    val liveId = controller.currentAddressFor(screen.device.id) ?: screen.device.id
+                    val live = controller.devices.firstOrNull { it.id == liveId } ?: screen.device
+                    // Drive the dedicated fast signal for whatever id the device wears now;
+                    // re-keyed on liveId so it re-subscribes when the device rotates.
+                    DisposableEffect(liveId) {
+                        controller.startDetailSignal(liveId)
+                        onDispose { controller.stopDetailSignal() }
+                    }
                     DeviceDetailScreen(
                         device = live,
+                        liveRssi = controller.detailRssi,
                         rotation = controller.rotationStats(live.id),
                         firstSeenAgoMs = controller.rotationFirstSeenAgoMs(live.id),
                         wornIds = controller.deviceHistory(live.id),
