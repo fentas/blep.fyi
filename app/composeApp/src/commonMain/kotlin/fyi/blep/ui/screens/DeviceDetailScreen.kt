@@ -42,6 +42,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import fyi.blep.core.ble.AddressKind
+import fyi.blep.core.ble.ProbeResult
 import fyi.blep.core.ble.RotationStats
 import fyi.blep.core.ble.WornId
 import fyi.blep.core.ble.addressKind
@@ -78,6 +79,16 @@ import fyi.blep.resources.detail_id_now
 import fyi.blep.resources.detail_help_title
 import fyi.blep.resources.detail_help_body
 import fyi.blep.resources.a11y_help
+import fyi.blep.resources.detail_info_title
+import fyi.blep.resources.detail_info_maker
+import fyi.blep.resources.detail_info_model
+import fyi.blep.resources.detail_info_firmware
+import fyi.blep.resources.detail_info_hardware
+import fyi.blep.resources.detail_info_serial
+import fyi.blep.resources.detail_info_battery
+import fyi.blep.resources.detail_info_services
+import fyi.blep.resources.detail_info_signature
+import fyi.blep.resources.detail_info_locked
 import fyi.blep.resources.rename_title
 import fyi.blep.resources.status_connected
 import fyi.blep.resources.status_paired
@@ -102,6 +113,7 @@ fun DeviceDetailScreen(
     probing: Boolean,
     probed: Boolean,
     probeLabel: String?,
+    probeInfo: ProbeResult?,
     onIdentify: () -> Unit,
     onRename: (String?) -> Unit,
     onToggleFavorite: () -> Unit,
@@ -245,6 +257,32 @@ fun DeviceDetailScreen(
 
             // Identify — one short GATT connection to learn the device's name/identity.
             IdentifyRow(probing, probed, probeLabel, onIdentify)
+
+            // Device info — everything the GATT probe pulled (DIS fields, battery, the
+            // structural fingerprint, pairing posture), not just a broadcast name.
+            if (probeInfo != null && probeInfo.isInformative) {
+                Spacer(Modifier.height(12.dp))
+                Section(stringResource(Res.string.detail_info_title)) {
+                    probeInfo.manufacturer?.let { InfoRow(stringResource(Res.string.detail_info_maker), it) }
+                    probeInfo.model?.let { InfoRow(stringResource(Res.string.detail_info_model), it) }
+                    probeInfo.firmware?.let { InfoRow(stringResource(Res.string.detail_info_firmware), it) }
+                    probeInfo.hardware?.let { InfoRow(stringResource(Res.string.detail_info_hardware), it) }
+                    probeInfo.serial?.let { InfoRow(stringResource(Res.string.detail_info_serial), it) }
+                    probeInfo.batteryPct?.let { InfoRow(stringResource(Res.string.detail_info_battery), "$it%") }
+                    if (probeInfo.serviceCount > 0) {
+                        InfoRow(stringResource(Res.string.detail_info_services, probeInfo.serviceCount), "")
+                    }
+                    probeInfo.structure?.let { InfoRow(stringResource(Res.string.detail_info_signature), it) }
+                    if (probeInfo.needsPairing) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            stringResource(Res.string.detail_info_locked),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                        )
+                    }
+                }
+            }
             Spacer(Modifier.height(12.dp))
         }
 
@@ -331,6 +369,20 @@ private fun IdentifyRow(probing: Boolean, probed: Boolean, probeLabel: String?, 
         )
         else -> OutlinedButton(onClick = onIdentify, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(Res.string.detail_identify))
+        }
+    }
+}
+
+/** A label → value row for the device-info card (value right-aligned, may be blank). */
+@Composable
+private fun InfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 1.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f))
+        if (value.isNotEmpty()) {
+            Text(value, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f))
         }
     }
 }

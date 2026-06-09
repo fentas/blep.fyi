@@ -180,6 +180,7 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                         probing = controller.probing,
                         probed = controller.isProbed(live.id),
                         probeLabel = controller.probeLabel(live.id),
+                        probeInfo = controller.probeInfo(live.id),
                         onIdentify = { controller.probeNow(live) },
                         onRename = { controller.rename(live, it) },
                         onToggleFavorite = { controller.toggleFavorite(live) },

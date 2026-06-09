@@ -211,6 +211,9 @@ class BlepController(
     private var detailSignalJob: Job? = null
     private var probeJob: Job? = null
     private var trackJob: Job? = null
+    // Full probe results for the session (incl. volatile battery) — the detail page's
+    // device-info card. The name + re-correlation key persist via the IdentityStore.
+    private val probeResults = mutableMapOf<String, ProbeResult>()
     private var motionJob: Job? = null
     private var hapticJob: Job? = null
 
@@ -382,6 +385,7 @@ class BlepController(
                 delay(PROBE_TICK_MS)
                 val target = nextProbeCandidate() ?: continue
                 val result = runCatching { scanner.probe(target) }.getOrNull() ?: continue
+                probeResults[target] = result
                 identityStore.recordProbe(target, result.connectable, result.label, result.identityKey)
                 refreshProbeNames()
                 delay(PROBE_COOLDOWN_MS) // gentle on the radio; never hammer
@@ -401,12 +405,14 @@ class BlepController(
             .minByOrNull { it.second }?.first
     }
 
-    /** On-demand probe from the detail page — bypasses the dwell gate (the user asked). */
+    /** On-demand probe from the detail page — bypasses the dwell gate (the user asked),
+     *  and re-probes even a known device to refresh the live device-info card. */
     fun probeNow(device: BleDevice) {
         if (probing) return
         probing = true
         scope.launch {
             val result = runCatching { scanner.probe(device.id) }.getOrNull() ?: ProbeResult(connectable = false)
+            probeResults[device.id] = result
             identityStore.recordProbe(device.id, result.connectable, result.label, result.identityKey)
             refreshProbeNames()
             probing = false
@@ -416,6 +422,12 @@ class BlepController(
     /** The label a probe found for this device (or its lineage), shown on the detail page. */
     fun probeLabel(id: String): String? = identityStore.probeLabelOf(id)
     fun isProbed(id: String): Boolean = identityStore.isProbed(id)
+
+    /** The full probe result for this device (or any id in its lineage), for the detail
+     *  page's device-info card — in-memory for the session. */
+    fun probeInfo(id: String): ProbeResult? =
+        demoIdentity[id]?.let { DEMO_PROBE }
+            ?: probeResults[id] ?: identityStore.addressesFor(id).firstNotNullOfOrNull { probeResults[it] }
 
     /** Re-map the list so a freshly-probed name appears immediately (the next scan tick
      *  would do it anyway via the devices() mapping; this just makes it snappy). */
@@ -792,6 +804,12 @@ class BlepController(
         const val IDENTITY_MIN_CONF = 0.6
         /** How often the persisted identity groupings are written (throttle). */
         val IDENTITY_SYNC_INTERVAL = 30.seconds
+        /** Demo only: a rich probe result so the device-info card has something to show. */
+        val DEMO_PROBE = ProbeResult(
+            connectable = true, name = "Pixel Buds Pro", manufacturer = "Google", model = "GA03201",
+            firmware = "4.0.1", hardware = "1.2", serial = "GB-PBP-8842",
+            structure = "k3f9qz", serviceCount = 7, batteryPct = 82, needsPairing = false,
+        )
         /** How often the probe worker looks for a candidate to interrogate. */
         const val PROBE_TICK_MS = 4_000L
         /** Quiet gap after a probe before the next, so the radio is never hammered. */

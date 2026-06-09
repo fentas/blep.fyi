@@ -269,8 +269,12 @@ internal class AndroidBleScanner : BleScanner {
         var gatt: BluetoothGatt? = null
         val result = withTimeoutOrNull(PROBE_TIMEOUT_MS) {
             suspendCancellableCoroutine { cont ->
-                val fields = HashMap<String, String>()        // char-uuid → value
+                val fields = HashMap<String, String>()        // char-uuid (16-bit) → text value
                 var services: List<String> = emptyList()
+                var structure: String? = null
+                var serviceCount = 0
+                var battery: Int? = null
+                var needsPairing = false
                 val toRead = ArrayDeque<BluetoothGattCharacteristic>()
 
                 fun finish(connectable: Boolean) {
@@ -282,8 +286,13 @@ internal class AndroidBleScanner : BleScanner {
                             manufacturer = fields[CHAR_DIS_MANUFACTURER],
                             model = fields[CHAR_DIS_MODEL],
                             firmware = fields[CHAR_DIS_FIRMWARE],
+                            hardware = fields[CHAR_DIS_HARDWARE],
                             serial = fields[CHAR_DIS_SERIAL],
                             serviceUuids = services,
+                            structure = structure,
+                            serviceCount = serviceCount,
+                            batteryPct = battery,
+                            needsPairing = needsPairing,
                         ),
                     )
                 }
@@ -302,7 +311,13 @@ internal class AndroidBleScanner : BleScanner {
                     }
 
                     override fun onServicesDiscovered(g: BluetoothGatt, status: Int) {
-                        services = g.services.map { shortServiceUuid(it.uuid.toString()) }
+                        // The GATT skeleton — services (incl. 128-bit custom) + each
+                        // characteristic's property bitmask — is a model-level fingerprint
+                        // that never changes with the MAC. Hash it.
+                        val svcs = g.services.orEmpty()
+                        serviceCount = svcs.size
+                        services = svcs.map { shortServiceUuid(it.uuid.toString()) }
+                        structure = structureFingerprint(svcs)
                         for ((svc, ch) in WANTED_CHARS) {
                             runCatching { g.getService(uuid16(svc))?.getCharacteristic(uuid16(ch)) }.getOrNull()?.let { toRead.addLast(it) }
                         }
@@ -311,9 +326,20 @@ internal class AndroidBleScanner : BleScanner {
 
                     @Suppress("DEPRECATION") // 3-arg form works across API levels; .value is fine
                     override fun onCharacteristicRead(g: BluetoothGatt, c: BluetoothGattCharacteristic, status: Int) {
-                        if (status == BluetoothGatt.GATT_SUCCESS) {
-                            c.value?.toString(Charsets.UTF_8)?.trim { it <= ' ' }?.takeIf { it.isNotEmpty() }
-                                ?.let { fields[c.uuid.toString().substring(4, 8)] = it }
+                        val key = c.uuid.toString().substring(4, 8)
+                        when (status) {
+                            BluetoothGatt.GATT_SUCCESS -> {
+                                val bytes = c.value
+                                if (key == CHAR_BATTERY) {
+                                    battery = bytes?.takeIf { it.isNotEmpty() }?.let { it[0].toInt() and 0xFF }
+                                } else {
+                                    bytes?.toString(Charsets.UTF_8)?.trim { ch -> ch <= ' ' }?.takeIf { it.isNotEmpty() }
+                                        ?.let { fields[key] = it }
+                                }
+                            }
+                            // The *way* it refuses is itself a fingerprint: a protected read
+                            // demanding pairing means a locked-down (often higher-value) device.
+                            GATT_INSUFFICIENT_AUTHENTICATION, GATT_INSUFFICIENT_ENCRYPTION -> needsPairing = true
                         }
                         readNext(g)
                     }
@@ -332,19 +358,43 @@ internal class AndroidBleScanner : BleScanner {
 /** Builds a 16-bit Bluetooth SIG UUID into its full 128-bit form. */
 private fun uuid16(short: String): UUID = UUID.fromString("0000$short-0000-1000-8000-00805f9b34fb")
 
+/** A deterministic hash of the GATT skeleton: every service (sorted) and, under it,
+ *  every characteristic's UUID + property bitmask (sorted). Same model ⇒ same hash,
+ *  across every MAC rotation; a fundamentally different device ⇒ different hash. */
+private fun structureFingerprint(services: List<android.bluetooth.BluetoothGattService>): String? {
+    if (services.isEmpty()) return null
+    val sb = StringBuilder()
+    for (svc in services.sortedBy { it.uuid.toString() }) {
+        sb.append(svc.uuid.toString()).append('{')
+        for (c in svc.characteristics.sortedBy { it.uuid.toString() }) {
+            sb.append(c.uuid.toString()).append(':').append(c.properties).append(',')
+        }
+        sb.append('}')
+    }
+    var h = 1125899906842597L
+    for (ch in sb) h = 31 * h + ch.code
+    return h.toString(36)
+}
+
 private const val PROBE_TIMEOUT_MS = 12_000L
+private const val GATT_INSUFFICIENT_AUTHENTICATION = 5
+private const val GATT_INSUFFICIENT_ENCRYPTION = 15
 private const val CHAR_GAP_NAME = "2a00"
 private const val CHAR_DIS_MANUFACTURER = "2a29"
 private const val CHAR_DIS_MODEL = "2a24"
 private const val CHAR_DIS_FIRMWARE = "2a26"
+private const val CHAR_DIS_HARDWARE = "2a27"
 private const val CHAR_DIS_SERIAL = "2a25"
-// (service, characteristic) pairs to read: GAP name, then Device Information Service.
+private const val CHAR_BATTERY = "2a19"
+// (service, characteristic) pairs to read: GAP name, Device Information Service, battery.
 private val WANTED_CHARS = listOf(
     "1800" to CHAR_GAP_NAME,
     "180a" to CHAR_DIS_MANUFACTURER,
     "180a" to CHAR_DIS_MODEL,
     "180a" to CHAR_DIS_FIRMWARE,
+    "180a" to CHAR_DIS_HARDWARE,
     "180a" to CHAR_DIS_SERIAL,
+    "180f" to CHAR_BATTERY,
 )
 
 actual fun createBleScanner(): BleScanner = AndroidBleScanner()

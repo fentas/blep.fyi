@@ -254,6 +254,16 @@
     <string name="detail_help_title">How sure is this?</string>
     <string name="detail_help_body">blep stitches a device back together across its rotating ids by watching one id go quiet as another appears at the same distance. This is the average confidence across all its id changes — and blep never carries a name across a weak match.</string>
     <string name="a11y_help">What does this mean?</string>
+    <string name="detail_info_title">Device info</string>
+    <string name="detail_info_maker">Maker</string>
+    <string name="detail_info_model">Model</string>
+    <string name="detail_info_firmware">Firmware</string>
+    <string name="detail_info_hardware">Hardware</string>
+    <string name="detail_info_serial">Serial</string>
+    <string name="detail_info_battery">Battery</string>
+    <string name="detail_info_services">%1$d services</string>
+    <string name="detail_info_signature">GATT signature</string>
+    <string name="detail_info_locked">Locked — needs pairing to read more</string>
     <string name="detail_identify">Identify this device</string>
     <string name="detail_identifying">Identifying…</string>
     <string name="detail_identified">Identified as %1$s</string>
