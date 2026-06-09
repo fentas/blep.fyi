@@ -27,7 +27,16 @@ class IdentityStore(
     /** How long an unseen identity is kept before it's pruned. Live-settable (a user
      *  preference); the next prune/save applies it. */
     var ttlMs: Long = ttlMs
-    private class Rec(val id: String, var firstSeenMs: Long, var lastSeenMs: Long, var fingerprint: String?, val addresses: MutableSet<String>)
+    private class Rec(
+        val id: String,
+        var firstSeenMs: Long,
+        var lastSeenMs: Long,
+        var fingerprint: String?,
+        val addresses: MutableSet<String>,
+        var probedAtMs: Long = 0L,      // 0 = never actively probed (so we probe it once)
+        var probeLabel: String? = null, // human label the probe found, if any
+        var probeKey: String? = null,   // stable cross-rotation key from the probe, if any
+    )
 
     private val records: MutableList<Rec> = parse(store.getString(KEY))
 
@@ -60,11 +69,46 @@ class IdentityStore(
         for (r in touched) if (r !== survivor) {
             survivor.addresses.addAll(r.addresses)
             survivor.firstSeenMs = minOf(survivor.firstSeenMs, r.firstSeenMs)
+            if (survivor.probedAtMs == 0L && r.probedAtMs > 0L) { // carry a probe result across the merge
+                survivor.probedAtMs = r.probedAtMs
+                survivor.probeLabel = r.probeLabel
+                survivor.probeKey = r.probeKey
+            }
             records.remove(r)
         }
         survivor.addresses.addAll(addresses)
         survivor.lastSeenMs = t
         if (fingerprint != null) survivor.fingerprint = fingerprint
+        persist()
+    }
+
+    /** Has the device behind [address] already been actively probed (so we don't
+     *  re-poke it)? A non-connectable result still counts — that's a stable trait. */
+    fun isProbed(address: String): Boolean =
+        records.firstOrNull { address in it.addresses }?.let { it.probedAtMs > 0L } ?: false
+
+    /** The human label a probe found for this device, if any (e.g. "Pixel Buds Pro"). */
+    fun probeLabelOf(address: String): String? =
+        records.firstOrNull { address in it.addresses }?.probeLabel
+
+    /**
+     * Cache the outcome of an active [probe] of [address]. If the probe carries a stable
+     * key (a serial, or a personalised name) that matches a *different* identity we've
+     * already probed, the two are the same physical device wearing a new address — so we
+     * merge them. This recovers a rotation the RSSI handover lost: the address churned,
+     * but the device's serial/name didn't.
+     */
+    fun recordProbe(address: String, connectable: Boolean, label: String?, key: String?) {
+        val t = now()
+        if (key != null) {
+            val twin = records.firstOrNull { address !in it.addresses && it.probeKey == key }
+            if (twin != null) link(twin.addresses + address) // merge; survivor = lowest id
+        }
+        val rec = records.firstOrNull { address in it.addresses }
+            ?: Rec(address, t, t, null, mutableSetOf(address)).also { records += it }
+        rec.probedAtMs = t
+        rec.probeLabel = label
+        rec.probeKey = key
         persist()
     }
 
@@ -89,19 +133,30 @@ class IdentityStore(
             while (records.size > maxIdentities) records.removeAt(records.size - 1)
         }
         store.putString(KEY, records.joinToString("\n") { r ->
-            "${r.id}\t${r.firstSeenMs}\t${r.lastSeenMs}\t${r.fingerprint ?: ""}\t${r.addresses.joinToString(",")}"
+            "${r.id}\t${r.firstSeenMs}\t${r.lastSeenMs}\t${r.fingerprint ?: ""}\t${r.addresses.joinToString(",")}" +
+                "\t${r.probedAtMs}\t${sanitize(r.probeLabel)}\t${sanitize(r.probeKey)}"
         })
     }
+
+    /** Strip the field/record separators a probed name might contain. */
+    private fun sanitize(s: String?): String = s.orEmpty().replace('\t', ' ').replace('\n', ' ')
 
     private fun parse(raw: String?): MutableList<Rec> {
         val out = ArrayList<Rec>()
         raw?.takeIf { it.isNotBlank() }?.split('\n')?.forEach { line ->
             val p = line.split('\t')
-            if (p.size == 5) {
+            if (p.size >= 5) { // 5 = pre-probe records; 8 = with probe cache
                 val fs = p[1].toLongOrNull() ?: return@forEach
                 val ls = p[2].toLongOrNull() ?: return@forEach
                 val addrs = p[4].split(',').filter { it.isNotBlank() }.toMutableSet()
-                if (addrs.isNotEmpty()) out += Rec(p[0], fs, ls, p[3].ifBlank { null }, addrs)
+                if (addrs.isEmpty()) return@forEach
+                val rec = Rec(p[0], fs, ls, p[3].ifBlank { null }, addrs)
+                if (p.size >= 8) {
+                    rec.probedAtMs = p[5].toLongOrNull() ?: 0L
+                    rec.probeLabel = p[6].ifBlank { null }
+                    rec.probeKey = p[7].ifBlank { null }
+                }
+                out += rec
             }
         }
         return out

@@ -82,6 +82,53 @@ class IdentityStoreTest {
     }
 
     @Test
+    fun a_probe_is_cached_and_not_repeated() {
+        val store = createKeyValueStore()
+        val s = IdentityStore(store)
+        s.seen(setOf("A"))
+        assertTrue(!s.isProbed("A"))
+        s.recordProbe("A", connectable = true, label = "Pixel Buds Pro", key = "ser:SN-1")
+        assertTrue(s.isProbed("A"))
+        assertEquals("Pixel Buds Pro", s.probeLabelOf("A"))
+        // survives a restart so we never re-poke a known device.
+        assertTrue(IdentityStore(store).isProbed("A"))
+        assertEquals("Pixel Buds Pro", IdentityStore(store).probeLabelOf("A"))
+    }
+
+    @Test
+    fun a_non_connectable_probe_still_marks_it_probed() {
+        val s = IdentityStore(createKeyValueStore())
+        s.seen(setOf("A"))
+        s.recordProbe("A", connectable = false, label = null, key = null)
+        assertTrue(s.isProbed("A")) // a refusal is a stable trait — don't keep retrying
+    }
+
+    @Test
+    fun a_matching_probe_key_re_identifies_a_rotated_device() {
+        val s = IdentityStore(createKeyValueStore())
+        // We probe address A and learn its serial.
+        s.seen(setOf("A"))
+        s.recordProbe("A", connectable = true, label = "Jan's Buds", key = "ser:SN-9")
+        // Later it rotates to B — the RSSI handover missed it, so B looks brand new.
+        s.seen(setOf("B"))
+        s.recordProbe("B", connectable = true, label = "Jan's Buds", key = "ser:SN-9")
+        // Same serial ⇒ same device: A and B are now one identity, carrying the label.
+        assertEquals(s.identityOf("A"), s.identityOf("B"))
+        assertEquals("Jan's Buds", s.probeLabelOf("B"))
+    }
+
+    @Test
+    fun a_probe_result_carries_across_a_later_rotation_merge() {
+        val s = IdentityStore(createKeyValueStore())
+        s.seen(setOf("A"))
+        s.recordProbe("A", connectable = true, label = "Buds", key = "ser:SN-2")
+        s.seen(setOf("B"))
+        s.link(setOf("A", "B")) // RSSI handover stitches A→B afterwards
+        assertEquals("Buds", s.probeLabelOf("B")) // the probe followed the merge
+        assertTrue(s.isProbed("B"))
+    }
+
+    @Test
     fun seen_keeps_an_identity_alive_past_the_ttl() {
         val store = createKeyValueStore()
         var clock = 1_000_000L
