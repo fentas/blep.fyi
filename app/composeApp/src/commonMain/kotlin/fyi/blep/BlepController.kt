@@ -652,10 +652,14 @@ class BlepController(
                         // availability is driven solely by scanner.availability now;
                         // don't override it here (an early empty emission would falsely
                         // flip it to READY while permission is actually missing).
-                        // Feed live sightings to the rotation correlator (only ones with a
-                        // real RSSI — bonded-but-silent devices carry no range to match on).
-                        val nowMs = rotationClock.elapsedNow().inWholeMilliseconds
-                        list.forEach { if (!it.rssiUnknown) rotationTracker.observe(it.id, it.rssi, nowMs) }
+                        // NB: the correlator is fed *only* from the raw advertisement
+                        // stream above, never from this snapshot. The snapshot is a table
+                        // that keeps echoing a device for ~12 s after it actually goes
+                        // silent (the prune TTL), so feeding it here dragged a rotated-away
+                        // id's last-seen forward — making its real successor look like it
+                        // had *coexisted* with it, which vetoes the handover. A lone device
+                        // would then never correlate. The advert stream carries true
+                        // per-advert timestamps, so an id that stops is seen to stop.
                         syncIdentities(list)
                         devices = list.map {
                             it.copy(alias = effectiveAlias(it.id) ?: it.alias, isFavorite = it.id in favoriteIds, isFlagged = effectiveFlagged(it.id))
