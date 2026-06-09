@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -21,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -58,7 +60,11 @@ import fyi.blep.resources.detail_flag
 import fyi.blep.resources.detail_flagged
 import fyi.blep.resources.detail_first_seen
 import fyi.blep.resources.detail_history
+import fyi.blep.resources.detail_identified
 import fyi.blep.resources.detail_identifier
+import fyi.blep.resources.detail_identify
+import fyi.blep.resources.detail_identify_failed
+import fyi.blep.resources.detail_identifying
 import fyi.blep.resources.detail_no_rotation
 import fyi.blep.resources.detail_rotated
 import fyi.blep.resources.detail_rotated_contested
@@ -83,6 +89,10 @@ fun DeviceDetailScreen(
     rotation: RotationStats?,
     firstSeenAgoMs: Long?,
     wornIds: List<String>,
+    probing: Boolean,
+    probed: Boolean,
+    probeLabel: String?,
+    onIdentify: () -> Unit,
     onRename: (String?) -> Unit,
     onToggleFavorite: () -> Unit,
     onToggleFlag: () -> Unit,
@@ -191,6 +201,10 @@ fun DeviceDetailScreen(
                 }
             }
             Spacer(Modifier.height(12.dp))
+
+            // Identify — one short GATT connection to learn the device's name/identity.
+            IdentifyRow(probing, probed, probeLabel, onIdentify)
+            Spacer(Modifier.height(12.dp))
         }
 
         // Pinned actions at the bottom.
@@ -236,6 +250,38 @@ fun DeviceDetailScreen(
                 }
             },
         )
+    }
+}
+
+/** The active-probe affordance: a button when untried, a spinner while connecting, and
+ *  the learned label (or a graceful "couldn't connect") once done. */
+@Composable
+private fun IdentifyRow(probing: Boolean, probed: Boolean, probeLabel: String?, onIdentify: () -> Unit) {
+    when {
+        probing -> Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 4.dp)) {
+            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = BlepColors.Blue)
+            Spacer(Modifier.width(10.dp))
+            Text(
+                stringResource(Res.string.detail_identifying),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+            )
+        }
+        probed && !probeLabel.isNullOrBlank() -> Text(
+            stringResource(Res.string.detail_identified, probeLabel),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+            modifier = Modifier.padding(horizontal = 4.dp),
+        )
+        probed -> Text(
+            stringResource(Res.string.detail_identify_failed),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+            modifier = Modifier.padding(horizontal = 4.dp),
+        )
+        else -> OutlinedButton(onClick = onIdentify, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(Res.string.detail_identify))
+        }
     }
 }
 

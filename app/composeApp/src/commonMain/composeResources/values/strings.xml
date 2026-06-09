@@ -172,6 +172,11 @@
     <string name="settings_remember_devices_title">Remember devices</string>
     <string name="settings_remember_devices_desc">How long a device's name, flag, and first-seen are kept after it was last seen.</string>
     <string name="settings_days">%1$d days</string>
+    <string name="settings_probe_title">Identify devices</string>
+    <string name="settings_probe_desc">Briefly connect to a device that's lingered to learn its name. One short connection per device, then remembered.</string>
+    <string name="settings_probe_after_title">Identify after</string>
+    <string name="settings_probe_after_desc">How long a device must be around first, so passers-by are skipped.</string>
+    <string name="settings_minutes">%1$d min</string>
     <string name="settings_section_background">Background scanning</string>
     <string name="settings_foreground_title">Keep scanning when minimized</string>
     <string name="settings_foreground_desc">Keeps a live scan running when you leave blep — real-time, more battery.</string>
@@ -239,6 +244,10 @@
     <string name="detail_flagged">Watching — tap to stop</string>
     <string name="detail_history">History</string>
     <string name="detail_alt">Might also be one of these nearby ids:</string>
+    <string name="detail_identify">Identify this device</string>
+    <string name="detail_identifying">Identifying…</string>
+    <string name="detail_identified">Identified as %1$s</string>
+    <string name="detail_identify_failed">Couldn't connect to identify it (most trackers don't allow it).</string>
     <string name="noti_flagged_title">Watching a flagged device</string>
     <string name="noti_flagged_text">%1$s is in range</string>
 </resources>

@@ -71,6 +71,11 @@ import fyi.blep.resources.settings_remember_title
 import fyi.blep.resources.settings_remember_devices_desc
 import fyi.blep.resources.settings_remember_devices_title
 import fyi.blep.resources.settings_days
+import fyi.blep.resources.settings_probe_title
+import fyi.blep.resources.settings_probe_desc
+import fyi.blep.resources.settings_probe_after_title
+import fyi.blep.resources.settings_probe_after_desc
+import fyi.blep.resources.settings_minutes
 import fyi.blep.resources.settings_haptics_desc
 import fyi.blep.resources.settings_haptics_title
 import fyi.blep.resources.settings_sound_desc
@@ -106,6 +111,10 @@ fun SettingsScreen(
     onToggleLocation: (Boolean) -> Unit,
     rememberDeviceDays: Int,
     onRememberDeviceDaysChange: (Int) -> Unit,
+    probeEnabled: Boolean,
+    onToggleProbe: (Boolean) -> Unit,
+    probeThresholdMinutes: Int,
+    onProbeThresholdChange: (Int) -> Unit,
     foregroundScan: Boolean,
     onToggleForeground: (Boolean) -> Unit,
     backgroundScan: Boolean,
@@ -189,6 +198,14 @@ fun SettingsScreen(
                 onToggle = onToggleRemember,
             )
             RememberDevicesRow(rememberDeviceDays, onRememberDeviceDaysChange)
+
+            SettingRow(
+                title = stringResource(Res.string.settings_probe_title),
+                desc = stringResource(Res.string.settings_probe_desc),
+                checked = probeEnabled,
+                onToggle = onToggleProbe,
+            )
+            if (probeEnabled) ProbeAfterRow(probeThresholdMinutes, onProbeThresholdChange)
 
             SettingRow(
                 title = stringResource(Res.string.settings_location_title),
@@ -290,6 +307,44 @@ private fun RememberDevicesRow(days: Int, onChange: (Int) -> Unit) {
             )
             Text(
                 stringResource(Res.string.settings_days, days),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
+        }
+    }
+}
+
+/** Sub-option under "Identify devices": how long a device must linger before a probe. */
+@Composable
+private fun ProbeAfterRow(minutes: Int, onChange: (Int) -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                stringResource(Res.string.settings_probe_after_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(Res.string.settings_probe_after_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
+            )
+            Spacer(Modifier.height(4.dp))
+            Slider(
+                value = minutes.toFloat(),
+                onValueChange = { onChange(it.roundToInt()) },
+                valueRange = AppSettings.PROBE_MIN_MINUTES.toFloat()..AppSettings.PROBE_MAX_MINUTES.toFloat(),
+                colors = SliderDefaults.colors(thumbColor = BlepColors.Blue, activeTrackColor = BlepColors.Blue),
+            )
+            Text(
+                stringResource(Res.string.settings_minutes, minutes),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                 modifier = Modifier.align(Alignment.CenterHorizontally),

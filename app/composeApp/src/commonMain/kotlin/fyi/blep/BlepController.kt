@@ -219,6 +219,12 @@ class BlepController(
     // (id-switch handovers); fed in restartScan, read by the device detail page/list.
     private val rotationTracker = RotationTracker()
     private val rotationClock = TimeSource.Monotonic.markNow()
+
+    // ── demo: a pre-seeded rotating tracker so the detail panel shows the identity
+    // features (id-change history, rename) without waiting for real rotations ──
+    // Declared before init{} (which kicks off the scan + probe worker that read it).
+    private class DemoIdentity(val stats: RotationStats, val worn: List<String>, val firstSeenAgoMs: Long)
+    private val demoIdentity = mutableMapOf<String, DemoIdentity>()
     private var lastIdentitySyncMark: TimeMark? = null // throttle persisted-identity writes
     private val guidanceStabilizer = GuidanceStabilizer()
     private var safetyScanner = buildSafetyScanner()
@@ -440,11 +446,6 @@ class BlepController(
         identityStore.firstSeenOf(id)?.let { return epochMillis() - it }
         return rotationTracker.statsFor(id)?.let { rotationClock.elapsedNow().inWholeMilliseconds - it.firstSeenMs }
     }
-
-    // ── demo: a pre-seeded rotating tracker so the detail panel shows the identity
-    // features (id-change history, rename) without waiting for real rotations ──
-    private class DemoIdentity(val stats: RotationStats, val worn: List<String>, val firstSeenAgoMs: Long)
-    private val demoIdentity = mutableMapOf<String, DemoIdentity>()
 
     /** Demo only: seed the showcase tracker's rotation history + rename. */
     fun seedDemoIdentity() {
