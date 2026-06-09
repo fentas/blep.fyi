@@ -220,4 +220,13 @@
     <string name="settings_remember_devices_title">记住设备</string>
     <string name="settings_remember_devices_desc">设备的名称、标记和首次发现在最后一次出现后保留多久。</string>
     <string name="settings_days">%1$d 天</string>
+    <string name="settings_probe_title">识别设备</string>
+    <string name="settings_probe_desc">与停留较久的设备短暂连接以获取其名称。每台设备仅连接一次，随后记住。</string>
+    <string name="settings_probe_after_title">识别延迟</string>
+    <string name="settings_probe_after_desc">设备需先在附近停留多久，以便跳过路过的人。</string>
+    <string name="settings_minutes">%1$d 分钟</string>
+    <string name="detail_identify">识别此设备</string>
+    <string name="detail_identifying">正在识别…</string>
+    <string name="detail_identified">已识别为 %1$s</string>
+    <string name="detail_identify_failed">无法连接以进行识别（大多数追踪器不允许）。</string>
 </resources>

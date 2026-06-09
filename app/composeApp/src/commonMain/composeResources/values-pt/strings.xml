@@ -219,4 +219,13 @@
     <string name="settings_remember_devices_title">Lembrar dispositivos</string>
     <string name="settings_remember_devices_desc">Durante quanto tempo o nome, a marcação e a primeira deteção de um dispositivo são guardados após ter sido visto pela última vez.</string>
     <string name="settings_days">%1$d dias</string>
+    <string name="settings_probe_title">Identificar dispositivos</string>
+    <string name="settings_probe_desc">Liga-te brevemente a um dispositivo que permanece por perto para saber o nome dele. Uma ligação curta por dispositivo e depois é memorizado.</string>
+    <string name="settings_probe_after_title">Identificar após</string>
+    <string name="settings_probe_after_desc">Quanto tempo um dispositivo tem de estar por perto primeiro, para ignorar quem passa.</string>
+    <string name="settings_minutes">%1$d min</string>
+    <string name="detail_identify">Identificar este dispositivo</string>
+    <string name="detail_identifying">A identificar…</string>
+    <string name="detail_identified">Identificado como %1$s</string>
+    <string name="detail_identify_failed">Não foi possível ligar para o identificar (a maioria dos rastreadores não permite).</string>
 </resources>

@@ -219,4 +219,13 @@
     <string name="settings_remember_devices_title">Apparaten onthouden</string>
     <string name="settings_remember_devices_desc">Hoe lang de naam, markering en eerste waarneming van een apparaat bewaard blijven nadat het voor het laatst is gezien.</string>
     <string name="settings_days">%1$d dagen</string>
+    <string name="settings_probe_title">Apparaten identificeren</string>
+    <string name="settings_probe_desc">Maak kort verbinding met een apparaat dat al even in de buurt is om de naam te weten te komen. Eén korte verbinding per apparaat, daarna onthouden.</string>
+    <string name="settings_probe_after_title">Identificeren na</string>
+    <string name="settings_probe_after_desc">Hoe lang een apparaat eerst in de buurt moet zijn, zodat voorbijgangers worden overgeslagen.</string>
+    <string name="settings_minutes">%1$d min</string>
+    <string name="detail_identify">Dit apparaat identificeren</string>
+    <string name="detail_identifying">Identificeren…</string>
+    <string name="detail_identified">Geïdentificeerd als %1$s</string>
+    <string name="detail_identify_failed">Kon geen verbinding maken om het te identificeren (de meeste trackers staan dit niet toe).</string>
 </resources>

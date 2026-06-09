@@ -219,4 +219,13 @@
     <string name="settings_remember_devices_title">Zapomni si naprave</string>
     <string name="settings_remember_devices_desc">Kako dolgo se ime, oznaka in prva zaznava naprave hranijo po zadnjem opažanju.</string>
     <string name="settings_days">%1$d dni</string>
+    <string name="settings_probe_title">Prepoznaj naprave</string>
+    <string name="settings_probe_desc">Na kratko se poveži z napravo, ki se zadržuje v bližini, da izveš njeno ime. Ena kratka povezava na napravo, nato si jo zapomni.</string>
+    <string name="settings_probe_after_title">Prepoznaj po</string>
+    <string name="settings_probe_after_desc">Kako dolgo mora biti naprava najprej v bližini, da se mimoidoči preskočijo.</string>
+    <string name="settings_minutes">%1$d min</string>
+    <string name="detail_identify">Prepoznaj to napravo</string>
+    <string name="detail_identifying">Prepoznavanje…</string>
+    <string name="detail_identified">Prepoznano kot %1$s</string>
+    <string name="detail_identify_failed">Povezava za prepoznavo ni uspela (večina sledilnikov tega ne dovoli).</string>
 </resources>

@@ -219,4 +219,13 @@
     <string name="settings_remember_devices_title">Mémoriser les appareils</string>
     <string name="settings_remember_devices_desc">Durée de conservation du nom, du marquage et de la première détection d'un appareil après l'avoir vu pour la dernière fois.</string>
     <string name="settings_days">%1$d jours</string>
+    <string name="settings_probe_title">Identifier les appareils</string>
+    <string name="settings_probe_desc">Se connecter brièvement à un appareil présent depuis un moment pour connaître son nom. Une courte connexion par appareil, puis mémorisé.</string>
+    <string name="settings_probe_after_title">Identifier après</string>
+    <string name="settings_probe_after_desc">Durée de présence requise d'un appareil pour ignorer les passants.</string>
+    <string name="settings_minutes">%1$d min</string>
+    <string name="detail_identify">Identifier cet appareil</string>
+    <string name="detail_identifying">Identification…</string>
+    <string name="detail_identified">Identifié comme %1$s</string>
+    <string name="detail_identify_failed">Impossible de se connecter pour l'identifier (la plupart des traceurs ne l'autorisent pas).</string>
 </resources>

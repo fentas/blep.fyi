@@ -219,4 +219,13 @@
     <string name="settings_remember_devices_title">Ricorda i dispositivi</string>
     <string name="settings_remember_devices_desc">Per quanto tempo vengono conservati nome, contrassegno e prima rilevazione di un dispositivo dopo l'ultima volta visto.</string>
     <string name="settings_days">%1$d giorni</string>
+    <string name="settings_probe_title">Identifica i dispositivi</string>
+    <string name="settings_probe_desc">Connettiti brevemente a un dispositivo che si trattiene nelle vicinanze per scoprirne il nome. Una breve connessione per dispositivo, poi memorizzato.</string>
+    <string name="settings_probe_after_title">Identifica dopo</string>
+    <string name="settings_probe_after_desc">Per quanto tempo un dispositivo deve essere nelle vicinanze, così i passanti vengono ignorati.</string>
+    <string name="settings_minutes">%1$d min</string>
+    <string name="detail_identify">Identifica questo dispositivo</string>
+    <string name="detail_identifying">Identificazione…</string>
+    <string name="detail_identified">Identificato come %1$s</string>
+    <string name="detail_identify_failed">Impossibile connettersi per identificarlo (la maggior parte dei tracker non lo consente).</string>
 </resources>

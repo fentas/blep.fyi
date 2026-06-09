@@ -220,4 +220,13 @@
     <string name="settings_remember_devices_title">Geräte merken</string>
     <string name="settings_remember_devices_desc">Wie lange Name, Markierung und Erstkontakt eines Geräts nach dem letzten Sehen behalten werden.</string>
     <string name="settings_days">%1$d Tage</string>
+    <string name="settings_probe_title">Geräte identifizieren</string>
+    <string name="settings_probe_desc">Kurz mit einem Gerät verbinden, das länger in der Nähe ist, um seinen Namen zu erfahren. Eine kurze Verbindung pro Gerät, dann gemerkt.</string>
+    <string name="settings_probe_after_title">Identifizieren nach</string>
+    <string name="settings_probe_after_desc">Wie lange ein Gerät zuerst in der Nähe sein muss, damit Vorbeigehende übersprungen werden.</string>
+    <string name="settings_minutes">%1$d Min.</string>
+    <string name="detail_identify">Dieses Gerät identifizieren</string>
+    <string name="detail_identifying">Wird identifiziert…</string>
+    <string name="detail_identified">Identifiziert als %1$s</string>
+    <string name="detail_identify_failed">Verbindung zur Identifizierung nicht möglich (die meisten Tracker erlauben das nicht).</string>
 </resources>

@@ -219,4 +219,13 @@
     <string name="settings_remember_devices_title">Jäta seadmed meelde</string>
     <string name="settings_remember_devices_desc">Kui kaua hoitakse seadme nime, märgist ja esmakordset nägemist pärast viimast nägemist.</string>
     <string name="settings_days">%1$d päeva</string>
+    <string name="settings_probe_title">Tuvasta seadmed</string>
+    <string name="settings_probe_desc">Loo lühike ühendus seadmega, mis on kauem läheduses olnud, et teada selle nimi. Üks lühike ühendus seadme kohta, siis jäetakse meelde.</string>
+    <string name="settings_probe_after_title">Tuvasta pärast</string>
+    <string name="settings_probe_after_desc">Kui kaua peab seade enne läheduses olema, et möödujad vahele jätta.</string>
+    <string name="settings_minutes">%1$d min</string>
+    <string name="detail_identify">Tuvasta see seade</string>
+    <string name="detail_identifying">Tuvastamine…</string>
+    <string name="detail_identified">Tuvastatud kui %1$s</string>
+    <string name="detail_identify_failed">Tuvastamiseks ei saanud ühendust (enamik jälgijaid ei luba seda).</string>
 </resources>

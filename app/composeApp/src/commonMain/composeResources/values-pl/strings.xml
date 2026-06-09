@@ -219,4 +219,13 @@
     <string name="settings_remember_devices_title">Zapamiętuj urządzenia</string>
     <string name="settings_remember_devices_desc">Jak długo nazwa, oznaczenie i pierwsze wykrycie urządzenia są przechowywane po ostatnim zauważeniu.</string>
     <string name="settings_days">%1$d dni</string>
+    <string name="settings_probe_title">Identyfikuj urządzenia</string>
+    <string name="settings_probe_desc">Połącz się na chwilę z urządzeniem, które jest dłużej w pobliżu, aby poznać jego nazwę. Jedno krótkie połączenie na urządzenie, potem zapamiętane.</string>
+    <string name="settings_probe_after_title">Identyfikuj po</string>
+    <string name="settings_probe_after_desc">Jak długo urządzenie musi być najpierw w pobliżu, aby pominąć przechodniów.</string>
+    <string name="settings_minutes">%1$d min</string>
+    <string name="detail_identify">Zidentyfikuj to urządzenie</string>
+    <string name="detail_identifying">Identyfikowanie…</string>
+    <string name="detail_identified">Zidentyfikowano jako %1$s</string>
+    <string name="detail_identify_failed">Nie udało się połączyć w celu identyfikacji (większość lokalizatorów na to nie pozwala).</string>
 </resources>

@@ -219,4 +219,13 @@
     <string name="settings_remember_devices_title">Zapamti uređaje</string>
     <string name="settings_remember_devices_desc">Koliko se dugo čuvaju naziv, oznaka i prvo viđenje uređaja nakon što je zadnji put viđen.</string>
     <string name="settings_days">%1$d dana</string>
+    <string name="settings_probe_title">Prepoznaj uređaje</string>
+    <string name="settings_probe_desc">Nakratko se poveži s uređajem koji se zadržava u blizini da saznaš njegovo ime. Jedno kratko povezivanje po uređaju, zatim se pamti.</string>
+    <string name="settings_probe_after_title">Prepoznaj nakon</string>
+    <string name="settings_probe_after_desc">Koliko dugo uređaj mora prvo biti u blizini, da bi se prolaznici preskočili.</string>
+    <string name="settings_minutes">%1$d min</string>
+    <string name="detail_identify">Prepoznaj ovaj uređaj</string>
+    <string name="detail_identifying">Prepoznavanje…</string>
+    <string name="detail_identified">Prepoznato kao %1$s</string>
+    <string name="detail_identify_failed">Povezivanje radi prepoznavanja nije uspjelo (većina pratilica to ne dopušta).</string>
 </resources>

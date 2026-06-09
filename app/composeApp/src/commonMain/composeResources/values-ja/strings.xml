@@ -219,4 +219,13 @@
     <string name="settings_remember_devices_title">デバイスを記憶</string>
     <string name="settings_remember_devices_desc">デバイスの名前・フラグ・初回検出を、最後に見かけてからどれくらい保持するか。</string>
     <string name="settings_days">%1$d 日</string>
+    <string name="settings_probe_title">デバイスを識別</string>
+    <string name="settings_probe_desc">近くにとどまっているデバイスに短時間接続して名前を調べます。デバイスごとに一度だけ接続し、その後は記憶します。</string>
+    <string name="settings_probe_after_title">識別までの時間</string>
+    <string name="settings_probe_after_desc">通りすがりを除くため、デバイスが近くにある必要のある時間。</string>
+    <string name="settings_minutes">%1$d 分</string>
+    <string name="detail_identify">このデバイスを識別</string>
+    <string name="detail_identifying">識別中…</string>
+    <string name="detail_identified">%1$s として識別</string>
+    <string name="detail_identify_failed">識別のための接続ができませんでした（多くのトラッカーは許可していません）。</string>
 </resources>

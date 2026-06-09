@@ -219,4 +219,13 @@
     <string name="settings_remember_devices_title">Απομνημόνευση συσκευών</string>
     <string name="settings_remember_devices_desc">Πόσο καιρό διατηρούνται το όνομα, η επισήμανση και η πρώτη εμφάνιση μιας συσκευής μετά την τελευταία φορά που εμφανίστηκε.</string>
     <string name="settings_days">%1$d ημέρες</string>
+    <string name="settings_probe_title">Αναγνώριση συσκευών</string>
+    <string name="settings_probe_desc">Σύντομη σύνδεση με μια συσκευή που παραμένει κοντά, για να μάθετε το όνομά της. Μία σύντομη σύνδεση ανά συσκευή και μετά αποθηκεύεται.</string>
+    <string name="settings_probe_after_title">Αναγνώριση μετά από</string>
+    <string name="settings_probe_after_desc">Πόση ώρα πρέπει να είναι κοντά μια συσκευή πρώτα, ώστε να αγνοούνται οι περαστικοί.</string>
+    <string name="settings_minutes">%1$d λεπτά</string>
+    <string name="detail_identify">Αναγνώριση αυτής της συσκευής</string>
+    <string name="detail_identifying">Γίνεται αναγνώριση…</string>
+    <string name="detail_identified">Αναγνωρίστηκε ως %1$s</string>
+    <string name="detail_identify_failed">Δεν ήταν δυνατή η σύνδεση για αναγνώριση (οι περισσότεροι ιχνηλάτες δεν το επιτρέπουν).</string>
 </resources>
