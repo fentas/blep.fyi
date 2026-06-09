@@ -176,6 +176,55 @@ class RotationTrackerTest {
     }
 
     @Test
+    fun history_records_each_id_with_its_lifetime_and_hop_quality() {
+        val rt = RotationTracker()
+        rt.observe("A", -50, 0)
+        rt.observe("A", -50, 5_000)      // A seen across 5 s
+        rt.observe("B", -50, 6_000)      // handover (within the window)
+        rt.observe("B", -50, 30_000)
+        rt.observe("B", -50, 36_000)     // A now stale ⇒ A→B
+        val h = rt.statsFor("B")!!.history
+        assertEquals(2, h.size)
+        assertEquals("A", h[0].address)
+        assertEquals(5_000L, h[0].durationMs)   // how long A was seen
+        assertTrue(h[0].quality >= 0.8, "a clean close hop, was ${h[0].quality}")
+        assertFalse(h[0].current)
+        assertEquals("B", h[1].address)
+        assertTrue(h[1].current)                // the live id
+    }
+
+    @Test
+    fun confidence_is_a_cumulative_mean_over_all_rotations() {
+        val rt = RotationTracker()
+        // Three clean close hops A→B→C→D, each successor appearing within the handover
+        // window as its predecessor goes quiet — confidence is averaged, not reset.
+        listOf(
+            "A" to 0L, "A" to 5_000L,
+            "B" to 6_000L, "B" to 30_000L, "B" to 36_000L,
+            "C" to 37_000L, "C" to 60_000L, "C" to 67_000L,
+            "D" to 68_000L, "D" to 90_000L, "D" to 98_000L,
+        ).forEach { (id, t) -> rt.observe(id, -50, t) }
+        val d = rt.statsFor("D")!!
+        assertEquals(3, d.rotations)
+        assertTrue(d.confidence >= 0.8, "mean of three good hops, was ${d.confidence}")
+        assertEquals(4, d.history.size)           // every worn id is listed
+    }
+
+    @Test
+    fun reports_correlating_while_a_handover_is_pending() {
+        val rt = RotationTracker()
+        rt.observe("A", -50, 0)
+        rt.observe("A", -50, 5_000)      // A last heard at 5 s
+        rt.observe("B", -50, 6_000)      // B appears as A goes quiet
+        rt.observe("B", -50, 12_000)     // A quiet 7 s — not retired yet, but B is a match
+        assertTrue(rt.isCorrelating("B", 12_000))
+        assertEquals(0, rt.statsFor("B")!!.rotations) // not committed yet ⇒ UI shows "correlating…"
+        rt.observe("B", -50, 36_000)     // A now stale ⇒ resolves
+        assertFalse(rt.isCorrelating("B", 36_000))
+        assertEquals(1, rt.statsFor("B")!!.rotations)
+    }
+
+    @Test
     fun identity_carries_the_whole_lineage_of_addresses() {
         val rt = RotationTracker()
         rt.observe("A", -50, 0)

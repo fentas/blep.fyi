@@ -36,6 +36,19 @@ data class RotationTuning(
     val proxCap: Double = 0.85,     // most confidence the proximity prior alone can grant
 )
 
+/** One id this device has worn: how long it was seen, and — for a retired id — how
+ *  confident the handover that ended it was. The live id has [current] = true. */
+data class WornId(
+    val address: String,
+    val firstSeenMs: Long,
+    val lastSeenMs: Long,
+    val quality: Double,           // 0..1 confidence of the hop that retired this id (1.0 for the live id)
+    val current: Boolean = false,
+) {
+    /** How long this id was seen (ongoing for the live id). */
+    val durationMs: Long get() = (lastSeenMs - firstSeenMs).coerceAtLeast(0L)
+}
+
 /** What the UI can show about a device's identity churn. */
 data class RotationStats(
     val address: String,          // the device's current (latest) id
@@ -44,9 +57,10 @@ data class RotationStats(
     val lastSeenMs: Long,
     val rotations: Int,           // id handovers attributed to it (0 = stable id so far)
     val addressesSeen: Int,       // distinct ids it has worn (= rotations + 1)
-    val confidence: Double,       // 0..1 mean quality of those handovers (1.0 when none contested)
+    val confidence: Double,       // 0..1 *cumulative mean* of every handover's quality (not reset per hop)
     val contested: Boolean = false,          // shares an unresolved lineage with the ids in [alternatives]
     val alternatives: List<String> = emptyList(), // other current ids this rotation might belong to
+    val history: List<WornId> = emptyList(), // every worn id (oldest first, live id last) with per-id timing + hop quality
 )
 
 /**
@@ -103,7 +117,11 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         var fingerprint: String? = null, // rotation-stable payload signature, when known
         var origin: String = address, // oldest address in the lineage — a stable identity token
         val addresses: MutableSet<String> = linkedSetOf(address), // every address this device has worn
-    )
+        val worn: MutableList<WornId> = mutableListOf(), // retired ancestor ids (oldest first), each with its hop quality
+    ) {
+        /** The full worn history including the current live id (oldest first, live last). */
+        fun history(): List<WornId> = worn + WornId(address, bornMs, lastSeenMs, quality = 1.0, current = true)
+    }
 
     /** An orphaned lineage that could belong to >1 surviving id — kept, not discarded. */
     private class Branch(
@@ -117,6 +135,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         val origin: String,
         val addresses: Set<String>,
         val candidates: MutableSet<String>,
+        val worn: List<WornId>, // old's lineage (ancestors + old itself); old's quality is finalised on resolve
     )
 
     private val tracks = mutableListOf<Track>()
@@ -160,7 +179,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         val branch = branches.firstOrNull { address in it.candidates }
         if (branch == null) {
             val confidence = if (tr.rotations == 0) 1.0 else (tr.qualitySum / tr.rotations).coerceIn(0.0, 1.0)
-            return tr.toStats(tr.rotations, tr.addressesSeen, confidence)
+            return tr.toStats(tr.rotations, tr.addressesSeen, confidence, history = tr.history())
         }
         // Contested: tentatively fold in the branch lineage, but split its quality by
         // how many candidates still claim it (so confidence reflects the fork).
@@ -168,7 +187,26 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         val rot = tr.rotations + branch.rotations + 1
         val addr = tr.addressesSeen + branch.addressesSeen
         val confidence = ((tr.qualitySum + branch.qualitySum + hopQ) / rot).coerceIn(0.0, 1.0)
-        return tr.toStats(rot, addr, confidence, contested = true, alternatives = (branch.candidates - address).toList(), firstSeenMs = minOf(tr.firstSeenMs, branch.firstSeenMs))
+        val branchHist = branch.worn.toMutableList()
+        if (branchHist.isNotEmpty()) branchHist[branchHist.lastIndex] = branchHist.last().copy(quality = hopQ)
+        return tr.toStats(
+            rot, addr, confidence, contested = true, alternatives = (branch.candidates - address).toList(),
+            firstSeenMs = minOf(tr.firstSeenMs, branch.firstSeenMs), history = branchHist + tr.history(),
+        )
+    }
+
+    /** True when a handover *involving* [address] is pending resolution — a predecessor
+     *  has just gone quiet (a plausible same-device match) but hasn't retired yet, so
+     *  the rotation count is about to tick. Lets the UI show "correlating…" instead of
+     *  snapping from "no change" to "changed Nx". */
+    fun isCorrelating(address: String, nowMs: Long): Boolean {
+        val heir = tracks.firstOrNull { it.address == address } ?: return false
+        return tracks.any { old ->
+            old.address != address &&
+                nowMs - old.lastSeenMs > tuning.overlapMs && // gone quiet
+                nowMs - old.lastSeenMs <= tuning.staleMs &&   // but not yet retired
+                isSuccessor(old, heir, nowMs)
+        }
     }
 
     fun all(): List<RotationStats> = tracks.mapNotNull { statsFor(it.address) }
@@ -218,6 +256,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
                     origin = old.origin,
                     addresses = old.addresses.toSet(),
                     candidates = heirs.map { it.address }.toMutableSet(),
+                    worn = old.worn + WornId(old.address, old.bornMs, old.lastSeenMs, quality = 1.0), // quality finalised on resolve
                 )
                 // 0 heirs → the device left range; its lineage ends (nothing to carry).
             }
@@ -246,6 +285,10 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
                         s.qualitySum += b.qualitySum + q
                         if (s.fingerprint == null) s.fingerprint = b.fingerprint
                         s.addresses.addAll(b.addresses)
+                        // finalise the (previously contested) hop quality on the branch's last id, then prepend.
+                        val resolved = b.worn.toMutableList()
+                        if (resolved.isNotEmpty()) resolved[resolved.lastIndex] = resolved.last().copy(quality = q)
+                        s.worn.addAll(0, resolved)
                         s.origin = b.origin
                         claimed += s.address
                     }
@@ -279,6 +322,8 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         heir.qualitySum += old.qualitySum + q
         if (heir.fingerprint == null) heir.fingerprint = old.fingerprint
         heir.addresses.addAll(old.addresses)
+        // old's lineage (its ancestors + old itself, ended by this q-quality hop) precedes heir's.
+        heir.worn.addAll(0, old.worn + WornId(old.address, old.bornMs, old.lastSeenMs, q))
         heir.origin = old.origin // the older lineage's origin wins (continuity)
     }
 
@@ -334,6 +379,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         contested: Boolean = false,
         alternatives: List<String> = emptyList(),
         firstSeenMs: Long = this.firstSeenMs,
+        history: List<WornId> = emptyList(),
     ) = RotationStats(
         address = address,
         rssi = rssi.roundToInt(),
@@ -344,5 +390,6 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         confidence = confidence,
         contested = contested,
         alternatives = alternatives,
+        history = history,
     )
 }
