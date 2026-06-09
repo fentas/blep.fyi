@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.platform.createKeyValueStore
+import fyi.blep.core.tether.DeviceTether
 import fyi.blep.core.spatial.GuidanceLine
 import fyi.blep.core.spatial.GuidanceStabilizer
 import fyi.blep.core.spatial.Haptic
@@ -60,7 +62,11 @@ class WearController(
     /** No fresh RSSI recently (out of range / off). */
     var signalLost by mutableStateOf(false)
         private set
+    /** Ids the user tethered (leave/return alert). Drives the list indicator. */
+    var tetheredIds by mutableStateOf<Set<String>>(emptySet())
+        private set
 
+    private val tether = DeviceTether(createKeyValueStore())
     private var lastRssiMark: TimeMark? = null
     private var trackStartMark: TimeMark? = null
     private var arrived = false
@@ -73,7 +79,20 @@ class WearController(
     private val guidanceStabilizer = GuidanceStabilizer()
     private var latestMotion: MotionSample? = null
 
-    init { startDiscovery() }
+    init {
+        tetheredIds = tether.ids()
+        startDiscovery()
+    }
+
+    fun isTethered(id: String): Boolean = id in tetheredIds
+
+    /** Toggle a leave/return ("left behind") alert on a device. The periodic safety
+     *  worker watches the tethered set and notifies when one leaves/returns range. */
+    fun toggleTether(device: BleDevice) {
+        tether.toggle(device.id)
+        tetheredIds = tether.ids()
+        haptic.success()
+    }
 
     fun startDiscovery() {
         trackJob?.cancel(); trackJob = null

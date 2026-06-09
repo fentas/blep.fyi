@@ -22,6 +22,10 @@ KEN JE APPARATEN
 Tik op een apparaat in de buurt om het paneel te openen: live signaal, vast of wisselend (privé) Bluetooth-adres, en hoe lang geleden je het voor het eerst zag.
 • Hernoem een apparaat — de naam blijft ook als het id wisselt.
 • „Dit apparaat volgen" — blep houdt het in de gaten en waarschuwt je zolang het in bereik is.
+• „Waarschuw als het weggaat" — koppel een ding (een tag aan je sleutels, een
+  tas, oortjes, zelfs je telefoon) en blep trilt wanneer het buiten Bluetooth-
+  bereik glipt — en weer wanneer het terug is — zodat je het merkt voor je
+  zonder vertrekt. Werkt op de achtergrond.
 • Een wisselend id wordt weer tot één apparaat samengevoegd, zodat geschiedenis en namen niet resetten. Op het apparaat — jij kiest hoe lang een apparaat wordt onthouden.
 
 WORD JE GEVOLGD?

@@ -111,6 +111,8 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     onToggleProbe = controller::toggleProbe,
                     probeThresholdMinutes = controller.probeThresholdMinutes,
                     onProbeThresholdChange = controller::setProbeThreshold,
+                    tetherAlert = controller.tetherAlert,
+                    onSelectTetherAlert = controller::selectTetherAlert,
                     storageBytes = controller.storageBytes,
                     onClearStorage = controller::clearStorage,
                     foregroundScan = controller.foregroundScanEnabled,
@@ -187,6 +189,8 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                         onRename = { controller.rename(live, it) },
                         onToggleFavorite = { controller.toggleFavorite(live) },
                         onToggleFlag = { controller.toggleFlag(live) },
+                        tethered = controller.isTethered(live.id),
+                        onToggleTether = { controller.toggleTether(live) },
                         onTrack = { controller.track(live) },
                         onBack = controller::startDiscovery,
                     )

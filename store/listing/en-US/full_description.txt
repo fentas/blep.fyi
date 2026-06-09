@@ -28,6 +28,10 @@ address is fixed or a rotating privacy one, and how long ago you first saw it.
 • Rename a device, and the name follows it even when it rotates its ID.
 • "Watch this device" — flag one and blep keeps a live eye on it, with a
   notification whenever it's in range.
+• "Alert if it leaves" — tether a thing (a tag on your keys, a bag, earbuds,
+  even your phone) and blep buzzes you when it slips out of Bluetooth range, and
+  again when it's back — so you notice before you walk off without it. Works in
+  the background.
 • blep stitches a rotating ID back into one device — its history, how sure it is,
   and your rename don't reset every few minutes. All on-device, and you choose how
   long a device is remembered.

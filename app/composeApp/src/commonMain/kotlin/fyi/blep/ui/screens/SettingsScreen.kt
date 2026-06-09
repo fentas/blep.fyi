@@ -51,6 +51,12 @@ import fyi.blep.resources.theme_dark
 import fyi.blep.resources.theme_light
 import fyi.blep.resources.theme_system
 import fyi.blep.core.safety.ScanSensitivity
+import fyi.blep.core.tether.TetherAlertDirection
+import fyi.blep.resources.settings_tether_title
+import fyi.blep.resources.settings_tether_desc
+import fyi.blep.resources.settings_tether_leave
+import fyi.blep.resources.settings_tether_return
+import fyi.blep.resources.settings_tether_both
 import fyi.blep.ui.components.SensitivitySelector
 import fyi.blep.resources.action_done
 import fyi.blep.resources.settings_background_desc
@@ -121,6 +127,8 @@ fun SettingsScreen(
     onToggleProbe: (Boolean) -> Unit,
     probeThresholdMinutes: Int,
     onProbeThresholdChange: (Int) -> Unit,
+    tetherAlert: TetherAlertDirection,
+    onSelectTetherAlert: (TetherAlertDirection) -> Unit,
     storageBytes: Int,
     onClearStorage: () -> Unit,
     foregroundScan: Boolean,
@@ -232,6 +240,7 @@ fun SettingsScreen(
                     Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
                 )
             }
+            TetherAlertSelector(tetherAlert, onSelectTetherAlert)
 
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -512,6 +521,42 @@ private fun ThemeSelector(mode: ThemeMode, onSelect: (ThemeMode) -> Unit) {
                 ThemeChip(stringResource(Res.string.theme_system), mode == ThemeMode.SYSTEM) { onSelect(ThemeMode.SYSTEM) }
                 ThemeChip(stringResource(Res.string.theme_light), mode == ThemeMode.LIGHT) { onSelect(ThemeMode.LIGHT) }
                 ThemeChip(stringResource(Res.string.theme_dark), mode == ThemeMode.DARK) { onSelect(ThemeMode.DARK) }
+            }
+        }
+    }
+}
+
+/** "Left-behind alerts" direction: leave / return / both. Reuses the pill-chip style. */
+@Composable
+private fun TetherAlertSelector(dir: TetherAlertDirection, onSelect: (TetherAlertDirection) -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                stringResource(Res.string.settings_tether_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(Res.string.settings_tether_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
+            )
+            Spacer(Modifier.height(8.dp))
+            Row(
+                Modifier
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.06f))
+                    .padding(2.dp),
+            ) {
+                ThemeChip(stringResource(Res.string.settings_tether_both), dir == TetherAlertDirection.BOTH) { onSelect(TetherAlertDirection.BOTH) }
+                ThemeChip(stringResource(Res.string.settings_tether_leave), dir == TetherAlertDirection.LEAVE) { onSelect(TetherAlertDirection.LEAVE) }
+                ThemeChip(stringResource(Res.string.settings_tether_return), dir == TetherAlertDirection.RETURN) { onSelect(TetherAlertDirection.RETURN) }
             }
         }
     }

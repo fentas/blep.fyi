@@ -60,6 +60,8 @@ import fyi.blep.resources.detail_alt
 import fyi.blep.resources.detail_find
 import fyi.blep.resources.detail_flag
 import fyi.blep.resources.detail_flagged
+import fyi.blep.resources.detail_tether
+import fyi.blep.resources.detail_tethered
 import fyi.blep.resources.detail_first_seen
 import fyi.blep.resources.detail_history
 import fyi.blep.resources.detail_identified
@@ -118,6 +120,8 @@ fun DeviceDetailScreen(
     onRename: (String?) -> Unit,
     onToggleFavorite: () -> Unit,
     onToggleFlag: () -> Unit,
+    tethered: Boolean,
+    onToggleTether: () -> Unit,
     onTrack: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -299,6 +303,22 @@ fun DeviceDetailScreen(
         } else {
             OutlinedButton(onClick = onToggleFlag, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(Res.string.detail_flag))
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        // Tether: alert me when this device leaves (and comes back into) Bluetooth range.
+        if (tethered) {
+            FilledTonalButton(
+                onClick = onToggleTether,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.filledTonalButtonColors(
+                    containerColor = BlepColors.Blue.copy(alpha = 0.18f),
+                    contentColor = BlepColors.Blue,
+                ),
+            ) { Text(stringResource(Res.string.detail_tethered)) }
+        } else {
+            OutlinedButton(onClick = onToggleTether, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(Res.string.detail_tether))
             }
         }
         Spacer(Modifier.height(10.dp))

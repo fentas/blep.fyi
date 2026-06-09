@@ -23,6 +23,9 @@ CONNAIS TES APPAREILS
 Touche un appareil proche pour ouvrir son panneau : signal en direct, adresse Bluetooth fixe ou tournante (privée), et depuis quand tu l'as vu.
 • Renomme un appareil — le nom reste même quand son id change.
 • « Surveiller cet appareil » — blep le garde à l'œil et te prévient tant qu'il est à portée.
+• « Alerter s'il s'éloigne » — relie un objet (clés, sac, écouteurs) et blep
+  vibre quand il sort de la portée Bluetooth, puis au retour — pour que tu le
+  remarques avant de partir sans lui. En arrière-plan.
 • Un id tournant est recousu en un seul appareil, donc l'historique et les renommages ne se réinitialisent pas. Sur l'appareil — tu choisis la durée de mémorisation.
 
 QUELQUE CHOSE TE SUIT-IL ?

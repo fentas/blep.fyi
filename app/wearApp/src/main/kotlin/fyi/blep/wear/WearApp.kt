@@ -4,8 +4,11 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
@@ -141,6 +145,7 @@ fun WearApp(controller: WearController) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DiscoveryList(controller: WearController) {
     ScalingLazyColumn(
@@ -148,13 +153,31 @@ private fun DiscoveryList(controller: WearController) {
     ) {
         item { Text("blep", textAlign = TextAlign.Center, color = Color(0xFFF4F5F0)) }
         items(controller.devices, key = { it.id }) { device ->
-            Chip(
-                onClick = { controller.track(device) },
-                colors = ChipDefaults.primaryChipColors(backgroundColor = Color(0xFF5F90C3)),
-                label = { Text(device.displayName) },
-                secondaryLabel = if (device.isConnected) ({ Text(stringResource(R.string.status_connected)) }) else null,
-                modifier = Modifier.padding(horizontal = 8.dp),
-            )
+            val tethered = controller.isTethered(device.id)
+            // Tap to hunt it; long-press to set/clear a "left behind" alert on it.
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                    .clip(RoundedCornerShape(26.dp))
+                    .background(if (tethered) Color(0xFF3A6098) else Color(0xFF5F90C3))
+                    .combinedClickable(
+                        onClick = { controller.track(device) },
+                        onLongClick = { controller.toggleTether(device) },
+                    )
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+            ) {
+                Column {
+                    Text(device.displayName, color = Color(0xFFF4F5F0))
+                    val sub = when {
+                        tethered -> stringResource(R.string.tether_on)
+                        device.isConnected -> stringResource(R.string.status_connected)
+                        else -> null
+                    }
+                    if (sub != null) {
+                        Text(sub, color = Color(0xCCF4F5F0), textAlign = TextAlign.Start)
+                    }
+                }
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ package fyi.blep
 import fyi.blep.core.platform.KeyValueStore
 import fyi.blep.core.platform.createKeyValueStore
 import fyi.blep.core.safety.ScanSensitivity
+import fyi.blep.core.tether.TetherAlertDirection
 
 /** App theme preference: follow the OS, or force light/dark. */
 enum class ThemeMode {
@@ -86,6 +87,10 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
     fun setProbeThresholdMinutes(min: Int) =
         store.putString(KEY_PROBE_MINS, min.coerceIn(PROBE_MIN_MINUTES, PROBE_MAX_MINUTES).toString())
 
+    /** Which presence transitions of a tethered device raise an alert (default BOTH). */
+    fun tetherAlert(): TetherAlertDirection = TetherAlertDirection.fromName(store.getString(KEY_TETHER_ALERT))
+    fun setTetherAlert(d: TetherAlertDirection) = store.putString(KEY_TETHER_ALERT, d.name)
+
     companion object {
         const val INTERVAL_MIN = 15   // WorkManager periodic floor
         const val INTERVAL_MAX = 240  // 4 hours
@@ -109,5 +114,6 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
         private const val KEY_IDENTITY_TTL = "settings.identityTtlDays"
         private const val KEY_PROBE = "settings.probeEnabled"
         private const val KEY_PROBE_MINS = "settings.probeThresholdMinutes"
+        private const val KEY_TETHER_ALERT = "settings.tetherAlert"
     }
 }

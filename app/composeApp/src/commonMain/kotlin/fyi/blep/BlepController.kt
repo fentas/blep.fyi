@@ -35,6 +35,9 @@ import fyi.blep.core.spatial.SpatialTracker
 import fyi.blep.core.spatial.SpatialTuning
 import fyi.blep.core.spatial.createHaptic
 import fyi.blep.core.spatial.createMotionProvider
+import fyi.blep.core.tether.DeviceTether
+import fyi.blep.core.tether.PresenceMonitor
+import fyi.blep.core.tether.TetherAlertDirection
 import fyi.blep.core.tracking.TrackingPhase
 import fyi.blep.core.tracking.TrackingSession
 import fyi.blep.core.tracking.signalFreshness
@@ -75,6 +78,7 @@ class BlepController(
     private val favorites: DeviceFavorites = DeviceFavorites(createKeyValueStore()),
     private val aliasStore: DeviceAliases = DeviceAliases(createKeyValueStore()),
     private val flags: DeviceFlags = DeviceFlags(createKeyValueStore()),
+    private val tether: DeviceTether = DeviceTether(createKeyValueStore()),
     private val settings: AppSettings = AppSettings(),
     private val identityStore: IdentityStore = IdentityStore(createKeyValueStore(), ttlMs = settings.identityTtlDays().toLong() * AppSettings.DAY_MS),
     private val skipOnboarding: Boolean = false, // demo mode jumps straight to discovery
@@ -212,6 +216,10 @@ class BlepController(
     private val aliases = aliasStore.all().toMutableMap()
     private var favoriteIds: Set<String> = favorites.ids()
     private var flaggedIds: Set<String> = flags.ids()
+    private var tetheredIds: Set<String> = tether.ids()
+    // Shares the same on-disk key as the service/worker monitors (same prefs file), so the
+    // Settings storage row + Clear cover the remembered presence state too.
+    private val presence = PresenceMonitor(createKeyValueStore())
     private var scanJob: Job? = null
     private var detailSignalJob: Job? = null
     private var probeJob: Job? = null
@@ -320,7 +328,7 @@ class BlepController(
         spatialTracker.reset()
         guidanceStabilizer.reset()
         BackgroundScan.setForeground(false) // leaving safety → drop the foreground service
-        syncFlagWatch() // …unless a flagged device still wants the continuous watch
+        syncWatch() // …unless a flagged device still wants the continuous watch
         screen = Screen.Discovery
         restartScan()
     }
@@ -353,7 +361,7 @@ class BlepController(
     /** Sum the on-disk footprint of everything blep remembers (for the Settings row). */
     fun refreshStorage() {
         storageBytes = identityStore.sizeBytes() + aliasStore.sizeBytes() + flags.sizeBytes() +
-            favorites.sizeBytes() + safetyHistory.sizeBytes()
+            favorites.sizeBytes() + safetyHistory.sizeBytes() + tether.sizeBytes() + presence.sizeBytes()
     }
 
     /** Forget everything blep has learned about devices — identities, names, flags,
@@ -364,11 +372,13 @@ class BlepController(
         aliasStore.clear(); aliases.clear()
         flags.clear(); flaggedIds = emptySet()
         favorites.clear(); favoriteIds = emptySet()
+        tether.clear(); tetheredIds = emptySet()
+        presence.clear()
         safetyHistory.clear()
         probeResults.clear()
         rotationTracker.reset()
         devices = devices.map { it.copy(alias = null, isFavorite = false, isFlagged = false) }
-        syncFlagWatch() // nothing flagged now → the watch service can stand down
+        syncWatch() // nothing flagged now → the watch service can stand down
         refreshStorage()
     }
 
@@ -618,15 +628,37 @@ class BlepController(
         val nowFlagged = flags.toggle(device.id)
         flaggedIds = flags.ids()
         devices = devices.map { if (it.id == device.id) it.copy(isFlagged = nowFlagged) else it }
-        syncFlagWatch()
+        syncWatch()
         return nowFlagged
     }
 
-    /** Keep a continuous foreground watch alive while any device is flagged (the
-     *  service reads the flag set + scans for it). Doesn't tear down the foreground
+    /** Whether a device has a leave/return ("left behind") alert set on it. */
+    fun isTethered(id: String): Boolean = id in tetheredIds
+
+    /** Tether/untether a device: alert (notification + vibrate) when it leaves Bluetooth
+     *  range, and when it returns. Like a flag, a tether keeps the continuous foreground
+     *  watch alive so the leave is caught promptly. Returns the new tethered state. */
+    fun toggleTether(device: BleDevice): Boolean {
+        val now = tether.toggle(device.id)
+        tetheredIds = tether.ids()
+        syncWatch()
+        return now
+    }
+
+    /** Which tethered-device transitions raise an alert (Leave / Return / Both; persisted). */
+    var tetherAlert by mutableStateOf(settings.tetherAlert())
+        private set
+
+    fun selectTetherAlert(dir: TetherAlertDirection) {
+        tetherAlert = dir
+        settings.setTetherAlert(dir)
+    }
+
+    /** Keep a continuous foreground watch alive while any device is flagged or tethered
+     *  (the service reads those sets + scans for them). Doesn't tear down the foreground
      *  service while the safety screen still wants it. */
-    private fun syncFlagWatch() {
-        if (flaggedIds.isNotEmpty()) BackgroundScan.setForeground(true)
+    private fun syncWatch() {
+        if (flaggedIds.isNotEmpty() || tetheredIds.isNotEmpty()) BackgroundScan.setForeground(true)
         else if (screen !is Screen.Safety) BackgroundScan.setForeground(false)
     }
 

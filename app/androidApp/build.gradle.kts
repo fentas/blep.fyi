@@ -29,8 +29,8 @@ android {
         minSdk = libs.versions.androidMinSdk.get().toInt()
         targetSdk = libs.versions.androidTargetSdk.get().toInt()
         // Phone band = 1xxx (Wear = 2xxx in :wearApp); globally-unique per upload.
-        versionCode = 1013
-        versionName = "1.6.2"
+        versionCode = 1014
+        versionName = "1.7.0"
         buildConfigField("String", "GIT_SHA", "\"$gitSha\"")
     }
     // Release signing from a gitignored keystore.properties; absent → debug signing.

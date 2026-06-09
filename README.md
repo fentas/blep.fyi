@@ -163,6 +163,30 @@ Design notes: [`docs/detection.md`](docs/detection.md).
 
 &nbsp;
 
+### 🔔 Don't leave it behind
+
+The inverse of "is something following you?" — **tether** a device (a tag on your
+keys, a bag, earbuds, even your phone) and blep alerts you (notification +
+vibrate, per your system settings) the moment it slips out of Bluetooth range,
+and again when it's back, so you notice *before* you walk off without it. On the
+phone the device panel has the toggle; on **Wear OS** you long-press a device in
+the list. The direction — leave / return / both (default both) — is configurable
+in Settings.
+
+It works in all three scan modes — in-app, the continuous foreground service, and
+the periodic background worker — backed by a small persistent
+[`PresenceMonitor`](app/core/src/commonMain/kotlin/fyi/blep/core/tether/PresenceMonitor.kt)
+in `core/tether` that turns presence samples into **debounced** leave/return
+events (shared by phone and watch, unit-tested). Tethering a device keeps the
+foreground watch alive so a leave is caught promptly.
+
+> Reliable for devices with a stable address (most tags, earbuds, speakers). A
+> phone that rotates its BLE address is best caught by the watch↔phone pairing
+> link — that companion-link path (and the Apple Watch / iPhone side) is in
+> progress.
+
+&nbsp;
+
 ### 🗂 Repository layout
 
 ```
