@@ -173,9 +173,10 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     DeviceDetailScreen(
                         device = live,
                         liveRssi = controller.detailRssi,
+                        signalPresent = controller.devices.any { it.id == liveId && it.isPresent },
                         rotation = controller.rotationStats(live.id),
                         firstSeenAgoMs = controller.rotationFirstSeenAgoMs(live.id),
-                        wornIds = controller.deviceHistory(live.id),
+                        correlating = controller.isCorrelating(live.id),
                         probing = controller.probing,
                         probed = controller.isProbed(live.id),
                         probeLabel = controller.probeLabel(live.id),

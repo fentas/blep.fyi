@@ -43,6 +43,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import fyi.blep.core.ble.AddressKind
 import fyi.blep.core.ble.RotationStats
+import fyi.blep.core.ble.WornId
 import fyi.blep.core.ble.addressKind
 import fyi.blep.core.model.BleDevice
 import fyi.blep.resources.Res
@@ -66,9 +67,17 @@ import fyi.blep.resources.detail_identify
 import fyi.blep.resources.detail_identify_failed
 import fyi.blep.resources.detail_identifying
 import fyi.blep.resources.detail_no_rotation
-import fyi.blep.resources.detail_rotated
-import fyi.blep.resources.detail_rotated_contested
 import fyi.blep.resources.detail_signal
+import fyi.blep.resources.detail_signal_lost
+import fyi.blep.resources.detail_signal_scanning
+import fyi.blep.resources.detail_history_rotations
+import fyi.blep.resources.detail_confidence
+import fyi.blep.resources.detail_correlating
+import fyi.blep.resources.detail_contested
+import fyi.blep.resources.detail_id_now
+import fyi.blep.resources.detail_help_title
+import fyi.blep.resources.detail_help_body
+import fyi.blep.resources.a11y_help
 import fyi.blep.resources.rename_title
 import fyi.blep.resources.status_connected
 import fyi.blep.resources.status_paired
@@ -86,9 +95,10 @@ import kotlin.math.roundToInt
 fun DeviceDetailScreen(
     device: BleDevice,
     liveRssi: Int?,
+    signalPresent: Boolean,
     rotation: RotationStats?,
     firstSeenAgoMs: Long?,
-    wornIds: List<String>,
+    correlating: Boolean,
     probing: Boolean,
     probed: Boolean,
     probeLabel: String?,
@@ -101,7 +111,9 @@ fun DeviceDetailScreen(
     modifier: Modifier = Modifier,
 ) {
     var renaming by remember { mutableStateOf(false) }
+    var showHelp by remember { mutableStateOf(false) }
     val backLabel = stringResource(Res.string.a11y_back)
+    val helpLabel = stringResource(Res.string.a11y_help)
 
     Column(
         modifier = modifier
@@ -130,26 +142,34 @@ fun DeviceDetailScreen(
 
         // Scrollable content; the actions stay pinned at the bottom.
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            // Signal + connection status.
+            // Signal + connection status (or a lost-signal hint while it's out of range).
             Section(stringResource(Res.string.detail_signal)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // The dedicated fast stream wins when present (it also gives bonded
-                    // devices a live dBm, which the shared snapshot reports as unknown).
-                    val rssi = liveRssi ?: device.rssi.takeUnless { device.rssiUnknown }
-                    val signal = when {
-                        rssi != null -> stringResource(Res.string.dbm, rssi)
-                        device.isConnected -> stringResource(Res.string.status_connected)
-                        else -> stringResource(Res.string.status_paired)
-                    }
-                    Text(signal, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
-                    val status = when {
-                        device.isConnected -> stringResource(Res.string.status_connected)
-                        device.isPaired -> stringResource(Res.string.status_paired)
-                        else -> null
-                    }
-                    if (rssi != null && status != null) {
+                val rssi = liveRssi ?: device.rssi.takeUnless { device.rssiUnknown }
+                if (!signalPresent && !device.isConnected && !device.isPaired) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(Res.string.detail_signal_lost), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f))
                         Spacer(Modifier.width(10.dp))
-                        Text("· $status", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
+                        Text("· ${stringResource(Res.string.detail_signal_scanning)}", style = MaterialTheme.typography.labelLarge, color = BlepColors.Blue)
+                    }
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // The dedicated fast stream wins when present (it also gives bonded
+                        // devices a live dBm, which the shared snapshot reports as unknown).
+                        val signal = when {
+                            rssi != null -> stringResource(Res.string.dbm, rssi)
+                            device.isConnected -> stringResource(Res.string.status_connected)
+                            else -> stringResource(Res.string.status_paired)
+                        }
+                        Text(signal, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
+                        val status = when {
+                            device.isConnected -> stringResource(Res.string.status_connected)
+                            device.isPaired -> stringResource(Res.string.status_paired)
+                            else -> null
+                        }
+                        if (rssi != null && status != null) {
+                            Spacer(Modifier.width(10.dp))
+                            Text("· $status", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
+                        }
                     }
                 }
             }
@@ -168,16 +188,38 @@ fun DeviceDetailScreen(
             }
             Spacer(Modifier.height(12.dp))
 
-            // History — id changes the correlator stitched together, first-seen, the
-            // ids it has worn, and (if any) the contested fork: ids it might also be.
-            Section(stringResource(Res.string.detail_history)) {
-                val rotated = rotation != null && rotation.rotations > 0
-                val summary = when {
-                    !rotated -> stringResource(Res.string.detail_no_rotation)
-                    rotation!!.contested -> stringResource(Res.string.detail_rotated_contested, rotation.rotations)
-                    else -> stringResource(Res.string.detail_rotated, rotation.rotations, "${(rotation.confidence * 100).roundToInt()}%")
+            // History — id changes the correlator stitched together (the count is in the
+            // header), the cumulative confidence + a help affordance, first-seen, the
+            // per-id lifetimes, and (if any) the contested fork: ids it might also be.
+            val rotated = rotation != null && rotation.rotations > 0
+            val historyTitle =
+                if (rotated) stringResource(Res.string.detail_history_rotations, rotation!!.rotations)
+                else stringResource(Res.string.detail_history)
+            Section(historyTitle) {
+                when {
+                    rotation?.contested == true ->
+                        Text(stringResource(Res.string.detail_contested), style = MaterialTheme.typography.bodyMedium, color = BlepColors.Pink)
+                    rotated -> Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            stringResource(Res.string.detail_confidence, "${(rotation!!.confidence * 100).roundToInt()}%"),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "ⓘ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = BlepColors.Blue,
+                            modifier = Modifier
+                                .clickable { showHelp = true }
+                                .semantics { contentDescription = helpLabel },
+                        )
+                    }
+                    correlating ->
+                        Text(stringResource(Res.string.detail_correlating), style = MaterialTheme.typography.bodyMedium, color = BlepColors.Blue)
+                    else ->
+                        Text(stringResource(Res.string.detail_no_rotation), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
                 }
-                Text(summary, style = MaterialTheme.typography.bodyMedium, color = if (rotation?.contested == true) BlepColors.Pink else MaterialTheme.colorScheme.onBackground)
                 if (firstSeenAgoMs != null) {
                     Spacer(Modifier.height(8.dp))
                     Text(
@@ -186,11 +228,10 @@ fun DeviceDetailScreen(
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
                     )
                 }
-                if (rotated && wornIds.size > 1) {
-                    Spacer(Modifier.height(8.dp))
-                    wornIds.forEach {
-                        Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
-                    }
+                val history = rotation?.history.orEmpty()
+                if (history.size > 1) {
+                    Spacer(Modifier.height(10.dp))
+                    history.forEach { WornIdRow(it) }
                 }
                 if (rotation?.contested == true && rotation.alternatives.isNotEmpty()) {
                     Spacer(Modifier.height(8.dp))
@@ -227,6 +268,15 @@ fun DeviceDetailScreen(
             Text(stringResource(Res.string.detail_find))
         }
         Spacer(Modifier.height(16.dp))
+    }
+
+    if (showHelp) {
+        AlertDialog(
+            onDismissRequest = { showHelp = false },
+            title = { Text(stringResource(Res.string.detail_help_title)) },
+            text = { Text(stringResource(Res.string.detail_help_body)) },
+            confirmButton = { TextButton(onClick = { showHelp = false }) { Text(stringResource(Res.string.action_cancel)) } },
+        )
     }
 
     if (renaming) {
@@ -282,6 +332,25 @@ private fun IdentifyRow(probing: Boolean, probed: Boolean, probeLabel: String?, 
         else -> OutlinedButton(onClick = onIdentify, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(Res.string.detail_identify))
         }
+    }
+}
+
+/** One row in the worn-id history: the id, how long it was seen, and the hop quality
+ *  (or "now" for the live id). */
+@Composable
+private fun WornIdRow(w: WornId) {
+    val meta = if (w.current) stringResource(Res.string.detail_id_now)
+    else "${(w.quality * 100).roundToInt()}%"
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 1.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(w.address, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f))
+        Text(
+            "${formatAge(w.durationMs)} · $meta",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = if (w.current) 0.55f else 0.4f),
+        )
     }
 }
 

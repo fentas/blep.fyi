@@ -11,6 +11,7 @@ import fyi.blep.core.ble.IdentityStore
 import fyi.blep.core.ble.ProbeResult
 import fyi.blep.core.ble.RotationStats
 import fyi.blep.core.ble.RotationTracker
+import fyi.blep.core.ble.WornId
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
 import fyi.blep.core.platform.coarsePlaceCell
@@ -438,6 +439,11 @@ class BlepController(
     /** Rotation/identity-churn stats for a device id, or null if uncorrelated yet. */
     fun rotationStats(id: String): RotationStats? = demoIdentity[id]?.stats ?: rotationTracker.statsFor(id)
 
+    /** True while a handover involving this id is pending (a matching predecessor went
+     *  quiet but hasn't retired) — the detail page shows "correlating…". */
+    fun isCorrelating(id: String): Boolean =
+        id !in demoIdentity && rotationTracker.isCorrelating(id, rotationClock.elapsedNow().inWholeMilliseconds)
+
     /** How long ago this device was first seen (ms), carried across its id rotations.
      *  Prefers the persisted first-seen (stable — survives the live track ageing out and
      *  app restarts); falls back to the live track only until the first identity sync. */
@@ -451,8 +457,15 @@ class BlepController(
     fun seedDemoIdentity() {
         val cur = "C4:2A:1B:90:EF:01"
         val worn = listOf("C4:2A:1B:11:00:01", "C4:2A:1B:35:00:02", "C4:2A:1B:7E:00:03", cur)
+        val m = 60_000L
+        val history = listOf(
+            WornId("C4:2A:1B:11:00:01", 0, 16 * m, 0.90),
+            WornId("C4:2A:1B:35:00:02", 0, 15 * m, 0.94),
+            WornId("C4:2A:1B:7E:00:03", 0, 14 * m, 0.91),
+            WornId(cur, 0, 12 * m, 1.0, current = true),
+        )
         demoIdentity[cur] = DemoIdentity(
-            stats = RotationStats(address = cur, rssi = -62, firstSeenMs = 0, lastSeenMs = 0, rotations = 3, addressesSeen = 4, confidence = 0.92),
+            stats = RotationStats(address = cur, rssi = -62, firstSeenMs = 0, lastSeenMs = 0, rotations = 3, addressesSeen = 4, confidence = 0.92, history = history),
             worn = worn,
             firstSeenAgoMs = 57 * 60_000L,
         )

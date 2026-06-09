@@ -244,6 +244,16 @@
     <string name="detail_flagged">Watching — tap to stop</string>
     <string name="detail_history">History</string>
     <string name="detail_alt">Might also be one of these nearby ids:</string>
+    <string name="detail_history_rotations">History (%1$d× rotations)</string>
+    <string name="detail_confidence">%1$s sure</string>
+    <string name="detail_correlating">Correlating…</string>
+    <string name="detail_contested">Checking which nearby device this is.</string>
+    <string name="detail_id_now">now</string>
+    <string name="detail_signal_lost">Lost signal</string>
+    <string name="detail_signal_scanning">Still scanning…</string>
+    <string name="detail_help_title">How sure is this?</string>
+    <string name="detail_help_body">blep stitches a device back together across its rotating ids by watching one id go quiet as another appears at the same distance. This is the average confidence across all its id changes — and blep never carries a name across a weak match.</string>
+    <string name="a11y_help">What does this mean?</string>
     <string name="detail_identify">Identify this device</string>
     <string name="detail_identifying">Identifying…</string>
     <string name="detail_identified">Identified as %1$s</string>
