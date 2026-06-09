@@ -36,6 +36,15 @@ interface BleScanner {
      * simply contribute nothing.
      */
     fun advertisements(): Flow<RawAdvert> = emptyFlow()
+
+    /**
+     * Actively interrogate one device with a single, short-lived GATT connection —
+     * the one place we *connect* rather than listen. Reads the GAP name + Device
+     * Information Service + service list, then disconnects. One-shot: it returns once
+     * and is cancellable. Platforms without support (or a non-connectable device)
+     * return [ProbeResult] with `connectable = false`.
+     */
+    suspend fun probe(deviceId: String): ProbeResult = ProbeResult(connectable = false)
 }
 
 /** Why scanning may be unavailable — lets the UI prompt for the right fix. */

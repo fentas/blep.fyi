@@ -1,6 +1,7 @@
 package fyi.blep.demo
 
 import fyi.blep.core.ble.BleScanner
+import fyi.blep.core.ble.ProbeResult
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
 import fyi.blep.core.safety.AddressType
@@ -55,6 +56,11 @@ class DemoBleScanner : BleScanner {
             emit(scriptedRssi(t))
             delay(300)
         }
+    }
+
+    override suspend fun probe(deviceId: String): ProbeResult {
+        delay(800) // feel like a real connection
+        return ProbeResult(connectable = true, name = "Pixel Buds Pro", manufacturer = "Google", model = "GA03201")
     }
 
     // Scripted raw adverts for the Safety scan: a separated AirTag shadowing you

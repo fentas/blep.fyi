@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.ScanCallback
@@ -29,6 +30,10 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
+import java.util.UUID
+import kotlin.coroutines.resume
 
 /**
  * Raw-Android BLE scanner. Chosen over the shared Kable path on Android so we
@@ -249,7 +254,98 @@ internal class AndroidBleScanner : BleScanner {
             runCatching { gatt.close() }
         }
     }
+
+    /**
+     * One-shot GATT interrogation: connect, discover, read the GAP name + Device
+     * Information Service, disconnect. Sequential reads (GATT allows one at a time).
+     * Bounded by [PROBE_TIMEOUT_MS]; any failure/refusal resolves to a non-connectable
+     * result. We never bond, so anything that needs pairing simply reads back null.
+     */
+    @SuppressLint("MissingPermission")
+    override suspend fun probe(deviceId: String): ProbeResult {
+        val ctx = context ?: return ProbeResult(connectable = false)
+        val device = adapter?.let { runCatching { it.getRemoteDevice(deviceId) }.getOrNull() }
+            ?: return ProbeResult(connectable = false)
+        var gatt: BluetoothGatt? = null
+        val result = withTimeoutOrNull(PROBE_TIMEOUT_MS) {
+            suspendCancellableCoroutine { cont ->
+                val fields = HashMap<String, String>()        // char-uuid → value
+                var services: List<String> = emptyList()
+                val toRead = ArrayDeque<BluetoothGattCharacteristic>()
+
+                fun finish(connectable: Boolean) {
+                    if (!cont.isActive) return
+                    cont.resume(
+                        ProbeResult(
+                            connectable = connectable,
+                            name = fields[CHAR_GAP_NAME] ?: runCatching { device.name }.getOrNull()?.takeIf { it.isNotBlank() },
+                            manufacturer = fields[CHAR_DIS_MANUFACTURER],
+                            model = fields[CHAR_DIS_MODEL],
+                            firmware = fields[CHAR_DIS_FIRMWARE],
+                            serial = fields[CHAR_DIS_SERIAL],
+                            serviceUuids = services,
+                        ),
+                    )
+                }
+
+                val cb = object : BluetoothGattCallback() {
+                    fun readNext(g: BluetoothGatt) {
+                        val c = toRead.removeFirstOrNull() ?: return finish(connectable = true)
+                        if (!runCatching { g.readCharacteristic(c) }.getOrDefault(false)) readNext(g) // skip unreadable
+                    }
+
+                    override fun onConnectionStateChange(g: BluetoothGatt, status: Int, newState: Int) {
+                        when (newState) {
+                            BluetoothProfile.STATE_CONNECTED -> if (!runCatching { g.discoverServices() }.getOrDefault(false)) finish(true)
+                            BluetoothProfile.STATE_DISCONNECTED -> finish(connectable = false) // refused / dropped before we read
+                        }
+                    }
+
+                    override fun onServicesDiscovered(g: BluetoothGatt, status: Int) {
+                        services = g.services.map { shortServiceUuid(it.uuid.toString()) }
+                        for ((svc, ch) in WANTED_CHARS) {
+                            runCatching { g.getService(uuid16(svc))?.getCharacteristic(uuid16(ch)) }.getOrNull()?.let { toRead.addLast(it) }
+                        }
+                        readNext(g)
+                    }
+
+                    @Suppress("DEPRECATION") // 3-arg form works across API levels; .value is fine
+                    override fun onCharacteristicRead(g: BluetoothGatt, c: BluetoothGattCharacteristic, status: Int) {
+                        if (status == BluetoothGatt.GATT_SUCCESS) {
+                            c.value?.toString(Charsets.UTF_8)?.trim { it <= ' ' }?.takeIf { it.isNotEmpty() }
+                                ?.let { fields[c.uuid.toString().substring(4, 8)] = it }
+                        }
+                        readNext(g)
+                    }
+                }
+                gatt = device.connectGatt(ctx, /* autoConnect = */ false, cb, BluetoothDevice.TRANSPORT_LE)
+                if (gatt == null) finish(connectable = false)
+                cont.invokeOnCancellation { runCatching { gatt?.close() } }
+            }
+        }
+        runCatching { gatt?.disconnect() }
+        runCatching { gatt?.close() }
+        return result ?: ProbeResult(connectable = false)
+    }
 }
+
+/** Builds a 16-bit Bluetooth SIG UUID into its full 128-bit form. */
+private fun uuid16(short: String): UUID = UUID.fromString("0000$short-0000-1000-8000-00805f9b34fb")
+
+private const val PROBE_TIMEOUT_MS = 12_000L
+private const val CHAR_GAP_NAME = "2a00"
+private const val CHAR_DIS_MANUFACTURER = "2a29"
+private const val CHAR_DIS_MODEL = "2a24"
+private const val CHAR_DIS_FIRMWARE = "2a26"
+private const val CHAR_DIS_SERIAL = "2a25"
+// (service, characteristic) pairs to read: GAP name, then Device Information Service.
+private val WANTED_CHARS = listOf(
+    "1800" to CHAR_GAP_NAME,
+    "180a" to CHAR_DIS_MANUFACTURER,
+    "180a" to CHAR_DIS_MODEL,
+    "180a" to CHAR_DIS_FIRMWARE,
+    "180a" to CHAR_DIS_SERIAL,
+)
 
 actual fun createBleScanner(): BleScanner = AndroidBleScanner()
 
