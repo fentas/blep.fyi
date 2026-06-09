@@ -178,16 +178,18 @@ class RotationTrackerTest {
     @Test
     fun history_records_each_id_with_its_lifetime_and_hop_quality() {
         val rt = RotationTracker()
-        rt.observe("A", -50, 0)
-        rt.observe("A", -50, 5_000)      // A seen across 5 s
-        rt.observe("B", -50, 6_000)      // handover (within the window)
-        rt.observe("B", -50, 30_000)
-        rt.observe("B", -50, 36_000)     // A now stale ⇒ A→B
+        // Far range, so the hop quality comes from the dB/jitter match (a clean Δ within
+        // the noise), not the proximity floor — exercising the path under test.
+        rt.observe("A", -82, 0)
+        rt.observe("A", -82, 5_000)      // A seen across 5 s
+        rt.observe("B", -82, 6_000)      // handover (within the window)
+        rt.observe("B", -82, 30_000)
+        rt.observe("B", -82, 36_000)     // A now stale ⇒ A→B
         val h = rt.statsFor("B")!!.history
         assertEquals(2, h.size)
         assertEquals("A", h[0].address)
         assertEquals(5_000L, h[0].durationMs)   // how long A was seen
-        assertTrue(h[0].quality >= 0.8, "a clean close hop, was ${h[0].quality}")
+        assertTrue(h[0].quality >= 0.8, "a clean hop at range, was ${h[0].quality}")
         assertFalse(h[0].current)
         assertEquals("B", h[1].address)
         assertTrue(h[1].current)                // the live id

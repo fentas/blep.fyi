@@ -350,7 +350,7 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
     /** 0..1 proximity prior from the handover's range: 1 when right next to you (≤ a
      *  couple of metres), 0 out in the ambient churn. */
     private fun proximity(rssi: Double): Double =
-        ((rssi - tuning.farDbm) / (tuning.nearDbm - tuning.farDbm)).coerceIn(0.0, 1.0)
+        ((rssi - tuning.farDbm) / (tuning.nearDbm - tuning.farDbm).coerceAtLeast(1.0)).coerceIn(0.0, 1.0)
 
     /** Handover quality. Three lifting factors, whichever is strongest, then divided
      *  across rival candidates:
@@ -369,8 +369,6 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
 
     private fun fpMatch(a: String?, b: String?): Boolean = a != null && a == b
     private fun fpMismatch(a: String?, b: String?): Boolean = a != null && b != null && a != b
-
-    private fun ema(prev: Double, x: Int): Double = prev * (1 - tuning.emaWeight) + x * tuning.emaWeight
 
     private fun Track.toStats(
         rotations: Int,
