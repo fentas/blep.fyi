@@ -228,4 +228,14 @@
     <string name="detail_identifying">Identificeren…</string>
     <string name="detail_identified">Geïdentificeerd als %1$s</string>
     <string name="detail_identify_failed">Kon geen verbinding maken om het te identificeren (de meeste trackers staan dit niet toe).</string>
+    <string name="detail_history_rotations">Geschiedenis (%1$d× rotaties)</string>
+    <string name="detail_confidence">%1$s zeker</string>
+    <string name="detail_correlating">Correleren…</string>
+    <string name="detail_contested">Controleren welk apparaat in de buurt dit is.</string>
+    <string name="detail_id_now">nu</string>
+    <string name="detail_signal_lost">Signaal verloren</string>
+    <string name="detail_signal_scanning">Nog aan het scannen…</string>
+    <string name="detail_help_title">Hoe zeker is dit?</string>
+    <string name="detail_help_body">blep voegt een apparaat weer samen over zijn wisselende id's door te kijken hoe de ene id verstomt terwijl een andere op dezelfde afstand verschijnt. Dit is de gemiddelde zekerheid over al zijn id-wijzigingen — en blep draagt een naam nooit over via een zwakke match.</string>
+    <string name="a11y_help">Wat betekent dit?</string>
 </resources>

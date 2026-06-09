@@ -228,4 +228,14 @@
     <string name="detail_identifying">Identificazione…</string>
     <string name="detail_identified">Identificato come %1$s</string>
     <string name="detail_identify_failed">Impossibile connettersi per identificarlo (la maggior parte dei tracker non lo consente).</string>
+    <string name="detail_history_rotations">Cronologia (%1$d× rotazioni)</string>
+    <string name="detail_confidence">%1$s di certezza</string>
+    <string name="detail_correlating">Correlazione…</string>
+    <string name="detail_contested">Verifica di quale dispositivo vicino si tratti.</string>
+    <string name="detail_id_now">ora</string>
+    <string name="detail_signal_lost">Segnale perso</string>
+    <string name="detail_signal_scanning">Ricerca in corso…</string>
+    <string name="detail_help_title">Quanto è sicuro?</string>
+    <string name="detail_help_body">blep ricompone un dispositivo attraverso i suoi id rotanti osservando un id che tace mentre un altro appare alla stessa distanza. Questa è la certezza media su tutti i suoi cambi di id — e blep non trasferisce mai un nome su una corrispondenza debole.</string>
+    <string name="a11y_help">Cosa significa?</string>
 </resources>

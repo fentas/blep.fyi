@@ -228,4 +228,14 @@
     <string name="detail_identifying">Identification…</string>
     <string name="detail_identified">Identifié comme %1$s</string>
     <string name="detail_identify_failed">Impossible de se connecter pour l'identifier (la plupart des traceurs ne l'autorisent pas).</string>
+    <string name="detail_history_rotations">Historique (%1$d× rotations)</string>
+    <string name="detail_confidence">%1$s de certitude</string>
+    <string name="detail_correlating">Corrélation…</string>
+    <string name="detail_contested">Vérification de l'appareil proche dont il s'agit.</string>
+    <string name="detail_id_now">actuel</string>
+    <string name="detail_signal_lost">Signal perdu</string>
+    <string name="detail_signal_scanning">Recherche en cours…</string>
+    <string name="detail_help_title">Quel est le niveau de certitude ?</string>
+    <string name="detail_help_body">blep reconstitue un appareil à travers ses id changeantes en observant une id se taire tandis qu'une autre apparaît à la même distance. C'est la certitude moyenne sur tous ses changements d'id — et blep ne reporte jamais un nom sur une correspondance faible.</string>
+    <string name="a11y_help">Qu'est-ce que cela signifie ?</string>
 </resources>

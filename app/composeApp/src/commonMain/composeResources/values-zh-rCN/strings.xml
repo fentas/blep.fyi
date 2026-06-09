@@ -229,4 +229,14 @@
     <string name="detail_identifying">正在识别…</string>
     <string name="detail_identified">已识别为 %1$s</string>
     <string name="detail_identify_failed">无法连接以进行识别（大多数追踪器不允许）。</string>
+    <string name="detail_history_rotations">历史（%1$d 次轮换）</string>
+    <string name="detail_confidence">%1$s 确定</string>
+    <string name="detail_correlating">正在关联…</string>
+    <string name="detail_contested">正在确认这是附近哪台设备。</string>
+    <string name="detail_id_now">当前</string>
+    <string name="detail_signal_lost">信号丢失</string>
+    <string name="detail_signal_scanning">仍在扫描…</string>
+    <string name="detail_help_title">这有多确定？</string>
+    <string name="detail_help_body">blep 通过观察一个 id 静默、另一个 id 在相同距离出现，将设备在其轮换的 id 之间重新拼接起来。这是其所有 id 变更的平均置信度——并且 blep 绝不会通过弱匹配来沿用名称。</string>
+    <string name="a11y_help">这是什么意思？</string>
 </resources>

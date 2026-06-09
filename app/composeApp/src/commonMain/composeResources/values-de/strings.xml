@@ -229,4 +229,14 @@
     <string name="detail_identifying">Wird identifiziert…</string>
     <string name="detail_identified">Identifiziert als %1$s</string>
     <string name="detail_identify_failed">Verbindung zur Identifizierung nicht möglich (die meisten Tracker erlauben das nicht).</string>
+    <string name="detail_history_rotations">Verlauf (%1$d× Rotationen)</string>
+    <string name="detail_confidence">%1$s sicher</string>
+    <string name="detail_correlating">Wird zugeordnet…</string>
+    <string name="detail_contested">Wird geprüft, welches Gerät in der Nähe das ist.</string>
+    <string name="detail_id_now">jetzt</string>
+    <string name="detail_signal_lost">Signal verloren</string>
+    <string name="detail_signal_scanning">Suche läuft…</string>
+    <string name="detail_help_title">Wie sicher ist das?</string>
+    <string name="detail_help_body">blep setzt ein Gerät über seine wechselnden IDs hinweg wieder zusammen, indem es beobachtet, wie eine ID verstummt, während eine andere in derselben Entfernung auftaucht. Dies ist die durchschnittliche Sicherheit über alle ID-Wechsel — und blep überträgt einen Namen nie über eine schwache Übereinstimmung.</string>
+    <string name="a11y_help">Was bedeutet das?</string>
 </resources>

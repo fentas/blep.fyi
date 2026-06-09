@@ -228,4 +228,14 @@
     <string name="detail_identifying">Tuvastamine…</string>
     <string name="detail_identified">Tuvastatud kui %1$s</string>
     <string name="detail_identify_failed">Tuvastamiseks ei saanud ühendust (enamik jälgijaid ei luba seda).</string>
+    <string name="detail_history_rotations">Ajalugu (%1$d× pööret)</string>
+    <string name="detail_confidence">%1$s kindel</string>
+    <string name="detail_correlating">Seostamine…</string>
+    <string name="detail_contested">Kontrollime, milline lähedane seade see on.</string>
+    <string name="detail_id_now">praegu</string>
+    <string name="detail_signal_lost">Signal kadunud</string>
+    <string name="detail_signal_scanning">Skannimine jätkub…</string>
+    <string name="detail_help_title">Kui kindel see on?</string>
+    <string name="detail_help_body">blep ühendab seadme selle vahelduvate ID-de kaudu, jälgides, kuidas üks ID vaikib, kui teine samal kaugusel ilmub. See on keskmine kindlus kõigi ID-muudatuste lõikes — ja blep ei kanna nime kunagi üle nõrga vaste.</string>
+    <string name="a11y_help">Mida see tähendab?</string>
 </resources>

@@ -228,4 +228,14 @@
     <string name="detail_identifying">Prepoznavanje…</string>
     <string name="detail_identified">Prepoznato kao %1$s</string>
     <string name="detail_identify_failed">Povezivanje radi prepoznavanja nije uspjelo (većina pratilica to ne dopušta).</string>
+    <string name="detail_history_rotations">Povijest (%1$d× rotacija)</string>
+    <string name="detail_confidence">%1$s sigurno</string>
+    <string name="detail_correlating">Povezivanje…</string>
+    <string name="detail_contested">Provjeravamo koji je ovo obližnji uređaj.</string>
+    <string name="detail_id_now">sad</string>
+    <string name="detail_signal_lost">Signal izgubljen</string>
+    <string name="detail_signal_scanning">Još skeniram…</string>
+    <string name="detail_help_title">Koliko je ovo sigurno?</string>
+    <string name="detail_help_body">blep ponovno spaja uređaj kroz njegove promjenjive id-ove prateći kako jedan id utihne dok se drugi pojavi na istoj udaljenosti. Ovo je prosječna sigurnost svih promjena id-a — i blep nikada ne prenosi ime preko slabog podudaranja.</string>
+    <string name="a11y_help">Što ovo znači?</string>
 </resources>

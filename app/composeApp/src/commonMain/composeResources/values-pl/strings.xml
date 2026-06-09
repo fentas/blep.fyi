@@ -228,4 +228,14 @@
     <string name="detail_identifying">Identyfikowanie…</string>
     <string name="detail_identified">Zidentyfikowano jako %1$s</string>
     <string name="detail_identify_failed">Nie udało się połączyć w celu identyfikacji (większość lokalizatorów na to nie pozwala).</string>
+    <string name="detail_history_rotations">Historia (%1$d× rotacji)</string>
+    <string name="detail_confidence">%1$s pewności</string>
+    <string name="detail_correlating">Korelowanie…</string>
+    <string name="detail_contested">Sprawdzanie, które to urządzenie w pobliżu.</string>
+    <string name="detail_id_now">teraz</string>
+    <string name="detail_signal_lost">Utracono sygnał</string>
+    <string name="detail_signal_scanning">Wciąż skanuję…</string>
+    <string name="detail_help_title">Jak pewne to jest?</string>
+    <string name="detail_help_body">blep scala urządzenie na nowo poprzez jego zmieniające się id, obserwując, jak jedno id milknie, gdy inne pojawia się w tej samej odległości. To średnia pewność wszystkich zmian id — a blep nigdy nie przenosi nazwy przez słabe dopasowanie.</string>
+    <string name="a11y_help">Co to oznacza?</string>
 </resources>

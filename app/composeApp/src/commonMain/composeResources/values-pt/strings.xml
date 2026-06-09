@@ -228,4 +228,14 @@
     <string name="detail_identifying">A identificar…</string>
     <string name="detail_identified">Identificado como %1$s</string>
     <string name="detail_identify_failed">Não foi possível ligar para o identificar (a maioria dos rastreadores não permite).</string>
+    <string name="detail_history_rotations">Histórico (%1$d× rotações)</string>
+    <string name="detail_confidence">%1$s de certeza</string>
+    <string name="detail_correlating">A correlacionar…</string>
+    <string name="detail_contested">A verificar qual dispositivo próximo é.</string>
+    <string name="detail_id_now">agora</string>
+    <string name="detail_signal_lost">Sinal perdido</string>
+    <string name="detail_signal_scanning">A procurar…</string>
+    <string name="detail_help_title">Qual é a certeza disto?</string>
+    <string name="detail_help_body">o blep reconstrói um dispositivo através dos seus id rotativos observando um id ficar em silêncio enquanto outro aparece à mesma distância. Esta é a certeza média de todas as mudanças de id — e o blep nunca transfere um nome através de uma correspondência fraca.</string>
+    <string name="a11y_help">O que significa isto?</string>
 </resources>

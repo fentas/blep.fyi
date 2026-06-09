@@ -228,4 +228,14 @@
     <string name="detail_identifying">識別中…</string>
     <string name="detail_identified">%1$s として識別</string>
     <string name="detail_identify_failed">識別のための接続ができませんでした（多くのトラッカーは許可していません）。</string>
+    <string name="detail_history_rotations">履歴（%1$d回ローテーション）</string>
+    <string name="detail_confidence">確度 %1$s</string>
+    <string name="detail_correlating">照合中…</string>
+    <string name="detail_contested">近くのどのデバイスか確認中。</string>
+    <string name="detail_id_now">現在</string>
+    <string name="detail_signal_lost">信号を見失いました</string>
+    <string name="detail_signal_scanning">スキャン中…</string>
+    <string name="detail_help_title">どのくらい確かですか？</string>
+    <string name="detail_help_body">blep は、1 つの ID が静かになり別の ID が同じ距離に現れる様子を見て、デバイスを変化する ID 全体でつなぎ合わせます。これはすべての ID 変更にわたる平均的な確度であり、blep は弱い一致で名前を引き継ぐことはありません。</string>
+    <string name="a11y_help">これはどういう意味ですか？</string>
 </resources>

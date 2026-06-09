@@ -228,4 +228,14 @@
     <string name="detail_identifying">Γίνεται αναγνώριση…</string>
     <string name="detail_identified">Αναγνωρίστηκε ως %1$s</string>
     <string name="detail_identify_failed">Δεν ήταν δυνατή η σύνδεση για αναγνώριση (οι περισσότεροι ιχνηλάτες δεν το επιτρέπουν).</string>
+    <string name="detail_history_rotations">Ιστορικό (%1$d× περιστροφές)</string>
+    <string name="detail_confidence">%1$s βεβαιότητα</string>
+    <string name="detail_correlating">Συσχέτιση…</string>
+    <string name="detail_contested">Έλεγχος ποια κοντινή συσκευή είναι αυτή.</string>
+    <string name="detail_id_now">τώρα</string>
+    <string name="detail_signal_lost">Απώλεια σήματος</string>
+    <string name="detail_signal_scanning">Σάρωση σε εξέλιξη…</string>
+    <string name="detail_help_title">Πόσο βέβαιο είναι αυτό;</string>
+    <string name="detail_help_body">Το blep συνενώνει μια συσκευή μέσα από τα εναλλασσόμενα ID της, παρατηρώντας ένα ID να σιγεί καθώς ένα άλλο εμφανίζεται στην ίδια απόσταση. Αυτή είναι η μέση βεβαιότητα σε όλες τις αλλαγές ID — και το blep δεν μεταφέρει ποτέ ένα όνομα μέσω αδύναμης αντιστοίχισης.</string>
+    <string name="a11y_help">Τι σημαίνει αυτό;</string>
 </resources>

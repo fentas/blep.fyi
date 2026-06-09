@@ -228,4 +228,14 @@
     <string name="detail_identifying">Prepoznavanje…</string>
     <string name="detail_identified">Prepoznano kot %1$s</string>
     <string name="detail_identify_failed">Povezava za prepoznavo ni uspela (večina sledilnikov tega ne dovoli).</string>
+    <string name="detail_history_rotations">Zgodovina (%1$d× rotacij)</string>
+    <string name="detail_confidence">%1$s gotovo</string>
+    <string name="detail_correlating">Povezovanje…</string>
+    <string name="detail_contested">Preverjamo, katera bližnja naprava je to.</string>
+    <string name="detail_id_now">zdaj</string>
+    <string name="detail_signal_lost">Izgubljen signal</string>
+    <string name="detail_signal_scanning">Iskanje poteka…</string>
+    <string name="detail_help_title">Kako zanesljivo je to?</string>
+    <string name="detail_help_body">blep napravo znova sestavi prek njenih spreminjajočih se id-jev tako, da opazuje, kako en id utihne, ko se drug pojavi na enaki razdalji. To je povprečna zanesljivost vseh sprememb id-ja — in blep imena nikoli ne prenese prek šibkega ujemanja.</string>
+    <string name="a11y_help">Kaj to pomeni?</string>
 </resources>
