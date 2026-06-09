@@ -302,4 +302,5 @@
     <string name="settings_phone_tether_desc">Buzz this watch when your paired phone goes out of Bluetooth range</string>
     <string name="settings_watch_tether_title">Alert if I leave my watch</string>
     <string name="settings_watch_tether_desc">Buzz this phone when your paired watch goes out of Bluetooth range</string>
+    <string name="noti_ongoing_watch">Watching your devices</string>
 </resources>

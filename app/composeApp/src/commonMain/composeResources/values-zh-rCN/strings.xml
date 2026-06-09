@@ -281,4 +281,5 @@
     <string name="settings_phone_tether_desc">当配对的手机超出蓝牙范围时，让这块手表震动</string>
     <string name="settings_watch_tether_title">忘带手表时提醒我</string>
     <string name="settings_watch_tether_desc">当配对的手表超出蓝牙范围时，让这部手机震动</string>
+    <string name="noti_ongoing_watch">正在看护你的设备</string>
 </resources>

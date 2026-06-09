@@ -280,4 +280,5 @@
     <string name="settings_phone_tether_desc">Zavibriraj to uro, ko tvoj seznanjeni telefon zapusti doseg Bluetootha</string>
     <string name="settings_watch_tether_title">Opozori, če pustim uro</string>
     <string name="settings_watch_tether_desc">Zavibriraj ta telefon, ko tvoja seznanjena ura zapusti doseg Bluetootha</string>
+    <string name="noti_ongoing_watch">Bdim nad tvojimi napravami</string>
 </resources>

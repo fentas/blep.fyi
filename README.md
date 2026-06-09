@@ -190,6 +190,11 @@ Two detection tracks, chosen automatically by whether the device is **paired**:
   receiver re-arms it after a reboot.
 - **Unpaired advertising tags** use the scan-based [`PresenceMonitor`](app/core/src/commonMain/kotlin/fyi/blep/core/tether/PresenceMonitor.kt).
 
+On **Wear OS** the watch also warns you if you walk off without your *phone*: it
+watches the watch↔phone **companion link** (the Wear Data Layer — the system
+delivers connect/disconnect events, no scanning, no foreground service), debounced
+so a blip doesn't cry wolf. Toggle it in the watch's Settings.
+
 > The Apple Watch / iPhone side is still in progress.
 
 &nbsp;

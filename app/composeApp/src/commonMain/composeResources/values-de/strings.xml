@@ -281,4 +281,5 @@
     <string name="settings_phone_tether_desc">Diese Uhr vibrieren lassen, wenn dein gekoppeltes Handy die Bluetooth-Reichweite verlässt</string>
     <string name="settings_watch_tether_title">Warnen, wenn ich meine Uhr zurücklasse</string>
     <string name="settings_watch_tether_desc">Dieses Handy vibrieren lassen, wenn deine gekoppelte Uhr die Bluetooth-Reichweite verlässt</string>
+    <string name="noti_ongoing_watch">Überwacht deine Geräte</string>
 </resources>

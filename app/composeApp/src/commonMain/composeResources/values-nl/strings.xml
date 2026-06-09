@@ -280,4 +280,5 @@
     <string name="settings_phone_tether_desc">Laat dit horloge trillen wanneer je gekoppelde telefoon buiten Bluetooth-bereik raakt</string>
     <string name="settings_watch_tether_title">Waarschuw als ik mijn horloge achterlaat</string>
     <string name="settings_watch_tether_desc">Laat deze telefoon trillen wanneer je gekoppelde horloge buiten Bluetooth-bereik raakt</string>
+    <string name="noti_ongoing_watch">Je apparaten in de gaten</string>
 </resources>

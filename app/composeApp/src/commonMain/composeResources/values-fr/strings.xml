@@ -280,4 +280,5 @@
     <string name="settings_phone_tether_desc">Fais vibrer cette montre quand ton téléphone associé sort de portée Bluetooth</string>
     <string name="settings_watch_tether_title">M'alerter si je laisse ma montre</string>
     <string name="settings_watch_tether_desc">Fais vibrer ce téléphone quand ta montre associée sort de portée Bluetooth</string>
+    <string name="noti_ongoing_watch">Surveille tes appareils</string>
 </resources>

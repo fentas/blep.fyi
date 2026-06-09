@@ -280,4 +280,5 @@
     <string name="settings_phone_tether_desc">Zavibriraj ovaj sat kad tvoj upareni telefon izađe iz dometa Bluetootha</string>
     <string name="settings_watch_tether_title">Upozori ako ostavim sat</string>
     <string name="settings_watch_tether_desc">Zavibriraj ovaj telefon kad tvoj upareni sat izađe iz dometa Bluetootha</string>
+    <string name="noti_ongoing_watch">Nadziru tvoje uređaje</string>
 </resources>

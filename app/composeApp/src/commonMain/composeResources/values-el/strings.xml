@@ -280,4 +280,5 @@
     <string name="settings_phone_tether_desc">Δόνηση σε αυτό το ρολόι όταν το συζευγμένο τηλέφωνό σου βγει εκτός εμβέλειας Bluetooth</string>
     <string name="settings_watch_tether_title">Ειδοποίηση αν ξεχάσω το ρολόι μου</string>
     <string name="settings_watch_tether_desc">Δόνηση σε αυτό το τηλέφωνο όταν το συζευγμένο ρολόι σου βγει εκτός εμβέλειας Bluetooth</string>
+    <string name="noti_ongoing_watch">Παρακολούθηση των συσκευών σου</string>
 </resources>

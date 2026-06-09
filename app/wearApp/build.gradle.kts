@@ -29,8 +29,8 @@ android {
         // Wear OS = 2xxx here) so the two bundles — same applicationId, so codes
         // must be globally unique — never collide. Bump within the band. 2000
         // clears the early watch uploads (10/11).
-        versionCode = 2008
-        versionName = "0.6.0"
+        versionCode = 2009
+        versionName = "0.6.1"
     }
 
     // Release signing from the same gitignored keystore.properties as the phone app.
@@ -67,12 +67,21 @@ android {
     }
     buildFeatures { compose = true }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+    // The phone-left listener uses the legacy BIND_LISTENER Data Layer filter (onPeer*
+    // node events have no modern filter). It still works on current Play Services; the
+    // upcoming phone↔watch comms work migrates it to the capability API. Suppress the
+    // deprecation-as-fatal so the release builds meanwhile.
+    lint { disable += "WearableBindListener" }
 }
 
 dependencies {
     implementation(project(":core"))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.work.runtime) // periodic (no-FGS) safety check
+    implementation(libs.play.services.wearable) // Data Layer: detect the paired phone leaving
+    // play-services-wearable transitively pins androidx.fragment 1.1.0; bump it so the
+    // ActivityResult lint check (needs >= 1.3.0) passes. Wear uses ComponentActivity, not Fragments.
+    implementation("androidx.fragment:fragment:1.8.5")
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

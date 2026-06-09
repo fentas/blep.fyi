@@ -16,6 +16,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -131,11 +135,12 @@ private fun proximityColor(f: Float): Color {
 
 @Composable
 fun WearApp(controller: WearController) {
+    var showSettings by remember { mutableStateOf(false) }
     val tracked = controller.tracking
-    if (tracked == null) {
-        DiscoveryList(controller)
-    } else {
-        controller.status?.let {
+    when {
+        showSettings -> WearSettings(onBack = { showSettings = false })
+        tracked == null -> DiscoveryList(controller, onSettings = { showSettings = true })
+        else -> controller.status?.let {
             TrackingView(
                 tracked.displayName, it, controller.spatial, controller.guidance,
                 rssi = controller.lastRssi, signalLost = controller.signalLost,
@@ -145,13 +150,50 @@ fun WearApp(controller: WearController) {
     }
 }
 
+@Composable
+private fun WearSettings(onBack: () -> Unit) {
+    val ctx = LocalContext.current
+    var phoneTether by remember { mutableStateOf(PhoneTether.enabled(ctx)) }
+    ScalingLazyColumn(modifier = Modifier.fillMaxSize().background(Color(0xFF101418))) {
+        item { Text(stringResource(R.string.settings_title), textAlign = TextAlign.Center, color = Color(0xFFF4F5F0)) }
+        item {
+            // Plain toggle-chip (tap flips it) — "alert me if I leave my phone behind".
+            Chip(
+                onClick = { phoneTether = !phoneTether; PhoneTether.setEnabled(ctx, phoneTether) },
+                colors = ChipDefaults.primaryChipColors(
+                    backgroundColor = if (phoneTether) Color(0xFF5F90C3) else Color(0xFF2A2F38),
+                ),
+                label = { Text(stringResource(R.string.settings_phone_tether_title)) },
+                secondaryLabel = { Text(stringResource(if (phoneTether) R.string.tether_on else R.string.settings_phone_tether_desc)) },
+                modifier = Modifier.padding(horizontal = 8.dp),
+            )
+        }
+        item {
+            Chip(
+                onClick = onBack,
+                colors = ChipDefaults.secondaryChipColors(),
+                label = { Text(stringResource(R.string.action_done)) },
+                modifier = Modifier.padding(horizontal = 8.dp),
+            )
+        }
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DiscoveryList(controller: WearController) {
+private fun DiscoveryList(controller: WearController, onSettings: () -> Unit) {
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize().background(Color(0xFF101418)),
     ) {
         item { Text("blep", textAlign = TextAlign.Center, color = Color(0xFFF4F5F0)) }
+        item {
+            Chip(
+                onClick = onSettings,
+                colors = ChipDefaults.secondaryChipColors(),
+                label = { Text(stringResource(R.string.settings_title)) },
+                modifier = Modifier.padding(horizontal = 8.dp),
+            )
+        }
         items(controller.devices, key = { it.id }) { device ->
             val tethered = controller.isTethered(device.id)
             // Tap to hunt it; long-press to set/clear a "left behind" alert on it.

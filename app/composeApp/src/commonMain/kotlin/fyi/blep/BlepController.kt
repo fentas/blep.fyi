@@ -293,7 +293,11 @@ class BlepController(
     fun setForegroundScanning(on: Boolean) {
         foregroundScanEnabled = on
         settings.setForegroundScan(on)
-        BackgroundScan.setForeground(on && screen is Screen.Safety)
+        // If a tether/flag is already keeping the service alive, re-poke it so it re-reads
+        // this setting now (starts/stops the tracker scan immediately) instead of on its next
+        // restart. Otherwise fall back to the safety-screen behaviour.
+        if (flaggedIds.isNotEmpty() || tetheredIds.isNotEmpty()) BackgroundScan.setForeground(true)
+        else BackgroundScan.setForeground(on && screen is Screen.Safety)
     }
 
     /** Periodic background safety scan while the app is closed (persisted). */

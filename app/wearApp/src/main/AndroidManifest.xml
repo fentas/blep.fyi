@@ -32,5 +32,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Data Layer: the system delivers phone connect/disconnect events here (no
+             foreground service needed) so the watch can alert "you left your phone behind". -->
+        <service
+            android:name=".PhoneTetherService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

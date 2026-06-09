@@ -280,4 +280,5 @@
     <string name="settings_phone_tether_desc">Pane see kell värisema, kui sinu seotud telefon väljub Bluetoothi levialast</string>
     <string name="settings_watch_tether_title">Hoiata, kui jätan oma kella maha</string>
     <string name="settings_watch_tether_desc">Pane see telefon värisema, kui sinu seotud kell väljub Bluetoothi levialast</string>
+    <string name="noti_ongoing_watch">Valvan su seadmeid</string>
 </resources>

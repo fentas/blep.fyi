@@ -280,4 +280,5 @@
     <string name="settings_phone_tether_desc">Fazer este relógio vibrar quando o telemóvel emparelhado sair do alcance do Bluetooth</string>
     <string name="settings_watch_tether_title">Avisar se eu deixar o relógio</string>
     <string name="settings_watch_tether_desc">Fazer este telemóvel vibrar quando o relógio emparelhado sair do alcance do Bluetooth</string>
+    <string name="noti_ongoing_watch">A vigiar os teus dispositivos</string>
 </resources>

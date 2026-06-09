@@ -13,6 +13,7 @@ androidxComposeBom = "2026.05.01"
 wearCompose = "1.6.2"
 androidxCoreSplashscreen = "1.2.0"
 workManager = "2.11.2"
+playServicesWearable = "18.2.0"
 androidMinSdk = "26"
 androidCompileSdk = "36"
 androidTargetSdk = "36"
@@ -39,6 +40,7 @@ androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling
 androidx-activity-compose-android = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidxCoreSplashscreen" }
 androidx-work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "workManager" }
+play-services-wearable = { module = "com.google.android.gms:play-services-wearable", version.ref = "playServicesWearable" }
 wear-compose-material = { module = "androidx.wear.compose:compose-material", version.ref = "wearCompose" }
 wear-compose-foundation = { module = "androidx.wear.compose:compose-foundation", version.ref = "wearCompose" }
 

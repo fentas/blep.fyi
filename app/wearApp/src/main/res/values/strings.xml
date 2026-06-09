@@ -46,4 +46,11 @@
     <string name="noti_tether_back_title">Back in range</string>
     <string name="noti_tether_back_text">%1$s is nearby again.</string>
     <string name="tether_on">Leave alert on</string>
+    <string name="noti_phone_left_title">Phone left behind?</string>
+    <string name="noti_phone_left_text">Your phone dropped out of range of your watch.</string>
+    <string name="noti_phone_back_text">Your phone is back in range.</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_phone_tether_title">Alert if I leave my phone</string>
+    <string name="settings_phone_tether_desc">Buzz when your phone leaves Bluetooth range</string>
+    <string name="action_done">Done</string>
 </resources>

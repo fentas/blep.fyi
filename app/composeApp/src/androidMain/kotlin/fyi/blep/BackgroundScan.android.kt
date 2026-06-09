@@ -51,6 +51,7 @@ import fyi.blep.resources.noti_channel_tether_info
 import fyi.blep.resources.noti_flagged_text
 import fyi.blep.resources.noti_flagged_title
 import fyi.blep.resources.noti_ongoing_text
+import fyi.blep.resources.noti_ongoing_watch
 import fyi.blep.resources.noti_tether_back_text
 import fyi.blep.resources.noti_tether_back_title
 import fyi.blep.resources.noti_tether_left_text
@@ -149,11 +150,16 @@ class BackgroundScanService : Service() {
         workJob = scope.launch {
             val text = loadNotiText()
             ensureChannels(this@BackgroundScanService, text)
+            // Tracker scanning is governed solely by the "keep scanning when minimized"
+            // setting — only the foreground service honours it (the interval worker has its
+            // own toggle; the in-app safety screen is always available). The ongoing
+            // notification reflects whether we're scanning for trackers or just watching.
+            val trackerScan = AppSettings().foregroundScan()
             // startForeground can be rejected — the connected-device FGS type needs BLE
             // permission, which may not be granted yet — so fail soft, never crash.
             val started = runCatching {
                 ServiceCompat.startForeground(
-                    this@BackgroundScanService, NOTI_ONGOING, ongoingNotification(this@BackgroundScanService, text),
+                    this@BackgroundScanService, NOTI_ONGOING, ongoingNotification(this@BackgroundScanService, text, trackerScan),
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE else 0,
                 )
             }.isSuccess
@@ -180,7 +186,7 @@ class BackgroundScanService : Service() {
             // Tracker (safety) scan — the battery-heavy continuous scan. Run it ONLY when
             // tracker-scanning is actually enabled, so a service that's up purely to watch a
             // tethered device doesn't drag in a scan the user never asked for.
-            if (AppSettings().foregroundScan()) {
+            if (trackerScan) {
                 launch {
                     runCatching {
                         safety.alerts().collect { list ->
@@ -228,6 +234,7 @@ private data class NotiText(
     val channelTether: String,
     val channelTetherInfo: String,
     val ongoingText: String,
+    val ongoingWatchText: String,
     val alertTitle: String,
     val alertText: String,
     val flaggedTitle: String,
@@ -244,6 +251,7 @@ private suspend fun loadNotiText() = NotiText(
     channelTether = getString(Res.string.noti_channel_tether),
     channelTetherInfo = getString(Res.string.noti_channel_tether_info),
     ongoingText = getString(Res.string.noti_ongoing_text),
+    ongoingWatchText = getString(Res.string.noti_ongoing_watch),
     alertTitle = getString(Res.string.noti_alert_title),
     alertText = getString(Res.string.noti_alert_text),
     flaggedTitle = getString(Res.string.noti_flagged_title),
@@ -345,11 +353,11 @@ private fun openAppIntent(ctx: Context): PendingIntent {
     return PendingIntent.getActivity(ctx, 0, i, PendingIntent.FLAG_IMMUTABLE)
 }
 
-private fun ongoingNotification(ctx: Context, t: NotiText): Notification {
+private fun ongoingNotification(ctx: Context, t: NotiText, trackerScan: Boolean): Notification {
     ensureChannels(ctx, t)
     return NotificationCompat.Builder(ctx, CH_ONGOING)
         .setContentTitle(appLabel(ctx))
-        .setContentText(t.ongoingText)
+        .setContentText(if (trackerScan) t.ongoingText else t.ongoingWatchText)
         .setSmallIcon(android.R.drawable.stat_notify_sync)
         .setOngoing(true)
         .setContentIntent(openAppIntent(ctx))

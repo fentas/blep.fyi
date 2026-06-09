@@ -280,4 +280,5 @@
     <string name="settings_phone_tether_desc">ペアリング済みのスマホが Bluetooth の圏外に出たら、この時計を振動させます</string>
     <string name="settings_watch_tether_title">時計を置き忘れたら通知</string>
     <string name="settings_watch_tether_desc">ペアリング済みの時計が Bluetooth の圏外に出たら、このスマホを振動させます</string>
+    <string name="noti_ongoing_watch">デバイスを見守っています</string>
 </resources>

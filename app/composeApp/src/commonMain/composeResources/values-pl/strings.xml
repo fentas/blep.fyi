@@ -280,4 +280,5 @@
     <string name="settings_phone_tether_desc">Zawibruj ten zegarek, gdy sparowany telefon wyjdzie poza zasięg Bluetooth</string>
     <string name="settings_watch_tether_title">Ostrzeż, gdy zostawię zegarek</string>
     <string name="settings_watch_tether_desc">Zawibruj ten telefon, gdy sparowany zegarek wyjdzie poza zasięg Bluetooth</string>
+    <string name="noti_ongoing_watch">Czuwam nad Twoimi urządzeniami</string>
 </resources>
