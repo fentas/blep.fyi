@@ -101,6 +101,24 @@ class RotationTrackerTest {
     }
 
     @Test
+    fun a_moving_device_correlates_along_its_trend() {
+        val rt = RotationTracker()
+        // The tag is being carried toward you: its signal climbs steadily (~1 dB/s).
+        var t = 0L
+        listOf(-88, -86, -84, -82, -80).forEach { rt.observe("A", it, t); t += 2_000 }
+        // It rotates just as it settles near you (~-78). A frozen last-value compare would
+        // see A at ~-81 vs B at -78 and dock confidence; the trend projects A to ~-80, so
+        // the handover lines up.
+        rt.observe("B", -78, t + 2_000)
+        var bt = t + 2_000
+        listOf(-77, -79, -78, -78).forEach { bt += 7_000; rt.observe("B", it, bt) }
+        bt += 7_000; rt.observe("B", -78, bt) // A now stale ⇒ handover resolves
+        val b = rt.statsFor("B")!!
+        assertEquals(1, b.rotations, "an approaching device should still correlate across the rotation")
+        assertTrue(b.confidence >= 0.85, "the trend should make this a confident match, was ${b.confidence}")
+    }
+
+    @Test
     fun a_collision_keeps_both_candidates_as_a_contested_branch() {
         val rt = RotationTracker()
         rt.observe("X", -50, 0)

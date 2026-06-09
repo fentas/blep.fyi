@@ -10,14 +10,21 @@ data class RotationTuning(
     val handoverMs: Long = 20_000L, // a successor id must appear within this AFTER the old id goes quiet
     val overlapMs: Long = 3_000L,   // brief window both ids may co-advertise during a handover
     val dbGate: Int = 6,            // *floor* for the |Δrssi| gate; widened to the device's own jitter
-    val emaWeight: Double = 0.5,    // smoothing of the running RSSI estimate
-    // RSSI is noisy: a phone-to-tag link routinely swings several dB even when nothing
-    // moves. So the gate and the handover confidence are scaled to each device's *own*
-    // measured jitter — a Δ within the noise is a great match, not a weak one.
-    val minNoise: Double = 2.0,     // assumed jitter floor (dBm) even for a rock-steady device
+    // Each id is tracked with a tiny α-β filter: a smoothed level (α = emaWeight) plus a
+    // trend (β), so a handover is matched against where the old id was *heading*, not a
+    // frozen last value — and the leftover prediction residual is the device's true jitter
+    // (a moving device's drift no longer pollutes it).
+    val emaWeight: Double = 0.5,    // α: level smoothing of the RSSI tracker
+    val beta: Double = 0.10,        // β: how fast the trend (slope) adapts
+    val slopeMaxPerMs: Double = 0.02, // clamp the trend to ±20 dBm/s (beyond ⇒ a noise spike, not motion)
+    val devWeight: Double = 0.25,   // smoothing of the running jitter (residual) estimate
+    // The gate and the handover confidence scale to each device's *own* measured jitter:
+    // a Δ within the noise is a great match, not a weak one. The estimate is a running
+    // mean of the residual, clamped — floored so we never claim a noiseless reading,
+    // ceilinged so a wild/transient reading can't widen the gate into false merges.
+    val minNoise: Double = 2.0,     // jitter floor (dBm) — even a steady link wobbles this much
+    val maxNoise: Double = 4.0,     // jitter ceiling — caps how far the gate can ever open
     val gateK: Double = 2.5,        // gate ≈ this × the device's jitter (never below dbGate)
-    val slowWeight: Double = 0.15,  // slow mean used as the baseline the jitter is measured against
-    val devWeight: Double = 0.25,   // smoothing of the running jitter estimate
 )
 
 /** What the UI can show about a device's identity churn. */
@@ -75,9 +82,9 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
 
     private class Track(
         var address: String,
-        var rssi: Double,
-        var slowMean: Double = rssi, // steadier baseline the jitter is measured against
-        var dev: Double = 0.0,       // running estimate of this id's RSSI jitter (dBm)
+        var rssi: Double,            // α-β tracked level (dBm)
+        var slope: Double = 0.0,     // α-β tracked trend (dBm per ms)
+        var dev: Double = 0.0,       // running mean |prediction residual| = this id's true jitter
         var firstSeenMs: Long,
         var lastSeenMs: Long,
         val bornMs: Long,
@@ -119,12 +126,16 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         reconcile(timeMs)
         val exact = tracks.firstOrNull { it.address == address }
         if (exact != null) {
-            // Measure jitter against the slow baseline (the fast EMA chases the signal,
-            // so it would under-report the spread), then advance both.
-            val d = abs(rssi - exact.slowMean)
-            exact.dev = exact.dev * (1 - tuning.devWeight) + d * tuning.devWeight
-            exact.slowMean = exact.slowMean * (1 - tuning.slowWeight) + rssi * tuning.slowWeight
-            exact.rssi = ema(exact.rssi, rssi)
+            // α-β filter step: predict the level forward along the trend, correct by the
+            // residual. The residual is the genuine jitter (the trend is already removed),
+            // so a steadily-moving device reads as low-noise, not high-noise.
+            val dtMs = (timeMs - exact.lastSeenMs).coerceAtLeast(1L).toDouble()
+            val predicted = exact.rssi + exact.slope * dtMs
+            val residual = rssi - predicted
+            exact.rssi = predicted + tuning.emaWeight * residual
+            exact.slope = (exact.slope + tuning.beta / dtMs * residual)
+                .coerceIn(-tuning.slopeMaxPerMs, tuning.slopeMaxPerMs)
+            exact.dev = exact.dev * (1 - tuning.devWeight) + abs(residual) * tuning.devWeight
             exact.lastSeenMs = timeMs
             if (fingerprint != null) exact.fingerprint = fingerprint
             return
@@ -246,11 +257,13 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         // a matching one corroborates the range, so we tolerate a wider dB jump.
         if (fpMismatch(old.fingerprint, heir.fingerprint)) return false
         val gate = effectiveGate(noise(old.dev, heir.dev), fpMatch(old.fingerprint, heir.fingerprint))
-        return abs(heir.rssi - old.rssi) <= gate
+        // Compare the heir against where the old id was *heading* at the handover, not its
+        // last frozen value — a device approaching/receding still lines up.
+        return abs(heir.rssi - projected(old, heir.bornMs)) <= gate
     }
 
     private fun mergeInto(heir: Track, old: Track, candidateCount: Int) {
-        val q = quality(old.rssi, heir.rssi, noise(old.dev, heir.dev), candidateCount, fpMatch(old.fingerprint, heir.fingerprint))
+        val q = quality(projected(old, heir.bornMs), heir.rssi, noise(old.dev, heir.dev), candidateCount, fpMatch(old.fingerprint, heir.fingerprint))
         heir.firstSeenMs = minOf(heir.firstSeenMs, old.firstSeenMs)
         heir.rotations += old.rotations + 1
         heir.addressesSeen += old.addressesSeen
@@ -260,9 +273,18 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         heir.origin = old.origin // the older lineage's origin wins (continuity)
     }
 
-    /** The jitter the two ids share — at least [RotationTuning.minNoise], so we never
-     *  claim a perfectly steady reading (RSSI is never truly noiseless). */
-    private fun noise(devA: Double, devB: Double): Double = maxOf(devA, devB, tuning.minNoise)
+    /** The old id's level projected forward to [toMs] along its trend (bounded to the
+     *  handover horizon, never backwards), so a moving device is matched where it's going. */
+    private fun projected(t: Track, toMs: Long): Double {
+        val horizon = (toMs - t.lastSeenMs).coerceIn(0L, tuning.handoverMs).toDouble()
+        return t.rssi + t.slope * horizon
+    }
+
+    /** The jitter the two ids share — a running mean of their residuals, clamped to
+     *  [[RotationTuning.minNoise], [RotationTuning.maxNoise]]: floored so we never claim a
+     *  noiseless reading, ceilinged so one wild id can't open the gate to false merges. */
+    private fun noise(devA: Double, devB: Double): Double =
+        maxOf(devA, devB).coerceIn(tuning.minNoise, tuning.maxNoise)
 
     /** |Δrssi| a successor may sit from the old id: the bigger of the [RotationTuning.dbGate]
      *  floor and a multiple of the device's own jitter, doubled when a payload matches. */
