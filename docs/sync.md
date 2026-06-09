@@ -63,10 +63,13 @@ except live scan-fusion (opt-in).
   the watch's extra sightings (`remoteSightings` / `watchOnlyCount`).
 
 **Next:**
-- **Apple**: a WatchConnectivity `actual` of `SyncTransport` exists in `appleMain`
-  (`SyncTransport.apple.kt`) but is **verified only by the macOS CI build**, not the
-  Android/JVM path. The watchOS Swift app still needs to *activate* sync (it has its own
-  UI today), and the whole Apple path needs on-device testing.
+- **Apple**: still a no-op stub. A first shared-`appleMain` WCSession actual was tried and
+  reverted — `WCSessionDelegate` can't be implemented in shared `appleMain` (its required
+  `sessionDidBecomeInactive`/`sessionDidDeactivate` are **iOS-only**, absent on watchOS, and
+  the `session:didReceive…:` methods collide as same-type Kotlin overloads). The real shape
+  is **separate `iosMain` + `watchosMain` actuals**, each with its own delegate subclass
+  (disambiguating the overloads via the interop), built/iterated in Xcode. Then the watchOS
+  Swift app needs to *activate* sync, and the whole path needs on-device testing.
 - Surface `remoteSightings` visually in the discovery list (data flows; no UI chip yet).
 - Feed remote sightings into the safety correlator (deeper fusion than the current
   "combined view").
