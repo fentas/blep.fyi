@@ -34,7 +34,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -57,6 +56,9 @@ import fyi.blep.ui.theme.BlepLogo
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 private data class OnboardPage(val title: StringResource, val body: StringResource)
 
@@ -91,31 +93,40 @@ fun OnboardingScreen(onDone: () -> Unit, onSkip: () -> Unit, modifier: Modifier 
         }
 
         HorizontalPager(state = pager, modifier = Modifier.weight(1f)) { page ->
+            // Fixed-height bands (artwork / title / body) so the heading lands at the
+            // same vertical position on every page — independent of artwork size or how
+            // many lines the title/body wrap to.
             Column(
                 Modifier.fillMaxSize().padding(horizontal = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                when (page) {
-                    1 -> ChestShieldDiagram(Modifier.size(190.dp))
-                    2 -> ShieldIcon(Modifier.size(150.dp))
-                    else -> Image(rememberVectorPainter(BlepLogo), contentDescription = null, modifier = Modifier.size(150.dp))
+                Box(Modifier.height(200.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    when (page) {
+                        1 -> BodyShieldDiagram(Modifier.size(196.dp))
+                        2 -> ShieldIcon(Modifier.size(150.dp))
+                        else -> Image(rememberVectorPainter(BlepLogo), contentDescription = null, modifier = Modifier.size(150.dp))
+                    }
                 }
-                Spacer(Modifier.height(40.dp))
-                Text(
-                    stringResource(pages[page].title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                )
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    stringResource(pages[page].body),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                    textAlign = TextAlign.Center,
-                )
+                Spacer(Modifier.height(28.dp))
+                Box(Modifier.height(76.dp).fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                    Text(
+                        stringResource(pages[page].title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                Box(Modifier.height(132.dp).fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                    Text(
+                        stringResource(pages[page].body),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
 
@@ -169,54 +180,63 @@ private fun ShieldIcon(modifier: Modifier) {
     }
 }
 
-/** A simple line drawing: a person holding the phone flat to the chest, with a
- *  dashed arc + arrowhead suggesting "turn slowly". No image asset needed. */
+/** "Hold it to your chest, turn slowly": a filled person-bust silhouette holding the
+ *  phone flat to the chest, ringed by a rotation arrow. Your body shields the signal
+ *  from behind, so the reading points the way as you turn. Drawn — no image asset. */
 @Composable
-private fun ChestShieldDiagram(modifier: Modifier) {
-    val ink = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.85f)
+private fun BodyShieldDiagram(modifier: Modifier) {
+    val ink = MaterialTheme.colorScheme.onBackground
+    val blue = BlepColors.Blue
     Canvas(modifier) {
         val w = size.width
         val h = size.height
         val cx = w / 2f
-        val line = Stroke(width = w * 0.028f, cap = StrokeCap.Round)
+        val cy = h / 2f
 
-        // Rotation arc behind the figure (dashed) with an arrowhead — "turn slowly".
-        val dash = Stroke(width = w * 0.022f, cap = StrokeCap.Round, pathEffect = PathEffect.dashPathEffect(floatArrayOf(w * 0.05f, w * 0.045f)))
-        drawArc(
-            color = BlepColors.Blue.copy(alpha = 0.7f),
-            startAngle = 160f, sweepAngle = 220f, useCenter = false,
-            topLeft = Offset(w * 0.08f, h * 0.06f), size = Size(w * 0.84f, h * 0.84f),
-            style = dash,
-        )
-        // arrowhead at the arc's end (~20°)
-        val ah = w * 0.06f
-        val end = Offset(cx + (w * 0.42f), h * 0.48f - (h * 0.42f) * 0.34f)
-        val head = Path().apply {
-            moveTo(end.x, end.y)
-            lineTo(end.x - ah, end.y - ah * 0.5f)
-            lineTo(end.x - ah * 0.5f, end.y + ah)
+        // Soft badge halo behind the figure.
+        drawCircle(blue.copy(alpha = 0.08f), radius = w * 0.46f, center = Offset(cx, cy))
+
+        // Person bust — filled head + shoulders silhouette.
+        drawCircle(ink.copy(alpha = 0.88f), radius = w * 0.135f, center = Offset(cx, cy - h * 0.17f))
+        val bust = Path().apply {
+            moveTo(cx - w * 0.28f, cy + h * 0.31f)
+            cubicTo(cx - w * 0.28f, cy + h * 0.04f, cx - w * 0.12f, cy - h * 0.03f, cx, cy - h * 0.03f)
+            cubicTo(cx + w * 0.12f, cy - h * 0.03f, cx + w * 0.28f, cy + h * 0.04f, cx + w * 0.28f, cy + h * 0.31f)
             close()
         }
-        drawPath(head, BlepColors.Blue.copy(alpha = 0.7f))
+        drawPath(bust, ink.copy(alpha = 0.88f))
 
-        // Head
-        drawCircle(ink, radius = w * 0.10f, center = Offset(cx, h * 0.26f), style = line)
-        // Shoulders / torso (trapezoid outline)
-        val torso = Path().apply {
-            moveTo(cx - w * 0.20f, h * 0.86f)
-            lineTo(cx - w * 0.16f, h * 0.46f)
-            quadraticTo(cx, h * 0.40f, cx + w * 0.16f, h * 0.46f)
-            lineTo(cx + w * 0.20f, h * 0.86f)
-        }
-        drawPath(torso, ink, style = line)
-        // Phone held flat to the chest
-        val pw = w * 0.20f
-        val ph = w * 0.30f
+        // Phone held flat to the chest, with a lighter screen.
+        val pw = w * 0.17f
+        val ph = w * 0.25f
+        val ptl = Offset(cx - pw / 2f, cy + h * 0.04f)
+        drawRoundRect(blue, topLeft = ptl, size = Size(pw, ph), cornerRadius = CornerRadius(w * 0.022f, w * 0.022f))
         drawRoundRect(
-            color = BlepColors.Blue,
-            topLeft = Offset(cx - pw / 2f, h * 0.52f),
-            size = Size(pw, ph),
-            cornerRadius = CornerRadius(w * 0.025f, w * 0.025f),
+            BlepColors.Cream.copy(alpha = 0.9f),
+            topLeft = Offset(ptl.x + pw * 0.17f, ptl.y + ph * 0.15f),
+            size = Size(pw * 0.66f, ph * 0.6f),
+            cornerRadius = CornerRadius(w * 0.012f, w * 0.012f),
         )
+
+        // "Turn" — a near-full ring with an arrowhead at its clockwise end.
+        val rr = w * 0.43f
+        drawArc(
+            color = blue,
+            startAngle = 128f, sweepAngle = 274f, useCenter = false,
+            topLeft = Offset(cx - rr, cy - rr), size = Size(rr * 2f, rr * 2f),
+            style = Stroke(width = w * 0.028f, cap = StrokeCap.Round),
+        )
+        val endA = (128f + 274f) * (PI.toFloat() / 180f)
+        val p = Offset(cx + rr * cos(endA), cy + rr * sin(endA))
+        val tang = Offset(-sin(endA), cos(endA)) // clockwise tangent
+        val rad = Offset(cos(endA), sin(endA))
+        val ah = w * 0.062f
+        val arrow = Path().apply {
+            moveTo(p.x + tang.x * ah, p.y + tang.y * ah) // tip, ahead along the turn
+            lineTo(p.x - tang.x * ah * 0.2f + rad.x * ah * 0.62f, p.y - tang.y * ah * 0.2f + rad.y * ah * 0.62f)
+            lineTo(p.x - tang.x * ah * 0.2f - rad.x * ah * 0.62f, p.y - tang.y * ah * 0.2f - rad.y * ah * 0.62f)
+            close()
+        }
+        drawPath(arrow, blue)
     }
 }
