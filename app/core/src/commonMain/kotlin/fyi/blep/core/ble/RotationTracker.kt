@@ -25,6 +25,15 @@ data class RotationTuning(
     val minNoise: Double = 2.0,     // jitter floor (dBm) — even a steady link wobbles this much
     val maxNoise: Double = 4.0,     // jitter ceiling — caps how far the gate can ever open
     val gateK: Double = 2.5,        // gate ≈ this × the device's jitter (never below dbGate)
+    // Proximity prior: the closer the handover, the more certain it's the same device —
+    // a tag right next to you that vanishes as another appears in that range almost
+    // can't be anything else (nothing teleports to your side), whereas far-out churn is
+    // people passing. So close range lifts the confidence floor; far range leaves it to
+    // the dB/jitter match. (Crowding at the range is already handled by the contested
+    // split, so this is purely about distance.)
+    val nearDbm: Double = -60.0,    // at/above this ⇒ full proximity prior
+    val farDbm: Double = -85.0,     // at/below this ⇒ none (just the dB match)
+    val proxCap: Double = 0.85,     // most confidence the proximity prior alone can grant
 )
 
 /** What the UI can show about a device's identity churn. */
@@ -293,14 +302,23 @@ class RotationTracker(private val tuning: RotationTuning = RotationTuning()) {
         return if (fpMatch) g * 2 else g
     }
 
-    /** Handover quality, *relative to the device's own jitter*: a Δ within the noise is a
-     *  full match (RSSI wobbles that much for free), decaying to 0 at the jitter-aware
-     *  gate. Divided across rival candidates; a payload match lifts a loose range match. */
+    /** 0..1 proximity prior from the handover's range: 1 when right next to you (≤ a
+     *  couple of metres), 0 out in the ambient churn. */
+    private fun proximity(rssi: Double): Double =
+        ((rssi - tuning.farDbm) / (tuning.nearDbm - tuning.farDbm)).coerceIn(0.0, 1.0)
+
+    /** Handover quality. Three lifting factors, whichever is strongest, then divided
+     *  across rival candidates:
+     *   - the **range match** relative to the device's own jitter (Δ within the noise = 1);
+     *   - a **payload-fingerprint** match (corroborates a loose range);
+     *   - the **proximity prior** — a close handover is near-certain regardless of dB. */
     private fun quality(r1: Double, r2: Double, noise: Double, candidateCount: Int, fpMatch: Boolean = false): Double {
         val over = (abs(r1 - r2) - noise).coerceAtLeast(0.0)        // how far past the noise floor
         val span = (effectiveGate(noise, fpMatch = false) - noise).coerceAtLeast(1.0)
         val range = (1.0 - over / span).coerceIn(0.0, 1.0)
-        val base = if (fpMatch) maxOf(range, 0.85) else range
+        val fpFloor = if (fpMatch) 0.85 else 0.0
+        val proxFloor = tuning.proxCap * proximity(maxOf(r1, r2)) // the closer of the two readings
+        val base = maxOf(range, fpFloor, proxFloor)
         return base / candidateCount.coerceAtLeast(1)
     }
 

@@ -70,14 +70,32 @@ class RotationTrackerTest {
     @Test
     fun a_weaker_dB_match_lowers_confidence() {
         val rt = RotationTracker()
-        rt.observe("A", -50, 0)
-        rt.observe("A", -50, 5_000)
-        rt.observe("B", -55, 6_000)          // 5 dB off (gate is 6) — a loose match
-        rt.observe("B", -55, 30_000)
-        rt.observe("B", -55, 36_000)
+        // Far out (≈-82), where the proximity prior is negligible, so a loose dB match is
+        // all the evidence there is.
+        rt.observe("A", -82, 0)
+        rt.observe("A", -82, 5_000)
+        rt.observe("B", -87, 6_000)          // 5 dB off (gate is 6) — a loose match
+        rt.observe("B", -87, 30_000)
+        rt.observe("B", -87, 36_000)
         val b = rt.statsFor("B")!!
         assertEquals(1, b.rotations)
         assertTrue(b.confidence in 0.2..0.4, "expected a low-but-positive confidence, was ${b.confidence}")
+    }
+
+    @Test
+    fun a_close_handover_is_confident_even_on_a_loose_dB_match() {
+        val rt = RotationTracker()
+        // Right next to you (≈-50). A device that vanishes here as another appears in the
+        // same close range almost can't be anything else — the proximity prior carries it
+        // even though the dB jump (4) is loose.
+        rt.observe("A", -49, 0)
+        rt.observe("A", -49, 5_000)
+        rt.observe("B", -53, 6_000)
+        rt.observe("B", -53, 30_000)
+        rt.observe("B", -53, 36_000)
+        val b = rt.statsFor("B")!!
+        assertEquals(1, b.rotations)
+        assertTrue(b.confidence >= 0.8, "a close handover should be confident, was ${b.confidence}")
     }
 
     @Test
@@ -220,11 +238,12 @@ class RotationTrackerTest {
     @Test
     fun a_matching_fingerprint_lifts_confidence_on_a_loose_range_match() {
         val rt = RotationTracker()
-        rt.observe("A", -50, 0, "fp")
-        rt.observe("A", -50, 5_000, "fp")
-        rt.observe("B", -55, 6_000, "fp")    // 5 dB off — RSSI-only would be ~0.29…
-        rt.observe("B", -55, 30_000, "fp")
-        rt.observe("B", -55, 36_000, "fp")
+        // Far out, so neither range nor proximity carries it — only the fingerprint does.
+        rt.observe("A", -82, 0, "fp")
+        rt.observe("A", -82, 5_000, "fp")
+        rt.observe("B", -87, 6_000, "fp")    // 5 dB off — RSSI-only would be ~0.25…
+        rt.observe("B", -87, 30_000, "fp")
+        rt.observe("B", -87, 36_000, "fp")
         val b = rt.statsFor("B")!!
         assertEquals(1, b.rotations)
         assertTrue(b.confidence >= 0.85, "payload should corroborate, was ${b.confidence}")
