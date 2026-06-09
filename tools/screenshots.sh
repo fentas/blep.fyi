@@ -94,7 +94,7 @@ if [ "${1:-}" != "--compose" ]; then
   adb shell input tap 540 2024                # "Got it" → celebration
   sleep 2;  adb exec-out screencap -p > "$RAW/04-celebrate.png"
 
-  echo "› capturing the safety scan (anti-stalking)…"
+  echo "› capturing the safety scan (anti-tracking)…"
   adb shell pm clear "$PKG" >/dev/null        # fresh state so the demo AirTag alerts (not muted)
   adb shell am start -n "$PKG/.MainActivity" --ez demo true >/dev/null
   sleep 4

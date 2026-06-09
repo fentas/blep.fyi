@@ -37,7 +37,7 @@ layer** on top of it. Suggested order is 1 → 4; each step ships value on its o
   appear together at the same range. It **has cycles** (phone–watch–earbuds co-occur), so
   it's a graph, *not* a DAG.
 - **Union-find clusters** = "things that travel together" (your usual crowd). The
-  anti-stalking payoff: a tracker that follows you but is **not** in your travel cluster
+  anti-tracking payoff: a tracker that follows you but is **not** in your travel cluster
   is the smoking gun. Generalizes the safety detector's `backdropFingerprint`.
 
 ### 4. GATT deep-fingerprint (strongest, on-demand — pairs with the flag feature)

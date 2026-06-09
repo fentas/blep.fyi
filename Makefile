@@ -67,7 +67,7 @@ sim-gps: ## GPS-fusion reference: mean closest-approach by drift × GPS accuracy
 	-cd app && $(GRADLE) :core:jvmTest --tests '*TrackingSimulationTest.simulation_gps_suite' -Pblep.android=false --rerun-tasks -q
 	$(print_sim)
 
-sim-safety: ## Anti-stalking detection scenarios (follower vs routine) — printed table
+sim-safety: ## Anti-tracking detection scenarios (follower vs routine) — printed table
 	-cd app && $(GRADLE) :core:jvmTest --tests '*SafetySimulationTest.scenario_suite' -Pblep.android=false --rerun-tasks -q
 	@python3 -c "import re,glob; f=sorted(glob.glob('app/core/build/test-results/jvmTest/*SafetySimulation*.xml'))[-1]; s=open(f).read(); m=re.search(r'CDATA\[(.*?)\]\]',s,re.S); print(m.group(1).strip() if m else '(no output)')"
 

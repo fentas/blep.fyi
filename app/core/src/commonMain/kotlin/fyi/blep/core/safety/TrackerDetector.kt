@@ -74,7 +74,7 @@ enum class ScanSensitivity(val tuning: TrackerTuning) {
 /**
  * Detects whether an unwanted Bluetooth tracker (an AirTag, Tile, SmartTag, a
  * Find My / DULT beacon, or an anonymous rotating-MAC device) is travelling **with
- * you** — the anti-stalking mirror of blep's normal hunt.
+ * you** — the anti-tracking mirror of blep's normal hunt.
  *
  * Two fused signals:
  *  1. **By protocol.** A *separated* tracker advertises a recognisable type. Its

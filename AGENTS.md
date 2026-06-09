@@ -4,7 +4,7 @@ Orientation for AI agents (and humans) working in this repo. Keep it accurate �
 
 ## What blep is
 
-A Kotlin Multiplatform BLE finder + anti-stalking tool. One shared core drives four apps:
+A Kotlin Multiplatform BLE finder + anti-tracking tool. One shared core drives four apps:
 - **Android phone** — Compose Multiplatform
 - **Wear OS** — Wear Compose
 - **iOS** — SwiftUI (`iosApp/`) linking a Kotlin framework

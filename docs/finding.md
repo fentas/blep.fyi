@@ -49,7 +49,7 @@ heavy drift.** Why:
 the finder remains RSSI + IMU. If drift ever becomes a real problem, the fix is better
 IMU handling (heading recalibration, ZUPT), not GPS.
 
-(Location *is* worth it for the anti-stalking **detection** side — coarse, on-device,
+(Location *is* worth it for the anti-tracking **detection** side — coarse, on-device,
 to count distinct *places* a tracker follows you across — which is a different,
 larger-scale question than the sub-metre hunt. See `detection.md`.)
 

@@ -9,7 +9,7 @@
   ·
   <a href="#-how-it-works--the-body-shielding-technique">How it works</a>
   ·
-  <a href="#-is-something-following-you">Anti-stalking</a>
+  <a href="#-is-something-following-you">Anti-tracking</a>
   ·
   <a href="#-building">Build</a>
   ·
@@ -51,7 +51,7 @@ to warm as you close in. No extra hardware, no maps, no accounts.
 The same scan runs the other way too: blep watches for **unwanted trackers**
 travelling with you — an AirTag, Tile or SmartTag someone may have slipped into
 your bag — and, because it's a finder, doesn't just warn but **points you to
-it**. ([Anti-stalking ↓](#-is-something-following-you))
+it**. ([Anti-tracking ↓](#-is-something-following-you))
 
 It's a minimalist, cross-platform [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html)
 app (iOS, Android, Apple Watch, Wear OS) plus a small static PWA landing page at

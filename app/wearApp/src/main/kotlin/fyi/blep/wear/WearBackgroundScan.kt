@@ -30,7 +30,7 @@ private const val NOTI_ALERT = 2001
 private const val SCAN_WINDOW_MS = 20_000L
 
 /**
- * The watch's anti-stalking check: a **periodic** (~30 min) WorkManager scan with
+ * The watch's anti-tracking check: a **periodic** (~30 min) WorkManager scan with
  * **no foreground service** — so it's light on the watch battery and needs no Play
  * foreground-service declaration (the phone runs the continuous version). Reuses the
  * shared `core` safety pipeline and posts a localized notification if a tracker

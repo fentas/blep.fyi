@@ -2,7 +2,7 @@
 # Generate the full Play / YouTube promo video — a multi-segment, captioned tour of
 # every feature, composed from live recordings of the in-app demo.
 #
-# Segments: intro card → discovery → find (radar) → anti-stalking → settings →
+# Segments: intro card → discovery → find (radar) → anti-tracking → settings →
 # outro card. Each phone capture is framed (rounded + soft shadow) on a branded
 # 1920×1080 canvas with an animated caption, then crossfaded together.
 #

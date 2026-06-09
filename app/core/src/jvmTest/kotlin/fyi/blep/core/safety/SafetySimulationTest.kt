@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 /**
- * Scenario simulation for the anti-stalking **detection** layer — the safety analogue
+ * Scenario simulation for the anti-tracking **detection** layer — the safety analogue
  * of the tracking `simulation_suite`. It plays scripted multi-context "days" through
  * the *real* [SafetyScanner] (so the live detector, the GPS-free backdrop-crowd
  * fingerprint, and the cross-session context-diversity promotion all run for real) and

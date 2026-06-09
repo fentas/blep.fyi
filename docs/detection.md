@@ -43,7 +43,7 @@ Severity escalates: nearby → separated-nearby → following (sustained) → ro
 
 ## The core false-positive problem
 
-**Routine co-presence ≠ stalking.** The clearest case is the user's own:
+**Routine co-presence ≠ unwanted tracking.** The clearest case is the user's own:
 *"if you take the same transit every day, you get the same devices."* Other
 benign recurrers:
 
@@ -103,7 +103,7 @@ This is now implemented in `core/safety`:
   promoted; diverse contexts and multi-place promote).
 
 **Why baseline at the *context* level, not a device allowlist:** auto-allowlisting a
-device or tracker *kind* "because it's always around" is dangerous — a stalker's tag
+device or tracker *kind* "because it's always around" is dangerous — an unwanted tracker's tag
 *is* always around (it's on you), so it would self-suppress. Downweighting the
 **context** instead keeps the suspect flaggable the moment it appears beyond your
 routine. The explicit per-device escape hatch stays the manual "It's mine" mute.
@@ -120,7 +120,7 @@ movement, or user-set) that retune sensitivity:
 |---|---|---|
 | **Stationary / home** | long still period, stable backdrop | Learn a *baseline allowlist* of devices usually around you; heavily downweight them. New persistent device near you while stationary is interesting but low-urgency. |
 | **Commute / transit** | recurring movement window, high stranger churn | Expect lots of brief strangers → raise the bar; only flag a device that **survives the churn** (still there after the crowd turned over) or that also appears outside this window. |
-| **Out & about / travel** | novel movement, unfamiliar backdrop | Most sensitive: a device following you here, *especially* if also seen at home/commute, is the strongest stalking signal. |
+| **Out & about / travel** | novel movement, unfamiliar backdrop | Most sensitive: a device following you here, *especially* if also seen at home/commute, is the strongest following signal. |
 
 Auto-switching can be coarse (moving vs still, recurring-window vs novel) — it
 doesn't need location, just motion + the time/co-presence fingerprint.

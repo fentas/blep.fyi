@@ -1,7 +1,7 @@
 package fyi.blep
 
 /**
- * Schedules background safety (anti-stalking) scanning. On Android this is a
+ * Schedules background safety (anti-tracking) scanning. On Android this is a
  * periodic WorkManager job (app closed) plus a foreground service that keeps a
  * safety scan alive when you leave the app. Other platforms are no-ops.
  *

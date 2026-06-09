@@ -156,7 +156,7 @@ to anything nearby with Bluetooth. No account, no ads, no tracking.
 
 ### Keywords (max 100, comma-separated)
 ```
-bluetooth,finder,tracker,find,keys,earbuds,lost,signal,ble,locator,airtag,anti stalker
+bluetooth,finder,tracker,find,keys,earbuds,lost,signal,ble,locator,airtag,tracker detector
 ```
 
 ### Description

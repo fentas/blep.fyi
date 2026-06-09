@@ -10,7 +10,7 @@ blep — find lost Bluetooth things, and catch trackers following you
 ```
 
 Alternatives:
-- `blep: a Bluetooth finder & anti-stalking scanner — free & open source`
+- `blep: a Bluetooth finder & anti-tracking scanner — free & open source`
 - `Find anything Bluetooth by signal — and detect AirTags following you | blep`
 
 ## Description
@@ -54,5 +54,5 @@ LINKS
 • Support:  https://blep.fyi/donate.html
 • Privacy:  https://blep.fyi/privacy.html
 
-#Bluetooth #AntiStalking #AirTag #FindMy #OpenSource #Android #Privacy
+#Bluetooth #AntiTracking #AirTag #FindMy #OpenSource #Android #Privacy
 ```

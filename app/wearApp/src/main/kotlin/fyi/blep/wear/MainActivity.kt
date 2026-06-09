@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         val demo = intent?.getBooleanExtra("demo", false) == true
         if (!demo) {
             requestBlePermissions()
-            // Light, foreground-service-free anti-stalking watch: a periodic (~30 min)
+            // Light, foreground-service-free anti-tracking watch: a periodic (~30 min)
             // check that notifies if a tracker seems to be following you.
             WearSafetyScan.enqueue(applicationContext)
         }

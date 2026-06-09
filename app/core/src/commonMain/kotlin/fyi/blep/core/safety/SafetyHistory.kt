@@ -46,7 +46,7 @@ data class CrossSession(
  */
 class SafetyHistory(
     private val store: KeyValueStore,
-    private val retentionMs: Long = 7 * 24 * 60 * 60_000L, // a week — stalking plays out across days
+    private val retentionMs: Long = 7 * 24 * 60 * 60_000L, // a week — unwanted tracking plays out across days
     private val minGapMs: Long = 5 * 60_000L,              // throttle: ≤1 record per kind / 5 min
     private val maxEntries: Int = 1000,                    // ~17 KB worst case; storage is a non-issue
     private val maxMuted: Int = 200,                       // bound the "it's mine" list (rotating tags churn it)

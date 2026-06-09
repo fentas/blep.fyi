@@ -1,6 +1,6 @@
 # Safety scan — "is something tracking *me*?"
 
-The anti-stalking mirror of blep's hunt: detect an unwanted Bluetooth tracker
+The anti-tracking mirror of blep's hunt: detect an unwanted Bluetooth tracker
 (AirTag, Tile, SmartTag, a Find My / DULT beacon, or an anonymous rotating-MAC
 device) travelling **with you**, warn, and — blep's unique edge — **point you to
 it** so you can find and remove it.
