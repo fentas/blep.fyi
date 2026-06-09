@@ -239,4 +239,14 @@
     <string name="detail_help_title">这有多确定？</string>
     <string name="detail_help_body">blep 通过观察一个 id 静默、另一个 id 在相同距离出现，将设备在其轮换的 id 之间重新拼接起来。这是其所有 id 变更的平均置信度——并且 blep 绝不会通过弱匹配来沿用名称。</string>
     <string name="a11y_help">这是什么意思？</string>
+    <string name="detail_info_title">设备信息</string>
+    <string name="detail_info_maker">制造商</string>
+    <string name="detail_info_model">型号</string>
+    <string name="detail_info_firmware">固件</string>
+    <string name="detail_info_hardware">硬件</string>
+    <string name="detail_info_serial">序列号</string>
+    <string name="detail_info_battery">电池</string>
+    <string name="detail_info_services">%1$d 项服务</string>
+    <string name="detail_info_signature">GATT 签名</string>
+    <string name="detail_info_locked">已锁定 — 需要配对</string>
 </resources>

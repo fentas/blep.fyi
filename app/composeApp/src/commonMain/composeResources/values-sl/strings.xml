@@ -238,4 +238,14 @@
     <string name="detail_help_title">Kako zanesljivo je to?</string>
     <string name="detail_help_body">blep napravo znova sestavi prek njenih spreminjajočih se id-jev tako, da opazuje, kako en id utihne, ko se drug pojavi na enaki razdalji. To je povprečna zanesljivost vseh sprememb id-ja — in blep imena nikoli ne prenese prek šibkega ujemanja.</string>
     <string name="a11y_help">Kaj to pomeni?</string>
+    <string name="detail_info_title">Podatki o napravi</string>
+    <string name="detail_info_maker">Proizvajalec</string>
+    <string name="detail_info_model">Model</string>
+    <string name="detail_info_firmware">Vdelana oprema</string>
+    <string name="detail_info_hardware">Strojna oprema</string>
+    <string name="detail_info_serial">Serijska št.</string>
+    <string name="detail_info_battery">Baterija</string>
+    <string name="detail_info_services">%1$d storitev</string>
+    <string name="detail_info_signature">Podpis GATT</string>
+    <string name="detail_info_locked">Zaklenjeno — potrebno seznanjanje</string>
 </resources>

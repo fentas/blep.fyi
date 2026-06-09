@@ -238,4 +238,14 @@
     <string name="detail_help_title">どのくらい確かですか？</string>
     <string name="detail_help_body">blep は、1 つの ID が静かになり別の ID が同じ距離に現れる様子を見て、デバイスを変化する ID 全体でつなぎ合わせます。これはすべての ID 変更にわたる平均的な確度であり、blep は弱い一致で名前を引き継ぐことはありません。</string>
     <string name="a11y_help">これはどういう意味ですか？</string>
+    <string name="detail_info_title">デバイス情報</string>
+    <string name="detail_info_maker">メーカー</string>
+    <string name="detail_info_model">型番</string>
+    <string name="detail_info_firmware">ファームウェア</string>
+    <string name="detail_info_hardware">ハードウェア</string>
+    <string name="detail_info_serial">シリアル</string>
+    <string name="detail_info_battery">バッテリー</string>
+    <string name="detail_info_services">%1$d 個のサービス</string>
+    <string name="detail_info_signature">GATT シグネチャ</string>
+    <string name="detail_info_locked">ロック中 — ペアリングが必要</string>
 </resources>

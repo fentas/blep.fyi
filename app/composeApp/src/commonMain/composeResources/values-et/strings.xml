@@ -238,4 +238,14 @@
     <string name="detail_help_title">Kui kindel see on?</string>
     <string name="detail_help_body">blep ühendab seadme selle vahelduvate ID-de kaudu, jälgides, kuidas üks ID vaikib, kui teine samal kaugusel ilmub. See on keskmine kindlus kõigi ID-muudatuste lõikes — ja blep ei kanna nime kunagi üle nõrga vaste.</string>
     <string name="a11y_help">Mida see tähendab?</string>
+    <string name="detail_info_title">Seadme teave</string>
+    <string name="detail_info_maker">Tootja</string>
+    <string name="detail_info_model">Mudel</string>
+    <string name="detail_info_firmware">Püsivara</string>
+    <string name="detail_info_hardware">Riistvara</string>
+    <string name="detail_info_serial">Seerianr</string>
+    <string name="detail_info_battery">Aku</string>
+    <string name="detail_info_services">%1$d teenust</string>
+    <string name="detail_info_signature">GATT-allkiri</string>
+    <string name="detail_info_locked">Lukus — vajab sidumist</string>
 </resources>

@@ -238,4 +238,14 @@
     <string name="detail_help_title">¿Qué tan seguro es esto?</string>
     <string name="detail_help_body">blep reconstruye un dispositivo a través de sus id rotativas observando cómo una id se silencia mientras otra aparece a la misma distancia. Esta es la certeza media de todos sus cambios de id, y blep nunca traslada un nombre a través de una coincidencia débil.</string>
     <string name="a11y_help">¿Qué significa esto?</string>
+    <string name="detail_info_title">Info del dispositivo</string>
+    <string name="detail_info_maker">Fabricante</string>
+    <string name="detail_info_model">Modelo</string>
+    <string name="detail_info_firmware">Firmware</string>
+    <string name="detail_info_hardware">Hardware</string>
+    <string name="detail_info_serial">Nº de serie</string>
+    <string name="detail_info_battery">Batería</string>
+    <string name="detail_info_services">%1$d servicios</string>
+    <string name="detail_info_signature">Firma GATT</string>
+    <string name="detail_info_locked">Bloqueado — requiere emparejar</string>
 </resources>

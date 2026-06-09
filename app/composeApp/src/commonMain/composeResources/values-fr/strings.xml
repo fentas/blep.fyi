@@ -238,4 +238,14 @@
     <string name="detail_help_title">Quel est le niveau de certitude ?</string>
     <string name="detail_help_body">blep reconstitue un appareil à travers ses id changeantes en observant une id se taire tandis qu'une autre apparaît à la même distance. C'est la certitude moyenne sur tous ses changements d'id — et blep ne reporte jamais un nom sur une correspondance faible.</string>
     <string name="a11y_help">Qu'est-ce que cela signifie ?</string>
+    <string name="detail_info_title">Infos appareil</string>
+    <string name="detail_info_maker">Fabricant</string>
+    <string name="detail_info_model">Modèle</string>
+    <string name="detail_info_firmware">Micrologiciel</string>
+    <string name="detail_info_hardware">Matériel</string>
+    <string name="detail_info_serial">Nº de série</string>
+    <string name="detail_info_battery">Batterie</string>
+    <string name="detail_info_services">%1$d services</string>
+    <string name="detail_info_signature">Signature GATT</string>
+    <string name="detail_info_locked">Verrouillé — appairage requis</string>
 </resources>

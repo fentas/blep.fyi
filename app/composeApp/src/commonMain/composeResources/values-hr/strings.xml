@@ -238,4 +238,14 @@
     <string name="detail_help_title">Koliko je ovo sigurno?</string>
     <string name="detail_help_body">blep ponovno spaja uređaj kroz njegove promjenjive id-ove prateći kako jedan id utihne dok se drugi pojavi na istoj udaljenosti. Ovo je prosječna sigurnost svih promjena id-a — i blep nikada ne prenosi ime preko slabog podudaranja.</string>
     <string name="a11y_help">Što ovo znači?</string>
+    <string name="detail_info_title">Podaci uređaja</string>
+    <string name="detail_info_maker">Proizvođač</string>
+    <string name="detail_info_model">Model</string>
+    <string name="detail_info_firmware">Firmver</string>
+    <string name="detail_info_hardware">Hardver</string>
+    <string name="detail_info_serial">Serijski br.</string>
+    <string name="detail_info_battery">Baterija</string>
+    <string name="detail_info_services">%1$d usluga</string>
+    <string name="detail_info_signature">GATT potpis</string>
+    <string name="detail_info_locked">Zaključano — potrebno uparivanje</string>
 </resources>

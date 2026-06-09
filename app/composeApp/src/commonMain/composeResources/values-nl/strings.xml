@@ -238,4 +238,14 @@
     <string name="detail_help_title">Hoe zeker is dit?</string>
     <string name="detail_help_body">blep voegt een apparaat weer samen over zijn wisselende id's door te kijken hoe de ene id verstomt terwijl een andere op dezelfde afstand verschijnt. Dit is de gemiddelde zekerheid over al zijn id-wijzigingen — en blep draagt een naam nooit over via een zwakke match.</string>
     <string name="a11y_help">Wat betekent dit?</string>
+    <string name="detail_info_title">Apparaatinfo</string>
+    <string name="detail_info_maker">Maker</string>
+    <string name="detail_info_model">Model</string>
+    <string name="detail_info_firmware">Firmware</string>
+    <string name="detail_info_hardware">Hardware</string>
+    <string name="detail_info_serial">Serienr.</string>
+    <string name="detail_info_battery">Batterij</string>
+    <string name="detail_info_services">%1$d services</string>
+    <string name="detail_info_signature">GATT-handtekening</string>
+    <string name="detail_info_locked">Vergrendeld — koppelen vereist</string>
 </resources>

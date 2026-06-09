@@ -238,4 +238,14 @@
     <string name="detail_help_title">Jak pewne to jest?</string>
     <string name="detail_help_body">blep scala urządzenie na nowo poprzez jego zmieniające się id, obserwując, jak jedno id milknie, gdy inne pojawia się w tej samej odległości. To średnia pewność wszystkich zmian id — a blep nigdy nie przenosi nazwy przez słabe dopasowanie.</string>
     <string name="a11y_help">Co to oznacza?</string>
+    <string name="detail_info_title">Informacje o urządzeniu</string>
+    <string name="detail_info_maker">Producent</string>
+    <string name="detail_info_model">Model</string>
+    <string name="detail_info_firmware">Oprogramowanie</string>
+    <string name="detail_info_hardware">Sprzęt</string>
+    <string name="detail_info_serial">Nr seryjny</string>
+    <string name="detail_info_battery">Bateria</string>
+    <string name="detail_info_services">%1$d usług</string>
+    <string name="detail_info_signature">Sygnatura GATT</string>
+    <string name="detail_info_locked">Zablokowane — wymaga parowania</string>
 </resources>

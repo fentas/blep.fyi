@@ -238,4 +238,14 @@
     <string name="detail_help_title">Πόσο βέβαιο είναι αυτό;</string>
     <string name="detail_help_body">Το blep συνενώνει μια συσκευή μέσα από τα εναλλασσόμενα ID της, παρατηρώντας ένα ID να σιγεί καθώς ένα άλλο εμφανίζεται στην ίδια απόσταση. Αυτή είναι η μέση βεβαιότητα σε όλες τις αλλαγές ID — και το blep δεν μεταφέρει ποτέ ένα όνομα μέσω αδύναμης αντιστοίχισης.</string>
     <string name="a11y_help">Τι σημαίνει αυτό;</string>
+    <string name="detail_info_title">Πληροφορίες συσκευής</string>
+    <string name="detail_info_maker">Κατασκευαστής</string>
+    <string name="detail_info_model">Μοντέλο</string>
+    <string name="detail_info_firmware">Υλικολογισμικό</string>
+    <string name="detail_info_hardware">Υλικό</string>
+    <string name="detail_info_serial">Σειριακός</string>
+    <string name="detail_info_battery">Μπαταρία</string>
+    <string name="detail_info_services">%1$d υπηρεσίες</string>
+    <string name="detail_info_signature">Υπογραφή GATT</string>
+    <string name="detail_info_locked">Κλειδωμένο — απαιτείται σύζευξη</string>
 </resources>

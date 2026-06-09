@@ -239,4 +239,14 @@
     <string name="detail_help_title">Wie sicher ist das?</string>
     <string name="detail_help_body">blep setzt ein Gerät über seine wechselnden IDs hinweg wieder zusammen, indem es beobachtet, wie eine ID verstummt, während eine andere in derselben Entfernung auftaucht. Dies ist die durchschnittliche Sicherheit über alle ID-Wechsel — und blep überträgt einen Namen nie über eine schwache Übereinstimmung.</string>
     <string name="a11y_help">Was bedeutet das?</string>
+    <string name="detail_info_title">Geräteinfo</string>
+    <string name="detail_info_maker">Hersteller</string>
+    <string name="detail_info_model">Modell</string>
+    <string name="detail_info_firmware">Firmware</string>
+    <string name="detail_info_hardware">Hardware</string>
+    <string name="detail_info_serial">Seriennr.</string>
+    <string name="detail_info_battery">Akku</string>
+    <string name="detail_info_services">%1$d Dienste</string>
+    <string name="detail_info_signature">GATT-Signatur</string>
+    <string name="detail_info_locked">Gesperrt — Kopplung nötig</string>
 </resources>
