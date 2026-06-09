@@ -31,6 +31,7 @@ COMMIT_FLAG        := $(if $(PLAY_COMMIT),--commit,)
         emulator-setup emulator screenshots screenshots-i18n screenshots-wear promo \
         publish-setup publish-listing publish-store bump-version release-notes release-build publish-release release ship ble-trackers \
         bridge bridge-motion bridge-rssi web web-build web-icons \
+        sync-emu sync-emu-up sync-emu-down sync-emu-apps sync-emu-companion sync-emu-pair sync-emu-verify sync-emu-status \
         ci apple clean
 
 help: ## Show this help
@@ -203,6 +204,28 @@ ble-trackers: ## Inject fake AirTag/Tile/SmartTag adverts into the emulator (net
 		(python3 -m venv tools/ble-netsim/venv && tools/ble-netsim/venv/bin/pip install -q bumble)
 	@port=$$(sed -n 's/^grpc.port=//p' "$${TMPDIR:-/tmp}"/netsim.ini 2>/dev/null); \
 		tools/ble-netsim/venv/bin/python tools/ble-netsim/advertise.py $$port
+
+# ── Phone↔watch sync test rig (two emulators on one netsim radio) ─────────────
+# Validates the Wear Data Layer sync (favourites/names/mutes/settings + relay) that
+# unit tests can't reach. Pairing the emulators needs the sideloaded Wear companion +
+# a watch in pairing mode (a freshly-wiped watch AVD); the rest is scripted. See
+# scripts/sync-emu.sh + scripts/verify-sync.sh.
+sync-emu: ## Full sync rig: images → AVDs → boot → install → companion → pair → verify
+	scripts/sync-emu.sh all
+sync-emu-up: ## Create AVDs (if missing) + boot phone + Wear emulators on netsim
+	scripts/sync-emu.sh avds && scripts/sync-emu.sh up
+sync-emu-down: ## Kill both emulators
+	scripts/sync-emu.sh down
+sync-emu-apps: ## Build + install the phone & wear debug APKs
+	scripts/sync-emu.sh apps
+sync-emu-companion: ## Fetch (cached) + sideload the Wear OS companion app onto the phone
+	scripts/sync-emu.sh companion
+sync-emu-pair: ## Drive the companion pairing wizard (watch must be in pairing mode)
+	scripts/sync-emu.sh pair
+sync-emu-verify: ## Prove a favourite syncs phone→watch over the Data Layer
+	scripts/sync-emu.sh verify
+sync-emu-status: ## Show emulator + netsim radios + pairing state
+	scripts/sync-emu.sh status
 
 # On-device "bridge" checks: validate the real Android sensor/BLE glue the JVM
 # sims bypass. Need a running emulator (`make emulator`). Path-finding *logic*
