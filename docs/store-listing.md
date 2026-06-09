@@ -41,6 +41,18 @@ WHAT MAKES IT GOOD
 • Tells you when the field is clean vs noisy, and when there's no signal at all.
 • Optional sound + haptics that pulse faster as you close in.
 
+KNOW YOUR DEVICES
+Tap any nearby device to open its panel — its live signal, whether its Bluetooth
+address is fixed or rotating, and how long ago you first saw it.
+• "Identify this device" — blep briefly connects to read its real name, maker and
+  model, turning an "unknown tracker" into "someone's earbuds".
+• Rename a device, and the name follows it even when it rotates its ID.
+• "Watch this device" — flag one and blep keeps a live eye on it, notifying you
+  whenever it's in range.
+• blep stitches a rotating ID back into one device — its history, how sure it is,
+  and your rename don't reset every few minutes. All on-device; you choose how long
+  a device is remembered, and can clear it any time.
+
 IS SOMETHING TRACKING YOU?
 Tap "Is something tracking you?" to scan for unwanted trackers travelling with
 you — an AirTag, Tile, SmartTag or Find My beacon someone may have slipped into

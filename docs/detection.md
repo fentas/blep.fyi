@@ -184,6 +184,24 @@ resolve identity — we correlate at the level of the **handover**:
 Pure/deterministic and unit-tested (`RotationTrackerTest`). RSSI-only, so it's a
 heuristic — the confidence carries the uncertainty rather than overclaiming.
 
+**Calibrated to real RSSI (shipped):** the gate and confidence no longer use a flat
+dB threshold. Each id is tracked with a tiny **α-β filter** (level + trend), so a
+handover is matched against where the old id was *heading*, not a frozen value, and
+the leftover residual is the device's true **jitter**. The gate then widens to that
+jitter (clamped), confidence is high when a Δ sits *within* the noise, and a **closer
+handover is weighted as more certain** (a tag right next to you can't be a stranger
+teleporting in). A feeding bug that re-echoed a silent id from the scan snapshot —
+which made a lone device never correlate — was fixed by feeding the correlator only
+from the live advert stream.
+
+**Active identification (shipped, `BleScanner.probe`):** a one-shot GATT connect (no
+pairing) reads the GAP name + Device Information Service (maker/model/firmware/
+hardware/serial) + the structural GATT fingerprint + battery + pairing posture. A
+serial — or a name, or a same-structure/same-battery temporal match — re-links a
+device across rotations the RSSI handover lost, and it's all shown on the device
+panel. Dwell-gated, once-per-identity, cached in `IdentityStore`, runs in the finder
+*and* the safety scan.
+
 ## Flagging a device (priority escalation)
 
 A user can flag a suspicious device (persisted). A flagged device is promoted from
