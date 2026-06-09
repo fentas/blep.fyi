@@ -53,6 +53,13 @@ class SyncManager(
     fun start() {
         stop()
         if (!settings.enabled()) return
+        // Seed our own local state into the CRDT and publish it BEFORE subscribing to the
+        // peer's replica. Order matters: if a remote replica arrives before we've reconciled
+        // our local stores, onIncoming would merge it against an empty `state` and write the
+        // result back over our own un-reconciled local entries (e.g. a favourite the peer
+        // doesn't know yet). Reconciling first means every incoming merge already carries our
+        // local truth, so nothing local is clobbered.
+        localChanged() // publish our starting state first
         jobs += scope.launch { transport.incomingState.collect(::onIncoming) }
         jobs += scope.launch { transport.incomingMessages.collect { SyncMessage.decode(it)?.let(sink::onMessage) } }
         jobs += scope.launch {
@@ -61,7 +68,6 @@ class SyncManager(
                 sink.onPeerNearby(it)
             }
         }
-        localChanged() // publish our starting state
     }
 
     fun stop() {

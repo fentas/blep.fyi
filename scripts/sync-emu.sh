@@ -130,21 +130,56 @@ cmd_companion() {
 }
 
 cmd_pair() {
-  log "pairing (best-effort, headless)"
-  $ADB -s "$WEAR" forward tcp:5601 tcp:5601 >/dev/null 2>&1
-  $ADB -s "$PHONE" forward tcp:5601 tcp:5601 >/dev/null 2>&1
-  echo "  NOTE: a provisioned watch must be in pairing mode. If it isn't, factory-reset it:"
-  echo "        $EMU -avd $AVD_WEAR -wipe-data ${EMU_FLAGS[*]}"
-  echo "  Then this drives the companion wizard. (If it stalls, pair once in Android Studio:"
-  echo "   Device Manager → $AVD_WEAR → ⋮ → Pair Wearable → $AVD_PHONE — then 'sync-emu verify'.)"
-  $ADB -s "$PHONE" shell monkey -p "$COMPANION_PKG" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+  # Headless emulator pairing — NOT BLE/netsim. Android Studio's "Pair Wearable" works by
+  # bridging the Wear Data Layer over a plain TCP socket on port 5601, bypassing Bluetooth
+  # entirely. We reproduce that bridge + drive the companion's hidden emulator-pairing entry:
+  #
+  #   watch app  ──connects to──▶  watch localhost:5601
+  #                  (adb reverse on WEAR)  ▼
+  #                              HOST localhost:5601
+  #                  (adb forward on PHONE) ▼
+  #                              phone localhost:5601  ◀── companion EmulatorActivity binds here
+  #
+  # The companion entry is AutomatedSetupActivity, an alias for
+  # com.google.android.apps.wear.companion.core.application.EmulatorActivity. Launching it
+  # kicks off the GMS Wear Terms-of-Service consent (TermsOfServiceActivity); accepting it
+  # lets the companion bind :5601 and the watch's Wear_NetworkService sync loop connect
+  # (watch logcat flips companionDisconnected → false).
+  #
+  # CAVEAT: this establishes the companion *link* (good enough for many Data Layer paths),
+  # but full DataItem replication between the two sandboxed GMS instances over the loopback
+  # bridge is unreliable, so `verify` may still not see a favourite propagate. The reliable
+  # e2e proof of the CRDT + transport contract is the cross-wired SyncManagerConvergenceTest
+  # (no hardware needed). Treat this rig as a smoke test of the *link*, not a sync guarantee.
+  log "pairing (TCP 5601 bridge + companion EmulatorActivity)"
+  # watch loopback → host; host → phone loopback. Only ONE device may own host:5601, so the
+  # watch uses `reverse` (its own loopback) and the phone uses `forward` (host → phone).
+  $ADB -s "$WEAR"  reverse tcp:5601 tcp:5601 >/dev/null 2>&1 || true
+  $ADB -s "$PHONE" forward --remove tcp:5601 >/dev/null 2>&1 || true
+  $ADB -s "$PHONE" forward tcp:5601 tcp:5601 >/dev/null 2>&1 || true
+
+  # Launch the companion's emulator-pairing entry (the alias resolves to EmulatorActivity).
+  $ADB -s "$PHONE" shell am start -n "$COMPANION_PKG/.core.application.EmulatorActivity" >/dev/null 2>&1
   sleep 6
+
+  # GMS Terms-of-Service consent. The accept button id is stable; the first tap can just
+  # scroll the long ToS, so tap it up to 3× until the screen leaves TermsOfServiceActivity.
+  for i in 1 2 3; do
+    $ADB -s "$PHONE" shell dumpsys window 2>/dev/null | grep -q TermsOfServiceActivity || break
+    uiatap "$PHONE" id com.google.android.gms:id/terms_of_service_accept_button && sleep 4 || break
+  done
+  # Runtime permission prompts (location/nearby) the companion may raise.
   for i in 1 2 3 4 5; do uiatap "$PHONE" id com.android.permissioncontroller:id/permission_allow_button && sleep 2 || break; done
-  uiatap "$PHONE" id BOTTOM_BAR_PRIMARY_BUTTON && sleep 3 || true   # "Set up watch"
-  for i in 1 2 3 4; do uiatap "$PHONE" id com.android.permissioncontroller:id/permission_allow_button && sleep 2 || break; done
-  sleep 3
-  # The watch should now appear in the picker; tap the first device row if present.
-  uiatap "$PHONE" textc "$AVD_WEAR" && sleep 3 || echo "  (watch not in picker — ensure it's in pairing mode)"
+  sleep 6
+
+  local state; state="$($ADB -s "$WEAR" logcat -d 2>/dev/null | grep -oE 'companionDisconnected=(true|false)' | tail -1)"
+  if [ "$state" = "companionDisconnected=false" ]; then
+    echo "  ✓ companion link up ($state). Note: DataItem propagation over the bridge is"
+    echo "    best-effort — see SyncManagerConvergenceTest for the authoritative e2e proof."
+  else
+    echo "  ⚠ companion not connected yet ($state). Re-run, or check the consent screen:"
+    echo "    adb -s $PHONE shell dumpsys window | grep mCurrentFocus"
+  fi
 }
 
 cmd_status() {

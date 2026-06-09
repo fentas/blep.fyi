@@ -31,8 +31,20 @@ un-favouriting on the phone isn't resurrected by the watch's stale copy.
 
 `SyncManager` orchestrates: on a local change it reconciles the enabled categories into the
 state and publishes; on an incoming replica it merges and writes the result back into the
-local stores. Loop-free — a no-change merge neither re-applies nor re-publishes. Pure and
-unit-tested (`SyncStateTest`, `SyncMessageTest`, `SyncManagerTest`).
+local stores. Loop-free — a no-change merge neither re-applies nor re-publishes.
+
+**Ordering invariant**: `start()` reconciles this device's own stores into the CRDT and
+publishes *before* it subscribes to the peer's replica. Otherwise a replica arriving in the
+gap would merge against an empty local `state`, and the write-back would clobber a local-only
+entry the peer hasn't seen yet (e.g. a favourite added offline). Reconciling first means
+every incoming merge already carries our local truth.
+
+Pure and unit-tested (`SyncStateTest`, `SyncMessageTest`, `SyncManagerTest`). The
+hardware-free **end-to-end** proof is `SyncConvergenceTest`: two real `SyncManager`s (a
+"phone" and a "watch") wired by a crossed in-memory link, asserting that a change on either
+device reaches the other, that both converge on the union, that messages relay both ways, and
+that the exchange terminates (no re-publish ping-pong). It's the reliable stand-in for two
+paired emulators — see below.
 
 ## Events
 
@@ -47,6 +59,24 @@ A **Sync** menu: a master switch plus one toggle per category (favourites, names
 left-behind, tracker alerts), so a user can share favourites but keep names private. Read
 by `SyncManager` before publishing/applying each category (`SyncSettings`). Default: all on
 except live scan-fusion (opt-in).
+
+## Testing
+
+Two layers, because each proves a different thing:
+
+- **`SyncConvergenceTest` (unit, no hardware)** — the authoritative proof of the CRDT +
+  transport *contract*: publish → merge → apply → re-publish converges and terminates. Runs
+  in `make test`. This is what gates the release.
+- **`scripts/sync-emu.sh` (two emulators)** — a smoke test of the *real Android link*. It
+  boots a phone + Wear emulator, installs both apps, sideloads the Wear OS companion, and
+  pairs them headlessly. Pairing is **not** BLE/netsim: Android Studio's "Pair Wearable"
+  bridges the Wear Data Layer over a plain **TCP socket on port 5601**, so the rig reproduces
+  that bridge (`adb reverse` on the watch + `adb forward` on the phone) and drives the
+  companion's hidden `EmulatorActivity` entry through the GMS Terms-of-Service consent until
+  the watch reports `companionDisconnected=false`. **Caveat**: this establishes the companion
+  *link*, but full DataItem replication between the two sandboxed GMS instances over the
+  loopback bridge is unreliable, so `make sync-emu-verify` is best-effort — treat the rig as a
+  link smoke test, not a sync guarantee. The unit test is the source of truth.
 
 ## What's wired vs next
 
