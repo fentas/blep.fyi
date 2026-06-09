@@ -18,5 +18,14 @@
             android:name="fyi.blep.BackgroundScanService"
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
+
+        <!-- Re-arms the off-screen watches after a reboot if a device is tethered/flagged. -->
+        <receiver
+            android:name="fyi.blep.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

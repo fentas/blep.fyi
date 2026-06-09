@@ -180,10 +180,17 @@ in `core/tether` that turns presence samples into **debounced** leave/return
 events (shared by phone and watch, unit-tested). Tethering a device keeps the
 foreground watch alive so a leave is caught promptly.
 
-> Reliable for devices with a stable address (most tags, earbuds, speakers). A
-> phone that rotates its BLE address is best caught by the watch↔phone pairing
-> link — that companion-link path (and the Apple Watch / iPhone side) is in
-> progress.
+Two detection tracks, chosen automatically by whether the device is **paired**:
+- **Paired / bonded** devices (earbuds, a car, a watch, a bonded phone) are caught
+  the instant they disconnect or reconnect via the OS **connection-state hook**
+  (`ACTION_ACL_DISCONNECTED` / `ACTION_ACL_CONNECTED`) — event-driven, no scanning,
+  and **rotation-proof** (a bond resolves to the device's stable identity address).
+  A short debounce rides out a momentary blip. It runs in the foreground service
+  (which a tether keeps alive), so it works with the app closed; a `BOOT_COMPLETED`
+  receiver re-arms it after a reboot.
+- **Unpaired advertising tags** use the scan-based [`PresenceMonitor`](app/core/src/commonMain/kotlin/fyi/blep/core/tether/PresenceMonitor.kt).
+
+> The Apple Watch / iPhone side is still in progress.
 
 &nbsp;
 

@@ -6,6 +6,8 @@
         android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- Re-arm the tether/flag foreground watch after a reboot. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- Android 11 and below. -->
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />

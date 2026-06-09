@@ -115,9 +115,11 @@ class BackgroundScanWorker(ctx: Context, params: WorkerParameters) : CoroutineWo
             // granularity, so a leave surfaces on the next cycle — acceptable off-screen.
             if (tether.ids().isNotEmpty()) {
                 launch {
+                    val btAdapter = (ctx.getSystemService(Context.BLUETOOTH_SERVICE) as? android.bluetooth.BluetoothManager)?.adapter
+                    val bonded = runCatching { btAdapter?.bondedDevices?.map { it.address }?.toSet() }.getOrNull().orEmpty()
                     withTimeoutOrNull(SCAN_WINDOW_MS) {
                         scanner.devices(includeUnnamed = true, measureConnectedSignal = false).collect { list ->
-                            checkTethers(ctx, text, list, tether, monitor, aliases, settings.tetherAlert())
+                            checkTethers(ctx, text, list, tether, monitor, aliases, settings.tetherAlert(), bonded)
                         }
                     }
                 }
@@ -130,6 +132,7 @@ class BackgroundScanWorker(ctx: Context, params: WorkerParameters) : CoroutineWo
 /** Foreground service: keeps a safety scan alive when the app isn't on screen. */
 class BackgroundScanService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var aclWatch: AclTetherWatch? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -158,6 +161,15 @@ class BackgroundScanService : Service() {
             val aliasStore = DeviceAliases(createKeyValueStore())
             val tetherStore = DeviceTether(createKeyValueStore())
             val presence = PresenceMonitor(createKeyValueStore())
+            // Bonded tethered devices are caught by their connection-state (ACL) events —
+            // event-driven, scan-free, rotation-proof — so they're excluded from the scan
+            // path below. Unbonded advertising tags stay on the scan-based monitor.
+            val btAdapter = (getSystemService(Context.BLUETOOTH_SERVICE) as? android.bluetooth.BluetoothManager)?.adapter
+            aclWatch = AclTetherWatch(
+                this@BackgroundScanService, scope,
+                onLeft = { id, name -> notifyTetherLeft(this@BackgroundScanService, text, name, id) },
+                onReturned = { id, name -> notifyTetherReturned(this@BackgroundScanService, text, name, id) },
+            ).also { it.register() }
             // Safety scan → alert on a confirmed tracker.
             launch {
                 runCatching {
@@ -175,7 +187,8 @@ class BackgroundScanService : Service() {
                         val here = list.firstOrNull { it.id in flagStore.ids() && it.isPresent }
                         if (here != null) notifyFlagged(this@BackgroundScanService, text, aliasStore.of(here.id) ?: here.displayName)
                         else cancelFlagged(this@BackgroundScanService)
-                        checkTethers(this@BackgroundScanService, text, list, tetherStore, presence, aliasStore, AppSettings().tetherAlert())
+                        val bonded = runCatching { btAdapter?.bondedDevices?.map { it.address }?.toSet() }.getOrNull().orEmpty()
+                        checkTethers(this@BackgroundScanService, text, list, tetherStore, presence, aliasStore, AppSettings().tetherAlert(), bonded)
                     }
                 }
             }
@@ -184,6 +197,7 @@ class BackgroundScanService : Service() {
     }
 
     override fun onDestroy() {
+        aclWatch?.unregister()
         scope.cancel()
         super.onDestroy()
     }
@@ -258,8 +272,12 @@ private fun checkTethers(
     monitor: PresenceMonitor,
     aliases: DeviceAliases,
     dir: TetherAlertDirection,
+    bondedExcluded: Set<String> = emptySet(),
 ) {
-    val tethered = tether.ids()
+    // Bonded devices are handled by the ACL connection-state watch — don't double-track
+    // them on the scan path (and a bonded, non-advertising device would otherwise read as
+    // "absent" and mis-fire a leave).
+    val tethered = tether.ids() - bondedExcluded
     if (tethered.isEmpty()) return
     val present = list.filter { it.isPresent }.map { it.id }.toSet()
     val labels = list.filter { it.isPresent && it.id in tethered }
