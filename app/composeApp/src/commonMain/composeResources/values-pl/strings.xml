@@ -203,6 +203,7 @@
     <string name="detail_signal">Sygnał</string>
     <string name="detail_identifier">Identyfikator</string>
     <string name="detail_addr_stable">Stały adres — to urządzenie zachowuje ten sam identyfikator.</string>
+    <string name="detail_addr_static">Losowy, ale stały adres — zachowuje ten sam identyfikator do ponownego uruchomienia urządzenia.</string>
     <string name="detail_addr_rotating">Prywatny, zmienny adres — okresowo zmienia id dla prywatności.</string>
     <string name="detail_addr_opaque">Nieprzejrzysty id — system ukrywa adres sprzętowy.</string>
     <string name="detail_rotated">Zmieniono id %1$d× · %2$s pewności</string>
@@ -313,4 +314,6 @@
     <string name="watch_status_body">Twój zegarek jest sparowany i w pobliżu. blep synchronizuje ulubione, nazwy i alerty pozostawienia oraz przekazuje alerty o lokalizatorach, aby zegarek mógł zawibrować, gdy coś zostanie znalezione.</string>
     <string name="flag_explainer_title">Obserwuj to urządzenie</string>
     <string name="flag_explainer_body">Obserwacja zwiększa priorytet tego urządzenia, więc blep wciąż je odnajduje, nawet gdy zmienia identyfikator Bluetooth, i powiadamia, gdy jest w pobliżu. Usługa pierwszoplanowa działa, gdy aktywna (trwałe powiadomienie).</string>
+    <string name="settings_cat_background">Usługa w tle</string>
+    <string name="settings_cat_background_desc">Wyszukiwanie lokalizatorów, zaplanowane sprawdzenia i alerty pozostawienia, gdy blep jest zamknięty</string>
 </resources>

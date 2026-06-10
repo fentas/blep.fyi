@@ -71,6 +71,8 @@ import fyi.blep.resources.settings_cat_devices_desc
 import fyi.blep.resources.settings_cat_finding_desc
 import fyi.blep.resources.settings_cat_leftbehind_desc
 import fyi.blep.resources.settings_cat_sync_desc
+import fyi.blep.resources.settings_cat_background
+import fyi.blep.resources.settings_cat_background_desc
 import fyi.blep.resources.settings_cat_finding
 import fyi.blep.resources.settings_cat_detection
 import fyi.blep.resources.settings_cat_devices
@@ -223,7 +225,7 @@ fun SettingsScreen(
                 SettingsCat.HOME -> {
                     SettingsNavRow(stringResource(Res.string.settings_cat_finding), stringResource(Res.string.settings_cat_finding_desc)) { page = SettingsCat.FINDING }
                     SettingsNavRow(stringResource(Res.string.settings_cat_detection), stringResource(Res.string.settings_cat_detection_desc)) { page = SettingsCat.DETECTION }
-                    SettingsNavRow(stringResource(Res.string.settings_tether_title), stringResource(Res.string.settings_cat_leftbehind_desc)) { page = SettingsCat.LEFTBEHIND }
+                    SettingsNavRow(stringResource(Res.string.settings_cat_background), stringResource(Res.string.settings_cat_background_desc)) { page = SettingsCat.BACKGROUND }
                     SettingsNavRow(stringResource(Res.string.settings_cat_devices), stringResource(Res.string.settings_cat_devices_desc)) { page = SettingsCat.DEVICES }
                     SettingsNavRow(stringResource(Res.string.settings_section_sync), stringResource(Res.string.settings_cat_sync_desc)) { page = SettingsCat.SYNC }
                     // Appearance is a single control (theme), so it lives inline here rather
@@ -247,7 +249,9 @@ fun SettingsScreen(
                     Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f), modifier = Modifier.fillMaxWidth()) {
                         SensitivitySelector(scanSensitivity, onSelectSensitivity, Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp))
                     }
-                    Spacer(Modifier.height(6.dp))
+                }
+                SettingsCat.BACKGROUND -> {
+                    // Tracker scanning off-screen (the "?" explains the two modes' battery tradeoff).
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(Res.string.settings_section_background).uppercase(), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f), modifier = Modifier.weight(1f).padding(start = 4.dp))
                         Text("?", style = MaterialTheme.typography.labelLarge, color = BlepColors.Blue, modifier = Modifier.clip(CircleShape).clickable { showBgInfo = true }.padding(horizontal = 10.dp, vertical = 4.dp).semantics { contentDescription = infoLabel })
@@ -260,8 +264,11 @@ fun SettingsScreen(
                         }
                     }
                     BackgroundScanRow(backgroundScan, { on -> if (on) requestNotifications(); onToggleBackground(on) }, intervalMinutes, onIntervalChange)
+                    // Left-behind alerts also run off the background service, so they live here.
+                    Spacer(Modifier.height(6.dp))
+                    Text(stringResource(Res.string.settings_tether_title).uppercase(), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f), modifier = Modifier.padding(start = 4.dp))
+                    TetherAlertSelector(tetherAlert, onSelectTetherAlert)
                 }
-                SettingsCat.LEFTBEHIND -> TetherAlertSelector(tetherAlert, onSelectTetherAlert)
                 SettingsCat.DEVICES -> {
                     SettingRow(stringResource(Res.string.settings_probe_title), stringResource(Res.string.settings_probe_desc), probeEnabled, onToggleProbe)
                     if (probeEnabled) ProbeAfterRow(probeThresholdMinutes, onProbeThresholdChange)
@@ -598,7 +605,7 @@ private enum class SettingsCat(val title: StringResource) {
     HOME(Res.string.settings_title),
     FINDING(Res.string.settings_cat_finding),
     DETECTION(Res.string.settings_cat_detection),
-    LEFTBEHIND(Res.string.settings_tether_title),
+    BACKGROUND(Res.string.settings_cat_background),
     DEVICES(Res.string.settings_cat_devices),
     SYNC(Res.string.settings_section_sync),
 }

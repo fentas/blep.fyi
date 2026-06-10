@@ -203,6 +203,7 @@
     <string name="detail_signal">Signal</string>
     <string name="detail_identifier">Identifiant</string>
     <string name="detail_addr_stable">Adresse fixe — cet appareil garde le même id.</string>
+    <string name="detail_addr_static">Adresse aléatoire mais fixe — elle garde le même id jusqu'au redémarrage de l'appareil.</string>
     <string name="detail_addr_rotating">Adresse privée et tournante — elle change d'id régulièrement pour la confidentialité.</string>
     <string name="detail_addr_opaque">Id opaque — le système masque l'adresse matérielle.</string>
     <string name="detail_rotated">A changé d'id %1$d× · %2$s sûr</string>
@@ -313,4 +314,6 @@
     <string name="watch_status_body">Votre montre est appairée et à proximité. blep synchronise favoris, noms et alertes d'oubli, et relaie les alertes de traceurs pour que votre montre vibre quand quelque chose est trouvé.</string>
     <string name="flag_explainer_title">Surveiller cet appareil</string>
     <string name="flag_explainer_body">La surveillance augmente la priorité de cet appareil, pour que blep continue à le retrouver même quand il change d'ID Bluetooth, et vous alerte quand il est proche. Un service de premier plan s'exécute tant qu'il est actif (notification permanente).</string>
+    <string name="settings_cat_background">Service en arrière-plan</string>
+    <string name="settings_cat_background_desc">Recherche de traceurs, vérifications programmées et alertes d'oubli quand blep est fermé</string>
 </resources>

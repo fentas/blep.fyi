@@ -203,6 +203,7 @@
     <string name="detail_signal">Signal</string>
     <string name="detail_identifier">Identifikator</string>
     <string name="detail_addr_stable">Stalni naslov — ta naprava ohranja isti id.</string>
+    <string name="detail_addr_static">Naključni, a stalni naslov — ohrani isti id do ponovnega zagona naprave.</string>
     <string name="detail_addr_rotating">Zasebni, spreminjajoči naslov — občasno spremeni id zaradi zasebnosti.</string>
     <string name="detail_addr_opaque">Nepregleden id — sistem skrije strojni naslov.</string>
     <string name="detail_rotated">Zamenjal id %1$d× · %2$s gotovo</string>
@@ -313,4 +314,6 @@
     <string name="watch_status_body">Vaša ura je seznanjena in v bližini. blep ohranja priljubljene, imena in opozorila o pozabljenem sinhronizirana ter posreduje opozorila o sledilnikih, da lahko vaša ura zavibrira, ko je kaj najdeno.</string>
     <string name="flag_explainer_title">Nadzoruj to napravo</string>
     <string name="flag_explainer_body">Nadzor poveča prednost te naprave, tako da jo blep še naprej najde, tudi ko zamenja svoj Bluetooth ID, in vas obvesti, ko je blizu. Storitev v ospredju teče, dokler je dejavna (trajno obvestilo).</string>
+    <string name="settings_cat_background">Storitev v ozadju</string>
+    <string name="settings_cat_background_desc">Iskanje sledilnikov, časovni pregledi in opozorila o pozabljenem, ko je blep zaprt</string>
 </resources>

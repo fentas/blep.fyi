@@ -105,7 +105,9 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
         const val IDENTITY_TTL_MIN_DAYS = 1
         const val IDENTITY_TTL_MAX_DAYS = 90
         const val PROBE_MIN_MINUTES = 1
-        const val PROBE_MAX_MINUTES = 30
+        // Past ~15 min a private address would normally have rotated, so a device still on
+        // the same id is effectively stable — no point waiting longer before probing it.
+        const val PROBE_MAX_MINUTES = 15
         const val DAY_MS = 24L * 60 * 60 * 1000
 
         private const val KEY_CONN_SIGNAL = "settings.connectedSignal"

@@ -241,6 +241,7 @@
     <string name="detail_signal">Signal</string>
     <string name="detail_identifier">Identifier</string>
     <string name="detail_addr_stable">Stable address — this device keeps the same id.</string>
+    <string name="detail_addr_static">Random address, but fixed — it keeps the same id until the device restarts.</string>
     <string name="detail_addr_rotating">Private, rotating address — it changes id periodically for privacy.</string>
     <string name="detail_addr_opaque">Opaque id — the system hides the hardware address.</string>
     <string name="detail_rotated">Changed id %1$d× · %2$s sure</string>
@@ -335,4 +336,6 @@
     <string name="watch_status_body">Your watch is paired and nearby. blep keeps favourites, names and left-behind alerts in sync with it, and relays tracker alerts so your watch can buzz when something is found.</string>
     <string name="flag_explainer_title">Watch this device</string>
     <string name="flag_explainer_body">Watching raises this device's priority so blep keeps re-finding it even when it rotates its Bluetooth ID, and alerts you whenever it's nearby. A foreground service runs while active (ongoing notification).</string>
+    <string name="settings_cat_background">Background service</string>
+    <string name="settings_cat_background_desc">Tracker scanning, timed checks and left-behind alerts while blep is closed</string>
 </resources>

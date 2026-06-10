@@ -203,6 +203,7 @@
     <string name="detail_signal">Signaal</string>
     <string name="detail_identifier">Identifikaator</string>
     <string name="detail_addr_stable">Püsiv aadress — see seade hoiab sama id-d.</string>
+    <string name="detail_addr_static">Juhuslik, kuid püsiv aadress — säilitab sama id-i kuni seadme taaskäivituseni.</string>
     <string name="detail_addr_rotating">Privaatne, vahelduv aadress — muudab id-d perioodiliselt privaatsuse huvides.</string>
     <string name="detail_addr_opaque">Läbipaistmatu id — süsteem peidab riistvara aadressi.</string>
     <string name="detail_rotated">Muutis id-d %1$d× · %2$s kindel</string>
@@ -313,4 +314,6 @@
     <string name="watch_status_body">Su kell on seotud ja lähedal. blep hoiab lemmikud, nimed ja mahajätmise hoiatused sünkroonis ning edastab jälitajate hoiatused, et su kell saaks vibreerida, kui midagi leitakse.</string>
     <string name="flag_explainer_title">Jälgi seda seadet</string>
     <string name="flag_explainer_body">Jälgimine tõstab selle seadme prioriteeti, nii et blep leiab selle ikka üles, isegi kui see vahetab Bluetoothi ID-d, ja teavitab, kui see on lähedal. Esiplaani teenus töötab, kuni aktiivne (püsiv teavitus).</string>
+    <string name="settings_cat_background">Taustateenus</string>
+    <string name="settings_cat_background_desc">Jälitajate otsing, ajastatud kontrollid ja mahajätmise hoiatused, kui blep on suletud</string>
 </resources>

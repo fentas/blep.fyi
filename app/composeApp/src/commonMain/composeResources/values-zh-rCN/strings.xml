@@ -204,6 +204,7 @@
     <string name="detail_signal">信号</string>
     <string name="detail_identifier">标识符</string>
     <string name="detail_addr_stable">固定地址 — 此设备保持相同的 id。</string>
+    <string name="detail_addr_static">随机但固定的地址——在设备重启前会保持相同的 id。</string>
     <string name="detail_addr_rotating">私密的轮换地址 — 为保护隐私定期更换 id。</string>
     <string name="detail_addr_opaque">不透明 id — 系统隐藏了硬件地址。</string>
     <string name="detail_rotated">id 已更换 %1$d× · 把握 %2$s</string>
@@ -314,4 +315,6 @@
     <string name="watch_status_body">你的手表已配对且在附近。blep 会同步收藏、名称和遗落提醒，并转发追踪器提醒，以便发现设备时手表可以振动。</string>
     <string name="flag_explainer_title">监视此设备</string>
     <string name="flag_explainer_body">监视会提升此设备的优先级，即使它更换蓝牙 ID，blep 也会持续找到它，并在它靠近时提醒你。运行期间会有一个前台服务（常驻通知）。</string>
+    <string name="settings_cat_background">后台服务</string>
+    <string name="settings_cat_background_desc">在 blep 关闭时进行追踪器扫描、定时检查和遗落提醒</string>
 </resources>

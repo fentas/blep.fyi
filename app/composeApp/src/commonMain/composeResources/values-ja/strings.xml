@@ -203,6 +203,7 @@
     <string name="detail_signal">信号</string>
     <string name="detail_identifier">識別子</string>
     <string name="detail_addr_stable">固定アドレス — このデバイスは同じ id を保ちます。</string>
+    <string name="detail_addr_static">ランダムですが固定のアドレス — デバイスが再起動するまで同じ id を保ちます。</string>
     <string name="detail_addr_rotating">プライベートな可変アドレス — プライバシーのため定期的に id が変わります。</string>
     <string name="detail_addr_opaque">不透明な id — システムがハードウェアアドレスを隠します。</string>
     <string name="detail_rotated">id が %1$d回変化 · 確度 %2$s</string>
@@ -313,4 +314,6 @@
     <string name="watch_status_body">時計はペア設定済みで近くにあります。blepはお気に入り、名前、置き忘れアラートを同期し、トラッカーのアラートを転送して、何かが見つかったときに時計を振動させます。</string>
     <string name="flag_explainer_title">このデバイスを見守る</string>
     <string name="flag_explainer_body">見守ると、このデバイスの優先度が上がり、Bluetooth IDが変わってもblepが見つけ続け、近くにいると通知します。有効な間はフォアグラウンドサービスが動作します（常時通知）。</string>
+    <string name="settings_cat_background">バックグラウンドサービス</string>
+    <string name="settings_cat_background_desc">blep を閉じている間のトラッカー検出、定期チェック、置き忘れアラート</string>
 </resources>

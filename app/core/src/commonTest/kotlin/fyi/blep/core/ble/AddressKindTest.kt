@@ -11,10 +11,16 @@ class AddressKindTest {
     }
 
     @Test
-    fun random_macs_other_top_bits() {
-        assertEquals(AddressKind.RANDOM, addressKind("C0:11:22:33:44:55")) // static random
-        assertEquals(AddressKind.RANDOM, addressKind("40:11:22:33:44:55")) // resolvable private
-        assertEquals(AddressKind.RANDOM, addressKind("12:11:22:33:44:55")) // non-resolvable
+    fun static_random_is_its_own_kind() {
+        // 0b11 top bits — random but fixed until reboot, so NOT periodically rotating.
+        assertEquals(AddressKind.STATIC, addressKind("C0:11:22:33:44:55"))
+        assertEquals(AddressKind.STATIC, addressKind("FF:11:22:33:44:55"))
+    }
+
+    @Test
+    fun resolvable_and_non_resolvable_private_rotate() {
+        assertEquals(AddressKind.RANDOM, addressKind("40:11:22:33:44:55")) // 0b01 resolvable private
+        assertEquals(AddressKind.RANDOM, addressKind("12:11:22:33:44:55")) // 0b00 non-resolvable
     }
 
     @Test

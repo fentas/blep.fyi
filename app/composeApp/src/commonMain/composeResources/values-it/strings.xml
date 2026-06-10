@@ -203,6 +203,7 @@
     <string name="detail_signal">Segnale</string>
     <string name="detail_identifier">Identificatore</string>
     <string name="detail_addr_stable">Indirizzo fisso — questo dispositivo mantiene lo stesso id.</string>
+    <string name="detail_addr_static">Indirizzo casuale ma fisso — mantiene lo stesso id finché il dispositivo non si riavvia.</string>
     <string name="detail_addr_rotating">Indirizzo privato e rotante — cambia id periodicamente per privacy.</string>
     <string name="detail_addr_opaque">Id opaco — il sistema nasconde l'indirizzo hardware.</string>
     <string name="detail_rotated">Id cambiato %1$d× · %2$s sicuro</string>
@@ -313,4 +314,6 @@
     <string name="watch_status_body">Il tuo orologio è abbinato e vicino. blep mantiene sincronizzati preferiti, nomi e avvisi di dimenticanza, e inoltra gli avvisi dei tracker così il tuo orologio può vibrare quando qualcosa viene trovato.</string>
     <string name="flag_explainer_title">Sorveglia questo dispositivo</string>
     <string name="flag_explainer_body">La sorveglianza aumenta la priorità di questo dispositivo, così blep continua a ritrovarlo anche quando cambia il suo ID Bluetooth e ti avvisa quando è vicino. Un servizio in primo piano è attivo mentre è in funzione (notifica continua).</string>
+    <string name="settings_cat_background">Servizio in background</string>
+    <string name="settings_cat_background_desc">Ricerca tracker, controlli a tempo e avvisi di dimenticanza quando blep è chiuso</string>
 </resources>

@@ -57,6 +57,7 @@ import fyi.blep.resources.dbm
 import fyi.blep.resources.detail_addr_opaque
 import fyi.blep.resources.detail_addr_rotating
 import fyi.blep.resources.detail_addr_stable
+import fyi.blep.resources.detail_addr_static
 import fyi.blep.resources.detail_alt
 import fyi.blep.resources.detail_find
 import fyi.blep.resources.detail_flag
@@ -208,10 +209,15 @@ fun DeviceDetailScreen(
             Section(stringResource(Res.string.detail_identifier)) {
                 Text(device.id, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
                 Spacer(Modifier.height(8.dp))
-                val addressNote = when (addressKind(device.id)) {
-                    AddressKind.PUBLIC -> stringResource(Res.string.detail_addr_stable)
-                    AddressKind.RANDOM -> stringResource(Res.string.detail_addr_rotating)
-                    AddressKind.OPAQUE -> stringResource(Res.string.detail_addr_opaque)
+                val addressNote = when {
+                    // A bonded device has a stable identity address — never call it rotating.
+                    device.isPaired -> stringResource(Res.string.detail_addr_stable)
+                    else -> when (addressKind(device.id)) {
+                        AddressKind.PUBLIC -> stringResource(Res.string.detail_addr_stable)
+                        AddressKind.STATIC -> stringResource(Res.string.detail_addr_static)
+                        AddressKind.RANDOM -> stringResource(Res.string.detail_addr_rotating)
+                        AddressKind.OPAQUE -> stringResource(Res.string.detail_addr_opaque)
+                    }
                 }
                 Text(addressNote, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
             }
