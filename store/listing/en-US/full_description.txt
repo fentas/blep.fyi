@@ -47,8 +47,8 @@ at the same close range, again and again — the un-correlation is the correlati
 And because blep is a finder, it doesn't just warn — it points you to it.
 • Remember across sessions — a tag that keeps showing up over the hours (and, if
   you allow coarse location, across separate places) gets flagged.
-• Watch in the background — let blep keep an eye out while it's closed and notify
-  you, on a battery-friendly schedule.
+• Watch in the background — Off, Interval (a battery-friendly timer) or Continuous
+  (a live scan), so blep keeps an eye out while it's closed and notifies you.
 • Sensitivity — Relaxed, Balanced or Strict, to tune how eagerly it flags.
 On-device only — nothing ever leaves your phone — and you can turn it all off any
 time.
