@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
@@ -61,6 +62,10 @@ import fyi.blep.resources.detail_find
 import fyi.blep.resources.detail_flag
 import fyi.blep.resources.detail_flagged
 import fyi.blep.resources.detail_tether
+import fyi.blep.resources.action_ok
+import fyi.blep.resources.watch_explainer_title
+import fyi.blep.resources.watch_explainer_body
+import fyi.blep.resources.watch_explainer_dont_show
 import fyi.blep.resources.detail_tethered
 import fyi.blep.resources.detail_first_seen
 import fyi.blep.resources.detail_history
@@ -122,12 +127,15 @@ fun DeviceDetailScreen(
     onToggleFlag: () -> Unit,
     tethered: Boolean,
     onToggleTether: () -> Unit,
+    watchExplained: Boolean,
+    onWatchExplainedDismiss: () -> Unit,
     onTrack: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var renaming by remember { mutableStateOf(false) }
     var showHelp by remember { mutableStateOf(false) }
+    var showWatchModal by remember { mutableStateOf(false) }
     val backLabel = stringResource(Res.string.a11y_back)
     val helpLabel = stringResource(Res.string.a11y_help)
 
@@ -317,7 +325,12 @@ fun DeviceDetailScreen(
                 ),
             ) { Text(stringResource(Res.string.detail_tethered)) }
         } else {
-            OutlinedButton(onClick = onToggleTether, modifier = Modifier.fillMaxWidth()) {
+            // First time activating, explain what it does (incl. the foreground service)
+            // unless the user has dismissed the explainer.
+            OutlinedButton(
+                onClick = { if (watchExplained) onToggleTether() else showWatchModal = true },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Text(stringResource(Res.string.detail_tether))
             }
         }
@@ -334,6 +347,35 @@ fun DeviceDetailScreen(
             title = { Text(stringResource(Res.string.detail_help_title)) },
             text = { Text(stringResource(Res.string.detail_help_body)) },
             confirmButton = { TextButton(onClick = { showHelp = false }) { Text(stringResource(Res.string.action_cancel)) } },
+        )
+    }
+
+    if (showWatchModal) {
+        var dontShowAgain by remember { mutableStateOf(false) }
+        AlertDialog(
+            onDismissRequest = { showWatchModal = false },
+            title = { Text(stringResource(Res.string.watch_explainer_title)) },
+            text = {
+                Column {
+                    Text(stringResource(Res.string.watch_explainer_body))
+                    Spacer(Modifier.height(14.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { dontShowAgain = !dontShowAgain },
+                    ) {
+                        Checkbox(checked = dontShowAgain, onCheckedChange = { dontShowAgain = it })
+                        Text(stringResource(Res.string.watch_explainer_dont_show))
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (dontShowAgain) onWatchExplainedDismiss()
+                    showWatchModal = false
+                    onToggleTether()
+                }) { Text(stringResource(Res.string.action_ok)) }
+            },
+            dismissButton = { TextButton(onClick = { showWatchModal = false }) { Text(stringResource(Res.string.action_cancel)) } },
         )
     }
 

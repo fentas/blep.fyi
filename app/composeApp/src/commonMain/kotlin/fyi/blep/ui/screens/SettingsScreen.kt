@@ -66,6 +66,11 @@ import fyi.blep.resources.settings_sync_tethered
 import fyi.blep.resources.settings_sync_alerts
 import fyi.blep.resources.settings_sync_scans
 import fyi.blep.resources.settings_cat_appearance
+import fyi.blep.resources.settings_cat_detection_desc
+import fyi.blep.resources.settings_cat_devices_desc
+import fyi.blep.resources.settings_cat_finding_desc
+import fyi.blep.resources.settings_cat_leftbehind_desc
+import fyi.blep.resources.settings_cat_sync_desc
 import fyi.blep.resources.settings_cat_finding
 import fyi.blep.resources.settings_cat_detection
 import fyi.blep.resources.settings_cat_devices
@@ -79,6 +84,9 @@ import fyi.blep.resources.settings_connected_signal_desc
 import fyi.blep.resources.settings_connected_signal_title
 import fyi.blep.resources.settings_foreground_desc
 import fyi.blep.resources.settings_foreground_title
+import fyi.blep.resources.watch_disable_fg_title
+import fyi.blep.resources.watch_disable_fg_body
+import fyi.blep.resources.fg_status_disable
 import fyi.blep.resources.settings_interval_h
 import fyi.blep.resources.settings_interval_hm
 import fyi.blep.resources.settings_interval_min
@@ -146,6 +154,8 @@ fun SettingsScreen(
     onClearStorage: () -> Unit,
     foregroundScan: Boolean,
     onToggleForeground: (Boolean) -> Unit,
+    watchedCount: Int,
+    onDisableForeground: () -> Unit,
     backgroundScan: Boolean,
     onToggleBackground: (Boolean) -> Unit,
     intervalMinutes: Int,
@@ -172,6 +182,7 @@ fun SettingsScreen(
     val requestNotifications = rememberNotificationPermissionRequest()
     val requestLocation = rememberLocationPermissionRequest()
     var showBgInfo by remember { mutableStateOf(false) }
+    var showFgOffConfirm by remember { mutableStateOf(false) }
     var page by remember { mutableStateOf(SettingsCat.HOME) }
     val backLabel = stringResource(Res.string.a11y_back)
     val infoLabel = stringResource(Res.string.a11y_more_info)
@@ -210,17 +221,20 @@ fun SettingsScreen(
         ) {
             when (page) {
                 SettingsCat.HOME -> {
-                    SettingsNavRow(stringResource(Res.string.settings_cat_appearance)) { page = SettingsCat.APPEARANCE }
-                    SettingsNavRow(stringResource(Res.string.settings_cat_finding)) { page = SettingsCat.FINDING }
-                    SettingsNavRow(stringResource(Res.string.settings_cat_detection)) { page = SettingsCat.DETECTION }
-                    SettingsNavRow(stringResource(Res.string.settings_tether_title)) { page = SettingsCat.LEFTBEHIND }
-                    SettingsNavRow(stringResource(Res.string.settings_cat_devices)) { page = SettingsCat.DEVICES }
-                    SettingsNavRow(stringResource(Res.string.settings_section_sync)) { page = SettingsCat.SYNC }
+                    SettingsNavRow(stringResource(Res.string.settings_cat_finding), stringResource(Res.string.settings_cat_finding_desc)) { page = SettingsCat.FINDING }
+                    SettingsNavRow(stringResource(Res.string.settings_cat_detection), stringResource(Res.string.settings_cat_detection_desc)) { page = SettingsCat.DETECTION }
+                    SettingsNavRow(stringResource(Res.string.settings_tether_title), stringResource(Res.string.settings_cat_leftbehind_desc)) { page = SettingsCat.LEFTBEHIND }
+                    SettingsNavRow(stringResource(Res.string.settings_cat_devices), stringResource(Res.string.settings_cat_devices_desc)) { page = SettingsCat.DEVICES }
+                    SettingsNavRow(stringResource(Res.string.settings_section_sync), stringResource(Res.string.settings_cat_sync_desc)) { page = SettingsCat.SYNC }
+                    // Appearance is a single control (theme), so it lives inline here rather
+                    // than behind its own sub-page.
+                    Spacer(Modifier.height(6.dp))
+                    Text(stringResource(Res.string.settings_cat_appearance).uppercase(), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f), modifier = Modifier.padding(start = 4.dp))
+                    ThemeSelector(themeMode, onSelectTheme)
                     Spacer(Modifier.height(20.dp))
                     buildInfo?.let { VersionStamp(it, Modifier.align(Alignment.CenterHorizontally)) }
                     Spacer(Modifier.height(16.dp))
                 }
-                SettingsCat.APPEARANCE -> ThemeSelector(themeMode, onSelectTheme)
                 SettingsCat.FINDING -> {
                     SettingRow(stringResource(Res.string.settings_connected_signal_title), stringResource(Res.string.settings_connected_signal_desc), measureConnectedSignal, onToggleConnectedSignal)
                     SettingRow(stringResource(Res.string.settings_sound_title), stringResource(Res.string.settings_sound_desc), soundOn, onToggleSound)
@@ -238,7 +252,13 @@ fun SettingsScreen(
                         Text(stringResource(Res.string.settings_section_background).uppercase(), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f), modifier = Modifier.weight(1f).padding(start = 4.dp))
                         Text("?", style = MaterialTheme.typography.labelLarge, color = BlepColors.Blue, modifier = Modifier.clip(CircleShape).clickable { showBgInfo = true }.padding(horizontal = 10.dp, vertical = 4.dp).semantics { contentDescription = infoLabel })
                     }
-                    SettingRow(stringResource(Res.string.settings_foreground_title), stringResource(Res.string.settings_foreground_desc), foregroundScan) { on -> if (on) requestNotifications(); onToggleForeground(on) }
+                    SettingRow(stringResource(Res.string.settings_foreground_title), stringResource(Res.string.settings_foreground_desc), foregroundScan) { on ->
+                        when {
+                            on -> { requestNotifications(); onToggleForeground(true) }
+                            watchedCount > 0 -> showFgOffConfirm = true // confirm: turning off unwatches all
+                            else -> onToggleForeground(false)
+                        }
+                    }
                     BackgroundScanRow(backgroundScan, { on -> if (on) requestNotifications(); onToggleBackground(on) }, intervalMinutes, onIntervalChange)
                 }
                 SettingsCat.LEFTBEHIND -> TetherAlertSelector(tetherAlert, onSelectTetherAlert)
@@ -270,6 +290,20 @@ fun SettingsScreen(
             confirmButton = {
                 TextButton(onClick = { showBgInfo = false }) { Text(stringResource(Res.string.action_done)) }
             },
+        )
+    }
+
+    if (showFgOffConfirm) {
+        AlertDialog(
+            onDismissRequest = { showFgOffConfirm = false },
+            title = { Text(stringResource(Res.string.watch_disable_fg_title)) },
+            text = { Text(stringResource(Res.string.watch_disable_fg_body)) },
+            confirmButton = {
+                TextButton(onClick = { showFgOffConfirm = false; onDisableForeground() }) {
+                    Text(stringResource(Res.string.fg_status_disable), color = BlepColors.Pink)
+                }
+            },
+            dismissButton = { TextButton(onClick = { showFgOffConfirm = false }) { Text(stringResource(Res.string.action_cancel)) } },
         )
     }
 }
@@ -562,7 +596,6 @@ private fun ThemeChip(label: String, selected: Boolean, onClick: () -> Unit) {
 /** Settings is grouped into sub-pages; HOME lists these and each opens its own page. */
 private enum class SettingsCat(val title: StringResource) {
     HOME(Res.string.settings_title),
-    APPEARANCE(Res.string.settings_cat_appearance),
     FINDING(Res.string.settings_cat_finding),
     DETECTION(Res.string.settings_cat_detection),
     LEFTBEHIND(Res.string.settings_tether_title),
@@ -570,9 +603,9 @@ private enum class SettingsCat(val title: StringResource) {
     SYNC(Res.string.settings_section_sync),
 }
 
-/** A row on the Settings home that opens a sub-page. */
+/** A row on the Settings home that opens a sub-page: title with a short description beneath. */
 @Composable
-private fun SettingsNavRow(title: String, onClick: () -> Unit) {
+private fun SettingsNavRow(title: String, desc: String, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
@@ -580,7 +613,10 @@ private fun SettingsNavRow(title: String, onClick: () -> Unit) {
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Column(Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.SemiBold)
+                Text(desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f), modifier = Modifier.padding(top = 2.dp))
+            }
             Text("›", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f))
         }
     }

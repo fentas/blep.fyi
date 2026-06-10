@@ -43,8 +43,27 @@ tmp="$(mktemp)"; printf '%s' "$new" > "$tmp"
 adb -s "$PHONE" shell "run-as $PKG sh -c 'cat > $PREFS'" < "$tmp"
 rm -f "$tmp"
 echo "  phone favourites now: $(fav_of "$PHONE")"
+adb -s "$PHONE" logcat -c 2>/dev/null || true
 adb -s "$PHONE" shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
 echo "  relaunched phone app → SyncManager publishes on start"
+
+# Guard: make sure the phone app actually came up. A crash on launch (e.g. the 1.8.1/1.8.2
+# startup NPE) leaves nothing publishing, which otherwise looks identical to "sync is off"
+# 40 s later. Fail loudly and print the stack instead of silently timing out — this is the
+# check whose absence let that crash ship.
+sleep 4
+if ! adb -s "$PHONE" shell pidof "$PKG" >/dev/null 2>&1; then
+  say "FAIL ✗ — the phone app is not running after launch (crashed on startup?)."
+  echo "  Last fatal from logcat:"
+  adb -s "$PHONE" logcat -d 2>/dev/null | grep -iE 'FATAL|AndroidRuntime|Caused by|at fyi\.blep' | tail -15
+  exit 1
+fi
+if adb -s "$PHONE" logcat -d 2>/dev/null | grep -q 'FATAL EXCEPTION'; then
+  say "FAIL ✗ — the phone app logged a FATAL EXCEPTION on launch."
+  adb -s "$PHONE" logcat -d 2>/dev/null | grep -iE 'FATAL|AndroidRuntime|Caused by|at fyi\.blep' | tail -15
+  exit 1
+fi
+echo "  ✓ phone app is alive after launch (pid $(adb -s "$PHONE" shell pidof "$PKG" | tr -d '\r'))"
 
 say "2. Watch for it to land on the watch (≤40s)"
 for i in $(seq 1 20); do

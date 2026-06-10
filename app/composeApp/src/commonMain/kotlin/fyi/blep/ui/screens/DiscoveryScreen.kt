@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.border
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -64,6 +65,14 @@ import fyi.blep.resources.avail_permission
 import fyi.blep.resources.avail_permission_blocked
 import fyi.blep.resources.avail_unsupported
 import fyi.blep.resources.dbm
+import fyi.blep.resources.device_left_behind_badge
+import fyi.blep.resources.action_ok
+import fyi.blep.resources.fg_status_title
+import fyi.blep.resources.fg_status_body
+import fyi.blep.resources.fg_status_watching
+import fyi.blep.resources.fg_status_disable
+import fyi.blep.resources.watch_status_title
+import fyi.blep.resources.watch_status_body
 import fyi.blep.resources.discovery_empty_title
 import fyi.blep.resources.discovery_hint
 import fyi.blep.resources.hide_unnamed
@@ -111,11 +120,17 @@ fun DiscoveryScreen(
     onSafetyScan: () -> Unit,
     onSettings: () -> Unit,
     onDonate: () -> Unit,
+    foregroundActive: Boolean = false,
+    watchConnected: Boolean = false,
+    watchedCount: Int = 0,
+    onDisableForeground: () -> Unit = {},
     modifier: Modifier = Modifier,
     rotationOf: (String) -> RotationStats? = { null },
 ) {
     var showPaired by remember { mutableStateOf(false) }
     var showDonate by remember { mutableStateOf(false) }
+    var showFgInfo by remember { mutableStateOf(false) }
+    var showWatchInfo by remember { mutableStateOf(false) }
 
     Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
     Column(
@@ -125,7 +140,7 @@ fun DiscoveryScreen(
             .padding(horizontal = 20.dp),
     ) {
         Spacer(Modifier.height(12.dp))
-        Header(deviceCount = nearbyCount)
+        Header(deviceCount = nearbyCount, watchConnected = watchConnected, onWatchClick = { showWatchInfo = true })
         Spacer(Modifier.height(14.dp))
         SafetyEntry(onSafetyScan)
         Spacer(Modifier.height(16.dp))
@@ -139,6 +154,10 @@ fun DiscoveryScreen(
             if (pairedDevices.isNotEmpty()) {
                 PairedPill(count = pairedDevices.size, onClick = { showPaired = true })
                 Spacer(Modifier.width(8.dp))
+            }
+            if (foregroundActive) {
+                FgServiceChip(onClick = { showFgInfo = true })
+                Spacer(Modifier.width(4.dp))
             }
             SettingsButton(onClick = onSettings)
         }
@@ -219,7 +238,67 @@ fun DiscoveryScreen(
             },
         )
     }
+
+    if (showFgInfo) {
+        AlertDialog(
+            onDismissRequest = { showFgInfo = false },
+            title = { Text(stringResource(Res.string.fg_status_title)) },
+            text = {
+                Column {
+                    Text(stringResource(Res.string.fg_status_body))
+                    if (watchedCount > 0) {
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            stringResource(Res.string.fg_status_watching, watchedCount),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = BlepColors.Pink,
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showFgInfo = false; onDisableForeground() }) {
+                    Text(stringResource(Res.string.fg_status_disable), color = BlepColors.Pink)
+                }
+            },
+            dismissButton = { TextButton(onClick = { showFgInfo = false }) { Text(stringResource(Res.string.action_ok)) } },
+        )
+    }
+
+    if (showWatchInfo) {
+        AlertDialog(
+            onDismissRequest = { showWatchInfo = false },
+            title = { Text(stringResource(Res.string.watch_status_title)) },
+            text = { Text(stringResource(Res.string.watch_status_body)) },
+            confirmButton = { TextButton(onClick = { showWatchInfo = false }) { Text(stringResource(Res.string.action_ok)) } },
+        )
+    }
 }
+
+/** Small top-bar status chip: a tappable glyph in blep blue, sized like the settings cog. */
+@Composable
+private fun StatusChipGlyph(glyph: String, label: String, onClick: () -> Unit) {
+    Text(
+        glyph,
+        style = MaterialTheme.typography.titleMedium,
+        color = BlepColors.Blue,
+        modifier = Modifier
+            .clip(CircleShape)
+            .clickable(onClick = onClick)
+            .padding(6.dp)
+            .semantics { contentDescription = label },
+    )
+}
+
+/** "Foreground watch service is running" indicator. */
+@Composable
+private fun FgServiceChip(onClick: () -> Unit) =
+    StatusChipGlyph("◉", stringResource(Res.string.fg_status_title), onClick)
+
+/** "Connected to your watch" indicator. */
+@Composable
+private fun WatchChip(onClick: () -> Unit) =
+    StatusChipGlyph("⌚", stringResource(Res.string.watch_status_title), onClick)
 
 /** Flat 2-D floating heart (no shadow/elevation) that invites a donation. */
 @Composable
@@ -293,7 +372,7 @@ private fun PairedSheet(
 }
 
 @Composable
-private fun Header(deviceCount: Int) {
+private fun Header(deviceCount: Int, watchConnected: Boolean, onWatchClick: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
             painter = rememberVectorPainter(BlepLogo),
@@ -319,6 +398,11 @@ private fun Header(deviceCount: Int) {
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                 )
             }
+        }
+        // A persistent "connected to your watch" info indicator, top-right.
+        if (watchConnected) {
+            Spacer(Modifier.width(8.dp))
+            WatchChip(onClick = onWatchClick)
         }
     }
 }
@@ -418,27 +502,33 @@ private fun DeviceCard(
                     color = if (device.isNamed) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
                 )
                 Spacer(Modifier.height(2.dp))
-                // Show the live signal whenever we have it (even when connected or
-                // paired — the avatar already marks connection). The chip only
-                // stands in when a bonded device isn't advertising any signal.
-                when {
-                    !device.rssiUnknown -> Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (device.isConnected) {
-                            Box(Modifier.size(6.dp).clip(CircleShape).background(BlepColors.Blue))
-                            Spacer(Modifier.width(6.dp))
+                // Second (and last) text line: the live signal, then the rotation count and a
+                // "watched" marker beside it — all on one row to keep the card two lines tall.
+                // The status chip stands in only when a bonded device has no live signal.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    when {
+                        !device.rssiUnknown -> {
+                            if (device.isConnected) {
+                                Box(Modifier.size(6.dp).clip(CircleShape).background(BlepColors.Blue))
+                                Spacer(Modifier.width(6.dp))
+                            }
+                            Text(
+                                stringResource(Res.string.dbm, device.rssi),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f),
+                            )
                         }
-                        Text(
-                            stringResource(Res.string.dbm, device.rssi),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f),
-                        )
+                        device.isConnected -> StatusChip(stringResource(Res.string.status_connected), showDot = true)
+                        else -> StatusChip(stringResource(Res.string.status_paired), showDot = false)
                     }
-                    device.isConnected -> StatusChip(stringResource(Res.string.status_connected), showDot = true)
-                    else -> StatusChip(stringResource(Res.string.status_paired), showDot = false)
-                }
-                if (rotation != null && rotation.rotations > 0) {
-                    Spacer(Modifier.height(3.dp))
-                    RotationBadge(rotation)
+                    if (rotation != null && rotation.rotations > 0) {
+                        Spacer(Modifier.width(8.dp))
+                        RotationBadge(rotation)
+                    }
+                    if (device.isTethered) {
+                        Spacer(Modifier.width(8.dp))
+                        LeftBehindBadge()
+                    }
                 }
             }
             if (!device.rssiUnknown) {
@@ -460,6 +550,20 @@ private fun RotationBadge(rotation: RotationStats) {
         style = MaterialTheme.typography.labelMedium,
         color = if (rotation.contested) BlepColors.Pink else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
     )
+}
+
+/** "Watched for left-behind" marker: a small eye-like ring in the alert pink. Shown on the
+ *  signal line of a device that has a leave/return alert set on it. */
+@Composable
+private fun LeftBehindBadge() {
+    val label = stringResource(Res.string.device_left_behind_badge)
+    Box(
+        Modifier.size(13.dp).semantics { contentDescription = label },
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(Modifier.size(13.dp).clip(CircleShape).border(1.5.dp, BlepColors.Pink, CircleShape))
+        Box(Modifier.size(4.5.dp).clip(CircleShape).background(BlepColors.Pink))
+    }
 }
 
 /** Star toggle: filled gold when starred, hollow otherwise. Starred devices pin to

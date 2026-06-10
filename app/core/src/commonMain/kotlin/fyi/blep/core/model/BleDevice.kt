@@ -24,6 +24,8 @@ data class BleDevice(
     val alias: String? = null,
     val isFavorite: Boolean = false,
     val isFlagged: Boolean = false,
+    /** A leave/return ("left-behind") alert is set on this device. */
+    val isTethered: Boolean = false,
 ) {
     /** True when no live advertisement RSSI is available (bonded, not advertising). */
     val rssiUnknown: Boolean get() = rssi == RSSI_UNKNOWN

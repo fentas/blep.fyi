@@ -35,6 +35,10 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
     fun showUnnamed(): Boolean = store.getBoolean(KEY_UNNAMED, false)
     fun setShowUnnamed(on: Boolean) = store.putBoolean(KEY_UNNAMED, on)
 
+    /** Whether the "Watch this device" explainer modal has been dismissed for good. */
+    fun watchExplainerDismissed(): Boolean = store.getBoolean(KEY_WATCH_EXPLAINED, false)
+    fun setWatchExplainerDismissed(on: Boolean) = store.putBoolean(KEY_WATCH_EXPLAINED, on)
+
     // ── Background safety scanning (default off; asks permission on activate) ──
     /** Keep the safety scan alive when you leave the app (foreground service). */
     fun foregroundScan(): Boolean = store.getBoolean(KEY_FG, false)
@@ -105,6 +109,7 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
         private const val KEY_HAPTICS = "settings.haptics"
         private const val KEY_UNNAMED = "settings.showUnnamed"
         private const val KEY_FG = "settings.foregroundScan"
+        private const val KEY_WATCH_EXPLAINED = "settings.watchExplainerDismissed"
         private const val KEY_BG = "settings.backgroundScan"
         private const val KEY_INTERVAL = "settings.scanIntervalMin"
         private const val KEY_SENSITIVITY = "settings.scanSensitivity"

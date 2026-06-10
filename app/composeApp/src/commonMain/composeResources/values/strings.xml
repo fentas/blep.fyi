@@ -290,8 +290,8 @@
     <string name="noti_watch_left_title">Watch left behind?</string>
     <string name="noti_watch_left_text">Your watch dropped out of range of your phone.</string>
     <string name="noti_watch_back_text">Your watch is back in range.</string>
-    <string name="detail_tether">Alert if it leaves</string>
-    <string name="detail_tethered">Leave alert on</string>
+    <string name="detail_tether">Watch this device</string>
+    <string name="detail_tethered">Watching this device</string>
     <string name="detail_tether_desc">Buzz me when this device goes out of (or comes back into) Bluetooth range — so you notice if you walk off without it.</string>
     <string name="settings_tether_title">Left-behind alerts</string>
     <string name="settings_tether_desc">When a device you've tethered slips out of range</string>
@@ -315,4 +315,22 @@
     <string name="settings_cat_finding">Finding</string>
     <string name="settings_cat_detection">Tracker detection</string>
     <string name="settings_cat_devices">Devices &amp; storage</string>
+    <string name="settings_cat_finding_desc">Signal feedback, sound and haptics while finding</string>
+    <string name="settings_cat_detection_desc">Spot trackers that may be following you</string>
+    <string name="settings_cat_leftbehind_desc">Alert me when a watched item goes missing or returns</string>
+    <string name="settings_cat_devices_desc">Identify devices and manage stored data</string>
+    <string name="settings_cat_sync_desc">Share favourites, names and alerts with your watch</string>
+    <string name="device_left_behind_badge">Watched for left-behind</string>
+    <string name="action_ok">OK</string>
+    <string name="watch_explainer_title">Watch this device</string>
+    <string name="watch_explainer_body">blep will alert you when this device leaves Bluetooth range — and when it comes back. To keep watching while blep is in the background, it runs a foreground service (you\'ll see an ongoing notification while it\'s active).</string>
+    <string name="watch_explainer_dont_show">Don\'t show again</string>
+    <string name="watch_disable_fg_title">Stop watching all devices?</string>
+    <string name="watch_disable_fg_body">Turning off the background watch service will stop watching the devices you\'ve set left-behind alerts on. Continue?</string>
+    <string name="fg_status_title">Background watch active</string>
+    <string name="fg_status_body">blep is running a foreground service so it can keep watching your devices and surface tracker alerts while the app is in the background. An ongoing notification shows while it\'s active.</string>
+    <string name="fg_status_watching">Watching %1$d device(s) for left-behind — turning off stops them.</string>
+    <string name="fg_status_disable">Turn off</string>
+    <string name="watch_status_title">Connected to your watch</string>
+    <string name="watch_status_body">Your watch is paired and nearby. blep keeps favourites, names and left-behind alerts in sync with it, and relays tracker alerts so your watch can buzz when something is found.</string>
 </resources>

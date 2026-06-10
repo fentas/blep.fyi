@@ -193,10 +193,11 @@ class BlepController(
      */
     val visibleDevices: List<BleDevice>
         get() = devices
-            .filter { it.isPresent || it.isFavorite }                    // nearby (incl. connected) or starred
-            .filter { it.isFavorite || includeUnnamed || it.isNamed }    // unnamed toggle applies to non-favourites
+            .filter { it.isPresent || it.isFavorite || it.isTethered }            // nearby (incl. connected), starred, or watched
+            .filter { it.isFavorite || it.isTethered || includeUnnamed || it.isNamed } // unnamed toggle skips favourites/watched
             .sortedWith(
                 compareByDescending<BleDevice> { it.isFavorite }
+                    .thenByDescending { it.isTethered }                           // watched devices pin near the top too
                     .thenByDescending { it.isConnected }
                     .thenByDescending { it.rssi },
             )
@@ -228,6 +229,14 @@ class BlepController(
     private var favoriteIds: Set<String> = favorites.ids()
     private var flaggedIds: Set<String> = flags.ids()
     private var tetheredIds: Set<String> = tether.ids()
+
+    /** Whether the continuous foreground watch service is currently running — drives the
+     *  status indicator on the main screen. Kept in step by [applyForeground], the single
+     *  point through which the service is started/stopped. */
+    var foregroundActive by mutableStateOf(
+        settings.foregroundScan() || flags.ids().isNotEmpty() || tether.ids().isNotEmpty(),
+    )
+        private set
     // Shares the same on-disk key as the service/worker monitors (same prefs file), so the
     // Settings storage row + Clear cover the remembered presence state too.
     private val presence = PresenceMonitor(createKeyValueStore())
@@ -335,7 +344,9 @@ class BlepController(
                 devices = devices.map { it.copy(isFavorite = it.id in ids) }
             }
             override fun applyTethered(ids: Set<String>) {
-                tether.replace(ids); tetheredIds = ids; syncWatch()
+                tether.replace(ids); tetheredIds = ids
+                devices = devices.map { it.copy(isTethered = it.id in ids) }
+                syncWatch()
             }
             override fun applyMuted(ids: Set<String>) { safetyHistory.replaceMuted(ids) }
             override fun applyAliases(map: Map<String, String>) {
@@ -394,8 +405,23 @@ class BlepController(
         // If a tether/flag is already keeping the service alive, re-poke it so it re-reads
         // this setting now (starts/stops the tracker scan immediately) instead of on its next
         // restart. Otherwise fall back to the safety-screen behaviour.
-        if (flaggedIds.isNotEmpty() || tetheredIds.isNotEmpty()) BackgroundScan.setForeground(true)
-        else BackgroundScan.setForeground(on && screen is Screen.Safety)
+        if (flaggedIds.isNotEmpty() || tetheredIds.isNotEmpty()) applyForeground(true)
+        else applyForeground(on && screen is Screen.Safety)
+    }
+
+    /** The single point that starts/stops the foreground service, so [foregroundActive]
+     *  (the main-screen status indicator) always reflects the real service state. */
+    private fun applyForeground(on: Boolean) {
+        BackgroundScan.setForeground(on)
+        foregroundActive = on
+    }
+
+    /** Quick-disable from the foreground-service status modal: stop every left-behind watch
+     *  (they keep the service alive) and turn the foreground scan off. Flags, if any, are a
+     *  separate safety keep-alive and are left untouched. */
+    fun disableForegroundService() {
+        unwatchAll()
+        setForegroundScanning(false)
     }
 
     /** Periodic background safety scan while the app is closed (persisted). */
@@ -429,7 +455,7 @@ class BlepController(
         latestMotion = null
         spatialTracker.reset()
         guidanceStabilizer.reset()
-        BackgroundScan.setForeground(false) // leaving safety → drop the foreground service
+        applyForeground(false) // leaving safety → drop the foreground service
         syncWatch() // …unless a flagged device still wants the continuous watch
         screen = Screen.Discovery
         restartScan()
@@ -746,9 +772,34 @@ class BlepController(
     fun toggleTether(device: BleDevice): Boolean {
         val now = tether.toggle(device.id)
         tetheredIds = tether.ids()
+        devices = devices.map { if (it.id == device.id) it.copy(isTethered = now) else it }
         syncWatch()
         syncPush()
         return now
+    }
+
+    /** Whether the "Watch this device" explainer modal has been dismissed for good. */
+    var watchExplained by mutableStateOf(settings.watchExplainerDismissed())
+        private set
+
+    /** Remember the user ticked "don't show again" on the watch explainer. */
+    fun dismissWatchExplainer() {
+        settings.setWatchExplainerDismissed(true)
+        watchExplained = true
+    }
+
+    /** How many devices currently have a left-behind ("watch") alert set. */
+    val watchedCount: Int get() = tetheredIds.size
+
+    /** Turn off every left-behind watch at once (used when disabling the foreground service,
+     *  which the watches depend on). Mirrors the per-device untether bookkeeping. */
+    fun unwatchAll() {
+        if (tetheredIds.isEmpty()) return
+        tether.replace(emptySet())
+        tetheredIds = emptySet()
+        devices = devices.map { if (it.isTethered) it.copy(isTethered = false) else it }
+        syncWatch()
+        syncPush()
     }
 
     /** Which tethered-device transitions raise an alert (Leave / Return / Both; persisted). */
@@ -765,8 +816,8 @@ class BlepController(
      *  (the service reads those sets + scans for them). Doesn't tear down the foreground
      *  service while the safety screen still wants it. */
     private fun syncWatch() {
-        if (flaggedIds.isNotEmpty() || tetheredIds.isNotEmpty()) BackgroundScan.setForeground(true)
-        else if (screen !is Screen.Safety) BackgroundScan.setForeground(false)
+        if (flaggedIds.isNotEmpty() || tetheredIds.isNotEmpty()) applyForeground(true)
+        else if (screen !is Screen.Safety) applyForeground(false)
     }
 
     /** Start the "is something tracking me?" scan and show its screen. */
@@ -774,7 +825,7 @@ class BlepController(
         scanJob?.cancel(); scanJob = null; probeJob?.cancel(); probeJob = null
         safetyScanner.reset()
         safetyAlerts = emptyList()
-        if (foregroundScanEnabled) BackgroundScan.setForeground(true)
+        if (foregroundScanEnabled) applyForeground(true)
         screen = Screen.Safety
         safetyJob?.cancel()
         safetyJob = scope.launch {
@@ -951,15 +1002,35 @@ class BlepController(
                         // would then never correlate. The advert stream carries true
                         // per-advert timestamps, so an id that stops is seen to stop.
                         syncIdentities(list)
-                        devices = list.map {
+                        val mapped = list.map {
                             it.copy(
                                 // an unnamed device shows the name a probe learned for it, if any
                                 name = it.name ?: identityStore.probeLabelOf(it.id),
                                 alias = effectiveAlias(it.id) ?: it.alias,
                                 isFavorite = it.id in favoriteIds,
                                 isFlagged = effectiveFlagged(it.id),
+                                isTethered = it.id in tetheredIds,
                             )
                         }
+                        // Keep favourites and watched ("left-behind") devices on the list even
+                        // after they go silent and the scanner drops them — like a pinned
+                        // contact. They reappear as *absent* (no live RSSI) instead of vanishing,
+                        // so a watched item you've walked away from stays visible and manageable.
+                        // Bonded devices the scanner already retains; this covers non-bonded ones
+                        // (a tracker on your keys). Re-derived from the live sets each tick, so
+                        // un-favouriting / un-watching an absent device drops it next pass.
+                        val present = mapped.mapTo(HashSet()) { it.id }
+                        val pinned = devices
+                            .filter { (it.id in favoriteIds || it.id in tetheredIds) && it.id !in present }
+                            .map {
+                                it.copy(
+                                    rssi = BleDevice.RSSI_UNKNOWN, isConnected = false,
+                                    isFavorite = it.id in favoriteIds,
+                                    isFlagged = effectiveFlagged(it.id),
+                                    isTethered = it.id in tetheredIds,
+                                )
+                            }
+                        devices = mapped + pinned
                     }
                 } catch (c: CancellationException) {
                     throw c

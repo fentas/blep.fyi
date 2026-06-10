@@ -87,6 +87,10 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     onSafetyScan = controller::openSafetyScan,
                     onSettings = controller::openSettings,
                     onDonate = { uriHandler.openUri(DONATE_URL) },
+                    foregroundActive = controller.foregroundActive,
+                    watchConnected = controller.watchNearby,
+                    watchedCount = controller.watchedCount,
+                    onDisableForeground = controller::disableForegroundService,
                     rotationOf = controller::rotationStats,
                 )
 
@@ -117,6 +121,8 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     onClearStorage = controller::clearStorage,
                     foregroundScan = controller.foregroundScanEnabled,
                     onToggleForeground = controller::setForegroundScanning,
+                    watchedCount = controller.watchedCount,
+                    onDisableForeground = controller::disableForegroundService,
                     backgroundScan = controller.backgroundScanEnabled,
                     onToggleBackground = controller::setBackgroundScanning,
                     intervalMinutes = controller.scanIntervalMinutes,
@@ -203,6 +209,8 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                         onToggleFlag = { controller.toggleFlag(live) },
                         tethered = controller.isTethered(live.id),
                         onToggleTether = { controller.toggleTether(live) },
+                        watchExplained = controller.watchExplained,
+                        onWatchExplainedDismiss = controller::dismissWatchExplainer,
                         onTrack = { controller.track(live) },
                         onBack = controller::startDiscovery,
                     )
