@@ -1018,6 +1018,8 @@ class BlepController(
                         // would then never correlate. The advert stream carries true
                         // per-advert timestamps, so an id that stops is seen to stop.
                         syncIdentities(list)
+                        val nowMs = epochMillis()
+                        val prevSeen = devices.associate { it.id to it.seenAtMs }
                         val mapped = list.map {
                             it.copy(
                                 // an unnamed device shows the name a probe learned for it, if any
@@ -1026,6 +1028,9 @@ class BlepController(
                                 isFavorite = it.id in favoriteIds,
                                 isFlagged = effectiveFlagged(it.id),
                                 isTethered = it.id in tetheredIds,
+                                // stamp the last-seen-with-signal time; keep the old one for a
+                                // bonded device that's in the snapshot but not advertising.
+                                seenAtMs = if (it.isPresent) nowMs else (prevSeen[it.id] ?: 0L),
                             )
                         }
                         // Keep favourites and watched ("left-behind") devices on the list even

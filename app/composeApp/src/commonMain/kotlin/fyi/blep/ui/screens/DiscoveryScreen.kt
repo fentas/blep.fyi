@@ -38,6 +38,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -54,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import fyi.blep.core.ble.RotationStats
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.platform.epochMillis
 import fyi.blep.AppSettings
 import fyi.blep.ScanMode
 import fyi.blep.resources.Res
@@ -100,6 +102,7 @@ import fyi.blep.resources.show_unnamed_one
 import fyi.blep.resources.status_connected
 import fyi.blep.resources.status_paired
 import fyi.blep.resources.status_no_signal
+import fyi.blep.resources.status_lost
 import fyi.blep.resources.settings_scan_off
 import fyi.blep.resources.settings_scan_interval
 import fyi.blep.resources.settings_scan_continuous
@@ -116,6 +119,7 @@ import fyi.blep.ui.theme.StarFilledIcon
 import fyi.blep.ui.theme.StarOutlineIcon
 import fyi.blep.ui.theme.BlepLogo
 import fyi.blep.ui.theme.HeartIcon
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
@@ -148,6 +152,8 @@ fun DiscoveryScreen(
     var showDonate by remember { mutableStateOf(false) }
     var showFgInfo by remember { mutableStateOf(false) }
     var showWatchInfo by remember { mutableStateOf(false) }
+    // A coarse clock (1 min) so a pinned device's "lost for >1h" state updates over time.
+    val nowMs by produceState(epochMillis()) { while (true) { delay(60_000); value = epochMillis() } }
 
     Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
     Column(
@@ -202,6 +208,7 @@ fun DiscoveryScreen(
                     onDetails = { onDetails(device) },
                     onToggleFavorite = { onToggleFavorite(device) },
                     rotation = rotationOf(device.id),
+                    nowMs = nowMs,
                     modifier = Modifier.animateItem(),
                 )
             }
@@ -560,15 +567,22 @@ private fun DeviceCard(
     modifier: Modifier = Modifier,
     onDetails: (() -> Unit)? = null,
     rotation: RotationStats? = null,
+    nowMs: Long = 0L,
 ) {
+    // A flagged device gone >1h with a rotating id has likely changed address — mark its
+    // border dashed (vs a solid light-red border while it's still findable).
+    val gone = device.probablyGone(nowMs)
+    val flagBorder = BlepColors.Pink.copy(alpha = 0.45f)
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(22.dp),
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 1.dp,
-        // "Watch this device" (flag) marks the row with a light red border.
-        border = if (device.isFlagged) BorderStroke(1.5.dp, BlepColors.Pink.copy(alpha = 0.45f)) else null,
-        modifier = modifier.fillMaxWidth(),
+        // "Watch this device" (flag) marks the row with a light red border (solid while
+        // findable; dashed once it's probably gone).
+        border = if (device.isFlagged && !gone) BorderStroke(1.5.dp, flagBorder) else null,
+        modifier = modifier.fillMaxWidth()
+            .then(if (device.isFlagged && gone) Modifier.dashedBorder(flagBorder, 1.5.dp, 22.dp) else Modifier),
     ) {
         Row(
             modifier = Modifier.padding(14.dp),
@@ -603,7 +617,7 @@ private fun DeviceCard(
                         device.isPaired -> StatusChip(stringResource(Res.string.status_paired), showDot = false)
                         // A watched (favourite/flag/left-behind) device that's pinned but has
                         // gone silent — it isn't paired, so say so rather than mislabel it.
-                        else -> StatusChip(stringResource(Res.string.status_no_signal), showDot = false)
+                        else -> StatusChip(stringResource(if (gone) Res.string.status_lost else Res.string.status_no_signal), showDot = false)
                     }
                     if (rotation != null && rotation.rotations > 0) {
                         Spacer(Modifier.width(8.dp))

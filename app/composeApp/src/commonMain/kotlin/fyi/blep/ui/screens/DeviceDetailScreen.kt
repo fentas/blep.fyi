@@ -3,6 +3,7 @@ package fyi.blep.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +35,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,6 +50,7 @@ import fyi.blep.core.ble.RotationStats
 import fyi.blep.core.ble.WornId
 import fyi.blep.core.ble.addressKind
 import fyi.blep.core.model.BleDevice
+import fyi.blep.core.platform.epochMillis
 import fyi.blep.resources.Res
 import fyi.blep.resources.a11y_back
 import fyi.blep.resources.action_cancel
@@ -77,7 +80,11 @@ import fyi.blep.resources.detail_identifier
 import fyi.blep.resources.detail_identify
 import fyi.blep.resources.detail_identify_failed
 import fyi.blep.resources.detail_identifying
-import fyi.blep.resources.detail_no_rotation
+import fyi.blep.resources.detail_lost_unlikely
+import fyi.blep.resources.detail_no_signal_for
+import fyi.blep.resources.dur_seconds
+import fyi.blep.resources.dur_minutes
+import fyi.blep.resources.dur_hours
 import fyi.blep.resources.detail_signal
 import fyi.blep.resources.detail_signal_lost
 import fyi.blep.resources.detail_signal_scanning
@@ -103,6 +110,7 @@ import fyi.blep.resources.rename_title
 import fyi.blep.resources.status_connected
 import fyi.blep.resources.status_paired
 import fyi.blep.ui.theme.BlepColors
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
@@ -144,6 +152,8 @@ fun DeviceDetailScreen(
     var showFlagModal by remember { mutableStateOf(false) }
     val backLabel = stringResource(Res.string.a11y_back)
     val helpLabel = stringResource(Res.string.a11y_help)
+    // Ticks so the "no signal for X" duration counts up while the page is open.
+    val nowMs by produceState(epochMillis()) { while (true) { delay(1000); value = epochMillis() } }
 
     Column(
         modifier = modifier
@@ -173,13 +183,29 @@ fun DeviceDetailScreen(
         // Scrollable content; the actions stay pinned at the bottom.
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             // Signal + connection status (or a lost-signal hint while it's out of range).
-            Section(stringResource(Res.string.detail_signal)) {
+            val signalLost = !signalPresent && !device.isConnected && !device.isPaired
+            Section(
+                stringResource(Res.string.detail_signal),
+                // "Still scanning" sits top-right of the heading while we're looking for it.
+                trailing = if (signalLost) {
+                    { Text(stringResource(Res.string.detail_signal_scanning), style = MaterialTheme.typography.labelLarge, color = BlepColors.Blue) }
+                } else null,
+            ) {
                 val rssi = liveRssi ?: device.rssi.takeUnless { device.rssiUnknown }
-                if (!signalPresent && !device.isConnected && !device.isPaired) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(Res.string.detail_signal_lost), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f))
-                        Spacer(Modifier.width(10.dp))
-                        Text("· ${stringResource(Res.string.detail_signal_scanning)}", style = MaterialTheme.typography.labelLarge, color = BlepColors.Blue)
+                if (signalLost) {
+                    val gone = device.probablyGone(nowMs) // rotating id, gone >1h → won't be found
+                    Text(
+                        stringResource(if (gone) Res.string.detail_lost_unlikely else Res.string.detail_signal_lost),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = if (gone) BlepColors.Pink else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                    )
+                    device.lostForMs(nowMs)?.let { lost ->
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            stringResource(Res.string.detail_no_signal_for, lostDurationLabel(lost)),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                        )
                     }
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -250,10 +276,10 @@ fun DeviceDetailScreen(
                                 .semantics { contentDescription = helpLabel },
                         )
                     }
+                    // No rotation yet + not correlating → show nothing; "stable so far" is implicit.
                     correlating ->
                         Text(stringResource(Res.string.detail_correlating), style = MaterialTheme.typography.bodyMedium, color = BlepColors.Blue)
-                    else ->
-                        Text(stringResource(Res.string.detail_no_rotation), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
+                    else -> Unit
                 }
                 if (firstSeenAgoMs != null) {
                     Spacer(Modifier.height(8.dp))
@@ -514,14 +540,17 @@ private fun WornIdRow(w: WornId) {
 }
 
 @Composable
-private fun Section(title: String, content: @Composable () -> Unit) {
+private fun Section(title: String, trailing: (@Composable () -> Unit)? = null, content: @Composable () -> Unit) {
     Surface(
         shape = RoundedCornerShape(18.dp),
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Label(title)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.weight(1f)) { Label(title) }
+                trailing?.invoke()
+            }
             Spacer(Modifier.height(4.dp))
             content()
         }
@@ -538,6 +567,16 @@ private fun Label(text: String) {
 }
 
 /** Compact relative duration: 5s / 3m / 2h / 1d (units are locale-neutral). */
+@Composable
+private fun lostDurationLabel(ms: Long): String {
+    val s = (ms / 1000).toInt()
+    return when {
+        s < 60 -> stringResource(Res.string.dur_seconds, s)
+        s < 3600 -> stringResource(Res.string.dur_minutes, s / 60)
+        else -> stringResource(Res.string.dur_hours, s / 3600)
+    }
+}
+
 private fun formatAge(ms: Long): String {
     val s = ms / 1000
     return when {

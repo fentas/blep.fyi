@@ -7,6 +7,7 @@
     <string name="status_connected">Verbunden</string>
     <string name="status_paired">Gekoppelt</string>
     <string name="status_no_signal">Kein Signal</string>
+    <string name="status_lost">Verloren</string>
     <string name="hide_unnamed">Unbenannte Geräte ausblenden</string>
     <string name="show_unnamed_one">%1$d unbenanntes Gerät anzeigen</string>
     <string name="show_unnamed_many">%1$d unbenannte Geräte anzeigen</string>
@@ -322,4 +323,8 @@
     <string name="settings_scan_off">Aus</string>
     <string name="settings_scan_interval">Intervall</string>
     <string name="settings_scan_continuous">Kontinuierlich</string>
+    <string name="detail_lost_unlikely">Wahrscheinlich nicht mehr auffindbar</string>
+    <string name="detail_no_signal_for">Kein Signal seit %1$s</string>
+    <string name="dur_seconds">%1$ds</string>
+    <string name="dur_hours">%1$dh</string>
 </resources>

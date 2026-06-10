@@ -6,6 +6,7 @@
     <string name="status_connected">Connecté</string>
     <string name="status_paired">Associé</string>
     <string name="status_no_signal">Aucun signal</string>
+    <string name="status_lost">Perdu</string>
     <string name="hide_unnamed">Masquer les appareils sans nom</string>
     <string name="show_unnamed_one">Afficher %1$d appareil sans nom</string>
     <string name="show_unnamed_many">Afficher %1$d appareils sans nom</string>
@@ -321,4 +322,8 @@
     <string name="settings_scan_off">Désactivé</string>
     <string name="settings_scan_interval">Intervalle</string>
     <string name="settings_scan_continuous">Continu</string>
+    <string name="detail_lost_unlikely">Peu susceptible d'être retrouvé</string>
+    <string name="detail_no_signal_for">Aucun signal depuis %1$s</string>
+    <string name="dur_seconds">%1$ds</string>
+    <string name="dur_hours">%1$dh</string>
 </resources>

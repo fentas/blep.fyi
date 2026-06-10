@@ -6,6 +6,7 @@
     <string name="status_connected">Ligado</string>
     <string name="status_paired">Emparelhado</string>
     <string name="status_no_signal">Sem sinal</string>
+    <string name="status_lost">Perdido</string>
     <string name="hide_unnamed">Ocultar dispositivos sem nome</string>
     <string name="show_unnamed_one">Mostrar %1$d dispositivo sem nome</string>
     <string name="show_unnamed_many">Mostrar %1$d dispositivos sem nome</string>
@@ -321,4 +322,8 @@
     <string name="settings_scan_off">Desligado</string>
     <string name="settings_scan_interval">Intervalo</string>
     <string name="settings_scan_continuous">Contínuo</string>
+    <string name="detail_lost_unlikely">Difícil de encontrar novamente</string>
+    <string name="detail_no_signal_for">Sem sinal há %1$s</string>
+    <string name="dur_seconds">%1$ds</string>
+    <string name="dur_hours">%1$dh</string>
 </resources>

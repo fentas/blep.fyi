@@ -6,6 +6,7 @@
     <string name="status_connected">Verbonden</string>
     <string name="status_paired">Gekoppeld</string>
     <string name="status_no_signal">Geen signaal</string>
+    <string name="status_lost">Kwijt</string>
     <string name="hide_unnamed">Naamloze apparaten verbergen</string>
     <string name="show_unnamed_one">Toon %1$d naamloos apparaat</string>
     <string name="show_unnamed_many">Toon %1$d naamloze apparaten</string>
@@ -321,4 +322,8 @@
     <string name="settings_scan_off">Uit</string>
     <string name="settings_scan_interval">Interval</string>
     <string name="settings_scan_continuous">Continu</string>
+    <string name="detail_lost_unlikely">Waarschijnlijk niet meer te vinden</string>
+    <string name="detail_no_signal_for">Geen signaal sinds %1$s</string>
+    <string name="dur_seconds">%1$ds</string>
+    <string name="dur_hours">%1$du</string>
 </resources>

@@ -6,6 +6,7 @@
     <string name="status_connected">Συνδεδεμένο</string>
     <string name="status_paired">Συζευγμένο</string>
     <string name="status_no_signal">Χωρίς σήμα</string>
+    <string name="status_lost">Χάθηκε</string>
     <string name="hide_unnamed">Απόκρυψη ανώνυμων συσκευών</string>
     <string name="show_unnamed_one">Εμφάνιση %1$d ανώνυμης συσκευής</string>
     <string name="show_unnamed_many">Εμφάνιση %1$d ανώνυμων συσκευών</string>
@@ -321,4 +322,8 @@
     <string name="settings_scan_off">Ανενεργό</string>
     <string name="settings_scan_interval">Διάστημα</string>
     <string name="settings_scan_continuous">Συνεχής</string>
+    <string name="detail_lost_unlikely">Απίθανο να βρεθεί ξανά</string>
+    <string name="detail_no_signal_for">Χωρίς σήμα εδώ και %1$s</string>
+    <string name="dur_seconds">%1$dδ</string>
+    <string name="dur_hours">%1$dω</string>
 </resources>

@@ -9,6 +9,7 @@
     <string name="status_connected">Connected</string>
     <string name="status_paired">Paired</string>
     <string name="status_no_signal">No signal</string>
+    <string name="status_lost">Lost</string>
     <string name="hide_unnamed">Hide unnamed devices</string>
     <string name="show_unnamed_one">Show %1$d unnamed device</string>
     <string name="show_unnamed_many">Show %1$d unnamed devices</string>
@@ -343,4 +344,8 @@
     <string name="settings_scan_off">Off</string>
     <string name="settings_scan_interval">Interval</string>
     <string name="settings_scan_continuous">Continuous</string>
+    <string name="detail_lost_unlikely">Unlikely to find again</string>
+    <string name="detail_no_signal_for">No signal for %1$s</string>
+    <string name="dur_seconds">%1$ds</string>
+    <string name="dur_hours">%1$dh</string>
 </resources>

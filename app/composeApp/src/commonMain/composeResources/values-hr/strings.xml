@@ -6,6 +6,7 @@
     <string name="status_connected">Povezano</string>
     <string name="status_paired">Upareno</string>
     <string name="status_no_signal">Nema signala</string>
+    <string name="status_lost">Izgubljeno</string>
     <string name="hide_unnamed">Sakrij neimenovane uređaje</string>
     <string name="show_unnamed_one">Prikaži %1$d neimenovani uređaj</string>
     <string name="show_unnamed_many">Prikaži %1$d neimenovanih uređaja</string>
@@ -321,4 +322,8 @@
     <string name="settings_scan_off">Isključeno</string>
     <string name="settings_scan_interval">Interval</string>
     <string name="settings_scan_continuous">Neprekidno</string>
+    <string name="detail_lost_unlikely">Malo vjerojatno da će se pronaći</string>
+    <string name="detail_no_signal_for">Nema signala već %1$s</string>
+    <string name="dur_seconds">%1$ds</string>
+    <string name="dur_hours">%1$dh</string>
 </resources>

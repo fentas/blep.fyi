@@ -26,6 +26,9 @@ data class BleDevice(
     val isFlagged: Boolean = false,
     /** A leave/return ("left-behind") alert is set on this device. */
     val isTethered: Boolean = false,
+    /** Wall-clock (epoch ms) of the last sighting with a live signal; 0 if never. Carried
+     *  forward on a pinned-but-absent device so the UI can show how long it's been gone. */
+    val seenAtMs: Long = 0L,
 ) {
     /** True when no live advertisement RSSI is available (bonded, not advertising). */
     val rssiUnknown: Boolean get() = rssi == RSSI_UNKNOWN

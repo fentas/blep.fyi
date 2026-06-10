@@ -7,6 +7,7 @@
     <string name="status_connected">已连接</string>
     <string name="status_paired">已配对</string>
     <string name="status_no_signal">无信号</string>
+    <string name="status_lost">已丢失</string>
     <string name="hide_unnamed">隐藏未命名设备</string>
     <string name="show_unnamed_one">显示 %1$d 个未命名设备</string>
     <string name="show_unnamed_many">显示 %1$d 个未命名设备</string>
@@ -322,4 +323,8 @@
     <string name="settings_scan_off">关闭</string>
     <string name="settings_scan_interval">间隔</string>
     <string name="settings_scan_continuous">持续</string>
+    <string name="detail_lost_unlikely">可能再也找不到</string>
+    <string name="detail_no_signal_for">%1$s 无信号</string>
+    <string name="dur_seconds">%1$d秒</string>
+    <string name="dur_hours">%1$d小时</string>
 </resources>
