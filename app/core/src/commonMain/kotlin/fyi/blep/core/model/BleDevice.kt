@@ -38,11 +38,12 @@ data class BleDevice(
     /** True when the device advertises a non-blank name. */
     val isNamed: Boolean get() = !name.isNullOrBlank()
 
-    /** What the UI should show: alias › advertised name › a neutral placeholder. */
+    /** What the UI should show: alias › advertised name › the raw identifier. Falling back to
+     *  the id (not a generic "Unnamed device") keeps a list of unnamed devices distinguishable. */
     val displayName: String
         get() = alias?.takeIf { it.isNotBlank() }
             ?: name?.takeIf { it.isNotBlank() }
-            ?: "Unnamed device"
+            ?: id
 
     companion object {
         /** Sentinel RSSI for a bonded device that isn't advertising. */

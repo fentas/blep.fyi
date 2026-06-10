@@ -29,6 +29,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -52,6 +54,8 @@ import androidx.compose.ui.unit.dp
 import fyi.blep.core.ble.RotationStats
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
+import fyi.blep.AppSettings
+import fyi.blep.ScanMode
 import fyi.blep.resources.Res
 import fyi.blep.resources.app_tagline
 import fyi.blep.resources.action_cancel
@@ -96,6 +100,12 @@ import fyi.blep.resources.show_unnamed_one
 import fyi.blep.resources.status_connected
 import fyi.blep.resources.status_paired
 import fyi.blep.resources.status_no_signal
+import fyi.blep.resources.settings_scan_off
+import fyi.blep.resources.settings_scan_interval
+import fyi.blep.resources.settings_scan_continuous
+import fyi.blep.resources.settings_interval_min
+import fyi.blep.resources.settings_interval_h
+import fyi.blep.resources.settings_interval_hm
 import fyi.blep.ui.rememberAvailabilityAction
 import fyi.blep.ui.rememberBlePermissionRecovery
 import fyi.blep.ui.theme.BlepColors
@@ -107,6 +117,7 @@ import fyi.blep.ui.theme.StarOutlineIcon
 import fyi.blep.ui.theme.BlepLogo
 import fyi.blep.ui.theme.HeartIcon
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.roundToInt
 
 @Composable
 fun DiscoveryScreen(
@@ -123,10 +134,13 @@ fun DiscoveryScreen(
     onSafetyScan: () -> Unit,
     onSettings: () -> Unit,
     onDonate: () -> Unit,
-    foregroundActive: Boolean = false,
     watchConnected: Boolean = false,
     watchedCount: Int = 0,
     onDisableForeground: () -> Unit = {},
+    scanMode: ScanMode = ScanMode.OFF,
+    onSetScanMode: (ScanMode) -> Unit = {},
+    intervalMinutes: Int = 30,
+    onIntervalChange: (Int) -> Unit = {},
     modifier: Modifier = Modifier,
     rotationOf: (String) -> RotationStats? = { null },
 ) {
@@ -154,8 +168,16 @@ fun DiscoveryScreen(
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             SectionLabel(stringResource(Res.string.section_nearby), Modifier.weight(1f))
-            if (foregroundActive) {
-                FgServiceChip(onClick = { showFgInfo = true })
+            // Background-activity chip, coloured by what's running: continuous tracker scan
+            // (blue), interval scan (amber), or only watching your things (gray).
+            val bgChipColor = when {
+                scanMode == ScanMode.CONTINUOUS -> BlepColors.Blue
+                scanMode == ScanMode.INTERVAL -> Color(0xFFE8A33D)
+                watchedCount > 0 -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                else -> null
+            }
+            if (bgChipColor != null) {
+                BackgroundStatusChip(bgChipColor) { showFgInfo = true }
                 Spacer(Modifier.width(8.dp))
             }
             if (pairedDevices.isNotEmpty()) {
@@ -249,6 +271,35 @@ fun DiscoveryScreen(
             text = {
                 Column {
                     Text(stringResource(Res.string.fg_status_body))
+                    Spacer(Modifier.height(12.dp))
+                    // Switch the background tracker scan right here.
+                    Row(
+                        Modifier
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.06f))
+                            .padding(2.dp),
+                    ) {
+                        ModeChip(stringResource(Res.string.settings_scan_off), scanMode == ScanMode.OFF) { onSetScanMode(ScanMode.OFF) }
+                        ModeChip(stringResource(Res.string.settings_scan_interval), scanMode == ScanMode.INTERVAL) { onSetScanMode(ScanMode.INTERVAL) }
+                        ModeChip(stringResource(Res.string.settings_scan_continuous), scanMode == ScanMode.CONTINUOUS) { onSetScanMode(ScanMode.CONTINUOUS) }
+                    }
+                    if (scanMode == ScanMode.INTERVAL) {
+                        val min = AppSettings.INTERVAL_MIN
+                        val max = AppSettings.INTERVAL_MAX
+                        Slider(
+                            value = intervalMinutes.toFloat(),
+                            onValueChange = { v -> onIntervalChange((v / 15f).roundToInt() * 15) },
+                            valueRange = min.toFloat()..max.toFloat(),
+                            steps = (max - min) / 15 - 1,
+                            colors = SliderDefaults.colors(thumbColor = BlepColors.Blue, activeTrackColor = BlepColors.Blue),
+                        )
+                        Text(
+                            intervalChipLabel(intervalMinutes),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                        )
+                    }
                     if (watchedCount > 0) {
                         Spacer(Modifier.height(10.dp))
                         Text(
@@ -259,12 +310,11 @@ fun DiscoveryScreen(
                     }
                 }
             },
-            confirmButton = {
-                TextButton(onClick = { showFgInfo = false; onDisableForeground() }) {
-                    Text(stringResource(Res.string.fg_status_disable), color = BlepColors.Pink)
-                }
-            },
-            dismissButton = { TextButton(onClick = { showFgInfo = false }) { Text(stringResource(Res.string.action_ok)) } },
+            confirmButton = { TextButton(onClick = { showFgInfo = false }) { Text(stringResource(Res.string.action_ok)) } },
+            // Only offer the destructive "stop watching all" when there's something to stop.
+            dismissButton = if (watchedCount > 0) {
+                { TextButton(onClick = { showFgInfo = false; onDisableForeground() }) { Text(stringResource(Res.string.fg_status_disable), color = BlepColors.Pink) } }
+            } else null,
         )
     }
 
@@ -278,13 +328,13 @@ fun DiscoveryScreen(
     }
 }
 
-/** Small top-bar status chip: a tappable glyph in blep blue, sized like the settings cog. */
+/** Small top-bar status chip: a tappable glyph, sized like the settings cog. */
 @Composable
-private fun StatusChipGlyph(glyph: String, label: String, onClick: () -> Unit) {
+private fun StatusChipGlyph(glyph: String, color: Color, label: String, onClick: () -> Unit) {
     Text(
         glyph,
         style = MaterialTheme.typography.titleMedium,
-        color = BlepColors.Blue,
+        color = color,
         modifier = Modifier
             .clip(CircleShape)
             .clickable(onClick = onClick)
@@ -293,15 +343,41 @@ private fun StatusChipGlyph(glyph: String, label: String, onClick: () -> Unit) {
     )
 }
 
-/** "Foreground watch service is running" indicator. */
+/** Background-activity indicator — colour says which mode (blue=continuous, amber=interval,
+ *  gray=watch-only). */
 @Composable
-private fun FgServiceChip(onClick: () -> Unit) =
-    StatusChipGlyph("◉", stringResource(Res.string.fg_status_title), onClick)
+private fun BackgroundStatusChip(color: Color, onClick: () -> Unit) =
+    StatusChipGlyph("◉", color, stringResource(Res.string.fg_status_title), onClick)
 
 /** "Connected to your watch" indicator. */
 @Composable
 private fun WatchChip(onClick: () -> Unit) =
-    StatusChipGlyph("⌚", stringResource(Res.string.watch_status_title), onClick)
+    StatusChipGlyph("⌚", BlepColors.Blue, stringResource(Res.string.watch_status_title), onClick)
+
+/** A segmented chip in the scan-mode switcher (mirrors Settings' ThemeChip). */
+@Composable
+private fun ModeChip(label: String, selected: Boolean, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(999.dp),
+        color = if (selected) BlepColors.Blue else Color.Transparent,
+    ) {
+        Text(
+            label,
+            style = MaterialTheme.typography.labelLarge,
+            color = if (selected) BlepColors.Cream else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+        )
+    }
+}
+
+@Composable
+private fun intervalChipLabel(minutes: Int): String = when {
+    minutes < 60 -> stringResource(Res.string.settings_interval_min, minutes)
+    minutes % 60 == 0 -> stringResource(Res.string.settings_interval_h, minutes / 60)
+    else -> stringResource(Res.string.settings_interval_hm, minutes / 60, minutes % 60)
+}
 
 /** Flat 2-D floating heart (no shadow/elevation) that invites a donation. */
 @Composable

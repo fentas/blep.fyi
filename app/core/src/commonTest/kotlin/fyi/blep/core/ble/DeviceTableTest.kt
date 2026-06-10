@@ -58,12 +58,12 @@ class DeviceTableTest {
     }
 
     @Test
-    fun unnamedDeviceReportsPlaceholderAndNotNamed() {
+    fun unnamedDeviceFallsBackToIdAndNotNamed() {
         val t = DeviceTable()
         t.upsert("anon", null, -60, false)
         val d = t.snapshot(includeUnnamed = true).first()
         assertFalse(d.isNamed)
-        assertEquals("Unnamed device", d.displayName)
+        assertEquals("anon", d.displayName) // the raw id, so unnamed devices stay distinguishable
     }
 
     @Test

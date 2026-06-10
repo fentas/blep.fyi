@@ -87,10 +87,13 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     onSafetyScan = controller::openSafetyScan,
                     onSettings = controller::openSettings,
                     onDonate = { uriHandler.openUri(DONATE_URL) },
-                    foregroundActive = controller.foregroundActive,
                     watchConnected = controller.watchNearby,
                     watchedCount = controller.watchedCount,
                     onDisableForeground = controller::disableForegroundService,
+                    scanMode = controller.scanMode,
+                    onSetScanMode = controller::selectScanMode,
+                    intervalMinutes = controller.scanIntervalMinutes,
+                    onIntervalChange = controller::setScanInterval,
                     rotationOf = controller::rotationStats,
                 )
 
