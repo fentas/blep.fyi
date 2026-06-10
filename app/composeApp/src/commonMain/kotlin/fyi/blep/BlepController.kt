@@ -311,7 +311,10 @@ class BlepController(
         // exception's message.
         scope.launch { scanner.availability.collect { availability = it } }
         if (skipOnboarding || settings.onboarded()) startDiscovery() else screen = Screen.Onboarding
-        if (demoIdentity.isEmpty()) startSync() // no Data Layer noise in demo/screenshots
+        // NB: startSync() is deliberately NOT called here — it reads Compose state
+        // (tetherAlert, scanSensitivity via source.settings()) that is declared further down
+        // the class body and so isn't initialized yet during this init block. It runs from a
+        // trailing init block instead, once every property is constructed. See the bottom.
     }
 
     // ── phone↔watch sync wiring ────────────────────────────────────────────────
@@ -970,6 +973,15 @@ class BlepController(
             }
         }
         startProbeWorker()
+    }
+
+    // Runs LAST in construction — after every `by mutableStateOf` property above is
+    // initialized — because startSync() → SyncManager.start() → localChanged() synchronously
+    // reads Compose state through source.settings() (tetherAlert, scanSensitivity). Calling it
+    // from the earlier init block crashed on startup with a null State (the delegate for a
+    // property declared later in the class body didn't exist yet).
+    init {
+        if (demoIdentity.isEmpty()) startSync() // no Data Layer noise in demo/screenshots
     }
 
     private companion object {
