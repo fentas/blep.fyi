@@ -363,7 +363,7 @@ private fun WatchChip(onClick: () -> Unit) =
 
 /** A segmented chip in the scan-mode switcher (mirrors Settings' ThemeChip). */
 @Composable
-private fun ModeChip(label: String, selected: Boolean, onClick: () -> Unit) {
+internal fun ModeChip(label: String, selected: Boolean, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(999.dp),

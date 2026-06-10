@@ -72,9 +72,14 @@ import fyi.blep.resources.safety_its_mine
 import fyi.blep.resources.safety_muted_undo
 import fyi.blep.resources.safety_need_help
 import fyi.blep.core.safety.ScanSensitivity
+import fyi.blep.ScanMode
 import fyi.blep.resources.alert_cross_places
 import fyi.blep.resources.settings_background_desc
 import fyi.blep.resources.settings_background_title
+import fyi.blep.resources.settings_scan_mode_title
+import fyi.blep.resources.settings_scan_off
+import fyi.blep.resources.settings_scan_interval
+import fyi.blep.resources.settings_scan_continuous
 import fyi.blep.ui.components.SensitivitySelector
 import fyi.blep.ui.rememberNotificationPermissionRequest
 import fyi.blep.ui.rememberNotificationsEnabled
@@ -107,8 +112,8 @@ fun SafetyScreen(
     alerts: List<TrackerAlert>,
     scanSensitivity: ScanSensitivity,
     onSelectSensitivity: (ScanSensitivity) -> Unit,
-    backgroundOn: Boolean,
-    onToggleBackground: (Boolean) -> Unit,
+    scanMode: ScanMode,
+    onSetScanMode: (ScanMode) -> Unit,
     onFind: (TrackerAlert, String) -> Unit,
     onMine: (TrackerAlert) -> Unit,
     lastMuted: TrackerAlert?,
@@ -163,7 +168,7 @@ fun SafetyScreen(
             }
 
             SensitivitySelector(scanSensitivity, onSelectSensitivity, Modifier.fillMaxWidth())
-            BackgroundToggle(backgroundOn, onToggleBackground)
+            BackgroundModeSelector(scanMode, onSetScanMode)
 
             TextButton(onClick = onBack, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                 Text(stringResource(Res.string.action_done), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f))
@@ -178,32 +183,30 @@ fun SafetyScreen(
 }
 
 @Composable
-private fun BackgroundToggle(on: Boolean, onToggle: (Boolean) -> Unit) {
+private fun BackgroundModeSelector(mode: ScanMode, onSet: (ScanMode) -> Unit) {
     val requestNotifications = rememberNotificationPermissionRequest()
     val notificationsEnabled = rememberNotificationsEnabled()
+    // Reflects (and sets) whether blep keeps scanning for trackers off-screen — so the
+    // safety panel shows the background scan state, not just the in-app one.
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
         modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
     ) {
         Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(stringResource(Res.string.settings_background_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
-                    Text(
-                        stringResource(Res.string.settings_background_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
-                    )
-                }
-                Spacer(Modifier.width(12.dp))
-                Switch(
-                    checked = on,
-                    onCheckedChange = { v -> if (v) requestNotifications(); onToggle(v) },
-                    colors = SwitchDefaults.colors(checkedTrackColor = BlepColors.Blue),
-                )
+            Text(stringResource(Res.string.settings_scan_mode_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onBackground)
+            Spacer(Modifier.height(8.dp))
+            Row(
+                Modifier
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.06f))
+                    .padding(2.dp),
+            ) {
+                ModeChip(stringResource(Res.string.settings_scan_off), mode == ScanMode.OFF) { onSet(ScanMode.OFF) }
+                ModeChip(stringResource(Res.string.settings_scan_interval), mode == ScanMode.INTERVAL) { if (!notificationsEnabled) requestNotifications(); onSet(ScanMode.INTERVAL) }
+                ModeChip(stringResource(Res.string.settings_scan_continuous), mode == ScanMode.CONTINUOUS) { if (!notificationsEnabled) requestNotifications(); onSet(ScanMode.CONTINUOUS) }
             }
-            if (on && !notificationsEnabled) {
+            if (mode != ScanMode.OFF && !notificationsEnabled) {
                 Text(
                     stringResource(Res.string.settings_notifications_off),
                     style = MaterialTheme.typography.bodySmall,
