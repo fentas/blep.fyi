@@ -22,7 +22,7 @@ CONOCE TUS DISPOSITIVOS
 Toca cualquier dispositivo cercano para abrir su panel: señal en vivo, dirección Bluetooth fija o rotativa (privada), y hace cuánto lo viste por primera vez.
 • Renombra un dispositivo: el nombre se mantiene aunque cambie de id.
 • „Vigilar este dispositivo": blep lo vigila y te avisa mientras está al alcance.
-• „Avisar si se aleja": vincula algo (una etiqueta en tus llaves, un bolso,
+• „Aviso de olvido": vincula algo (una etiqueta en tus llaves, un bolso,
   auriculares, incluso tu teléfono) y blep vibra cuando se sale del alcance
   Bluetooth, y de nuevo cuando vuelve — para que lo notes antes de irte sin
   ello. Funciona en segundo plano.

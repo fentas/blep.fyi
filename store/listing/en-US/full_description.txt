@@ -26,8 +26,10 @@ address is fixed or a rotating privacy one, and how long ago you first saw it.
 • "Identify this device" — blep briefly connects to read its real name, maker and
   model, turning an "unknown tracker" into "someone's earbuds".
 • Rename a device, and the name follows it even when it rotates its ID.
-• "Notify when nearby" — keep an eye out for a specific device and blep pings
-  you whenever it's in range (handy for a tracker you suspect is following you).
+• "Watch this device" — keep a closer eye on a specific device: blep raises its
+  priority so it keeps re-finding it even as it rotates its ID and pings you
+  whenever it's nearby (handy for a tracker you suspect is following you). A
+  watched device stays pinned in your list.
 • "Left-behind" — watch a thing (a tag on your keys, a bag, earbuds, even your
   phone) and blep buzzes you when it slips out of Bluetooth range, and again when
   it's back — so you notice before you walk off without it. A left-behind device

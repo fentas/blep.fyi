@@ -22,7 +22,7 @@ TUNNE OMA SEADMEID
 Puuduta lähedalolevat seadet, et avada selle paneel: reaalajas signaal, püsiv või vahelduv (privaatne) Bluetoothi aadress ja millal nägid seda esimest korda.
 • Nimeta seade ümber — nimi püsib ka siis, kui id vahetub.
 • „Jälgi seda seadet" — blep hoiab sellel silma peal ja teavitab, kuni see on levialas.
-• „Hoiata, kui see lahkub" — seo mõni asi (silt su võtmetel, kott, kõrvaklapid,
+• „Mahajätmise hoiatus" — seo mõni asi (silt su võtmetel, kott, kõrvaklapid,
   isegi su telefon) ja blep annab värina, kui see libiseb Bluetoothi levialast
   välja — ja taas, kui see naaseb — nii et märkad seda enne, kui ilma selleta
   ära kõnnid. Töötab taustal.

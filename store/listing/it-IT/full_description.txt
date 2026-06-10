@@ -24,7 +24,7 @@ CONOSCI I TUOI DISPOSITIVI
 Tocca un dispositivo vicino per aprire il suo pannello: segnale in tempo reale, indirizzo Bluetooth fisso o rotante (privato) e da quanto l'hai visto la prima volta.
 • Rinomina un dispositivo: il nome resta anche quando cambia id.
 • „Sorveglia questo dispositivo": blep lo tiene d'occhio e ti avvisa finché è a portata.
-• „Avvisa se si allontana": collega un oggetto (un tag sulle chiavi, una borsa,
+• „Avviso dimenticanza": collega un oggetto (un tag sulle chiavi, una borsa,
   gli auricolari, persino il telefono) e blep vibra quando esce dalla portata
   Bluetooth — e di nuovo quando torna — così te ne accorgi prima di andartene
   senza. Funziona in background.

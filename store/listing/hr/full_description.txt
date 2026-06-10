@@ -22,7 +22,7 @@ UPOZNAJ SVOJE UREĐAJE
 Dodirni obližnji uređaj da otvoriš njegovu ploču: signal uživo, stalna ili promjenjiva (privatna) Bluetooth adresa i koliko davno si ga prvi put vidio.
 • Preimenuj uređaj — naziv ostaje i kad promijeni id.
 • „Prati ovaj uređaj" — blep ga drži na oku i obavještava te dok je u dometu.
-• „Upozori ako ode" — poveži stvar (oznaku na ključevima, torbu, slušalice,
+• „Upozorenje na zaboravljanje" — poveži stvar (oznaku na ključevima, torbu, slušalice,
   čak i svoj telefon) i blep zavibrira kad isklizne iz dometa Bluetootha — i
   opet kad se vrati — pa primijetiš prije nego što odeš bez nje. Radi u
   pozadini.

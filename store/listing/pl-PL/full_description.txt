@@ -22,7 +22,7 @@ POZNAJ SWOJE URZĄDZENIA
 Dotknij pobliskiego urządzenia, aby otworzyć jego panel: sygnał na żywo, stały lub zmienny (prywatny) adres Bluetooth oraz jak dawno widziano je po raz pierwszy.
 • Zmień nazwę urządzenia — nazwa zostaje, nawet gdy zmienia id.
 • „Obserwuj to urządzenie" — blep ma je na oku i powiadamia, póki jest w zasięgu.
-• „Powiadom, gdy się oddali" — powiąż rzecz (lokalizator przy kluczach, torbę,
+• „Alert pozostawienia" — powiąż rzecz (lokalizator przy kluczach, torbę,
   słuchawki, nawet telefon), a blep zawibruje, gdy wymknie się poza zasięg
   Bluetooth — i znów, gdy wróci — żebyś zauważył, zanim odejdziesz bez niej.
   Działa w tle.

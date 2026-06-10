@@ -47,8 +47,11 @@ address is fixed or rotating, and how long ago you first saw it.
 • "Identify this device" — blep briefly connects to read its real name, maker and
   model, turning an "unknown tracker" into "someone's earbuds".
 • Rename a device, and the name follows it even when it rotates its ID.
-• "Watch this device" — flag one and blep keeps a live eye on it, notifying you
-  whenever it's in range.
+• "Watch this device" — raise a device's priority so blep keeps re-finding it (even
+  as it rotates its ID) and notifies you whenever it's nearby.
+• "Left-behind" — blep buzzes you when a watched thing (keys, bag, earbuds, phone)
+  leaves Bluetooth range, and again when it's back. Watched devices stay pinned in
+  the list. Works in the background.
 • blep stitches a rotating ID back into one device — its history, how sure it is,
   and your rename don't reset every few minutes. All on-device; you choose how long
   a device is remembered, and can clear it any time.

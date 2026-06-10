@@ -22,7 +22,7 @@ CONHECE OS TEUS DISPOSITIVOS
 Toca num dispositivo próximo para abrir o seu painel: sinal em tempo real, endereço Bluetooth fixo ou rotativo (privado) e há quanto tempo o viste pela primeira vez.
 • Muda o nome de um dispositivo — o nome mantém-se mesmo quando muda de id.
 • „Vigiar este dispositivo" — o blep mantém-no debaixo de olho e avisa-te enquanto está ao alcance.
-• „Avisar se se afastar" — associa um objeto (uma etiqueta nas chaves, uma mala,
+• „Alerta de esquecimento" — associa um objeto (uma etiqueta nas chaves, uma mala,
   auriculares, até o telemóvel) e o blep vibra quando sai do alcance Bluetooth —
   e de novo quando volta — para que repares antes de saíres sem ele. Funciona em
   segundo plano.

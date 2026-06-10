@@ -22,7 +22,7 @@ KENNE DEINE GERÄTE
 Tippe auf ein Gerät in der Nähe, um seine Übersicht zu öffnen: Live-Signal, feste oder wechselnde (private) Bluetooth-Adresse und wann du es zuerst gesehen hast.
 • Benenne ein Gerät um — der Name bleibt, auch wenn es seine ID wechselt.
 • „Dieses Gerät beobachten" — blep behält es im Blick und benachrichtigt dich, solange es in Reichweite ist.
-• „Warnen, wenn es geht" — verknüpf eine Sache (Schlüssel, Tasche, Kopfhörer,
+• „Zurücklassen-Warnung" — verknüpf eine Sache (Schlüssel, Tasche, Kopfhörer,
   Handy) und blep vibriert, wenn sie aus der Bluetooth-Reichweite rutscht — und
   wieder bei Rückkehr —, damit du es merkst, bevor du ohne sie gehst. Läuft im
   Hintergrund.
