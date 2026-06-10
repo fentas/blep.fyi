@@ -248,8 +248,8 @@
     <string name="detail_no_rotation">No id change seen yet.</string>
     <string name="detail_first_seen">First seen %1$s ago</string>
     <string name="detail_find">Find it</string>
-    <string name="detail_flag">Watch this device</string>
-    <string name="detail_flagged">Watching — tap to stop</string>
+    <string name="detail_flag">Notify when nearby</string>
+    <string name="detail_flagged">Notifying when near — tap to stop</string>
     <string name="detail_history">History</string>
     <string name="detail_alt">Might also be one of these nearby ids:</string>
     <string name="detail_history_rotations">History (%1$d× rotations)</string>
@@ -290,8 +290,8 @@
     <string name="noti_watch_left_title">Watch left behind?</string>
     <string name="noti_watch_left_text">Your watch dropped out of range of your phone.</string>
     <string name="noti_watch_back_text">Your watch is back in range.</string>
-    <string name="detail_tether">Watch this device</string>
-    <string name="detail_tethered">Watching this device</string>
+    <string name="detail_tether">Left-behind off</string>
+    <string name="detail_tethered">Left-behind on</string>
     <string name="detail_tether_desc">Buzz me when this device goes out of (or comes back into) Bluetooth range — so you notice if you walk off without it.</string>
     <string name="settings_tether_title">Left-behind alerts</string>
     <string name="settings_tether_desc">When a device you've tethered slips out of range</string>
@@ -322,7 +322,7 @@
     <string name="settings_cat_sync_desc">Share favourites, names and alerts with your watch</string>
     <string name="device_left_behind_badge">Watched for left-behind</string>
     <string name="action_ok">OK</string>
-    <string name="watch_explainer_title">Watch this device</string>
+    <string name="watch_explainer_title">Left-behind alerts</string>
     <string name="watch_explainer_body">blep will alert you when this device leaves Bluetooth range — and when it comes back. To keep watching while blep is in the background, it runs a foreground service (you\'ll see an ongoing notification while it\'s active).</string>
     <string name="watch_explainer_dont_show">Don\'t show again</string>
     <string name="watch_disable_fg_title">Stop watching all devices?</string>
