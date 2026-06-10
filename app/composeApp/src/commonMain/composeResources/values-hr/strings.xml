@@ -210,8 +210,8 @@
     <string name="detail_no_rotation">Još nema promjene id-a.</string>
     <string name="detail_first_seen">Prvi put viđeno prije %1$s</string>
     <string name="detail_find">Pronađi</string>
-    <string name="detail_flag">Prati ovaj uređaj</string>
-    <string name="detail_flagged">Prati se — dodirni za zaustavljanje</string>
+    <string name="detail_flag">Nadziri ovaj uređaj</string>
+    <string name="detail_flagged">Nadzire se — dodirnite za prekid</string>
     <string name="noti_flagged_title">Praćenje označenog uređaja</string>
     <string name="noti_flagged_text">%1$s je u dometu</string>
     <string name="detail_history">Povijest</string>
@@ -268,8 +268,8 @@
     <string name="noti_watch_left_title">Zaboravljen sat?</string>
     <string name="noti_watch_left_text">Tvoj je sat izašao iz dometa tvog telefona.</string>
     <string name="noti_watch_back_text">Tvoj je sat ponovno u dometu.</string>
-    <string name="detail_tether">Upozori ako se udalji</string>
-    <string name="detail_tethered">Upozorenje na odlazak uključeno</string>
+    <string name="detail_tether">Upozorenje na zaboravljanje isključeno</string>
+    <string name="detail_tethered">Upozorenje na zaboravljanje uključeno</string>
     <string name="detail_tether_desc">Zavibriraj kad ovaj uređaj izađe iz (ili se vrati u) domet Bluetootha — da primijetiš ako odeš bez njega.</string>
     <string name="settings_tether_title">Upozorenja na zaboravljeno</string>
     <string name="settings_tether_desc">Kad povezani uređaj isklizne iz dometa</string>
@@ -293,4 +293,24 @@
     <string name="settings_cat_finding">Pronalaženje</string>
     <string name="settings_cat_detection">Otkrivanje pratitelja</string>
     <string name="settings_cat_devices">Uređaji i pohrana</string>
+    <string name="settings_cat_finding_desc">Signal, zvuk i vibracija tijekom traženja</string>
+    <string name="settings_cat_detection_desc">Otkrijte tragače koji bi vas mogli pratiti</string>
+    <string name="settings_cat_leftbehind_desc">Upozori me kad nadzirani uređaj nestane ili se vrati</string>
+    <string name="settings_cat_devices_desc">Prepoznajte uređaje i upravljajte spremljenim podacima</string>
+    <string name="settings_cat_sync_desc">Dijelite favorite, nazive i upozorenja sa svojim satom</string>
+    <string name="device_left_behind_badge">Nadziran zbog zaboravljanja</string>
+    <string name="action_ok">U redu</string>
+    <string name="watch_explainer_title">Upozorenja na zaboravljanje</string>
+    <string name="watch_explainer_body">blep će vas upozoriti kad ovaj uređaj izađe iz Bluetooth dosega — i kad se vrati. Za nastavak nadzora u pozadini pokreće uslugu u prvom planu (vidjet ćete trajnu obavijest dok je aktivna).</string>
+    <string name="watch_explainer_dont_show">Ne prikazuj ponovno</string>
+    <string name="watch_disable_fg_title">Prestati nadzirati sve uređaje?</string>
+    <string name="watch_disable_fg_body">Isključivanje usluge nadzora u pozadini prestat će nadzirati uređaje s upozorenjem na zaboravljanje. Nastaviti?</string>
+    <string name="fg_status_title">Nadzor u pozadini aktivan</string>
+    <string name="fg_status_body">blep pokreće uslugu u prvom planu kako bi nastavio nadzirati vaše uređaje i prikazivati upozorenja o tragačima dok je aplikacija u pozadini. Trajna obavijest prikazuje se dok je aktivna.</string>
+    <string name="fg_status_watching">Nadzirem %1$d uređaj(a) — isključivanje ih zaustavlja.</string>
+    <string name="fg_status_disable">Isključi</string>
+    <string name="watch_status_title">Povezano s vašim satom</string>
+    <string name="watch_status_body">Vaš sat je uparen i u blizini. blep sinkronizira favorite, nazive i upozorenja na zaboravljanje te prosljeđuje upozorenja o tragačima kako bi vaš sat mogao zavibrirati kad se nešto pronađe.</string>
+    <string name="flag_explainer_title">Nadziri ovaj uređaj</string>
+    <string name="flag_explainer_body">Nadzor povećava prioritet ovog uređaja, pa ga blep i dalje pronalazi čak i kad promijeni Bluetooth ID te vas obavještava kad je blizu. Usluga u prvom planu radi dok je aktivna (trajna obavijest).</string>
 </resources>

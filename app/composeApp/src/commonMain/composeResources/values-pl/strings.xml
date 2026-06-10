@@ -268,8 +268,8 @@
     <string name="noti_watch_left_title">Zegarek pozostawiony?</string>
     <string name="noti_watch_left_text">Twój zegarek wyszedł poza zasięg telefonu.</string>
     <string name="noti_watch_back_text">Twój zegarek znów jest w zasięgu.</string>
-    <string name="detail_tether">Ostrzeż, gdy się oddali</string>
-    <string name="detail_tethered">Alert o oddaleniu włączony</string>
+    <string name="detail_tether">Alert pozostawienia wyłączony</string>
+    <string name="detail_tethered">Alert pozostawienia włączony</string>
     <string name="detail_tether_desc">Zawibruj, gdy to urządzenie wyjdzie poza zasięg Bluetooth (lub do niego wróci) — abyś zauważył, gdy odejdziesz bez niego.</string>
     <string name="settings_tether_title">Alerty o pozostawieniu</string>
     <string name="settings_tether_desc">Gdy powiązane urządzenie wyślizguje się poza zasięg</string>
@@ -293,4 +293,24 @@
     <string name="settings_cat_finding">Wyszukiwanie</string>
     <string name="settings_cat_detection">Wykrywanie lokalizatorów</string>
     <string name="settings_cat_devices">Urządzenia i pamięć</string>
+    <string name="settings_cat_finding_desc">Sygnał, dźwięk i wibracje podczas szukania</string>
+    <string name="settings_cat_detection_desc">Wykrywaj lokalizatory, które mogą cię śledzić</string>
+    <string name="settings_cat_leftbehind_desc">Powiadom, gdy obserwowane urządzenie zniknie lub wróci</string>
+    <string name="settings_cat_devices_desc">Identyfikuj urządzenia i zarządzaj zapisanymi danymi</string>
+    <string name="settings_cat_sync_desc">Udostępniaj ulubione, nazwy i alerty zegarkowi</string>
+    <string name="device_left_behind_badge">Obserwowane pod kątem pozostawienia</string>
+    <string name="action_ok">OK</string>
+    <string name="watch_explainer_title">Alerty pozostawienia</string>
+    <string name="watch_explainer_body">blep powiadomi cię, gdy to urządzenie opuści zasięg Bluetooth — i gdy wróci. Aby obserwować w tle, działa usługa pierwszoplanowa (zobaczysz trwałe powiadomienie, gdy jest aktywna).</string>
+    <string name="watch_explainer_dont_show">Nie pokazuj ponownie</string>
+    <string name="watch_disable_fg_title">Przestać obserwować wszystkie urządzenia?</string>
+    <string name="watch_disable_fg_body">Wyłączenie usługi obserwacji w tle przestanie obserwować urządzenia z alertem pozostawienia. Kontynuować?</string>
+    <string name="fg_status_title">Obserwacja w tle aktywna</string>
+    <string name="fg_status_body">blep uruchamia usługę pierwszoplanową, aby obserwować twoje urządzenia i pokazywać alerty o lokalizatorach, gdy aplikacja jest w tle. Trwałe powiadomienie jest widoczne, gdy usługa jest aktywna.</string>
+    <string name="fg_status_watching">Obserwuję %1$d urządzenie(a) — wyłączenie je zatrzyma.</string>
+    <string name="fg_status_disable">Wyłącz</string>
+    <string name="watch_status_title">Połączono z zegarkiem</string>
+    <string name="watch_status_body">Twój zegarek jest sparowany i w pobliżu. blep synchronizuje ulubione, nazwy i alerty pozostawienia oraz przekazuje alerty o lokalizatorach, aby zegarek mógł zawibrować, gdy coś zostanie znalezione.</string>
+    <string name="flag_explainer_title">Obserwuj to urządzenie</string>
+    <string name="flag_explainer_body">Obserwacja zwiększa priorytet tego urządzenia, więc blep wciąż je odnajduje, nawet gdy zmienia identyfikator Bluetooth, i powiadamia, gdy jest w pobliżu. Usługa pierwszoplanowa działa, gdy aktywna (trwałe powiadomienie).</string>
 </resources>

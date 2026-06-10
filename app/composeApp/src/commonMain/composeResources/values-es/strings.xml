@@ -211,7 +211,7 @@
     <string name="detail_first_seen">Visto por primera vez hace %1$s</string>
     <string name="detail_find">Encontrarlo</string>
     <string name="detail_flag">Vigilar este dispositivo</string>
-    <string name="detail_flagged">Vigilando — toca para parar</string>
+    <string name="detail_flagged">Vigilando — toca para detener</string>
     <string name="noti_flagged_title">Vigilando un dispositivo marcado</string>
     <string name="noti_flagged_text">%1$s está al alcance</string>
     <string name="detail_history">Historial</string>
@@ -268,8 +268,8 @@
     <string name="noti_watch_left_title">¿Te dejaste el reloj?</string>
     <string name="noti_watch_left_text">Tu reloj salió del alcance de tu teléfono.</string>
     <string name="noti_watch_back_text">Tu reloj vuelve a estar al alcance.</string>
-    <string name="detail_tether">Avisar si se aleja</string>
-    <string name="detail_tethered">Aviso de salida activado</string>
+    <string name="detail_tether">Aviso de olvido desactivado</string>
+    <string name="detail_tethered">Aviso de olvido activado</string>
     <string name="detail_tether_desc">Vibra cuando este dispositivo salga del alcance de Bluetooth (o vuelva a él) — para que te des cuenta si te vas sin él.</string>
     <string name="settings_tether_title">Avisos de olvido</string>
     <string name="settings_tether_desc">Cuando un dispositivo vinculado se sale del alcance</string>
@@ -293,4 +293,24 @@
     <string name="settings_cat_finding">Búsqueda</string>
     <string name="settings_cat_detection">Detección de rastreadores</string>
     <string name="settings_cat_devices">Dispositivos y almacenamiento</string>
+    <string name="settings_cat_finding_desc">Señal, sonido y vibración al buscar</string>
+    <string name="settings_cat_detection_desc">Detecta rastreadores que podrían seguirte</string>
+    <string name="settings_cat_leftbehind_desc">Avísame cuando un dispositivo vigilado desaparezca o vuelva</string>
+    <string name="settings_cat_devices_desc">Identifica dispositivos y gestiona los datos guardados</string>
+    <string name="settings_cat_sync_desc">Comparte favoritos, nombres y avisos con tu reloj</string>
+    <string name="device_left_behind_badge">Vigilado por olvido</string>
+    <string name="action_ok">Aceptar</string>
+    <string name="watch_explainer_title">Avisos de olvido</string>
+    <string name="watch_explainer_body">blep te avisará cuando este dispositivo salga del alcance del Bluetooth, y cuando vuelva. Para seguir vigilando en segundo plano, ejecuta un servicio en primer plano (verás una notificación continua mientras esté activo).</string>
+    <string name="watch_explainer_dont_show">No volver a mostrar</string>
+    <string name="watch_disable_fg_title">¿Dejar de vigilar todos los dispositivos?</string>
+    <string name="watch_disable_fg_body">Al desactivar el servicio de vigilancia en segundo plano se dejarán de vigilar los dispositivos con aviso de olvido. ¿Continuar?</string>
+    <string name="fg_status_title">Vigilancia en segundo plano activa</string>
+    <string name="fg_status_body">blep ejecuta un servicio en primer plano para seguir vigilando tus dispositivos y mostrar avisos de rastreadores mientras la app está en segundo plano. Se muestra una notificación continua mientras está activo.</string>
+    <string name="fg_status_watching">Vigilando %1$d dispositivo(s) — desactivar los detiene.</string>
+    <string name="fg_status_disable">Desactivar</string>
+    <string name="watch_status_title">Conectado a tu reloj</string>
+    <string name="watch_status_body">Tu reloj está emparejado y cerca. blep mantiene sincronizados favoritos, nombres y avisos de olvido, y reenvía los avisos de rastreadores para que tu reloj vibre cuando se encuentra algo.</string>
+    <string name="flag_explainer_title">Vigilar este dispositivo</string>
+    <string name="flag_explainer_body">Vigilar aumenta la prioridad de este dispositivo, para que blep lo siga encontrando aunque cambie su ID de Bluetooth, y te avise cuando esté cerca. Se ejecuta un servicio en primer plano mientras está activo (notificación continua).</string>
 </resources>

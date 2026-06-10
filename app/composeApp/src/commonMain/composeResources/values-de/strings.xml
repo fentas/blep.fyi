@@ -269,8 +269,8 @@
     <string name="noti_watch_left_title">Uhr zurückgelassen?</string>
     <string name="noti_watch_left_text">Deine Uhr ist aus der Reichweite deines Handys verschwunden.</string>
     <string name="noti_watch_back_text">Deine Uhr ist wieder in Reichweite.</string>
-    <string name="detail_tether">Warnen, wenn es weggeht</string>
-    <string name="detail_tethered">Warnung beim Verlassen an</string>
+    <string name="detail_tether">Zurücklassen-Warnung aus</string>
+    <string name="detail_tethered">Zurücklassen-Warnung an</string>
     <string name="detail_tether_desc">Vibriere, wenn dieses Gerät die Bluetooth-Reichweite verlässt (oder wieder erreicht) — damit du merkst, wenn du ohne es losgehst.</string>
     <string name="settings_tether_title">Zurückgelassen-Warnungen</string>
     <string name="settings_tether_desc">Wenn ein verbundenes Gerät aus der Reichweite rutscht</string>
@@ -294,4 +294,24 @@
     <string name="settings_cat_finding">Finden</string>
     <string name="settings_cat_detection">Tracker-Erkennung</string>
     <string name="settings_cat_devices">Geräte &amp; Speicher</string>
+    <string name="settings_cat_finding_desc">Signal-Feedback, Ton und Vibration beim Suchen</string>
+    <string name="settings_cat_detection_desc">Tracker erkennen, die dir folgen könnten</string>
+    <string name="settings_cat_leftbehind_desc">Warnen, wenn ein beobachtetes Gerät verschwindet oder zurückkommt</string>
+    <string name="settings_cat_devices_desc">Geräte identifizieren und gespeicherte Daten verwalten</string>
+    <string name="settings_cat_sync_desc">Favoriten, Namen und Warnungen mit deiner Uhr teilen</string>
+    <string name="device_left_behind_badge">Auf Zurücklassen beobachtet</string>
+    <string name="action_ok">OK</string>
+    <string name="watch_explainer_title">Zurücklassen-Warnungen</string>
+    <string name="watch_explainer_body">blep warnt dich, wenn dieses Gerät die Bluetooth-Reichweite verlässt — und wenn es zurückkommt. Um im Hintergrund weiter zu beobachten, läuft ein Vordergrunddienst (eine laufende Benachrichtigung wird angezeigt, solange er aktiv ist).</string>
+    <string name="watch_explainer_dont_show">Nicht mehr anzeigen</string>
+    <string name="watch_disable_fg_title">Alle Geräte nicht mehr beobachten?</string>
+    <string name="watch_disable_fg_body">Wenn du den Hintergrund-Beobachtungsdienst ausschaltest, werden die Geräte mit Zurücklassen-Warnung nicht mehr beobachtet. Fortfahren?</string>
+    <string name="fg_status_title">Hintergrund-Beobachtung aktiv</string>
+    <string name="fg_status_body">blep führt einen Vordergrunddienst aus, um deine Geräte weiter zu beobachten und Tracker-Warnungen anzuzeigen, während die App im Hintergrund ist. Eine laufende Benachrichtigung wird angezeigt, solange er aktiv ist.</string>
+    <string name="fg_status_watching">%1$d Gerät(e) werden beobachtet — Ausschalten beendet sie.</string>
+    <string name="fg_status_disable">Ausschalten</string>
+    <string name="watch_status_title">Mit deiner Uhr verbunden</string>
+    <string name="watch_status_body">Deine Uhr ist gekoppelt und in der Nähe. blep hält Favoriten, Namen und Zurücklassen-Warnungen synchron und leitet Tracker-Warnungen weiter, damit deine Uhr vibrieren kann.</string>
+    <string name="flag_explainer_title">Dieses Gerät beobachten</string>
+    <string name="flag_explainer_body">Beobachten erhöht die Priorität dieses Geräts, sodass blep es auch beim Wechseln seiner Bluetooth-ID immer wieder findet und dich benachrichtigt, wenn es in der Nähe ist. Ein Vordergrunddienst läuft, solange aktiv (laufende Benachrichtigung).</string>
 </resources>

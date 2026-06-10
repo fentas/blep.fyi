@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -97,6 +98,7 @@ import fyi.blep.resources.status_paired
 import fyi.blep.ui.rememberAvailabilityAction
 import fyi.blep.ui.rememberBlePermissionRecovery
 import fyi.blep.ui.theme.BlepColors
+import fyi.blep.ui.theme.ExitIcon
 import fyi.blep.ui.theme.GiftIcon
 import fyi.blep.ui.theme.PencilIcon
 import fyi.blep.ui.theme.StarFilledIcon
@@ -151,13 +153,13 @@ fun DiscoveryScreen(
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             SectionLabel(stringResource(Res.string.section_nearby), Modifier.weight(1f))
+            if (foregroundActive) {
+                FgServiceChip(onClick = { showFgInfo = true })
+                Spacer(Modifier.width(8.dp))
+            }
             if (pairedDevices.isNotEmpty()) {
                 PairedPill(count = pairedDevices.size, onClick = { showPaired = true })
                 Spacer(Modifier.width(8.dp))
-            }
-            if (foregroundActive) {
-                FgServiceChip(onClick = { showFgInfo = true })
-                Spacer(Modifier.width(4.dp))
             }
             SettingsButton(onClick = onSettings)
         }
@@ -487,6 +489,8 @@ private fun DeviceCard(
         shape = RoundedCornerShape(22.dp),
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 1.dp,
+        // "Watch this device" (flag) marks the row with a light red border.
+        border = if (device.isFlagged) BorderStroke(1.5.dp, BlepColors.Pink.copy(alpha = 0.45f)) else null,
         modifier = modifier.fillMaxWidth(),
     ) {
         Row(
@@ -557,13 +561,12 @@ private fun RotationBadge(rotation: RotationStats) {
 @Composable
 private fun LeftBehindBadge() {
     val label = stringResource(Res.string.device_left_behind_badge)
-    Box(
-        Modifier.size(13.dp).semantics { contentDescription = label },
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(Modifier.size(13.dp).clip(CircleShape).border(1.5.dp, BlepColors.Pink, CircleShape))
-        Box(Modifier.size(4.5.dp).clip(CircleShape).background(BlepColors.Pink))
-    }
+    Icon(
+        rememberVectorPainter(ExitIcon),
+        contentDescription = label,
+        tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f),
+        modifier = Modifier.size(15.dp).semantics { contentDescription = label },
+    )
 }
 
 /** Star toggle: filled gold when starred, hollow otherwise. Starred devices pin to

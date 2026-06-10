@@ -211,7 +211,7 @@
     <string name="detail_first_seen">Vu pour la première fois il y a %1$s</string>
     <string name="detail_find">Le trouver</string>
     <string name="detail_flag">Surveiller cet appareil</string>
-    <string name="detail_flagged">Surveillé — touchez pour arrêter</string>
+    <string name="detail_flagged">Surveillé — appuyez pour arrêter</string>
     <string name="noti_flagged_title">Surveillance d'un appareil signalé</string>
     <string name="noti_flagged_text">%1$s est à portée</string>
     <string name="detail_history">Historique</string>
@@ -268,8 +268,8 @@
     <string name="noti_watch_left_title">Montre oubliée ?</string>
     <string name="noti_watch_left_text">Ta montre est sortie de portée de ton téléphone.</string>
     <string name="noti_watch_back_text">Ta montre est de nouveau à portée.</string>
-    <string name="detail_tether">M'alerter s'il s'éloigne</string>
-    <string name="detail_tethered">Alerte d'éloignement activée</string>
+    <string name="detail_tether">Alerte d'oubli désactivée</string>
+    <string name="detail_tethered">Alerte d'oubli activée</string>
     <string name="detail_tether_desc">Fais-moi vibrer quand cet appareil sort de portée Bluetooth (ou y revient) — pour que tu remarques si tu pars sans lui.</string>
     <string name="settings_tether_title">Alertes d'oubli</string>
     <string name="settings_tether_desc">Quand un appareil associé sort de portée</string>
@@ -293,4 +293,24 @@
     <string name="settings_cat_finding">Recherche</string>
     <string name="settings_cat_detection">Détection de traceurs</string>
     <string name="settings_cat_devices">Appareils et stockage</string>
+    <string name="settings_cat_finding_desc">Signal, son et vibration pendant la recherche</string>
+    <string name="settings_cat_detection_desc">Repérez les traceurs qui pourraient vous suivre</string>
+    <string name="settings_cat_leftbehind_desc">M'alerter quand un appareil surveillé disparaît ou revient</string>
+    <string name="settings_cat_devices_desc">Identifiez les appareils et gérez les données stockées</string>
+    <string name="settings_cat_sync_desc">Partagez favoris, noms et alertes avec votre montre</string>
+    <string name="device_left_behind_badge">Surveillé contre l'oubli</string>
+    <string name="action_ok">OK</string>
+    <string name="watch_explainer_title">Alertes d'oubli</string>
+    <string name="watch_explainer_body">blep vous alerte quand cet appareil quitte la portée Bluetooth — et quand il revient. Pour continuer la surveillance en arrière-plan, il exécute un service de premier plan (une notification permanente s'affiche tant qu'il est actif).</string>
+    <string name="watch_explainer_dont_show">Ne plus afficher</string>
+    <string name="watch_disable_fg_title">Arrêter de surveiller tous les appareils ?</string>
+    <string name="watch_disable_fg_body">Désactiver le service de surveillance en arrière-plan arrêtera de surveiller les appareils avec une alerte d'oubli. Continuer ?</string>
+    <string name="fg_status_title">Surveillance en arrière-plan active</string>
+    <string name="fg_status_body">blep exécute un service de premier plan pour continuer à surveiller vos appareils et afficher les alertes de traceurs pendant que l'app est en arrière-plan. Une notification permanente s'affiche tant qu'il est actif.</string>
+    <string name="fg_status_watching">Surveillance de %1$d appareil(s) — désactiver les arrête.</string>
+    <string name="fg_status_disable">Désactiver</string>
+    <string name="watch_status_title">Connecté à votre montre</string>
+    <string name="watch_status_body">Votre montre est appairée et à proximité. blep synchronise favoris, noms et alertes d'oubli, et relaie les alertes de traceurs pour que votre montre vibre quand quelque chose est trouvé.</string>
+    <string name="flag_explainer_title">Surveiller cet appareil</string>
+    <string name="flag_explainer_body">La surveillance augmente la priorité de cet appareil, pour que blep continue à le retrouver même quand il change d'ID Bluetooth, et vous alerte quand il est proche. Un service de premier plan s'exécute tant qu'il est actif (notification permanente).</string>
 </resources>

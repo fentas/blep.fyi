@@ -211,6 +211,8 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                         onToggleTether = { controller.toggleTether(live) },
                         watchExplained = controller.watchExplained,
                         onWatchExplainedDismiss = controller::dismissWatchExplainer,
+                        flagExplained = controller.flagExplained,
+                        onFlagExplainedDismiss = controller::dismissFlagExplainer,
                         onTrack = { controller.track(live) },
                         onBack = controller::startDiscovery,
                     )

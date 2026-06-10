@@ -210,8 +210,8 @@
     <string name="detail_no_rotation">Sprememba id-ja še ni opažena.</string>
     <string name="detail_first_seen">Prvič opaženo pred %1$s</string>
     <string name="detail_find">Najdi</string>
-    <string name="detail_flag">Spremljaj to napravo</string>
-    <string name="detail_flagged">Spremljanje — tapnite za ustavitev</string>
+    <string name="detail_flag">Nadzoruj to napravo</string>
+    <string name="detail_flagged">Nadzoruje se — tapnite za ustavitev</string>
     <string name="noti_flagged_title">Spremljanje označene naprave</string>
     <string name="noti_flagged_text">%1$s je v dosegu</string>
     <string name="detail_history">Zgodovina</string>
@@ -268,8 +268,8 @@
     <string name="noti_watch_left_title">Pozabljena ura?</string>
     <string name="noti_watch_left_text">Tvoja ura je zapustila doseg tvojega telefona.</string>
     <string name="noti_watch_back_text">Tvoja ura je spet v dosegu.</string>
-    <string name="detail_tether">Opozori, če se oddalji</string>
-    <string name="detail_tethered">Opozorilo o odhodu vklopljeno</string>
+    <string name="detail_tether">Opozorilo o pozabljenem izklopljeno</string>
+    <string name="detail_tethered">Opozorilo o pozabljenem vklopljeno</string>
     <string name="detail_tether_desc">Zavibriraj, ko ta naprava zapusti doseg Bluetootha (ali se vanj vrne) — da opaziš, če odideš brez nje.</string>
     <string name="settings_tether_title">Opozorila o pozabljenem</string>
     <string name="settings_tether_desc">Ko povezana naprava zdrsne iz dosega</string>
@@ -293,4 +293,24 @@
     <string name="settings_cat_finding">Iskanje</string>
     <string name="settings_cat_detection">Zaznavanje sledilnikov</string>
     <string name="settings_cat_devices">Naprave in shramba</string>
+    <string name="settings_cat_finding_desc">Signal, zvok in vibriranje med iskanjem</string>
+    <string name="settings_cat_detection_desc">Zaznajte sledilnike, ki vam morda sledijo</string>
+    <string name="settings_cat_leftbehind_desc">Opozori me, ko nadzorovana naprava izgine ali se vrne</string>
+    <string name="settings_cat_devices_desc">Prepoznajte naprave in upravljajte shranjene podatke</string>
+    <string name="settings_cat_sync_desc">Delite priljubljene, imena in opozorila z uro</string>
+    <string name="device_left_behind_badge">Nadzorovano za pozabljanje</string>
+    <string name="action_ok">V redu</string>
+    <string name="watch_explainer_title">Opozorila o pozabljenem</string>
+    <string name="watch_explainer_body">blep vas opozori, ko ta naprava zapusti doseg Bluetooth — in ko se vrne. Za nadaljnje nadzorovanje v ozadju teče storitev v ospredju (videli boste trajno obvestilo, dokler je dejavna).</string>
+    <string name="watch_explainer_dont_show">Ne prikaži več</string>
+    <string name="watch_disable_fg_title">Prenehati nadzorovati vse naprave?</string>
+    <string name="watch_disable_fg_body">Izklop storitve nadzora v ozadju bo prenehal nadzorovati naprave z opozorilom o pozabljenem. Nadaljujem?</string>
+    <string name="fg_status_title">Nadzor v ozadju je dejaven</string>
+    <string name="fg_status_body">blep izvaja storitev v ospredju, da lahko nadzoruje vaše naprave in prikazuje opozorila o sledilnikih, medtem ko je aplikacija v ozadju. Trajno obvestilo je prikazano, dokler je dejavna.</string>
+    <string name="fg_status_watching">Nadzorujem %1$d naprav — izklop jih ustavi.</string>
+    <string name="fg_status_disable">Izklopi</string>
+    <string name="watch_status_title">Povezano z vašo uro</string>
+    <string name="watch_status_body">Vaša ura je seznanjena in v bližini. blep ohranja priljubljene, imena in opozorila o pozabljenem sinhronizirana ter posreduje opozorila o sledilnikih, da lahko vaša ura zavibrira, ko je kaj najdeno.</string>
+    <string name="flag_explainer_title">Nadzoruj to napravo</string>
+    <string name="flag_explainer_body">Nadzor poveča prednost te naprave, tako da jo blep še naprej najde, tudi ko zamenja svoj Bluetooth ID, in vas obvesti, ko je blizu. Storitev v ospredju teče, dokler je dejavna (trajno obvestilo).</string>
 </resources>

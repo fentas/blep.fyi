@@ -212,7 +212,7 @@
     <string name="detail_first_seen">首次发现于 %1$s前</string>
     <string name="detail_find">找到它</string>
     <string name="detail_flag">监视此设备</string>
-    <string name="detail_flagged">监视中 — 点按停止</string>
+    <string name="detail_flagged">正在监视 — 点按停止</string>
     <string name="noti_flagged_title">正在监视已标记的设备</string>
     <string name="noti_flagged_text">%1$s 在范围内</string>
     <string name="detail_history">历史</string>
@@ -269,8 +269,8 @@
     <string name="noti_watch_left_title">手表忘带了？</string>
     <string name="noti_watch_left_text">你的手表超出了手机的范围。</string>
     <string name="noti_watch_back_text">你的手表回到范围内了。</string>
-    <string name="detail_tether">离开时提醒</string>
-    <string name="detail_tethered">遗落提醒已开启</string>
+    <string name="detail_tether">遗落提醒 关闭</string>
+    <string name="detail_tethered">遗落提醒 开启</string>
     <string name="detail_tether_desc">当此设备离开（或重新进入）蓝牙范围时震动提醒我——这样你不带它走时就能察觉。</string>
     <string name="settings_tether_title">遗落提醒</string>
     <string name="settings_tether_desc">当你绑定的设备滑出范围时</string>
@@ -294,4 +294,24 @@
     <string name="settings_cat_finding">查找</string>
     <string name="settings_cat_detection">追踪器检测</string>
     <string name="settings_cat_devices">设备与存储</string>
+    <string name="settings_cat_finding_desc">查找时的信号反馈、声音和振动</string>
+    <string name="settings_cat_detection_desc">发现可能在跟踪你的追踪器</string>
+    <string name="settings_cat_leftbehind_desc">当受监视的设备消失或返回时提醒我</string>
+    <string name="settings_cat_devices_desc">识别设备并管理已存储的数据</string>
+    <string name="settings_cat_sync_desc">与你的手表共享收藏、名称和提醒</string>
+    <string name="device_left_behind_badge">已监视防遗落</string>
+    <string name="action_ok">确定</string>
+    <string name="watch_explainer_title">遗落提醒</string>
+    <string name="watch_explainer_body">当此设备离开蓝牙范围时，以及返回时，blep 会提醒你。为了在后台继续监视，它会运行一个前台服务（运行期间会显示一条常驻通知）。</string>
+    <string name="watch_explainer_dont_show">不再显示</string>
+    <string name="watch_disable_fg_title">停止监视所有设备？</string>
+    <string name="watch_disable_fg_body">关闭后台监视服务将停止监视你设置了遗落提醒的设备。是否继续？</string>
+    <string name="fg_status_title">后台监视已启用</string>
+    <string name="fg_status_body">blep 正在运行前台服务，以便在应用处于后台时继续监视你的设备并显示追踪器提醒。运行期间会显示一条常驻通知。</string>
+    <string name="fg_status_watching">正在监视 %1$d 台设备 — 关闭将停止它们。</string>
+    <string name="fg_status_disable">关闭</string>
+    <string name="watch_status_title">已连接到你的手表</string>
+    <string name="watch_status_body">你的手表已配对且在附近。blep 会同步收藏、名称和遗落提醒，并转发追踪器提醒，以便发现设备时手表可以振动。</string>
+    <string name="flag_explainer_title">监视此设备</string>
+    <string name="flag_explainer_body">监视会提升此设备的优先级，即使它更换蓝牙 ID，blep 也会持续找到它，并在它靠近时提醒你。运行期间会有一个前台服务（常驻通知）。</string>
 </resources>

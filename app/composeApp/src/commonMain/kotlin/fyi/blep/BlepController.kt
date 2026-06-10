@@ -193,11 +193,11 @@ class BlepController(
      */
     val visibleDevices: List<BleDevice>
         get() = devices
-            .filter { it.isPresent || it.isFavorite || it.isTethered }            // nearby (incl. connected), starred, or watched
-            .filter { it.isFavorite || it.isTethered || includeUnnamed || it.isNamed } // unnamed toggle skips favourites/watched
+            .filter { it.isPresent || it.isFavorite || it.isTethered || it.isFlagged }   // nearby (incl. connected), starred, or watched
+            .filter { it.isFavorite || it.isTethered || it.isFlagged || includeUnnamed || it.isNamed } // unnamed toggle skips favourites/watched
             .sortedWith(
                 compareByDescending<BleDevice> { it.isFavorite }
-                    .thenByDescending { it.isTethered }                           // watched devices pin near the top too
+                    .thenByDescending { it.isTethered || it.isFlagged }           // watched devices pin near the top too
                     .thenByDescending { it.isConnected }
                     .thenByDescending { it.rssi },
             )
@@ -416,12 +416,22 @@ class BlepController(
         foregroundActive = on
     }
 
-    /** Quick-disable from the foreground-service status modal: stop every left-behind watch
-     *  (they keep the service alive) and turn the foreground scan off. Flags, if any, are a
-     *  separate safety keep-alive and are left untouched. */
+    /** Quick-disable from the foreground-service status modal: stop everything that keeps the
+     *  service alive — every "Watch this device" (flag) and every left-behind watch — and turn
+     *  the foreground scan off, so the service actually stops. */
     fun disableForegroundService() {
+        unflagAll()
         unwatchAll()
         setForegroundScanning(false)
+    }
+
+    /** Clear every "Watch this device" flag at once (they keep the foreground service alive). */
+    fun unflagAll() {
+        if (flaggedIds.isEmpty()) return
+        flags.clear()
+        flaggedIds = emptySet()
+        devices = devices.map { if (it.isFlagged) it.copy(isFlagged = false) else it }
+        syncPush()
     }
 
     /** Periodic background safety scan while the app is closed (persisted). */
@@ -778,18 +788,28 @@ class BlepController(
         return now
     }
 
-    /** Whether the "Watch this device" explainer modal has been dismissed for good. */
+    /** Whether the left-behind explainer modal has been dismissed for good. */
     var watchExplained by mutableStateOf(settings.watchExplainerDismissed())
         private set
 
-    /** Remember the user ticked "don't show again" on the watch explainer. */
+    /** Remember the user ticked "don't show again" on the left-behind explainer. */
     fun dismissWatchExplainer() {
         settings.setWatchExplainerDismissed(true)
         watchExplained = true
     }
 
+    /** Whether the "Watch this device" (flag) explainer modal has been dismissed for good. */
+    var flagExplained by mutableStateOf(settings.flagExplainerDismissed())
+        private set
+
+    /** Remember the user ticked "don't show again" on the flag explainer. */
+    fun dismissFlagExplainer() {
+        settings.setFlagExplainerDismissed(true)
+        flagExplained = true
+    }
+
     /** How many devices currently have a left-behind ("watch") alert set. */
-    val watchedCount: Int get() = tetheredIds.size
+    val watchedCount: Int get() = (flaggedIds + tetheredIds).size
 
     /** Turn off every left-behind watch at once (used when disabling the foreground service,
      *  which the watches depend on). Mirrors the per-device untether bookkeeping. */
@@ -1021,7 +1041,7 @@ class BlepController(
                         // un-favouriting / un-watching an absent device drops it next pass.
                         val present = mapped.mapTo(HashSet()) { it.id }
                         val pinned = devices
-                            .filter { (it.id in favoriteIds || it.id in tetheredIds) && it.id !in present }
+                            .filter { (it.id in favoriteIds || it.id in tetheredIds || effectiveFlagged(it.id)) && it.id !in present }
                             .map {
                                 it.copy(
                                     rssi = BleDevice.RSSI_UNKNOWN, isConnected = false,

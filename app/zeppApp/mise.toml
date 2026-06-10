@@ -1,0 +1,16 @@
+# ZeppOS toolchain. mise pins Node; the Zepp "Zeus" CLI is an npm package run
+# via npx (no global install needed). See README.md for the flash workflow.
+[tools]
+node = "20"
+
+[tasks.preview]
+description = "Build + show a QR to install on the real watch (scan in Zepp dev mode)"
+run = "npm run preview"
+
+[tasks.dev]
+description = "Live-reload against the ZeppOS desktop simulator (needs it running on :7650; no BLE)"
+run = "npm run dev"
+
+[tasks.test]
+description = "Unit-test the signal engine under Node (no watch needed)"
+run = "node test/signal.test.mjs"

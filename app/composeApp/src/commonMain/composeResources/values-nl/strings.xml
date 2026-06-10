@@ -210,8 +210,8 @@
     <string name="detail_no_rotation">Nog geen id-wijziging gezien.</string>
     <string name="detail_first_seen">Voor het eerst gezien %1$s geleden</string>
     <string name="detail_find">Vind het</string>
-    <string name="detail_flag">Dit apparaat volgen</string>
-    <string name="detail_flagged">Wordt gevolgd — tik om te stoppen</string>
+    <string name="detail_flag">Dit apparaat bewaken</string>
+    <string name="detail_flagged">Wordt bewaakt — tik om te stoppen</string>
     <string name="noti_flagged_title">Een gemarkeerd apparaat volgen</string>
     <string name="noti_flagged_text">%1$s is binnen bereik</string>
     <string name="detail_history">Geschiedenis</string>
@@ -268,8 +268,8 @@
     <string name="noti_watch_left_title">Horloge achtergelaten?</string>
     <string name="noti_watch_left_text">Je horloge is buiten bereik van je telefoon geraakt.</string>
     <string name="noti_watch_back_text">Je horloge is weer binnen bereik.</string>
-    <string name="detail_tether">Waarschuw als het weggaat</string>
-    <string name="detail_tethered">Vertrekmelding aan</string>
+    <string name="detail_tether">Achtergelaten-melding uit</string>
+    <string name="detail_tethered">Achtergelaten-melding aan</string>
     <string name="detail_tether_desc">Laat me trillen wanneer dit apparaat buiten Bluetooth-bereik raakt (of er weer in komt) — zodat je het merkt als je zonder vertrekt.</string>
     <string name="settings_tether_title">Achtergelaten-meldingen</string>
     <string name="settings_tether_desc">Wanneer een gekoppeld apparaat buiten bereik glijdt</string>
@@ -293,4 +293,24 @@
     <string name="settings_cat_finding">Vinden</string>
     <string name="settings_cat_detection">Trackerdetectie</string>
     <string name="settings_cat_devices">Apparaten en opslag</string>
+    <string name="settings_cat_finding_desc">Signaal, geluid en trillingen tijdens het zoeken</string>
+    <string name="settings_cat_detection_desc">Spoor trackers op die je mogelijk volgen</string>
+    <string name="settings_cat_leftbehind_desc">Waarschuw me als een bewaakt apparaat verdwijnt of terugkomt</string>
+    <string name="settings_cat_devices_desc">Apparaten identificeren en opgeslagen gegevens beheren</string>
+    <string name="settings_cat_sync_desc">Deel favorieten, namen en meldingen met je horloge</string>
+    <string name="device_left_behind_badge">Bewaakt tegen achterlaten</string>
+    <string name="action_ok">OK</string>
+    <string name="watch_explainer_title">Achtergelaten-meldingen</string>
+    <string name="watch_explainer_body">blep waarschuwt je wanneer dit apparaat buiten Bluetooth-bereik raakt — en wanneer het terugkomt. Om op de achtergrond te blijven bewaken, draait er een voorgrondservice (je ziet een doorlopende melding zolang die actief is).</string>
+    <string name="watch_explainer_dont_show">Niet meer tonen</string>
+    <string name="watch_disable_fg_title">Alle apparaten niet meer bewaken?</string>
+    <string name="watch_disable_fg_body">Als je de achtergrond-bewakingsservice uitschakelt, worden de apparaten met een achtergelaten-melding niet meer bewaakt. Doorgaan?</string>
+    <string name="fg_status_title">Achtergrondbewaking actief</string>
+    <string name="fg_status_body">blep draait een voorgrondservice om je apparaten te blijven bewaken en trackermeldingen te tonen terwijl de app op de achtergrond is. Een doorlopende melding is zichtbaar zolang die actief is.</string>
+    <string name="fg_status_watching">%1$d apparaat/apparaten bewaakt — uitschakelen stopt ze.</string>
+    <string name="fg_status_disable">Uitschakelen</string>
+    <string name="watch_status_title">Verbonden met je horloge</string>
+    <string name="watch_status_body">Je horloge is gekoppeld en dichtbij. blep houdt favorieten, namen en achtergelaten-meldingen gesynchroniseerd en geeft trackermeldingen door zodat je horloge kan trillen als er iets wordt gevonden.</string>
+    <string name="flag_explainer_title">Dit apparaat bewaken</string>
+    <string name="flag_explainer_body">Bewaken verhoogt de prioriteit van dit apparaat, zodat blep het blijft terugvinden, zelfs als het zijn Bluetooth-ID wisselt, en je waarschuwt wanneer het dichtbij is. Er draait een voorgrondservice zolang actief (doorlopende melding).</string>
 </resources>

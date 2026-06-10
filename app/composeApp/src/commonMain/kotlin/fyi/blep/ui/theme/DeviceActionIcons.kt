@@ -22,6 +22,15 @@ private fun icon(name: String, path: String): ImageVector =
         addPath(pathData = PathParser().parsePathString(path).toNodes(), fill = SolidColor(Color.Black))
     }.build()
 
+/** Door with an arrow leaving it — "left behind" (a device that walked out of range). */
+val ExitIcon: ImageVector by lazy {
+    icon(
+        "Exit",
+        "M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2" +
+            "v14c0 1.1.9 2 2 2h8v-2H4V5z",
+    )
+}
+
 /** Filled star — favourited. */
 val StarFilledIcon: ImageVector by lazy {
     icon(

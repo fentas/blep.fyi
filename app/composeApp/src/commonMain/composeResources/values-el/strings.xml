@@ -210,8 +210,8 @@
     <string name="detail_no_rotation">Καμία αλλαγή id ακόμη.</string>
     <string name="detail_first_seen">Πρώτη εμφάνιση πριν από %1$s</string>
     <string name="detail_find">Βρες το</string>
-    <string name="detail_flag">Παρακολούθηση αυτής της συσκευής</string>
-    <string name="detail_flagged">Παρακολουθείται — πατήστε για διακοπή</string>
+    <string name="detail_flag">Παρακολούθηση συσκευής</string>
+    <string name="detail_flagged">Παρακολούθηση — πατήστε για διακοπή</string>
     <string name="noti_flagged_title">Παρακολούθηση επισημασμένης συσκευής</string>
     <string name="noti_flagged_text">%1$s είναι σε εμβέλεια</string>
     <string name="detail_history">Ιστορικό</string>
@@ -268,8 +268,8 @@
     <string name="noti_watch_left_title">Ξέχασες το ρολόι;</string>
     <string name="noti_watch_left_text">Το ρολόι σου βγήκε εκτός εμβέλειας από το τηλέφωνό σου.</string>
     <string name="noti_watch_back_text">Το ρολόι σου είναι ξανά σε εμβέλεια.</string>
-    <string name="detail_tether">Ειδοποίηση αν απομακρυνθεί</string>
-    <string name="detail_tethered">Ειδοποίηση απομάκρυνσης ενεργή</string>
+    <string name="detail_tether">Ειδοποίηση παράλειψης ανενεργή</string>
+    <string name="detail_tethered">Ειδοποίηση παράλειψης ενεργή</string>
     <string name="detail_tether_desc">Δόνηση όταν αυτή η συσκευή βγει εκτός (ή επιστρέψει εντός) εμβέλειας Bluetooth — για να το προσέξεις αν φύγεις χωρίς αυτήν.</string>
     <string name="settings_tether_title">Ειδοποιήσεις ξεχασμένου</string>
     <string name="settings_tether_desc">Όταν μια συνδεδεμένη συσκευή βγαίνει εκτός εμβέλειας</string>
@@ -293,4 +293,24 @@
     <string name="settings_cat_finding">Εύρεση</string>
     <string name="settings_cat_detection">Ανίχνευση ιχνηλατών</string>
     <string name="settings_cat_devices">Συσκευές &amp; αποθήκευση</string>
+    <string name="settings_cat_finding_desc">Σήμα, ήχος και δόνηση κατά την αναζήτηση</string>
+    <string name="settings_cat_detection_desc">Εντοπίστε ιχνηλάτες που μπορεί να σας ακολουθούν</string>
+    <string name="settings_cat_leftbehind_desc">Ειδοποίησέ με όταν μια παρακολουθούμενη συσκευή χαθεί ή επιστρέψει</string>
+    <string name="settings_cat_devices_desc">Αναγνωρίστε συσκευές και διαχειριστείτε αποθηκευμένα δεδομένα</string>
+    <string name="settings_cat_sync_desc">Μοιραστείτε αγαπημένα, ονόματα και ειδοποιήσεις με το ρολόι σας</string>
+    <string name="device_left_behind_badge">Παρακολούθηση για παράλειψη</string>
+    <string name="action_ok">OK</string>
+    <string name="watch_explainer_title">Ειδοποιήσεις παράλειψης</string>
+    <string name="watch_explainer_body">Το blep θα σας ειδοποιήσει όταν αυτή η συσκευή βγει από την εμβέλεια Bluetooth — και όταν επιστρέψει. Για να συνεχίσει την παρακολούθηση στο παρασκήνιο, εκτελεί μια υπηρεσία προσκηνίου (θα δείτε μια συνεχή ειδοποίηση όσο είναι ενεργή).</string>
+    <string name="watch_explainer_dont_show">Να μην εμφανιστεί ξανά</string>
+    <string name="watch_disable_fg_title">Διακοπή παρακολούθησης όλων των συσκευών;</string>
+    <string name="watch_disable_fg_body">Η απενεργοποίηση της υπηρεσίας παρακολούθησης παρασκηνίου θα σταματήσει την παρακολούθηση των συσκευών με ειδοποίηση παράλειψης. Συνέχεια;</string>
+    <string name="fg_status_title">Παρακολούθηση παρασκηνίου ενεργή</string>
+    <string name="fg_status_body">Το blep εκτελεί μια υπηρεσία προσκηνίου ώστε να συνεχίσει να παρακολουθεί τις συσκευές σας και να εμφανίζει ειδοποιήσεις ιχνηλατών όσο η εφαρμογή είναι στο παρασκήνιο. Μια συνεχής ειδοποίηση εμφανίζεται όσο είναι ενεργή.</string>
+    <string name="fg_status_watching">Παρακολούθηση %1$d συσκευής/ών — η απενεργοποίηση τις σταματά.</string>
+    <string name="fg_status_disable">Απενεργοποίηση</string>
+    <string name="watch_status_title">Συνδεδεμένο με το ρολόι σας</string>
+    <string name="watch_status_body">Το ρολόι σας είναι συζευγμένο και κοντά. Το blep κρατά συγχρονισμένα αγαπημένα, ονόματα και ειδοποιήσεις παράλειψης, και προωθεί ειδοποιήσεις ιχνηλατών ώστε το ρολόι σας να δονείται όταν βρεθεί κάτι.</string>
+    <string name="flag_explainer_title">Παρακολούθηση συσκευής</string>
+    <string name="flag_explainer_body">Η παρακολούθηση αυξάνει την προτεραιότητα αυτής της συσκευής, ώστε το blep να συνεχίζει να την βρίσκει ακόμη κι όταν αλλάζει το Bluetooth ID της, και να σας ειδοποιεί όταν είναι κοντά. Μια υπηρεσία προσκηνίου εκτελείται όσο είναι ενεργή (συνεχής ειδοποίηση).</string>
 </resources>

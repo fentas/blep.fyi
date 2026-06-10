@@ -61,6 +61,8 @@ import fyi.blep.resources.detail_alt
 import fyi.blep.resources.detail_find
 import fyi.blep.resources.detail_flag
 import fyi.blep.resources.detail_flagged
+import fyi.blep.resources.flag_explainer_title
+import fyi.blep.resources.flag_explainer_body
 import fyi.blep.resources.detail_tether
 import fyi.blep.resources.action_ok
 import fyi.blep.resources.watch_explainer_title
@@ -129,6 +131,8 @@ fun DeviceDetailScreen(
     onToggleTether: () -> Unit,
     watchExplained: Boolean,
     onWatchExplainedDismiss: () -> Unit,
+    flagExplained: Boolean,
+    onFlagExplainedDismiss: () -> Unit,
     onTrack: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -136,6 +140,7 @@ fun DeviceDetailScreen(
     var renaming by remember { mutableStateOf(false) }
     var showHelp by remember { mutableStateOf(false) }
     var showWatchModal by remember { mutableStateOf(false) }
+    var showFlagModal by remember { mutableStateOf(false) }
     val backLabel = stringResource(Res.string.a11y_back)
     val helpLabel = stringResource(Res.string.a11y_help)
 
@@ -298,22 +303,27 @@ fun DeviceDetailScreen(
             Spacer(Modifier.height(12.dp))
         }
 
-        // Pinned actions at the bottom.
-        if (device.isFlagged) {
-            FilledTonalButton(
-                onClick = onToggleFlag,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = BlepColors.Pink.copy(alpha = 0.18f),
-                    contentColor = BlepColors.Pink,
-                ),
-            ) { Text(stringResource(Res.string.detail_flagged)) }
-        } else {
-            OutlinedButton(onClick = onToggleFlag, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(Res.string.detail_flag))
+        // Pinned actions at the bottom. "Watch this device" (flag) is an anti-stalking tool —
+        // hidden for paired/bonded devices (your own gear), where it makes no sense.
+        if (!device.isPaired) {
+            if (device.isFlagged) {
+                FilledTonalButton(
+                    onClick = onToggleFlag,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = BlepColors.Pink.copy(alpha = 0.18f),
+                        contentColor = BlepColors.Pink,
+                    ),
+                ) { Text(stringResource(Res.string.detail_flagged)) }
+            } else {
+                // First activation explains what it does (priority bump + foreground service).
+                OutlinedButton(
+                    onClick = { if (flagExplained) onToggleFlag() else showFlagModal = true },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text(stringResource(Res.string.detail_flag)) }
             }
+            Spacer(Modifier.height(10.dp))
         }
-        Spacer(Modifier.height(10.dp))
         // Tether: alert me when this device leaves (and comes back into) Bluetooth range.
         if (tethered) {
             FilledTonalButton(
@@ -376,6 +386,35 @@ fun DeviceDetailScreen(
                 }) { Text(stringResource(Res.string.action_ok)) }
             },
             dismissButton = { TextButton(onClick = { showWatchModal = false }) { Text(stringResource(Res.string.action_cancel)) } },
+        )
+    }
+
+    if (showFlagModal) {
+        var dontShowAgain by remember { mutableStateOf(false) }
+        AlertDialog(
+            onDismissRequest = { showFlagModal = false },
+            title = { Text(stringResource(Res.string.flag_explainer_title)) },
+            text = {
+                Column {
+                    Text(stringResource(Res.string.flag_explainer_body))
+                    Spacer(Modifier.height(14.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { dontShowAgain = !dontShowAgain },
+                    ) {
+                        Checkbox(checked = dontShowAgain, onCheckedChange = { dontShowAgain = it })
+                        Text(stringResource(Res.string.watch_explainer_dont_show))
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (dontShowAgain) onFlagExplainedDismiss()
+                    showFlagModal = false
+                    onToggleFlag()
+                }) { Text(stringResource(Res.string.action_ok)) }
+            },
+            dismissButton = { TextButton(onClick = { showFlagModal = false }) { Text(stringResource(Res.string.action_cancel)) } },
         )
     }
 

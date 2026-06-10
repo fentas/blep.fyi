@@ -268,8 +268,8 @@
     <string name="noti_watch_left_title">Kell jäi maha?</string>
     <string name="noti_watch_left_text">Sinu kell langes telefoni levialast välja.</string>
     <string name="noti_watch_back_text">Sinu kell on taas levialas.</string>
-    <string name="detail_tether">Hoiata, kui see lahkub</string>
-    <string name="detail_tethered">Lahkumishoiatus sees</string>
+    <string name="detail_tether">Mahajätmise hoiatus väljas</string>
+    <string name="detail_tethered">Mahajätmise hoiatus sees</string>
     <string name="detail_tether_desc">Värise, kui see seade lahkub Bluetoothi levialast (või naaseb sinna) — et märkaksid, kui lähed ilma selleta minema.</string>
     <string name="settings_tether_title">Mahajäämishoiatused</string>
     <string name="settings_tether_desc">Kui seotud seade libiseb levialast välja</string>
@@ -293,4 +293,24 @@
     <string name="settings_cat_finding">Otsimine</string>
     <string name="settings_cat_detection">Jälgijate tuvastus</string>
     <string name="settings_cat_devices">Seadmed ja mälu</string>
+    <string name="settings_cat_finding_desc">Signaal, heli ja vibratsioon otsimise ajal</string>
+    <string name="settings_cat_detection_desc">Tuvasta jälitajaid, kes võivad sind jälgida</string>
+    <string name="settings_cat_leftbehind_desc">Teata, kui jälgitav seade kaob või naaseb</string>
+    <string name="settings_cat_devices_desc">Tuvasta seadmeid ja halda salvestatud andmeid</string>
+    <string name="settings_cat_sync_desc">Jaga lemmikuid, nimesid ja hoiatusi oma kellaga</string>
+    <string name="device_left_behind_badge">Jälgitakse mahajätmise vastu</string>
+    <string name="action_ok">OK</string>
+    <string name="watch_explainer_title">Mahajätmise hoiatused</string>
+    <string name="watch_explainer_body">blep hoiatab sind, kui see seade lahkub Bluetoothi levialast — ja kui see naaseb. Taustal jälgimise jätkamiseks töötab esiplaani teenus (näed püsivat teavitust, kuni see on aktiivne).</string>
+    <string name="watch_explainer_dont_show">Ära näita uuesti</string>
+    <string name="watch_disable_fg_title">Lõpetada kõigi seadmete jälgimine?</string>
+    <string name="watch_disable_fg_body">Tausta jälgimisteenuse väljalülitamine lõpetab mahajätmise hoiatusega seadmete jälgimise. Kas jätkata?</string>
+    <string name="fg_status_title">Tausta jälgimine aktiivne</string>
+    <string name="fg_status_body">blep käitab esiplaani teenust, et jälgida su seadmeid ja kuvada jälitajate hoiatusi, kui rakendus on taustal. Püsiv teavitus on näha, kuni see on aktiivne.</string>
+    <string name="fg_status_watching">Jälgin %1$d seadet — väljalülitamine peatab need.</string>
+    <string name="fg_status_disable">Lülita välja</string>
+    <string name="watch_status_title">Ühendatud su kellaga</string>
+    <string name="watch_status_body">Su kell on seotud ja lähedal. blep hoiab lemmikud, nimed ja mahajätmise hoiatused sünkroonis ning edastab jälitajate hoiatused, et su kell saaks vibreerida, kui midagi leitakse.</string>
+    <string name="flag_explainer_title">Jälgi seda seadet</string>
+    <string name="flag_explainer_body">Jälgimine tõstab selle seadme prioriteeti, nii et blep leiab selle ikka üles, isegi kui see vahetab Bluetoothi ID-d, ja teavitab, kui see on lähedal. Esiplaani teenus töötab, kuni aktiivne (püsiv teavitus).</string>
 </resources>

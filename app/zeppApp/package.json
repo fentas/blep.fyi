@@ -1,0 +1,21 @@
+{
+  "name": "blep-zepp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "blep — find a lost Bluetooth thing by signal, on ZeppOS (Amazfit).",
+  "main": "app.js",
+  "_moduleAliases": {
+    "zeppos-app-utils": "node_modules/@zeppos/zeus-cli/private-modules/zeppos-app-utils"
+  },
+  "scripts": {
+    "test": "node test/signal.test.mjs",
+    "dev": "zeus dev",
+    "preview": "zeus preview",
+    "build": "zeus build"
+  },
+  "devDependencies": {
+    "@zeppos/device-types": "^2.0.1",
+    "@zeppos/zeus-cli": "^1.9.1"
+  }
+}

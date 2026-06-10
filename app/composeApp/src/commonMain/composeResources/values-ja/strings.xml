@@ -210,8 +210,8 @@
     <string name="detail_no_rotation">まだ id の変化は見られません。</string>
     <string name="detail_first_seen">初回検出 %1$s前</string>
     <string name="detail_find">見つける</string>
-    <string name="detail_flag">このデバイスを監視</string>
-    <string name="detail_flagged">監視中 — タップで停止</string>
+    <string name="detail_flag">このデバイスを見守る</string>
+    <string name="detail_flagged">見守り中 — タップで停止</string>
     <string name="noti_flagged_title">フラグ付きデバイスを監視中</string>
     <string name="noti_flagged_text">%1$s が範囲内です</string>
     <string name="detail_history">履歴</string>
@@ -268,8 +268,8 @@
     <string name="noti_watch_left_title">時計を置き忘れ？</string>
     <string name="noti_watch_left_text">時計がスマホの圏外に出ました。</string>
     <string name="noti_watch_back_text">時計が圏内に戻りました。</string>
-    <string name="detail_tether">離れたら通知</string>
-    <string name="detail_tethered">置き忘れ通知オン</string>
+    <string name="detail_tether">置き忘れアラート オフ</string>
+    <string name="detail_tethered">置き忘れアラート オン</string>
     <string name="detail_tether_desc">このデバイスが Bluetooth の圏外に出た（または戻った）ときに振動でお知らせ——置き忘れて出かけても気づけます。</string>
     <string name="settings_tether_title">置き忘れアラート</string>
     <string name="settings_tether_desc">ひも付けたデバイスが圏外に出たとき</string>
@@ -293,4 +293,24 @@
     <string name="settings_cat_finding">探す</string>
     <string name="settings_cat_detection">トラッカー検出</string>
     <string name="settings_cat_devices">デバイスと保存</string>
+    <string name="settings_cat_finding_desc">探索中の信号フィードバック、音、振動</string>
+    <string name="settings_cat_detection_desc">あなたを追跡しているかもしれないトラッカーを検出</string>
+    <string name="settings_cat_leftbehind_desc">見守り中のデバイスがなくなったり戻ったら通知</string>
+    <string name="settings_cat_devices_desc">デバイスを識別し、保存データを管理</string>
+    <string name="settings_cat_sync_desc">お気に入り、名前、アラートを時計と共有</string>
+    <string name="device_left_behind_badge">置き忘れを見守り中</string>
+    <string name="action_ok">OK</string>
+    <string name="watch_explainer_title">置き忘れアラート</string>
+    <string name="watch_explainer_body">このデバイスがBluetoothの範囲から離れたとき、そして戻ったときにblepが通知します。バックグラウンドでも見守るため、フォアグラウンドサービスを実行します（有効な間は常時通知が表示されます）。</string>
+    <string name="watch_explainer_dont_show">今後表示しない</string>
+    <string name="watch_disable_fg_title">すべてのデバイスの見守りを停止しますか？</string>
+    <string name="watch_disable_fg_body">バックグラウンドの見守りサービスをオフにすると、置き忘れアラートを設定したデバイスの見守りが停止します。続行しますか？</string>
+    <string name="fg_status_title">バックグラウンド見守りが有効</string>
+    <string name="fg_status_body">アプリがバックグラウンドにある間もデバイスを見守り、トラッカーのアラートを表示するため、blepはフォアグラウンドサービスを実行しています。有効な間は常時通知が表示されます。</string>
+    <string name="fg_status_watching">%1$d台のデバイスを見守り中 — オフにすると停止します。</string>
+    <string name="fg_status_disable">オフにする</string>
+    <string name="watch_status_title">時計に接続済み</string>
+    <string name="watch_status_body">時計はペア設定済みで近くにあります。blepはお気に入り、名前、置き忘れアラートを同期し、トラッカーのアラートを転送して、何かが見つかったときに時計を振動させます。</string>
+    <string name="flag_explainer_title">このデバイスを見守る</string>
+    <string name="flag_explainer_body">見守ると、このデバイスの優先度が上がり、Bluetooth IDが変わってもblepが見つけ続け、近くにいると通知します。有効な間はフォアグラウンドサービスが動作します（常時通知）。</string>
 </resources>

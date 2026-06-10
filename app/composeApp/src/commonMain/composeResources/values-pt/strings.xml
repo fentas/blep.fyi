@@ -268,8 +268,8 @@
     <string name="noti_watch_left_title">Esqueceste-te do relógio?</string>
     <string name="noti_watch_left_text">O teu relógio saiu do alcance do teu telemóvel.</string>
     <string name="noti_watch_back_text">O teu relógio está outra vez ao alcance.</string>
-    <string name="detail_tether">Avisar se se afastar</string>
-    <string name="detail_tethered">Alerta de saída ligado</string>
+    <string name="detail_tether">Alerta de esquecimento desligado</string>
+    <string name="detail_tethered">Alerta de esquecimento ligado</string>
     <string name="detail_tether_desc">Vibra quando este dispositivo sair do alcance do Bluetooth (ou voltar a ele) — para notares se saíres sem ele.</string>
     <string name="settings_tether_title">Alertas de esquecimento</string>
     <string name="settings_tether_desc">Quando um dispositivo associado sai do alcance</string>
@@ -293,4 +293,24 @@
     <string name="settings_cat_finding">Procura</string>
     <string name="settings_cat_detection">Deteção de rastreadores</string>
     <string name="settings_cat_devices">Dispositivos e armazenamento</string>
+    <string name="settings_cat_finding_desc">Sinal, som e vibração durante a procura</string>
+    <string name="settings_cat_detection_desc">Deteta rastreadores que possam estar a seguir-te</string>
+    <string name="settings_cat_leftbehind_desc">Avisar quando um dispositivo vigiado desaparece ou regressa</string>
+    <string name="settings_cat_devices_desc">Identifica dispositivos e gere os dados guardados</string>
+    <string name="settings_cat_sync_desc">Partilha favoritos, nomes e alertas com o teu relógio</string>
+    <string name="device_left_behind_badge">Vigiado por esquecimento</string>
+    <string name="action_ok">OK</string>
+    <string name="watch_explainer_title">Alertas de esquecimento</string>
+    <string name="watch_explainer_body">O blep avisa-te quando este dispositivo sai do alcance do Bluetooth — e quando regressa. Para continuar a vigiar em segundo plano, executa um serviço em primeiro plano (verás uma notificação contínua enquanto estiver ativo).</string>
+    <string name="watch_explainer_dont_show">Não mostrar novamente</string>
+    <string name="watch_disable_fg_title">Parar de vigiar todos os dispositivos?</string>
+    <string name="watch_disable_fg_body">Desligar o serviço de vigilância em segundo plano deixará de vigiar os dispositivos com alerta de esquecimento. Continuar?</string>
+    <string name="fg_status_title">Vigilância em segundo plano ativa</string>
+    <string name="fg_status_body">O blep executa um serviço em primeiro plano para continuar a vigiar os teus dispositivos e mostrar alertas de rastreadores enquanto a app está em segundo plano. Uma notificação contínua é mostrada enquanto estiver ativo.</string>
+    <string name="fg_status_watching">A vigiar %1$d dispositivo(s) — desligar para-os.</string>
+    <string name="fg_status_disable">Desligar</string>
+    <string name="watch_status_title">Ligado ao teu relógio</string>
+    <string name="watch_status_body">O teu relógio está emparelhado e por perto. O blep mantém favoritos, nomes e alertas de esquecimento sincronizados e reencaminha os alertas de rastreadores para o teu relógio vibrar quando algo é encontrado.</string>
+    <string name="flag_explainer_title">Vigiar este dispositivo</string>
+    <string name="flag_explainer_body">Vigiar aumenta a prioridade deste dispositivo, para que o blep continue a encontrá-lo mesmo quando muda o ID de Bluetooth, e te avise quando estiver perto. Um serviço em primeiro plano corre enquanto ativo (notificação contínua).</string>
 </resources>

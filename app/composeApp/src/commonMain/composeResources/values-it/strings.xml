@@ -211,7 +211,7 @@
     <string name="detail_first_seen">Visto per la prima volta %1$s fa</string>
     <string name="detail_find">Trovalo</string>
     <string name="detail_flag">Sorveglia questo dispositivo</string>
-    <string name="detail_flagged">In sorveglianza — tocca per fermare</string>
+    <string name="detail_flagged">Sorvegliato — tocca per fermare</string>
     <string name="noti_flagged_title">Sorveglianza di un dispositivo contrassegnato</string>
     <string name="noti_flagged_text">%1$s è a portata</string>
     <string name="detail_history">Cronologia</string>
@@ -268,8 +268,8 @@
     <string name="noti_watch_left_title">Orologio dimenticato?</string>
     <string name="noti_watch_left_text">Il tuo orologio è uscito dalla portata del tuo telefono.</string>
     <string name="noti_watch_back_text">Il tuo orologio è di nuovo in portata.</string>
-    <string name="detail_tether">Avvisami se si allontana</string>
-    <string name="detail_tethered">Avviso di uscita attivo</string>
+    <string name="detail_tether">Avviso dimenticanza disattivato</string>
+    <string name="detail_tethered">Avviso dimenticanza attivato</string>
     <string name="detail_tether_desc">Fammi vibrare quando questo dispositivo esce dalla portata del Bluetooth (o vi rientra) — così ti accorgi se te ne vai senza di esso.</string>
     <string name="settings_tether_title">Avvisi di dimenticanza</string>
     <string name="settings_tether_desc">Quando un dispositivo abbinato esce dalla portata</string>
@@ -293,4 +293,24 @@
     <string name="settings_cat_finding">Ricerca</string>
     <string name="settings_cat_detection">Rilevamento tracker</string>
     <string name="settings_cat_devices">Dispositivi e spazio</string>
+    <string name="settings_cat_finding_desc">Segnale, suono e vibrazione durante la ricerca</string>
+    <string name="settings_cat_detection_desc">Individua tracker che potrebbero seguirti</string>
+    <string name="settings_cat_leftbehind_desc">Avvisami quando un dispositivo sorvegliato sparisce o torna</string>
+    <string name="settings_cat_devices_desc">Identifica i dispositivi e gestisci i dati salvati</string>
+    <string name="settings_cat_sync_desc">Condividi preferiti, nomi e avvisi con il tuo orologio</string>
+    <string name="device_left_behind_badge">Sorvegliato per dimenticanza</string>
+    <string name="action_ok">OK</string>
+    <string name="watch_explainer_title">Avvisi di dimenticanza</string>
+    <string name="watch_explainer_body">blep ti avvisa quando questo dispositivo esce dalla portata Bluetooth — e quando torna. Per continuare a sorvegliare in background, esegue un servizio in primo piano (vedrai una notifica continua mentre è attivo).</string>
+    <string name="watch_explainer_dont_show">Non mostrare più</string>
+    <string name="watch_disable_fg_title">Smettere di sorvegliare tutti i dispositivi?</string>
+    <string name="watch_disable_fg_body">Disattivando il servizio di sorveglianza in background, i dispositivi con avviso di dimenticanza non saranno più sorvegliati. Continuare?</string>
+    <string name="fg_status_title">Sorveglianza in background attiva</string>
+    <string name="fg_status_body">blep esegue un servizio in primo piano per continuare a sorvegliare i tuoi dispositivi e mostrare gli avvisi dei tracker mentre l'app è in background. Una notifica continua è visibile mentre è attivo.</string>
+    <string name="fg_status_watching">Sorveglianza di %1$d dispositivo/i — disattivando si fermano.</string>
+    <string name="fg_status_disable">Disattiva</string>
+    <string name="watch_status_title">Connesso al tuo orologio</string>
+    <string name="watch_status_body">Il tuo orologio è abbinato e vicino. blep mantiene sincronizzati preferiti, nomi e avvisi di dimenticanza, e inoltra gli avvisi dei tracker così il tuo orologio può vibrare quando qualcosa viene trovato.</string>
+    <string name="flag_explainer_title">Sorveglia questo dispositivo</string>
+    <string name="flag_explainer_body">La sorveglianza aumenta la priorità di questo dispositivo, così blep continua a ritrovarlo anche quando cambia il suo ID Bluetooth e ti avvisa quando è vicino. Un servizio in primo piano è attivo mentre è in funzione (notifica continua).</string>
 </resources>

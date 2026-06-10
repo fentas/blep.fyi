@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es2017",
+    "checkJs": false
+  },
+  "exclude": ["node_modules", "**/node_modules/*", "dist"]
+}
