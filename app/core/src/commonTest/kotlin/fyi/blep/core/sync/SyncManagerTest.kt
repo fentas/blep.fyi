@@ -120,4 +120,23 @@ class SyncManagerTest {
         assertEquals(true, sink.nearby)
         assertEquals(true, mgr.peerNearby.value)
     }
+
+    @Test fun unpairedNoopTransportIsSafe() = runTest {
+        // The real backing when no device is paired (and the JVM/Apple stub): NoopSyncTransport's
+        // incomingState/incomingMessages are empty flows that *complete* immediately. start() must
+        // ride that out — no peer to merge, but local-side ops (changes, relays) stay side-effect-free
+        // and never throw. This is the "without a paired device" runtime state.
+        val sink = FakeSink()
+        val mgr = SyncManager(NoopSyncTransport(), settings(), FakeSource(favorites = setOf("X")), sink, backgroundScope, now = { 100 })
+        mgr.start(); runCurrent()
+        mgr.localChanged()
+        mgr.send(SyncMessage.TrackerAlert("AirTag"))
+        mgr.sendSightings(listOf(Sighting("AA", -50, "Keys")))
+        runCurrent()
+        mgr.stop()
+        // No peer ever delivered anything, so nothing was applied back to the local sink.
+        assertEquals(null, sink.favorites)
+        assertEquals(false, mgr.peerNearby.value)
+        assertTrue(sink.messages.isEmpty())
+    }
 }
