@@ -5,6 +5,7 @@
     <string name="section_nearby">À proximité</string>
     <string name="status_connected">Connecté</string>
     <string name="status_paired">Associé</string>
+    <string name="status_no_signal">Aucun signal</string>
     <string name="hide_unnamed">Masquer les appareils sans nom</string>
     <string name="show_unnamed_one">Afficher %1$d appareil sans nom</string>
     <string name="show_unnamed_many">Afficher %1$d appareils sans nom</string>
@@ -316,4 +317,8 @@
     <string name="flag_explainer_body">La surveillance augmente la priorité de cet appareil, pour que blep continue à le retrouver même quand il change d'ID Bluetooth, et vous alerte quand il est proche. Un service de premier plan s'exécute tant qu'il est actif (notification permanente).</string>
     <string name="settings_cat_background">Service en arrière-plan</string>
     <string name="settings_cat_background_desc">Recherche de traceurs, vérifications programmées et alertes d'oubli quand blep est fermé</string>
+    <string name="settings_scan_mode_title">Rechercher des traceurs</string>
+    <string name="settings_scan_off">Désactivé</string>
+    <string name="settings_scan_interval">Intervalle</string>
+    <string name="settings_scan_continuous">Continu</string>
 </resources>

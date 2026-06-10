@@ -146,11 +146,10 @@ class BlepController(
      *  (they don't advertise). Persisted; default on. */
     var measureConnectedSignal by mutableStateOf(settings.measureConnectedSignal())
         private set
-    /** Keep a safety scan alive off-screen via a foreground service. Persisted; off. */
-    var foregroundScanEnabled by mutableStateOf(settings.foregroundScan())
-        private set
-    /** Periodic background safety scan (WorkManager) while the app is closed. Off. */
-    var backgroundScanEnabled by mutableStateOf(settings.backgroundScan())
+    /** How hard blep scans for trackers in the background — Off / Interval / Continuous
+     *  (Continuous supersedes Interval). Left-behind/flag watching is separate (always-auto)
+     *  and can keep the service alive on its own in watch-only mode. Persisted. */
+    var scanMode by mutableStateOf(settings.scanMode())
         private set
     /** Background scan interval, minutes (15–240). */
     var scanIntervalMinutes by mutableStateOf(settings.scanIntervalMinutes())
@@ -234,7 +233,7 @@ class BlepController(
      *  status indicator on the main screen. Kept in step by [applyForeground], the single
      *  point through which the service is started/stopped. */
     var foregroundActive by mutableStateOf(
-        settings.foregroundScan() || flags.ids().isNotEmpty() || tether.ids().isNotEmpty(),
+        settings.scanMode() == ScanMode.CONTINUOUS || flags.ids().isNotEmpty() || tether.ids().isNotEmpty(),
     )
         private set
     // Shares the same on-disk key as the service/worker monitors (same prefs file), so the
@@ -313,7 +312,7 @@ class BlepController(
     init {
         haptic.setSoundEnabled(soundOn) // apply the persisted sound preference
         haptic.setVibrationEnabled(hapticsOn) // …and the haptics preference
-        BackgroundScan.applyPeriodic(backgroundScanEnabled, scanIntervalMinutes)
+        BackgroundScan.applyPeriodic(scanMode == ScanMode.INTERVAL, scanIntervalMinutes)
         // Authoritative availability: the platform scanner proactively reports
         // adapter/permission state, so the banner reflects the real reason (and
         // recovers the moment the user fixes it) instead of guessing from a thrown
@@ -398,15 +397,18 @@ class BlepController(
         settings.setThemeMode(mode)
     }
 
-    /** Foreground service that keeps a safety scan alive off-screen (persisted). */
-    fun setForegroundScanning(on: Boolean) {
-        foregroundScanEnabled = on
-        settings.setForegroundScan(on)
-        // If a tether/flag is already keeping the service alive, re-poke it so it re-reads
-        // this setting now (starts/stops the tracker scan immediately) instead of on its next
-        // restart. Otherwise fall back to the safety-screen behaviour.
+    /** Set the background tracker-scan mode (Off / Interval / Continuous). Interval schedules
+     *  periodic WorkManager checks; Continuous runs the foreground service. Left-behind/flag
+     *  watching is independent — a watch keeps the service alive (watch-only) regardless. */
+    fun selectScanMode(mode: ScanMode) {
+        scanMode = mode
+        settings.setScanMode(mode)
+        BackgroundScan.applyPeriodic(mode == ScanMode.INTERVAL, scanIntervalMinutes)
+        // A watch keeps the service alive (the service reads scanMode to decide whether it
+        // also tracker-scans, or just watches). Otherwise Continuous starts it immediately
+        // only on the safety screen — elsewhere it spins up when the app is minimised.
         if (flaggedIds.isNotEmpty() || tetheredIds.isNotEmpty()) applyForeground(true)
-        else applyForeground(on && screen is Screen.Safety)
+        else applyForeground(mode == ScanMode.CONTINUOUS && screen is Screen.Safety)
     }
 
     /** The single point that starts/stops the foreground service, so [foregroundActive]
@@ -422,7 +424,7 @@ class BlepController(
     fun disableForegroundService() {
         unflagAll()
         unwatchAll()
-        setForegroundScanning(false)
+        selectScanMode(ScanMode.OFF)
     }
 
     /** Clear every "Watch this device" flag at once (they keep the foreground service alive). */
@@ -434,18 +436,12 @@ class BlepController(
         syncPush()
     }
 
-    /** Periodic background safety scan while the app is closed (persisted). */
-    fun setBackgroundScanning(on: Boolean) {
-        backgroundScanEnabled = on
-        settings.setBackgroundScan(on)
-        BackgroundScan.applyPeriodic(on, scanIntervalMinutes)
-    }
-
-    /** Background scan interval in minutes (clamped 15–240; persisted). */
+    /** Background scan interval in minutes (clamped 15–240; persisted). Always settable, even
+     *  when not in Interval mode (the slider stays live); only re-schedules if Interval is on. */
     fun setScanInterval(minutes: Int) {
         scanIntervalMinutes = minutes.coerceIn(AppSettings.INTERVAL_MIN, AppSettings.INTERVAL_MAX)
         settings.setScanIntervalMinutes(scanIntervalMinutes)
-        if (backgroundScanEnabled) BackgroundScan.applyPeriodic(true, scanIntervalMinutes)
+        if (scanMode == ScanMode.INTERVAL) BackgroundScan.applyPeriodic(true, scanIntervalMinutes)
     }
 
     fun startDiscovery() {
@@ -845,7 +841,7 @@ class BlepController(
         scanJob?.cancel(); scanJob = null; probeJob?.cancel(); probeJob = null
         safetyScanner.reset()
         safetyAlerts = emptyList()
-        if (foregroundScanEnabled) applyForeground(true)
+        if (scanMode == ScanMode.CONTINUOUS) applyForeground(true)
         screen = Screen.Safety
         safetyJob?.cancel()
         safetyJob = scope.launch {

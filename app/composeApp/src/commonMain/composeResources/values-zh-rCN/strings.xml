@@ -6,6 +6,7 @@
     <string name="section_nearby">附近</string>
     <string name="status_connected">已连接</string>
     <string name="status_paired">已配对</string>
+    <string name="status_no_signal">无信号</string>
     <string name="hide_unnamed">隐藏未命名设备</string>
     <string name="show_unnamed_one">显示 %1$d 个未命名设备</string>
     <string name="show_unnamed_many">显示 %1$d 个未命名设备</string>
@@ -317,4 +318,8 @@
     <string name="flag_explainer_body">监视会提升此设备的优先级，即使它更换蓝牙 ID，blep 也会持续找到它，并在它靠近时提醒你。运行期间会有一个前台服务（常驻通知）。</string>
     <string name="settings_cat_background">后台服务</string>
     <string name="settings_cat_background_desc">在 blep 关闭时进行追踪器扫描、定时检查和遗落提醒</string>
+    <string name="settings_scan_mode_title">扫描追踪器</string>
+    <string name="settings_scan_off">关闭</string>
+    <string name="settings_scan_interval">间隔</string>
+    <string name="settings_scan_continuous">持续</string>
 </resources>

@@ -95,6 +95,7 @@ import fyi.blep.resources.show_unnamed_many
 import fyi.blep.resources.show_unnamed_one
 import fyi.blep.resources.status_connected
 import fyi.blep.resources.status_paired
+import fyi.blep.resources.status_no_signal
 import fyi.blep.ui.rememberAvailabilityAction
 import fyi.blep.ui.rememberBlePermissionRecovery
 import fyi.blep.ui.theme.BlepColors
@@ -523,7 +524,10 @@ private fun DeviceCard(
                             )
                         }
                         device.isConnected -> StatusChip(stringResource(Res.string.status_connected), showDot = true)
-                        else -> StatusChip(stringResource(Res.string.status_paired), showDot = false)
+                        device.isPaired -> StatusChip(stringResource(Res.string.status_paired), showDot = false)
+                        // A watched (favourite/flag/left-behind) device that's pinned but has
+                        // gone silent — it isn't paired, so say so rather than mislabel it.
+                        else -> StatusChip(stringResource(Res.string.status_no_signal), showDot = false)
                     }
                     if (rotation != null && rotation.rotations > 0) {
                         Spacer(Modifier.width(8.dp))

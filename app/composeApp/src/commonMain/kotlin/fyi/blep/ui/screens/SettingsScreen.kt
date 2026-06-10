@@ -46,6 +46,7 @@ import fyi.blep.resources.a11y_back
 import fyi.blep.resources.a11y_more_info
 import fyi.blep.AppSettings
 import fyi.blep.ThemeMode
+import fyi.blep.ScanMode
 import fyi.blep.resources.settings_theme_title
 import fyi.blep.resources.theme_dark
 import fyi.blep.resources.theme_light
@@ -73,6 +74,10 @@ import fyi.blep.resources.settings_cat_leftbehind_desc
 import fyi.blep.resources.settings_cat_sync_desc
 import fyi.blep.resources.settings_cat_background
 import fyi.blep.resources.settings_cat_background_desc
+import fyi.blep.resources.settings_scan_mode_title
+import fyi.blep.resources.settings_scan_off
+import fyi.blep.resources.settings_scan_interval
+import fyi.blep.resources.settings_scan_continuous
 import fyi.blep.resources.settings_cat_finding
 import fyi.blep.resources.settings_cat_detection
 import fyi.blep.resources.settings_cat_devices
@@ -154,12 +159,8 @@ fun SettingsScreen(
     onSelectTetherAlert: (TetherAlertDirection) -> Unit,
     storageBytes: Int,
     onClearStorage: () -> Unit,
-    foregroundScan: Boolean,
-    onToggleForeground: (Boolean) -> Unit,
-    watchedCount: Int,
-    onDisableForeground: () -> Unit,
-    backgroundScan: Boolean,
-    onToggleBackground: (Boolean) -> Unit,
+    scanMode: ScanMode,
+    onSetScanMode: (ScanMode) -> Unit,
     intervalMinutes: Int,
     onIntervalChange: (Int) -> Unit,
     syncEnabled: Boolean,
@@ -184,7 +185,6 @@ fun SettingsScreen(
     val requestNotifications = rememberNotificationPermissionRequest()
     val requestLocation = rememberLocationPermissionRequest()
     var showBgInfo by remember { mutableStateOf(false) }
-    var showFgOffConfirm by remember { mutableStateOf(false) }
     var page by remember { mutableStateOf(SettingsCat.HOME) }
     val backLabel = stringResource(Res.string.a11y_back)
     val infoLabel = stringResource(Res.string.a11y_more_info)
@@ -251,19 +251,12 @@ fun SettingsScreen(
                     }
                 }
                 SettingsCat.BACKGROUND -> {
-                    // Tracker scanning off-screen (the "?" explains the two modes' battery tradeoff).
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(stringResource(Res.string.settings_section_background).uppercase(), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f), modifier = Modifier.weight(1f).padding(start = 4.dp))
-                        Text("?", style = MaterialTheme.typography.labelLarge, color = BlepColors.Blue, modifier = Modifier.clip(CircleShape).clickable { showBgInfo = true }.padding(horizontal = 10.dp, vertical = 4.dp).semantics { contentDescription = infoLabel })
-                    }
-                    SettingRow(stringResource(Res.string.settings_foreground_title), stringResource(Res.string.settings_foreground_desc), foregroundScan) { on ->
-                        when {
-                            on -> { requestNotifications(); onToggleForeground(true) }
-                            watchedCount > 0 -> showFgOffConfirm = true // confirm: turning off unwatches all
-                            else -> onToggleForeground(false)
-                        }
-                    }
-                    BackgroundScanRow(backgroundScan, { on -> if (on) requestNotifications(); onToggleBackground(on) }, intervalMinutes, onIntervalChange)
+                    // One tri-state for background tracker scanning (the "?" explains the
+                    // battery tradeoff). Continuous needs the notification permission.
+                    ScanModeSelector(scanMode, { mode -> if (mode == ScanMode.CONTINUOUS) requestNotifications(); onSetScanMode(mode) }, { showBgInfo = true })
+                    // The interval stays visible + editable even when Interval isn't selected,
+                    // since it can be set from the main-screen status modal too.
+                    IntervalRow(intervalMinutes, onIntervalChange, active = scanMode == ScanMode.INTERVAL)
                     // Left-behind alerts also run off the background service, so they live here.
                     Spacer(Modifier.height(6.dp))
                     Text(stringResource(Res.string.settings_tether_title).uppercase(), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f), modifier = Modifier.padding(start = 4.dp))
@@ -300,19 +293,6 @@ fun SettingsScreen(
         )
     }
 
-    if (showFgOffConfirm) {
-        AlertDialog(
-            onDismissRequest = { showFgOffConfirm = false },
-            title = { Text(stringResource(Res.string.watch_disable_fg_title)) },
-            text = { Text(stringResource(Res.string.watch_disable_fg_body)) },
-            confirmButton = {
-                TextButton(onClick = { showFgOffConfirm = false; onDisableForeground() }) {
-                    Text(stringResource(Res.string.fg_status_disable), color = BlepColors.Pink)
-                }
-            },
-            dismissButton = { TextButton(onClick = { showFgOffConfirm = false }) { Text(stringResource(Res.string.action_cancel)) } },
-        )
-    }
 }
 
 /** Slider for how long device identities (rename / flag / first-seen) are remembered
@@ -443,15 +423,10 @@ private fun ProbeAfterRow(minutes: Int, onChange: (Int) -> Unit) {
     }
 }
 
-/** "Scan in the background" toggle with the interval slider nested as a sub-option
- *  (slider on top, small centred label below) when it's on. */
+/** The tri-state background tracker-scan selector: Off / Interval / Continuous. */
 @Composable
-private fun BackgroundScanRow(
-    checked: Boolean,
-    onToggle: (Boolean) -> Unit,
-    intervalMinutes: Int,
-    onIntervalChange: (Int) -> Unit,
-) {
+private fun ScanModeSelector(mode: ScanMode, onSelect: (ScanMode) -> Unit, onInfo: () -> Unit) {
+    val infoLabel = stringResource(Res.string.a11y_more_info)
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
@@ -459,54 +434,69 @@ private fun BackgroundScanRow(
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        stringResource(Res.string.settings_background_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        stringResource(Res.string.settings_background_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f),
-                    )
-                }
-                Spacer(Modifier.width(12.dp))
-                Switch(
-                    checked = checked,
-                    onCheckedChange = onToggle,
-                    colors = SwitchDefaults.colors(checkedThumbColor = BlepColors.Cream, checkedTrackColor = BlepColors.Blue),
-                )
-            }
-            if (checked) {
-                Spacer(Modifier.height(4.dp))
-                val min = AppSettings.INTERVAL_MIN
-                val max = AppSettings.INTERVAL_MAX
-                Slider(
-                    value = intervalMinutes.toFloat(),
-                    onValueChange = { v -> onIntervalChange((v / 15f).roundToInt() * 15) },
-                    valueRange = min.toFloat()..max.toFloat(),
-                    steps = (max - min) / 15 - 1,
-                    colors = SliderDefaults.colors(thumbColor = BlepColors.Blue, activeTrackColor = BlepColors.Blue),
-                )
                 Text(
-                    intervalLabel(intervalMinutes),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    stringResource(Res.string.settings_scan_mode_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f),
                 )
+                Text("?", style = MaterialTheme.typography.labelLarge, color = BlepColors.Blue, modifier = Modifier.clip(CircleShape).clickable(onClick = onInfo).padding(horizontal = 10.dp, vertical = 4.dp).semantics { contentDescription = infoLabel })
             }
-            if (checked && !rememberNotificationsEnabled()) {
-                val requestNotifications = rememberNotificationPermissionRequest()
-                Text(
-                    stringResource(Res.string.settings_notifications_off),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFFE8A33D),
-                    modifier = Modifier.padding(top = 8.dp).clickable { requestNotifications() },
-                )
+            Spacer(Modifier.height(8.dp))
+            Row(
+                Modifier
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.06f))
+                    .padding(2.dp),
+            ) {
+                ThemeChip(stringResource(Res.string.settings_scan_off), mode == ScanMode.OFF) { onSelect(ScanMode.OFF) }
+                ThemeChip(stringResource(Res.string.settings_scan_interval), mode == ScanMode.INTERVAL) { onSelect(ScanMode.INTERVAL) }
+                ThemeChip(stringResource(Res.string.settings_scan_continuous), mode == ScanMode.CONTINUOUS) { onSelect(ScanMode.CONTINUOUS) }
             }
+        }
+    }
+}
+
+/** The interval-timer slider — always visible + editable, dimmed when Interval isn't the
+ *  active mode (it can also be set from the main-screen status modal). */
+@Composable
+private fun IntervalRow(intervalMinutes: Int, onIntervalChange: (Int) -> Unit, active: Boolean) {
+    val dim = if (active) 1f else 0.45f
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                stringResource(Res.string.settings_background_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = dim),
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(Res.string.settings_background_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.55f * dim),
+            )
+            Spacer(Modifier.height(4.dp))
+            val min = AppSettings.INTERVAL_MIN
+            val max = AppSettings.INTERVAL_MAX
+            Slider(
+                value = intervalMinutes.toFloat(),
+                onValueChange = { v -> onIntervalChange((v / 15f).roundToInt() * 15) },
+                valueRange = min.toFloat()..max.toFloat(),
+                steps = (max - min) / 15 - 1,
+                colors = SliderDefaults.colors(thumbColor = BlepColors.Blue, activeTrackColor = BlepColors.Blue),
+            )
+            Text(
+                intervalLabel(intervalMinutes),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
         }
     }
 }

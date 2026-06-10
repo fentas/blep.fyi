@@ -5,6 +5,7 @@
     <string name="section_nearby">Por perto</string>
     <string name="status_connected">Ligado</string>
     <string name="status_paired">Emparelhado</string>
+    <string name="status_no_signal">Sem sinal</string>
     <string name="hide_unnamed">Ocultar dispositivos sem nome</string>
     <string name="show_unnamed_one">Mostrar %1$d dispositivo sem nome</string>
     <string name="show_unnamed_many">Mostrar %1$d dispositivos sem nome</string>
@@ -316,4 +317,8 @@
     <string name="flag_explainer_body">Vigiar aumenta a prioridade deste dispositivo, para que o blep continue a encontrá-lo mesmo quando muda o ID de Bluetooth, e te avise quando estiver perto. Um serviço em primeiro plano corre enquanto ativo (notificação contínua).</string>
     <string name="settings_cat_background">Serviço em segundo plano</string>
     <string name="settings_cat_background_desc">Procura de rastreadores, verificações temporizadas e alertas de esquecimento com o blep fechado</string>
+    <string name="settings_scan_mode_title">Procurar rastreadores</string>
+    <string name="settings_scan_off">Desligado</string>
+    <string name="settings_scan_interval">Intervalo</string>
+    <string name="settings_scan_continuous">Contínuo</string>
 </resources>

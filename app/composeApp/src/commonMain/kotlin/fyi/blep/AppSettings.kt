@@ -15,6 +15,27 @@ enum class ThemeMode {
 }
 
 /**
+ * How hard blep looks for trackers while you're not in the app — one tri-state instead of
+ * two overlapping toggles. [CONTINUOUS] supersedes [INTERVAL] (you'd never run both).
+ * Left-behind/flag watching is separate and always-auto; it can keep the foreground service
+ * alive on its own (in watch-only mode) regardless of this.
+ */
+enum class ScanMode {
+    /** No background tracker scanning. */
+    OFF,
+
+    /** Periodic WorkManager checks while blep is closed — lighter on battery, can miss things. */
+    INTERVAL,
+
+    /** A continuous foreground-service scan — best detection, more battery. */
+    CONTINUOUS;
+
+    companion object {
+        fun fromName(name: String?): ScanMode? = entries.firstOrNull { it.name == name }
+    }
+}
+
+/**
  * Persisted app preferences shown on the Settings screen. Thin typed wrapper over
  * [KeyValueStore]; the controller reads these as the live values (the inline
  * toggles on Discovery/Tracking write through to here too). "Remember trackers"
@@ -43,14 +64,24 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
     fun flagExplainerDismissed(): Boolean = store.getBoolean(KEY_FLAG_EXPLAINED, false)
     fun setFlagExplainerDismissed(on: Boolean) = store.putBoolean(KEY_FLAG_EXPLAINED, on)
 
-    // ── Background safety scanning (default off; asks permission on activate) ──
-    /** Keep the safety scan alive when you leave the app (foreground service). */
-    fun foregroundScan(): Boolean = store.getBoolean(KEY_FG, false)
-    fun setForegroundScan(on: Boolean) = store.putBoolean(KEY_FG, on)
+    // ── Background tracker scanning (default off; asks permission on activate) ──
+    /** The tri-state scan mode. Migrates the old two booleans (foreground → CONTINUOUS,
+     *  background → INTERVAL) the first time, until [setScanMode] writes the new key. */
+    fun scanMode(): ScanMode {
+        ScanMode.fromName(store.getString(KEY_SCAN_MODE))?.let { return it }
+        return when {
+            store.getBoolean(KEY_FG, false) -> ScanMode.CONTINUOUS
+            store.getBoolean(KEY_BG, false) -> ScanMode.INTERVAL
+            else -> ScanMode.OFF
+        }
+    }
+    fun setScanMode(mode: ScanMode) = store.putString(KEY_SCAN_MODE, mode.name)
 
-    /** Periodic safety scan while the app is closed (WorkManager). */
-    fun backgroundScan(): Boolean = store.getBoolean(KEY_BG, false)
-    fun setBackgroundScan(on: Boolean) = store.putBoolean(KEY_BG, on)
+    /** Continuous foreground tracker scan is on (the "tracker scan" the service runs). */
+    fun foregroundScan(): Boolean = scanMode() == ScanMode.CONTINUOUS
+
+    /** Periodic interval tracker scan is on. */
+    fun backgroundScan(): Boolean = scanMode() == ScanMode.INTERVAL
 
     /** Periodic interval in minutes, clamped to [INTERVAL_MIN]..[INTERVAL_MAX]
      *  ([INTERVAL_MIN] is WorkManager's hard floor for periodic work). */
@@ -115,6 +146,7 @@ class AppSettings(private val store: KeyValueStore = createKeyValueStore()) {
         private const val KEY_HAPTICS = "settings.haptics"
         private const val KEY_UNNAMED = "settings.showUnnamed"
         private const val KEY_FG = "settings.foregroundScan"
+        private const val KEY_SCAN_MODE = "settings.scanMode"
         private const val KEY_WATCH_EXPLAINED = "settings.watchExplainerDismissed"
         private const val KEY_FLAG_EXPLAINED = "settings.flagExplainerDismissed"
         private const val KEY_BG = "settings.backgroundScan"

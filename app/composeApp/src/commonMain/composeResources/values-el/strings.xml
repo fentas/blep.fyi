@@ -5,6 +5,7 @@
     <string name="section_nearby">Κοντά</string>
     <string name="status_connected">Συνδεδεμένο</string>
     <string name="status_paired">Συζευγμένο</string>
+    <string name="status_no_signal">Χωρίς σήμα</string>
     <string name="hide_unnamed">Απόκρυψη ανώνυμων συσκευών</string>
     <string name="show_unnamed_one">Εμφάνιση %1$d ανώνυμης συσκευής</string>
     <string name="show_unnamed_many">Εμφάνιση %1$d ανώνυμων συσκευών</string>
@@ -316,4 +317,8 @@
     <string name="flag_explainer_body">Η παρακολούθηση αυξάνει την προτεραιότητα αυτής της συσκευής, ώστε το blep να συνεχίζει να την βρίσκει ακόμη κι όταν αλλάζει το Bluetooth ID της, και να σας ειδοποιεί όταν είναι κοντά. Μια υπηρεσία προσκηνίου εκτελείται όσο είναι ενεργή (συνεχής ειδοποίηση).</string>
     <string name="settings_cat_background">Υπηρεσία παρασκηνίου</string>
     <string name="settings_cat_background_desc">Σάρωση ιχνηλατών, χρονισμένοι έλεγχοι και ειδοποιήσεις παράλειψης όσο το blep είναι κλειστό</string>
+    <string name="settings_scan_mode_title">Σάρωση για ιχνηλάτες</string>
+    <string name="settings_scan_off">Ανενεργό</string>
+    <string name="settings_scan_interval">Διάστημα</string>
+    <string name="settings_scan_continuous">Συνεχής</string>
 </resources>

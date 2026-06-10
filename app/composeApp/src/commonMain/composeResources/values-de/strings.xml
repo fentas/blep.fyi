@@ -6,6 +6,7 @@
     <string name="section_nearby">In der Nähe</string>
     <string name="status_connected">Verbunden</string>
     <string name="status_paired">Gekoppelt</string>
+    <string name="status_no_signal">Kein Signal</string>
     <string name="hide_unnamed">Unbenannte Geräte ausblenden</string>
     <string name="show_unnamed_one">%1$d unbenanntes Gerät anzeigen</string>
     <string name="show_unnamed_many">%1$d unbenannte Geräte anzeigen</string>
@@ -317,4 +318,8 @@
     <string name="flag_explainer_body">Beobachten erhöht die Priorität dieses Geräts, sodass blep es auch beim Wechseln seiner Bluetooth-ID immer wieder findet und dich benachrichtigt, wenn es in der Nähe ist. Ein Vordergrunddienst läuft, solange aktiv (laufende Benachrichtigung).</string>
     <string name="settings_cat_background">Hintergrunddienst</string>
     <string name="settings_cat_background_desc">Tracker-Suche, zeitgesteuerte Checks und Zurücklassen-Warnungen, während blep geschlossen ist</string>
+    <string name="settings_scan_mode_title">Nach Trackern suchen</string>
+    <string name="settings_scan_off">Aus</string>
+    <string name="settings_scan_interval">Intervall</string>
+    <string name="settings_scan_continuous">Kontinuierlich</string>
 </resources>

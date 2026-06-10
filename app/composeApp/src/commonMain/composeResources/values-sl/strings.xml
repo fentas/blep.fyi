@@ -5,6 +5,7 @@
     <string name="section_nearby">V bližini</string>
     <string name="status_connected">Povezano</string>
     <string name="status_paired">Seznanjeno</string>
+    <string name="status_no_signal">Ni signala</string>
     <string name="hide_unnamed">Skrij neimenovane naprave</string>
     <string name="show_unnamed_one">Pokaži %1$d neimenovano napravo</string>
     <string name="show_unnamed_many">Pokaži %1$d neimenovanih naprav</string>
@@ -316,4 +317,8 @@
     <string name="flag_explainer_body">Nadzor poveča prednost te naprave, tako da jo blep še naprej najde, tudi ko zamenja svoj Bluetooth ID, in vas obvesti, ko je blizu. Storitev v ospredju teče, dokler je dejavna (trajno obvestilo).</string>
     <string name="settings_cat_background">Storitev v ozadju</string>
     <string name="settings_cat_background_desc">Iskanje sledilnikov, časovni pregledi in opozorila o pozabljenem, ko je blep zaprt</string>
+    <string name="settings_scan_mode_title">Iskanje sledilnikov</string>
+    <string name="settings_scan_off">Izklopljeno</string>
+    <string name="settings_scan_interval">Interval</string>
+    <string name="settings_scan_continuous">Neprekinjeno</string>
 </resources>

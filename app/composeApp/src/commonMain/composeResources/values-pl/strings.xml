@@ -5,6 +5,7 @@
     <string name="section_nearby">W pobliżu</string>
     <string name="status_connected">Połączono</string>
     <string name="status_paired">Sparowano</string>
+    <string name="status_no_signal">Brak sygnału</string>
     <string name="hide_unnamed">Ukryj urządzenia bez nazwy</string>
     <string name="show_unnamed_one">Pokaż %1$d urządzenie bez nazwy</string>
     <string name="show_unnamed_many">Pokaż %1$d urządzeń bez nazwy</string>
@@ -316,4 +317,8 @@
     <string name="flag_explainer_body">Obserwacja zwiększa priorytet tego urządzenia, więc blep wciąż je odnajduje, nawet gdy zmienia identyfikator Bluetooth, i powiadamia, gdy jest w pobliżu. Usługa pierwszoplanowa działa, gdy aktywna (trwałe powiadomienie).</string>
     <string name="settings_cat_background">Usługa w tle</string>
     <string name="settings_cat_background_desc">Wyszukiwanie lokalizatorów, zaplanowane sprawdzenia i alerty pozostawienia, gdy blep jest zamknięty</string>
+    <string name="settings_scan_mode_title">Szukaj lokalizatorów</string>
+    <string name="settings_scan_off">Wył.</string>
+    <string name="settings_scan_interval">Interwał</string>
+    <string name="settings_scan_continuous">Ciągły</string>
 </resources>

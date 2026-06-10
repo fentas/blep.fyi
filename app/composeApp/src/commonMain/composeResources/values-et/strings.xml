@@ -5,6 +5,7 @@
     <string name="section_nearby">Lähedal</string>
     <string name="status_connected">Ühendatud</string>
     <string name="status_paired">Seotud</string>
+    <string name="status_no_signal">Signaal puudub</string>
     <string name="hide_unnamed">Peida nimeta seadmed</string>
     <string name="show_unnamed_one">Näita %1$d nimeta seadet</string>
     <string name="show_unnamed_many">Näita %1$d nimeta seadet</string>
@@ -316,4 +317,8 @@
     <string name="flag_explainer_body">Jälgimine tõstab selle seadme prioriteeti, nii et blep leiab selle ikka üles, isegi kui see vahetab Bluetoothi ID-d, ja teavitab, kui see on lähedal. Esiplaani teenus töötab, kuni aktiivne (püsiv teavitus).</string>
     <string name="settings_cat_background">Taustateenus</string>
     <string name="settings_cat_background_desc">Jälitajate otsing, ajastatud kontrollid ja mahajätmise hoiatused, kui blep on suletud</string>
+    <string name="settings_scan_mode_title">Otsi jälitajaid</string>
+    <string name="settings_scan_off">Väljas</string>
+    <string name="settings_scan_interval">Intervall</string>
+    <string name="settings_scan_continuous">Pidev</string>
 </resources>

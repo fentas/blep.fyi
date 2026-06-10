@@ -5,6 +5,7 @@
     <string name="section_nearby">近く</string>
     <string name="status_connected">接続済み</string>
     <string name="status_paired">ペアリング済み</string>
+    <string name="status_no_signal">信号なし</string>
     <string name="hide_unnamed">名前のないデバイスを隠す</string>
     <string name="show_unnamed_one">名前のないデバイスを %1$d 台表示</string>
     <string name="show_unnamed_many">名前のないデバイスを %1$d 台表示</string>
@@ -316,4 +317,8 @@
     <string name="flag_explainer_body">見守ると、このデバイスの優先度が上がり、Bluetooth IDが変わってもblepが見つけ続け、近くにいると通知します。有効な間はフォアグラウンドサービスが動作します（常時通知）。</string>
     <string name="settings_cat_background">バックグラウンドサービス</string>
     <string name="settings_cat_background_desc">blep を閉じている間のトラッカー検出、定期チェック、置き忘れアラート</string>
+    <string name="settings_scan_mode_title">トラッカーを検出</string>
+    <string name="settings_scan_off">オフ</string>
+    <string name="settings_scan_interval">間隔</string>
+    <string name="settings_scan_continuous">連続</string>
 </resources>

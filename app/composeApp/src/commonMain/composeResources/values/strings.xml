@@ -8,6 +8,7 @@
     <string name="section_nearby">Nearby</string>
     <string name="status_connected">Connected</string>
     <string name="status_paired">Paired</string>
+    <string name="status_no_signal">No signal</string>
     <string name="hide_unnamed">Hide unnamed devices</string>
     <string name="show_unnamed_one">Show %1$d unnamed device</string>
     <string name="show_unnamed_many">Show %1$d unnamed devices</string>
@@ -338,4 +339,8 @@
     <string name="flag_explainer_body">Watching raises this device's priority so blep keeps re-finding it even when it rotates its Bluetooth ID, and alerts you whenever it's nearby. A foreground service runs while active (ongoing notification).</string>
     <string name="settings_cat_background">Background service</string>
     <string name="settings_cat_background_desc">Tracker scanning, timed checks and left-behind alerts while blep is closed</string>
+    <string name="settings_scan_mode_title">Scan for trackers</string>
+    <string name="settings_scan_off">Off</string>
+    <string name="settings_scan_interval">Interval</string>
+    <string name="settings_scan_continuous">Continuous</string>
 </resources>
