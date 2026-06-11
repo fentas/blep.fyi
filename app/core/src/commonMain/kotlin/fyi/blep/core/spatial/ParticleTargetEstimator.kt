@@ -155,8 +155,11 @@ class ParticleTargetEstimator(
         val semiMajor = sqrt(max(0.0, tr / 2 + disc))
         val semiMinor = sqrt(max(0.0, tr / 2 - disc))
         val angle = 0.5 * atan2(2 * sxy, sxx - syy)
-        // Confidence falls as the cloud's larger horizontal spread grows.
-        val confidence = (1.0 / (1.0 + semiMajor / 3.0)).coerceIn(0.0, 1.0).toFloat()
+        // Confidence falls as the cloud's larger horizontal spread grows. NaN-poisoned
+        // input (a NaN weight or position) must not escape here — coerceIn passes NaN
+        // through — so it degrades to "no confidence" instead.
+        val c = 1.0 / (1.0 + semiMajor / 3.0)
+        val confidence = if (c.isNaN()) 0f else c.coerceIn(0.0, 1.0).toFloat()
         return Estimate(Vec2(mx, my), mz, semiMajor, semiMinor, angle, sqrt(max(0.0, szz)), confidence)
     }
 }

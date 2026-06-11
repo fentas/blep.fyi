@@ -72,6 +72,7 @@ private const val NOTI_ONGOING = 1002
 private const val NOTI_FLAGGED = 1003
 private const val NOTI_TETHER_BASE = 2000               // + per-device hash, so devices don't collide
 private const val SCAN_WINDOW_MS = 20_000L
+private const val BONDED_REFRESH_MS = 30_000L
 
 actual object BackgroundScan {
     actual fun applyPeriodic(enabled: Boolean, intervalMinutes: Int) {
@@ -217,12 +218,20 @@ class BackgroundScanService : Service() {
             val needScan = flagStore.ids().isNotEmpty() || (tetherStore.ids() - bondedStart).isNotEmpty()
             if (needScan) {
                 launch {
+                    // The bonded set can change while the service runs (a new pairing), but a
+                    // Bluetooth-stack IPC per scan emission is waste — refresh it on a timer.
+                    var bonded = bondedStart
+                    var bondedAtMs = android.os.SystemClock.elapsedRealtime()
                     runCatching {
                         scanner.devices(includeUnnamed = true, measureConnectedSignal = false).collect { list ->
                             val here = list.firstOrNull { it.id in flagStore.ids() && it.isPresent }
                             if (here != null) notifyFlagged(this@BackgroundScanService, text, aliasStore.of(here.id) ?: here.displayName)
                             else cancelFlagged(this@BackgroundScanService)
-                            val bonded = runCatching { btAdapter?.bondedDevices?.map { it.address }?.toSet() }.getOrNull().orEmpty()
+                            val tick = android.os.SystemClock.elapsedRealtime()
+                            if (tick - bondedAtMs >= BONDED_REFRESH_MS) {
+                                bonded = runCatching { btAdapter?.bondedDevices?.map { it.address }?.toSet() }.getOrNull() ?: bonded
+                                bondedAtMs = tick
+                            }
                             checkTethers(this@BackgroundScanService, text, list, tetherStore, presence, aliasStore, AppSettings().tetherAlert(), bonded, onEvent = { relay(it) })
                         }
                     }

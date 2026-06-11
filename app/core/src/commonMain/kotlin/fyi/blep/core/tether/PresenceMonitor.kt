@@ -51,7 +51,7 @@ class PresenceMonitor(
             val prev = recs[id]
             val present = id in presentIds
             // Sanitised latest label, falling back to whatever we last knew.
-            val label = labels[id]?.replace('\t', ' ')?.replace('\n', ' ')?.takeIf { it.isNotBlank() }
+            val label = labels[id]?.replace('\t', ' ')?.replace('\n', ' ')?.replace('\r', ' ')?.takeIf { it.isNotBlank() }
                 ?: prev?.label.orEmpty()
             when {
                 prev == null -> {

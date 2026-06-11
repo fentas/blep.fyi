@@ -199,7 +199,8 @@ class GuidanceStabilizer(
             return cue
         }
         // A reversal: only switch once the new direction has held for persistTicks.
-        if (pending != null && abs(angleDelta(cue.worldBearingRad, pending!!)) < adoptDeltaRad) {
+        val held = pending
+        if (held != null && abs(angleDelta(cue.worldBearingRad, held)) < adoptDeltaRad) {
             pendingCount++
         } else {
             pending = cue.worldBearingRad; pendingCount = 1

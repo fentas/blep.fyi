@@ -34,6 +34,12 @@ interface SyncSink {
  * replica it merges (last-write-wins) and writes the result back into the local stores.
  * Convergence is loop-free: [SyncState.merge] is idempotent and a no-change merge neither
  * re-applies nor re-publishes. Every category is gated by [SyncSettings].
+ *
+ * **Threading:** not internally synchronized. The mutable [state] is touched by
+ * [localChanged] (caller's thread) and [onIncoming] (a collector launched in [scope]), so
+ * both must run on the same single-threaded dispatcher: pass a main-confined [scope] (both
+ * controllers use Compose's `rememberCoroutineScope()`) and call [localChanged]/[send]
+ * from that thread only.
  */
 class SyncManager(
     private val transport: SyncTransport,
