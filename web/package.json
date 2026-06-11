@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "gen:icons": "node scripts/gen-icons.mjs"
+    "gen:icons": "node scripts/gen-icons.mjs",
+    "gen:shots": "node scripts/gen-shots.mjs"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",

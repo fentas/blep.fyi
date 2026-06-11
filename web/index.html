@@ -6,11 +6,18 @@
     <title>blep — find your lost Bluetooth things</title>
     <meta name="description" content="blep guides you to nearby Bluetooth devices by signal strength — calibrate, sweep, walk, done. iOS, Android & watch." />
     <meta name="theme-color" content="#5F90C3" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14181d" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href="https://blep.fyi/" />
     <meta property="og:title" content="blep — BLE Pointer & Tracker" />
     <meta property="og:description" content="Find your lost Bluetooth things — guided by signal strength." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://blep.fyi/" />
+    <meta property="og:image" content="https://blep.fyi/brand/social.png" />
+    <meta property="og:image:width" content="1024" />
+    <meta property="og:image:height" content="500" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://blep.fyi/brand/social.png" />
     <!-- Apply the saved theme before paint to avoid a flash. -->
     <script>
       try { var t = localStorage.getItem('blep-theme'); if (t) document.documentElement.classList.add(t); } catch (e) {}
@@ -18,17 +25,19 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body class="min-h-dvh bg-mist text-ink antialiased selection:bg-pink/40">
+    <a href="#top" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-card focus:px-4 focus:py-2 focus:shadow">Skip to content</a>
     <!-- Header -->
     <header class="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
       <a href="#top" class="flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
         <img src="/logo.svg" alt="" class="h-8 w-8" /> blep
       </a>
-      <div class="flex items-center gap-1">
+      <nav class="flex items-center gap-1" aria-label="Site">
         <button id="theme-toggle" type="button" aria-label="Toggle dark mode"
           class="flex h-9 w-9 items-center justify-center rounded-full text-lg leading-none transition hover:bg-ink/10 active:scale-95">🌙</button>
         <a href="/guide.html" class="rounded-full px-3 py-2 text-sm font-medium text-ink/60 transition hover:text-ink">Guide</a>
+        <a href="/platforms.html" class="hidden rounded-full px-3 py-2 text-sm font-medium text-ink/60 transition hover:text-ink sm:inline-block">Platforms</a>
         <a href="https://github.com/fentas/blep.fyi" class="rounded-full px-3 py-2 text-sm font-medium text-ink/60 transition hover:text-ink">GitHub</a>
-      </div>
+      </nav>
     </header>
 
     <!-- Hero -->
@@ -86,6 +95,61 @@
         <a class="font-semibold text-blue hover:underline" href="/guide.html">Read the guide →</a>
       </p>
 
+      <!-- Screenshots -->
+      <section aria-label="App screenshots" class="pb-20">
+        <h2 class="text-center font-display text-3xl font-bold tracking-tight">See it in action</h2>
+        <div class="mt-8 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 [scrollbar-width:thin]">
+          <img src="/shots/01.webp" width="480" height="853" loading="lazy" alt="blep screenshot — the nearby list: every Bluetooth thing around you, sorted by signal" class="w-56 shrink-0 snap-center rounded-2xl shadow-sm ring-1 ring-ink/10 sm:w-60" />
+          <img src="/shots/02.webp" width="480" height="853" loading="lazy" alt="blep screenshot — the warm/cold pointer with the radar and a turn hint" class="w-56 shrink-0 snap-center rounded-2xl shadow-sm ring-1 ring-ink/10 sm:w-60" />
+          <img src="/shots/03.webp" width="480" height="853" loading="lazy" alt="blep screenshot — 'Right here?': standing on top of the device" class="w-56 shrink-0 snap-center rounded-2xl shadow-sm ring-1 ring-ink/10 sm:w-60" />
+          <img src="/shots/05.webp" width="480" height="853" loading="lazy" alt="blep screenshot — the anti-tracking scan flagging a tracker that may be following you" class="w-56 shrink-0 snap-center rounded-2xl shadow-sm ring-1 ring-ink/10 sm:w-60" />
+          <img src="/shots/07.webp" width="480" height="853" loading="lazy" alt="blep screenshot — the device panel: signal, rotating-id history and device info" class="w-56 shrink-0 snap-center rounded-2xl shadow-sm ring-1 ring-ink/10 sm:w-60" />
+          <img src="/shots/06.webp" width="480" height="853" loading="lazy" alt="blep screenshot — dark mode" class="w-56 shrink-0 snap-center rounded-2xl shadow-sm ring-1 ring-ink/10 sm:w-60" />
+          <img src="/shots/04.webp" width="480" height="853" loading="lazy" alt="blep screenshot — 'Reunited!' celebration after finding a device" class="w-56 shrink-0 snap-center rounded-2xl shadow-sm ring-1 ring-ink/10 sm:w-60" />
+        </div>
+      </section>
+
+      <!-- Feature grid -->
+      <section aria-label="Features" class="pb-20">
+        <h2 class="text-center font-display text-3xl font-bold tracking-tight">More than a finder</h2>
+        <p class="mx-auto mt-3 max-w-xl text-center text-ink/70">
+          The same scan that finds your things also protects you from someone else's.
+          All of it on-device — no account, no cloud, no ads.
+        </p>
+        <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <a href="/guide.html#safety" class="feature">
+            <span class="feature-icon">🛡</span>
+            <h3 class="feature-title">Anti-tracking scan</h3>
+            <p class="feature-body">Catches an AirTag, Tile or SmartTag travelling with you — then walks you right to it so you can remove it.</p>
+          </a>
+          <a href="/device-recognition.html" class="feature">
+            <span class="feature-icon">🔁</span>
+            <h3 class="feature-title">Sees through rotating IDs</h3>
+            <p class="feature-body">Privacy trackers change their Bluetooth address constantly. blep recognises the same physical device anyway.</p>
+          </a>
+          <a href="/background-scanning.html" class="feature">
+            <span class="feature-icon">🌙</span>
+            <h3 class="feature-title">Watches in the background</h3>
+            <p class="feature-body">Off, a battery-friendly timer, or a continuous watch — your choice, with a notification when something's off.</p>
+          </a>
+          <a href="/platforms.html" class="feature">
+            <span class="feature-icon">⌚</span>
+            <h3 class="feature-title">On your wrist</h3>
+            <p class="feature-body">Companion apps for Wear OS &amp; Apple Watch. On Android, phone and watch stay in sync — names, favourites, alerts.</p>
+          </a>
+          <a href="/platforms.html" class="feature">
+            <span class="feature-icon">🎒</span>
+            <h3 class="feature-title">Left-behind alerts</h3>
+            <p class="feature-body">Tether your bag, keys or wallet and get a nudge the moment you walk away without them.</p>
+          </a>
+          <a href="/privacy.html" class="feature">
+            <span class="feature-icon">🔒</span>
+            <h3 class="feature-title">Private by design</h3>
+            <p class="feature-body">No accounts, no analytics, no internet. Scans, sensors and history never leave your device.</p>
+          </a>
+        </div>
+      </section>
+
       <!-- Donate (target of the app's "Help & donate" button). -->
       <section id="donate" class="mb-24 scroll-mt-24 rounded-[28px] bg-card p-10 text-center shadow-sm">
         <div class="text-4xl">♥</div>
@@ -132,6 +196,7 @@
       Made with care · <a class="underline-offset-2 hover:underline" href="https://github.com/fentas/blep.fyi">github.com/fentas/blep.fyi</a>
       · <a class="underline-offset-2 hover:underline" href="/guide.html">Guide</a>
       · <a class="underline-offset-2 hover:underline" href="/platforms.html">Platforms</a>
+      · <a class="underline-offset-2 hover:underline" href="/donate.html">Donate</a>
       · <a class="underline-offset-2 hover:underline" href="/privacy.html">Privacy</a>
     </footer>
 

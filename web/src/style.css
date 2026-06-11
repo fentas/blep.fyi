@@ -61,6 +61,19 @@
     @apply inline-flex items-center rounded-full border border-ink/15 px-6 py-3 font-medium text-ink transition hover:bg-ink/5 active:scale-[0.98];
   }
 
+  .feature {
+    @apply flex flex-col items-start rounded-[24px] bg-card p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99];
+  }
+  .feature-icon {
+    @apply text-2xl;
+  }
+  .feature-title {
+    @apply mt-3 font-display text-lg font-semibold tracking-tight;
+  }
+  .feature-body {
+    @apply mt-1.5 text-sm leading-relaxed text-ink/70;
+  }
+
   .donate-card {
     @apply flex flex-col items-start rounded-2xl border border-ink/10 bg-mist px-5 py-4 text-left transition hover:border-blue hover:bg-card active:scale-[0.99];
   }

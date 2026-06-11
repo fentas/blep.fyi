@@ -16,6 +16,7 @@ export default defineConfig({
         donate: 'donate.html',
         platforms: 'platforms.html',
         privacy: 'privacy.html',
+        notFound: '404.html',
       },
     },
   },

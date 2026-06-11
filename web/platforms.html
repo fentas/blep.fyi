@@ -6,11 +6,16 @@
     <title>Platforms — blep</title>
     <meta name="description" content="What blep can do on each device — Android phone, iPhone, Wear OS and Apple Watch — and why the hardware and OS make them differ." />
     <meta name="theme-color" content="#5F90C3" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14181d" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href="https://blep.fyi/platforms.html" />
     <meta property="og:title" content="Platforms — blep" />
     <meta property="og:description" content="What blep can do on Android, iPhone, Wear OS and Apple Watch — a plain comparison." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://blep.fyi/platforms.html" />
+    <meta property="og:image" content="https://blep.fyi/brand/social.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://blep.fyi/brand/social.png" />
     <script>
       try { var t = localStorage.getItem('blep-theme'); if (t) document.documentElement.classList.add(t); } catch (e) {}
     </script>
@@ -185,20 +190,6 @@
       </aside>
     </div>
 
-    <script type="module" src="/src/theme.js"></script>
-    <script type="module">
-      const spy = [...document.querySelectorAll('[data-spy]')]
-      const setActive = (id) => spy.forEach((a) => {
-        const on = a.getAttribute('href') === '#' + id
-        a.classList.toggle('text-blue', on)
-        a.classList.toggle('font-semibold', on)
-        if (a.classList.contains('border-l')) a.classList.toggle('border-blue', on)
-      })
-      const obs = new IntersectionObserver((entries) => {
-        const vis = entries.filter((e) => e.isIntersecting).sort((a, b) => a.target.offsetTop - b.target.offsetTop)
-        if (vis[0]) setActive(vis[0].target.id)
-      }, { rootMargin: '0px 0px -72% 0px' })
-      document.querySelectorAll('main section[id]').forEach((s) => obs.observe(s))
-    </script>
+    <script type="module" src="/src/docs.js"></script>
   </body>
 </html>
