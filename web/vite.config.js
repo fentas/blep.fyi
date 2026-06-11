@@ -17,6 +17,8 @@ export default defineConfig({
         platforms: 'platforms.html',
         privacy: 'privacy.html',
         notFound: '404.html',
+        blog: 'blog.html',
+        blogSim: 'blog/simulating-the-finder.html',
       },
     },
   },

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Teaching a virtual user to find fake keys — blep blog</title>
+    <meta name="description" content="How blep regression-tests warm/cold Bluetooth guidance without a single real packet: a simulated world, a virtual user that reads the on-screen hints, and a CI gate on 13 scenarios." />
+    <meta name="theme-color" content="#5F90C3" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14181d" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href="https://blep.fyi/blog/simulating-the-finder.html" />
+    <meta property="og:title" content="Teaching a virtual user to find fake keys" />
+    <meta property="og:description" content="How blep regression-tests Bluetooth guidance on a plain JVM — fake physics, a virtual user that obeys the screen, and a 13-scenario CI gate." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://blep.fyi/blog/simulating-the-finder.html" />
+    <meta property="og:image" content="https://blep.fyi/brand/social.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://blep.fyi/brand/social.png" />
+    <script>
+      try { var t = localStorage.getItem('blep-theme'); if (t) document.documentElement.classList.add(t); } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body class="min-h-dvh bg-mist text-ink antialiased selection:bg-pink/40">
+    <header class="sticky top-0 z-30 border-b border-ink/10 bg-mist/80 backdrop-blur">
+      <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+        <a href="/" class="flex items-center gap-2 font-display text-xl font-bold tracking-tight">
+          <img src="/logo.svg" alt="" class="h-7 w-7" /> blep
+          <span class="font-normal text-ink/40">/ blog</span>
+        </a>
+        <div class="flex items-center gap-1">
+          <button id="theme-toggle" type="button" aria-label="Toggle dark mode"
+            class="flex h-9 w-9 items-center justify-center rounded-full text-lg leading-none transition hover:bg-ink/10 active:scale-95">🌙</button>
+          <a href="https://github.com/fentas/blep.fyi" class="rounded-full px-3 py-2 text-sm font-medium text-ink/60 transition hover:text-ink">GitHub</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="mx-auto flex max-w-7xl gap-8 px-4 sm:px-6">
+      <!-- Left sidebar -->
+      <aside class="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-56 shrink-0 self-start overflow-y-auto py-8 pr-3 lg:block">
+        <nav class="text-sm">
+          <p class="px-2 text-xs font-semibold uppercase tracking-wide text-ink/40">Blog</p>
+          <ul class="mt-2 space-y-0.5">
+            <li><a href="/blog.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">All posts</a></li>
+            <li><a href="/blog/simulating-the-finder.html" class="block rounded-md px-2 py-1.5 font-semibold text-blue">Simulating the finder</a></li>
+          </ul>
+          <p class="mt-6 px-2 text-xs font-semibold uppercase tracking-wide text-ink/40">Using blep</p>
+          <ul class="mt-2 space-y-0.5">
+            <li><a href="/guide.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Guide</a></li>
+            <li><a href="/device-recognition.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Device recognition</a></li>
+            <li><a href="/background-scanning.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Background scanning</a></li>
+            <li><a href="/platforms.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Platforms</a></li>
+          </ul>
+          <p class="mt-6 px-2 text-xs font-semibold uppercase tracking-wide text-ink/40">More</p>
+          <ul class="mt-2 space-y-0.5">
+            <li><a href="/" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Home</a></li>
+            <li><a href="/donate.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Donate</a></li>
+            <li><a href="/privacy.html" class="block rounded-md px-2 py-1.5 text-ink/70 transition hover:bg-ink/5 hover:text-ink">Privacy</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Main content -->
+      <main class="doc min-w-0 flex-1 py-8 lg:py-10">
+        <p class="text-xs font-semibold uppercase tracking-wide text-blue">Blog · 11 June 2026</p>
+        <h1 class="mt-1 font-display text-4xl font-bold tracking-tight">Teaching a virtual user to find fake keys</h1>
+        <p class="mt-4 text-lg text-ink/70">
+          blep guides you to a lost Bluetooth device by signal strength — warmer, colder,
+          turn left, walk. The awkward part: how do you <em>test</em> that? You can't
+          unit-test a hallway. Here's how blep regression-tests the whole experience on a
+          plain JVM, without a single real Bluetooth packet.
+        </p>
+
+        <section id="problem" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            You can't unit-test a hallway
+            <a href="#problem" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">
+            RSSI — the signal-strength number every Bluetooth scan gives you — is noisy,
+            multipath-riddled, and shaped by whatever's between you and the device,
+            including your own body. blep's guidance is a feedback loop on top of that
+            mess: filter the signal, detect the trend, decide a phase
+            (calibrate → sweep → walk → pinpoint), say something useful on screen.
+          </p>
+          <p class="mt-4 text-ink/80">
+            Tune one threshold and you've changed the behaviour of the whole loop. Testing
+            that by pacing an actual corridor with actual keys takes twenty minutes per
+            attempt, isn't reproducible, and definitely doesn't run in CI. For a long time
+            the choice seemed to be: ship tuning changes on vibes, or don't ship them.
+          </p>
+          <p class="mt-4 text-ink/80">
+            But blep's core is deliberately <strong>pure Kotlin with zero platform
+            dependencies</strong> — the same engine compiles for Android, iOS, Wear OS and
+            watchOS. Nothing in the tracking loop knows what a Bluetooth stack is; it just
+            consumes <code>(rssi, heading, steps)</code> samples. And anything that consumes
+            plain numbers can be fed <em>simulated</em> numbers.
+          </p>
+        </section>
+
+        <section id="world" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            A pocket universe in ~80 lines
+            <a href="#world" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">
+            The simulator's <code>World</code> is a tiny physics model that produces one
+            thing: the integer dBm a phone would read at your current position and heading.
+            It stacks the effects that matter in real life:
+          </p>
+          <ul class="mt-3 space-y-2 text-ink/80">
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Log-distance path loss</strong> — the textbook <code>txAt1m − 10·n·log₁₀(d)</code> falloff, with a tunable environment exponent.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Body shielding</strong> — a cosine lobe that attenuates up to ~10 dB when the target is behind you. This is the effect blep's whole technique rides on, so the simulation must model it.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Walls</strong> — line segments that knock ~16 dB off any reading whose line-of-sight crosses them.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Forest canopy</strong> — position-dependent fading (interfering sine fields), the "why is it cold here but warm two steps away" effect.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Slopes and floors</strong> — the world is 3-D, so "one floor up" is a real, structurally unsolvable scenario (you can't walk through a ceiling).</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong>A moving target</strong> — the device itself can drift, like a tag on a wandering dog.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong>Deterministic noise</strong> — interfering sines instead of a random generator, so every run of a scenario is exactly reproducible. A flaky physics test helps nobody.</span></li>
+          </ul>
+        </section>
+
+        <section id="user" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            The user is a regex
+            <a href="#user" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">
+            Here's the part I like most. The virtual user doesn't peek at the engine's
+            internal state — that would test what the engine <em>thinks</em>, not what it
+            <em>says</em>. Instead it reads the <strong>actual on-screen guidance
+            strings</strong>, the same ones a human sees, and obeys them literally:
+            <em>"turn 30° left"</em> → turn 30° left. <em>"keep going"</em> → walk a step.
+            <em>"hold at your chest"</em> → stand still.
+          </p>
+          <p class="mt-4 text-ink/80">
+            That closes the loop end-to-end: world → signal model → RSSI filter → phase
+            machine → spatial tracker → <em>copywriting</em> → simulated legs → new
+            position → world. If a phase transition fires too early, if the turn hint says
+            left when it means right, if the pinpoint copy never triggers — the virtual
+            user gets lost, and the test sees it. The guidance is only correct if a
+            literal-minded reader can follow it to the target.
+          </p>
+        </section>
+
+        <section id="table" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            Thirteen ways to lose your keys
+            <a href="#table" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">
+            <code>make sim</code> runs the suite — thirteen scenarios from trivial to
+            hostile — and prints a table. This is real output from the current build:
+          </p>
+          <pre class="mt-4 overflow-x-auto rounded-2xl border border-ink/10 bg-ink/[0.04] p-4 font-mono text-xs leading-relaxed text-ink/80"><code>── tracking simulation (timeout 180s) ──────────────────────────
+scenario           straight   closest   found     walked   path-eff   vol     result
+ahead 5 m            5.0 m     0.2 m       12s     8.8 m     0.6×    2.2   ★ clean
+behind 8 m           8.0 m     0.2 m       14s    39.3 m     0.8×    2.1   ★ clean
+to the side 6 m      6.0 m     0.0 m       14s     6.0 m     0.8×    1.3   ★ clean
+diagonal 14 m       14.1 m     0.3 m       38s    47.4 m     2.3×    1.7   ★ clean
+far 20 m            20.0 m     0.2 m       22s    42.7 m     0.9×    2.0   ★ clean
+extra-far 35 m      35.0 m     0.1 m       32s    48.2 m     0.9×    2.1   ★ clean
+through a wall       9.0 m     0.0 m       15s    28.9 m     0.8×    2.2   ★ clean
+up a slope          12.1 m     0.0 m       17s    17.3 m     0.8×    1.9   ★ clean
+forest 12 m         12.0 m     0.0 m       18s    56.0 m     0.9×    2.6   ★ clean
+noisy room           8.0 m     0.2 m       14s    17.5 m     0.8×    3.6   ★ clean
+randomized          13.0 m     0.2 m       26s    34.5 m     1.5×    2.0   ★ clean
+one floor up         5.0 m     3.0 m   timeout    64.4 m    12.9×    2.6   ✗ fail
+moving device        8.0 m     0.5 m       27s    21.0 m     2.4×    1.4   ★ clean
+──────────────  clean 12/13  ·  reached 12/13  ·  avg path-eff 1.1×  ──</code></pre>
+          <p class="mt-4 text-ink/80">
+            <strong>path-eff</strong> is metres walked relative to a sensible search path —
+            it measures wandering, not just success. "one floor up" fails by design: the
+            target is 3 m above your head and there are no stairs in the world; what's
+            being checked is that blep gets you to the right spot <em>under</em> it (3.0 m
+            closest approach — directly below) instead of pacing in circles.
+          </p>
+          <p class="mt-4 text-ink/80">
+            The suite is a <strong>CI gate</strong>, not a demo: the build fails if the
+            clean count drops below 12/13, or if the trivial straight-ahead case is ever
+            less than clean. A tuning tweak that helps the forest but breaks the hallway
+            gets caught before it ships.
+          </p>
+        </section>
+
+        <section id="beyond" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            Chaos, robustness, and A/B physics
+            <a href="#beyond" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">
+            Once the loop is closed and fast (~seconds for the whole suite), it becomes a
+            tool, not just a test:
+          </p>
+          <ul class="mt-3 space-y-2 text-ink/80">
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong><code>make chaos</code></strong> random-searches every tuning knob — filter constants, phase thresholds, particle-filter parameters — scoring each candidate against the suite. The current defaults came out of these runs, not out of guesses.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong><code>make robustness</code></strong> guards against the opposite failure: overfitting the thirteen named scenarios. It generates held-out <em>random</em> worlds and checks the tuning generalises to layouts it never saw.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong><code>make sim-gps</code></strong> is A/B physics: the same drift-prone outdoor walks with GPS fusion off vs. on, reporting mean closest-approach. It's how "does folding GPS into the local frame actually help?" became a number instead of a debate.</span></li>
+            <li class="flex gap-2"><span class="text-blue">•</span><span><strong><code>make sim-safety</code></strong> points the same machinery at the anti-tracking side: simulated commutes where one device genuinely follows you and dozens just share your routine, checking the detector flags the right one.</span></li>
+          </ul>
+        </section>
+
+        <section id="why" class="scroll-mt-20">
+          <h2 class="group mt-12 flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+            The whole trick is purity
+            <a href="#why" aria-label="Link to this section" class="text-ink/25 opacity-0 transition group-hover:opacity-100">#</a>
+          </h2>
+          <p class="mt-3 text-ink/80">
+            None of this needed a test framework, an emulator, or a single permission
+            dialog. It needed one architectural decision, made early: the tracking engine
+            is a pure Kotlin Multiplatform module that has never heard of Android or
+            CoreBluetooth. Sensors and radios live behind <code>expect</code>/<code>actual</code>
+            boundaries; the logic consumes numbers.
+          </p>
+          <p class="mt-4 text-ink/80">
+            The payoff compounds. The same purity that makes the simulator possible is why
+            one engine ships on four platforms, why the anti-tracking detector has
+            scenario tables instead of anecdotes, and why a contributor can verify a
+            tuning change from a laptop with no hardware at all:
+          </p>
+          <pre class="mt-4 overflow-x-auto rounded-2xl border border-ink/10 bg-ink/[0.04] p-4 font-mono text-xs leading-relaxed text-ink/80"><code>git clone https://github.com/fentas/blep.fyi
+cd blep.fyi
+make sim</code></pre>
+          <p class="mt-4 text-ink/80">
+            The keys are fake. The walls are fake. The user is a regex. The confidence is
+            real.
+          </p>
+        </section>
+
+        <!-- Pager -->
+        <nav class="mt-14 flex items-center justify-between border-t border-ink/10 pt-6 text-sm">
+          <a href="/blog.html" class="rounded-xl border border-ink/10 px-4 py-3 transition hover:border-blue hover:text-blue">
+            <span class="block text-xs text-ink/45">Previous</span><span class="font-medium">← All posts</span>
+          </a>
+          <a href="/guide.html" class="rounded-xl border border-ink/10 px-4 py-3 text-right transition hover:border-blue hover:text-blue">
+            <span class="block text-xs text-ink/45">Next</span><span class="font-medium">How to use blep →</span>
+          </a>
+        </nav>
+
+        <footer class="mt-10 text-sm text-ink/50">
+          Made with care · <a class="underline-offset-2 hover:underline" href="https://github.com/fentas/blep.fyi">github.com/fentas/blep.fyi</a>
+        </footer>
+      </main>
+
+      <!-- Right "on this page" -->
+      <aside class="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-52 shrink-0 self-start overflow-y-auto py-10 pl-2 xl:block">
+        <p class="text-xs font-semibold uppercase tracking-wide text-ink/40">On this page</p>
+        <ul class="mt-3 space-y-2 border-l border-ink/10 text-sm">
+          <li><a data-spy href="#problem" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">You can't unit-test a hallway</a></li>
+          <li><a data-spy href="#world" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">A pocket universe</a></li>
+          <li><a data-spy href="#user" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">The user is a regex</a></li>
+          <li><a data-spy href="#table" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Thirteen scenarios</a></li>
+          <li><a data-spy href="#beyond" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">Chaos &amp; robustness</a></li>
+          <li><a data-spy href="#why" class="-ml-px block border-l border-transparent pl-3 text-ink/60 transition hover:text-ink">The whole trick is purity</a></li>
+        </ul>
+      </aside>
+    </div>
+
+    <script type="module" src="/src/docs.js"></script>
+  </body>
+</html>
