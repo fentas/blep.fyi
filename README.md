@@ -241,16 +241,20 @@ transport is an `expect`/`actual` ([Data Layer on Android](app/core/src/androidM
 │   │       │                 spatial/ (DeadReckoner · ParticleTargetEstimator ·
 │   │       │                 StepCounter · PathLossCalibrator · MotionProvider) ·
 │   │       │                 safety/ (SafetyScanner · TrackerDetector ·
-│   │       │                 SafetyHistory · TrackerTuning)
+│   │       │                 SafetyHistory · TrackerTuning) ·
+│   │       │                 sync/ (SyncManager · SyncState LWW CRDT) ·
+│   │       │                 tether/ (PresenceMonitor)
 │   │       ├── commonTest/   JVM-runnable unit tests
 │   │       ├── kableMain/    Kable scanner (Android + Apple share this)
 │   │       └── jvmMain/      Fake scanner for tests/preview
-│   ├── composeApp/           Compose Multiplatform phone UI (Android + iOS):
+│   ├── composeApp/           Shared Compose UI as a KMP library (Android + iOS):
 │   │                         Discovery (favorites + paired) · Tracking ·
 │   │                         Safety · Settings · background-scan service
+│   ├── androidApp/           Android phone app (launcher, manifest, signing)
 │   ├── wearApp/              Wear OS app (Wear Compose)
 │   ├── iosApp/               SwiftUI shell for iPhone (XcodeGen)
-│   └── watchApp/             SwiftUI watchOS app (uses shared BlepCore)
+│   ├── watchApp/             SwiftUI watchOS app (uses shared BlepCore)
+│   └── zeppApp/              Zepp OS mini-app (Amazfit) — find-only
 ├── web/                      Vite + Tailwind PWA for blep.fyi
 ├── design/tokens.md          Design tokens shared by app + web
 └── .github/workflows/        CI (tests + cross-platform compile) + Pages deploy
@@ -294,6 +298,8 @@ Common tasks are wrapped in a **`Makefile`** — run `make help`:
 make test            # core unit tests (JVM)
 make build           # phone + Wear debug APKs
 make run             # install + launch blep on a connected phone
+make demo            # install + launch in demo mode (scripted data, no BLE)
+make sim             # closed-loop tracking simulation + scenario table
 make emulator-setup  # one-time: install emulator + create the AVD
 make emulator        # boot it (UI only — emulators have no Bluetooth)
 make web             # website dev server
@@ -315,7 +321,7 @@ tests anywhere. CI runs the full matrix.
 
 ```bash
 cd app
-./gradlew :composeApp:assembleDebug   # phone APK
+./gradlew :androidApp:assembleDebug   # phone APK
 ./gradlew :wearApp:assembleDebug      # Wear OS APK
 ```
 
@@ -339,6 +345,7 @@ npm install
 npm run dev        # local dev server
 npm run build      # static output in web/dist
 npm run gen:icons  # regenerate PWA icons from logo.svg (only if it changes)
+npm run gen:shots  # regenerate the landing-page gallery from the store screenshots
 ```
 
 Deployed to GitHub Pages by `.github/workflows/deploy.yml` on push to `main`. The
@@ -355,7 +362,7 @@ file is committed.
 | iOS (iPhone)    | ✅ | Compose Multiplatform in a SwiftUI shell               |
 | Wear OS         | ✅ | Wear Compose, standalone                               |
 | Apple Watch     | ✅ | SwiftUI + shared `BlepCore`                            |
-| Zepp OS         | ❌ | Zepp OS mini-apps have no general third-party BLE central/scan API, which the tracking technique requires. |
+| Zepp OS         | 🟡 | Find-only mini-app (`app/zeppApp`). No general third-party BLE central/scan API, so the anti-tracking scan isn't possible. |
 
 &nbsp;
 
@@ -363,9 +370,8 @@ file is committed.
 
 The website `#donate` section (the target of the app's *Help & donate* button)
 supports **Stripe, Open Collective, PayPal and GitHub Sponsors**, each with a
-downloadable receipt. The provider URLs in [`web/index.html`](web/index.html) are
-placeholders marked `REPLACE_ME` — set your Stripe Payment Link, Open Collective
-slug, and PayPal hosted-button id.
+payment record or receipt. The provider links live in
+[`web/index.html`](web/index.html) and [`web/donate.html`](web/donate.html).
 
 &nbsp;
 
