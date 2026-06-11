@@ -27,6 +27,12 @@ class SyncState internal constructor(
     fun aliasMap(): Map<String, String> = names.entries.filter { it.value.value.isNotBlank() }.associate { it.key to it.value.value }
     fun setting(name: String): String? = settings[name]?.value
 
+    /** Highest timestamp anywhere in the state — the Lamport floor for the next local
+     *  write: stamping above it means a peer with a fast clock can't out-rank an edit
+     *  that causally happened *after* its replica was seen. */
+    fun maxTs(): Long = sequenceOf(favorites, tethered, muted, names, settings)
+        .flatMap { it.values.asSequence() }.maxOfOrNull { it.ts } ?: 0L
+
     // ── local edits (bump ts only on real change, so we never clobber a peer) ──
     fun withSet(section: Section, ids: Set<String>, nowMs: Long): SyncState {
         val cur = section.pick(this)
@@ -105,10 +111,16 @@ class SyncState internal constructor(
             val out = HashMap<String, Lww<V>>(a)
             for ((k, y) in b) {
                 val x = out[k]
-                if (x == null || y.ts > x.ts) out[k] = y
+                if (x == null || wins(y, x)) out[k] = y
             }
             return out
         }
+
+        /** True LWW order. Ties (same ts, different value — a same-millisecond concurrent
+         *  edit) break on the value's string form, so the merge stays commutative: without
+         *  this each side would keep its *own* entry and the two replicas never converge. */
+        private fun <V> wins(y: Lww<V>, x: Lww<V>): Boolean =
+            y.ts > x.ts || (y.ts == x.ts && y.value.toString() > x.value.toString())
 
         private fun String.clean() = replace('\t', ' ').replace('\n', ' ')
     }

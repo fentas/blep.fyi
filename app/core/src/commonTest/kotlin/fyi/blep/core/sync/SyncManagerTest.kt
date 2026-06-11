@@ -121,6 +121,34 @@ class SyncManagerTest {
         assertEquals(true, mgr.peerNearby.value)
     }
 
+    @Test fun localEditOutranksFastPeerClock() = runTest {
+        // The peer's clock runs an hour fast, so its replica carries far-future stamps.
+        // An edit made locally *after* seeing that replica is causally newer and must win
+        // the merge (Lamport bump) — not lose on wall-clock time.
+        val t = FakeTransport()
+        val src = FakeSource(favorites = setOf("X"))
+        val mgr = SyncManager(t, settings(), src, FakeSink(), backgroundScope, now = { 100 })
+        mgr.start(); runCurrent()
+        val peer = SyncState.EMPTY.withSet(Section.FAVORITES, setOf("X", "Y"), 3_600_000)
+        t.stateIn.emit(peer.encode())
+        runCurrent()
+        src.favorites = emptySet() // un-favourite everything at wall-clock 100
+        mgr.localChanged()
+        runCurrent()
+        val republished = SyncState.decode(t.published.last())
+        assertEquals(emptySet(), republished.favoriteIds())
+        // …and the stale fast-clock replica can't resurrect them on a re-merge.
+        assertEquals(emptySet(), republished.merge(peer).favoriteIds())
+    }
+
+    @Test fun sameMillisecondConflictConvergesBothWays() = runTest {
+        // Two devices rename the same tag in the same epoch-ms. Whatever wins must be the
+        // same on both sides — the tie-break keeps merge commutative.
+        val a = SyncState.EMPTY.withNames(mapOf("X" to "Keys"), 100)
+        val b = SyncState.EMPTY.withNames(mapOf("X" to "Bag"), 100)
+        assertEquals(a.merge(b).aliasMap(), b.merge(a).aliasMap())
+    }
+
     @Test fun unpairedNoopTransportIsSafe() = runTest {
         // The real backing when no device is paired (and the JVM/Apple stub): NoopSyncTransport's
         // incomingState/incomingMessages are empty flows that *complete* immediately. start() must

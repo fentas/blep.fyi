@@ -29,6 +29,13 @@ carries the epoch-ms it was set, and `merge` keeps the newer one per key. That m
 sync order or duplication — and **removals are real** (a tombstone with a newer ts), so
 un-favouriting on the phone isn't resurrected by the watch's stale copy.
 
+Two refinements keep wall-clock out of the correctness story:
+- **Lamport bump** — a local edit is stamped `max(now, maxTsSeen + 1)`, so a peer whose
+  clock runs fast can't keep out-ranking edits made *after* its replica was seen.
+- **Deterministic tie-break** — same-ts conflicting entries (a same-millisecond concurrent
+  edit) resolve by the value's string form, keeping `merge` commutative; without it each
+  side would keep its own entry and never converge.
+
 `SyncManager` orchestrates: on a local change it reconciles the enabled categories into the
 state and publishes; on an incoming replica it merges and writes the result back into the
 local stores. Loop-free — a no-change merge neither re-applies nor re-publishes.

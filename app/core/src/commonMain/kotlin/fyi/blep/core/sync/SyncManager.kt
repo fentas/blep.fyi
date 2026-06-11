@@ -84,7 +84,10 @@ class SyncManager(
     /** Call after the user changes anything synced locally (favourite, rename, tether…). */
     fun localChanged() {
         if (!settings.enabled()) return
-        val n = now()
+        // Lamport-style stamp: wall-clock when clocks are sane, but never at-or-below
+        // anything already merged — so a peer whose clock runs fast can't keep winning
+        // against edits made *after* its replica was seen.
+        val n = maxOf(now(), state.maxTs() + 1)
         var s = state
         if (settings.favorites()) s = s.withSet(Section.FAVORITES, source.favorites(), n)
         if (settings.tethered()) s = s.withSet(Section.TETHERED, source.tethered(), n)
