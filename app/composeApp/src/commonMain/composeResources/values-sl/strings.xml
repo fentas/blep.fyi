@@ -179,6 +179,7 @@
     <string name="a11y_more_info">Več informacij</string>
     <string name="settings_notifications_off">Obvestila so izklopljena — opozorila se ne bodo prikazala. Pritisni za vklop.</string>
     <string name="radar_warmer">topleje</string>
+    <string name="radar_desc">Radar: naprej je zgoraj; obarvana puščica kaže, kam iti.</string>
     <string name="onboard_skip">Preskoči</string>
     <string name="onboard_next">Naprej</string>
     <string name="onboard_done">Vklopi Bluetooth</string>

@@ -213,6 +213,7 @@
     <string name="a11y_more_info">More info</string>
     <string name="settings_notifications_off">Notifications are off — alerts won't show. Tap to turn them on.</string>
     <string name="radar_warmer">warmer</string>
+    <string name="radar_desc">Radar: forward is up; the coloured arrow points where to go.</string>
     <!-- First-run onboarding -->
     <string name="onboard_skip">Skip</string>
     <string name="onboard_next">Next</string>

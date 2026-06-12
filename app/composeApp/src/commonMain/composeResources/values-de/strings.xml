@@ -179,6 +179,7 @@
     <string name="a11y_more_info">Mehr Infos</string>
     <string name="settings_notifications_off">Benachrichtigungen sind aus — Warnungen erscheinen nicht. Tippe, um sie einzuschalten.</string>
     <string name="radar_warmer">wärmer</string>
+    <string name="radar_desc">Radar: vorne ist oben; der farbige Pfeil zeigt, wohin du gehen sollst.</string>
     <string name="onboard_skip">Überspringen</string>
     <string name="onboard_next">Weiter</string>
     <string name="onboard_done">Bluetooth einschalten</string>

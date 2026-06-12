@@ -179,6 +179,7 @@
     <string name="a11y_more_info">Więcej informacji</string>
     <string name="settings_notifications_off">Powiadomienia są wyłączone — alerty się nie pojawią. Dotknij, aby je włączyć.</string>
     <string name="radar_warmer">cieplej</string>
+    <string name="radar_desc">Radar: przód jest u góry; kolorowa strzałka wskazuje, dokąd iść.</string>
     <string name="onboard_skip">Pomiń</string>
     <string name="onboard_next">Dalej</string>
     <string name="onboard_done">Włącz Bluetooth</string>

@@ -179,6 +179,7 @@
     <string name="a11y_more_info">Περισσότερες πληροφορίες</string>
     <string name="settings_notifications_off">Οι ειδοποιήσεις είναι ανενεργές — δεν θα εμφανίζονται προειδοποιήσεις. Πάτησε για να τις ενεργοποιήσεις.</string>
     <string name="radar_warmer">πιο ζεστά</string>
+    <string name="radar_desc">Ραντάρ: το μπροστά είναι επάνω· το χρωματιστό βέλος δείχνει πού να πας.</string>
     <string name="onboard_skip">Παράλειψη</string>
     <string name="onboard_next">Επόμενο</string>
     <string name="onboard_done">Ενεργοποίηση Bluetooth</string>

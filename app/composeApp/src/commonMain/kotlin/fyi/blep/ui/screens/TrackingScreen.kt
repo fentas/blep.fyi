@@ -185,9 +185,25 @@ fun TrackingScreen(
             )
         }
 
+        // Point-blank: a strong live signal means it's basically on you. Computed up
+        // here because both the radar (drop the cue ray) and the headline use it.
+        val onIt = !signalLost && rssi != null && rssi >= POINT_BLANK_DBM
+
         // The spatial map is the hero; a compact arrow keeps the immediate cue.
         Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            RadarView(snapshot = spatial, pulse = pulse, signalLost = signalLost, ink = ink, halo = halo, modifier = Modifier.fillMaxSize())
+            RadarView(
+                snapshot = spatial,
+                pulse = pulse,
+                // The ray mirrors the headline cue; at point-blank the headline switches
+                // to "right here", so the ray and the metres label go too — picture and
+                // words stay one.
+                line = guidanceLine,
+                pointBlank = onIt,
+                signalLost = signalLost,
+                ink = ink,
+                halo = halo,
+                modifier = Modifier.fillMaxSize(),
+            )
             if (spatial == null) {
                 VectorArrow(curl = status.arrow.curl, scale = status.arrow.scale, tint = arrowTint)
             }
@@ -204,11 +220,10 @@ fun TrackingScreen(
             null
         }
         val instruction = lineText ?: fallback
-        // Point-blank: a strong live signal means it's basically on you. Trust that
+        // Point-blank (`onIt`, computed above the radar): trust the strong live signal
         // over the spatial distance, which can stick far (seeded from an early weak
         // sample) and read e.g. "8 m" while you're standing on it. Show "right here"
         // and drop the misleading turn/distance cue.
-        val onIt = !signalLost && rssi != null && rssi >= POINT_BLANK_DBM
         // No fresh signal trumps everything — don't guide on a stale reading.
         val headline = when {
             signalLost -> stringResource(Res.string.tracking_no_signal)

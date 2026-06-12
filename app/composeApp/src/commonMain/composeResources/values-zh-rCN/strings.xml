@@ -180,6 +180,7 @@
     <string name="a11y_more_info">更多信息</string>
     <string name="settings_notifications_off">通知已关闭——不会显示提醒。点按以开启。</string>
     <string name="radar_warmer">更热</string>
+    <string name="radar_desc">雷达：前方朝上；彩色箭头指示前进方向。</string>
     <string name="onboard_skip">跳过</string>
     <string name="onboard_next">下一步</string>
     <string name="onboard_done">开启蓝牙</string>

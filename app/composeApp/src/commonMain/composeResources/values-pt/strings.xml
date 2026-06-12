@@ -179,6 +179,7 @@
     <string name="a11y_more_info">Mais informações</string>
     <string name="settings_notifications_off">As notificações estão desativadas — os alertas não vão aparecer. Toca para as ativar.</string>
     <string name="radar_warmer">mais quente</string>
+    <string name="radar_desc">Radar: a frente está para cima; a seta colorida indica para onde ir.</string>
     <string name="onboard_skip">Ignorar</string>
     <string name="onboard_next">Seguinte</string>
     <string name="onboard_done">Ativar o Bluetooth</string>

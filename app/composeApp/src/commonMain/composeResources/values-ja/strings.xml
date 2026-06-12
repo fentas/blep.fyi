@@ -179,6 +179,7 @@
     <string name="a11y_more_info">詳細情報</string>
     <string name="settings_notifications_off">通知がオフです——警告は表示されません。タップしてオンにしてください。</string>
     <string name="radar_warmer">温かい</string>
+    <string name="radar_desc">レーダー：進行方向が上です。色付きの矢印が進むべき方向を示します。</string>
     <string name="onboard_skip">スキップ</string>
     <string name="onboard_next">次へ</string>
     <string name="onboard_done">Bluetooth をオンにする</string>

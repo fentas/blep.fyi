@@ -179,6 +179,7 @@
     <string name="a11y_more_info">Lisateave</string>
     <string name="settings_notifications_off">Teavitused on välja lülitatud — hoiatusi ei kuvata. Puuduta, et need sisse lülitada.</string>
     <string name="radar_warmer">soojem</string>
+    <string name="radar_desc">Radar: esisuund on üleval; värviline nool näitab, kuhu minna.</string>
     <string name="onboard_skip">Jäta vahele</string>
     <string name="onboard_next">Edasi</string>
     <string name="onboard_done">Lülita Bluetooth sisse</string>

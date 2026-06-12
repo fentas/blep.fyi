@@ -179,6 +179,7 @@
     <string name="a11y_more_info">Više informacija</string>
     <string name="settings_notifications_off">Obavijesti su isključene — upozorenja se neće prikazivati. Dodirni da ih uključiš.</string>
     <string name="radar_warmer">toplije</string>
+    <string name="radar_desc">Radar: naprijed je gore; obojena strelica pokazuje kamo ići.</string>
     <string name="onboard_skip">Preskoči</string>
     <string name="onboard_next">Dalje</string>
     <string name="onboard_done">Uključi Bluetooth</string>
