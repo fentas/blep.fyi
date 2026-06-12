@@ -326,4 +326,7 @@
     <string name="detail_no_signal_for">Ni signala že %1$s</string>
     <string name="dur_seconds">%1$ds</string>
     <string name="dur_hours">%1$du</string>
+    <string name="detail_suspect_title">Sumljiv sledilnik</string>
+    <string name="detail_suspect_body">Varnostno opozorilo je označilo to napravo — morda potuje z vami. Če je neškodljiva, opustite oznako.</string>
+    <string name="action_dismiss">Opusti</string>
 </resources>

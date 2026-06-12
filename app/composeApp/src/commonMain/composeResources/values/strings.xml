@@ -348,4 +348,7 @@
     <string name="detail_no_signal_for">No signal for %1$s</string>
     <string name="dur_seconds">%1$ds</string>
     <string name="dur_hours">%1$dh</string>
+    <string name="detail_suspect_title">Suspected tracker</string>
+    <string name="detail_suspect_body">A safety alert marked this device — it may be travelling with you. If it's harmless, dismiss the mark.</string>
+    <string name="action_dismiss">Dismiss</string>
 </resources>

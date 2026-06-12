@@ -215,6 +215,8 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                         onFlagExplainedDismiss = controller::dismissFlagExplainer,
                         onTrack = { controller.track(live) },
                         onBack = controller::startDiscovery,
+                        suspect = live.id in controller.suspectIds,
+                        onDismissSuspect = { controller.dismissSuspect(live.id) },
                     )
                 }
             }

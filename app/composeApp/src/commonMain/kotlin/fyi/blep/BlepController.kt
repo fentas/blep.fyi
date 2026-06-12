@@ -531,6 +531,12 @@ class BlepController(
     /** A tapped tracker-alert notification lands here: mark the device suspect and open its
      *  panel. The device may not be in the snapshot yet (the scan just started) — synthesize
      *  a shell so the panel opens immediately; the live signal fills in as the scan sees it. */
+    /** Clear the suspect mark on one device (the panel banner's Dismiss). Session-scoped, so
+     *  it isn't a mute — a fresh safety alert can re-mark it. */
+    fun dismissSuspect(id: String) {
+        suspectIds = suspectIds - id
+    }
+
     fun openSuspect(id: String) {
         suspectIds = suspectIds + id
         val device = devices.firstOrNull { it.id == id }

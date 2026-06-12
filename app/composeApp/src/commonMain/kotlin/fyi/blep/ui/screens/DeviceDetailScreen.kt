@@ -86,6 +86,9 @@ import fyi.blep.resources.dur_seconds
 import fyi.blep.resources.dur_minutes
 import fyi.blep.resources.dur_hours
 import fyi.blep.resources.detail_signal
+import fyi.blep.resources.detail_suspect_title
+import fyi.blep.resources.detail_suspect_body
+import fyi.blep.resources.action_dismiss
 import fyi.blep.resources.detail_signal_lost
 import fyi.blep.resources.detail_signal_scanning
 import fyi.blep.resources.detail_history_rotations
@@ -144,6 +147,8 @@ fun DeviceDetailScreen(
     onFlagExplainedDismiss: () -> Unit,
     onTrack: () -> Unit,
     onBack: () -> Unit,
+    suspect: Boolean = false,
+    onDismissSuspect: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var renaming by remember { mutableStateOf(false) }
@@ -182,6 +187,32 @@ fun DeviceDetailScreen(
 
         // Scrollable content; the actions stay pinned at the bottom.
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+            // Why this device is marked in the list — and the way to unmark it.
+            if (suspect) {
+                Surface(
+                    shape = RoundedCornerShape(18.dp),
+                    color = BlepColors.Pink.copy(alpha = 0.16f),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text(
+                            stringResource(Res.string.detail_suspect_title),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = BlepColors.Pink,
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            stringResource(Res.string.detail_suspect_body),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                        )
+                        TextButton(onClick = onDismissSuspect, modifier = Modifier.align(Alignment.End)) {
+                            Text(stringResource(Res.string.action_dismiss), color = BlepColors.Pink)
+                        }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+            }
             // Signal + connection status (or a lost-signal hint while it's out of range).
             val signalLost = !signalPresent && !device.isConnected && !device.isPaired
             Section(

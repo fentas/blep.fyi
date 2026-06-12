@@ -326,4 +326,7 @@
     <string name="detail_no_signal_for">Brak sygnału od %1$s</string>
     <string name="dur_seconds">%1$ds</string>
     <string name="dur_hours">%1$dg</string>
+    <string name="detail_suspect_title">Podejrzany lokalizator</string>
+    <string name="detail_suspect_body">Alert bezpieczeństwa oznaczył to urządzenie — może podróżować z tobą. Jeśli jest nieszkodliwe, odrzuć oznaczenie.</string>
+    <string name="action_dismiss">Odrzuć</string>
 </resources>

@@ -326,4 +326,7 @@
     <string name="detail_no_signal_for">Χωρίς σήμα εδώ και %1$s</string>
     <string name="dur_seconds">%1$dδ</string>
     <string name="dur_hours">%1$dω</string>
+    <string name="detail_suspect_title">Ύποπτος ιχνηλάτης</string>
+    <string name="detail_suspect_body">Μια ειδοποίηση ασφαλείας επισήμανε αυτή τη συσκευή — ίσως ταξιδεύει μαζί σας. Αν είναι αβλαβής, απορρίψτε τη σήμανση.</string>
+    <string name="action_dismiss">Απόρριψη</string>
 </resources>

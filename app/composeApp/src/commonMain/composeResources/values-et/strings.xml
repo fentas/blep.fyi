@@ -326,4 +326,7 @@
     <string name="detail_no_signal_for">Signaalita %1$s</string>
     <string name="dur_seconds">%1$ds</string>
     <string name="dur_hours">%1$dt</string>
+    <string name="detail_suspect_title">Kahtlane jälitaja</string>
+    <string name="detail_suspect_body">Turvahoiatus märgistas selle seadme — see võib sinuga kaasas liikuda. Kui see on ohutu, eemalda märgistus.</string>
+    <string name="action_dismiss">Eemalda</string>
 </resources>

@@ -326,4 +326,7 @@
     <string name="detail_no_signal_for">%1$s 信号なし</string>
     <string name="dur_seconds">%1$d秒</string>
     <string name="dur_hours">%1$d時間</string>
+    <string name="detail_suspect_title">疑わしいトラッカー</string>
+    <string name="detail_suspect_body">安全アラートがこのデバイスをマークしました — あなたと一緒に移動している可能性があります。無害なら、マークを解除してください。</string>
+    <string name="action_dismiss">解除</string>
 </resources>

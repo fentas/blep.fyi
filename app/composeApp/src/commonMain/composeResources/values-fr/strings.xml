@@ -326,4 +326,7 @@
     <string name="detail_no_signal_for">Aucun signal depuis %1$s</string>
     <string name="dur_seconds">%1$ds</string>
     <string name="dur_hours">%1$dh</string>
+    <string name="detail_suspect_title">Traceur suspect</string>
+    <string name="detail_suspect_body">Une alerte de sécurité a marqué cet appareil — il voyage peut-être avec vous. S'il est inoffensif, ignorez le marquage.</string>
+    <string name="action_dismiss">Ignorer</string>
 </resources>

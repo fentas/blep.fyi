@@ -326,4 +326,7 @@
     <string name="detail_no_signal_for">Nema signala već %1$s</string>
     <string name="dur_seconds">%1$ds</string>
     <string name="dur_hours">%1$dh</string>
+    <string name="detail_suspect_title">Sumnjivi tragač</string>
+    <string name="detail_suspect_body">Sigurnosno upozorenje označilo je ovaj uređaj — možda putuje s vama. Ako je bezopasan, odbacite oznaku.</string>
+    <string name="action_dismiss">Odbaci</string>
 </resources>

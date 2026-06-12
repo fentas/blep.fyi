@@ -326,4 +326,7 @@
     <string name="detail_no_signal_for">Nessun segnale da %1$s</string>
     <string name="dur_seconds">%1$ds</string>
     <string name="dur_hours">%1$do</string>
+    <string name="detail_suspect_title">Tracker sospetto</string>
+    <string name="detail_suspect_body">Un avviso di sicurezza ha contrassegnato questo dispositivo: potrebbe viaggiare con te. Se è innocuo, rimuovi il contrassegno.</string>
+    <string name="action_dismiss">Ignora</string>
 </resources>

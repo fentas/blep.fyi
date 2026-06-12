@@ -327,4 +327,7 @@
     <string name="detail_no_signal_for">%1$s 无信号</string>
     <string name="dur_seconds">%1$d秒</string>
     <string name="dur_hours">%1$d小时</string>
+    <string name="detail_suspect_title">可疑追踪器</string>
+    <string name="detail_suspect_body">安全警报标记了此设备——它可能正随你移动。如果无害，可以取消标记。</string>
+    <string name="action_dismiss">取消标记</string>
 </resources>

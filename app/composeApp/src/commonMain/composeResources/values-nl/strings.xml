@@ -326,4 +326,7 @@
     <string name="detail_no_signal_for">Geen signaal sinds %1$s</string>
     <string name="dur_seconds">%1$ds</string>
     <string name="dur_hours">%1$du</string>
+    <string name="detail_suspect_title">Verdachte tracker</string>
+    <string name="detail_suspect_body">Een veiligheidsmelding heeft dit apparaat gemarkeerd — het reist mogelijk met je mee. Is het onschuldig, verwijder dan de markering.</string>
+    <string name="action_dismiss">Negeren</string>
 </resources>

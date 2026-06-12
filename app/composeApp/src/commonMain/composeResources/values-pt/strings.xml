@@ -326,4 +326,7 @@
     <string name="detail_no_signal_for">Sem sinal há %1$s</string>
     <string name="dur_seconds">%1$ds</string>
     <string name="dur_hours">%1$dh</string>
+    <string name="detail_suspect_title">Rastreador suspeito</string>
+    <string name="detail_suspect_body">Um alerta de segurança marcou este dispositivo — pode estar a viajar contigo. Se for inofensivo, dispensa a marca.</string>
+    <string name="action_dismiss">Dispensar</string>
 </resources>

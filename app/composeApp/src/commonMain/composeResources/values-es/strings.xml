@@ -326,4 +326,7 @@
     <string name="detail_no_signal_for">Sin señal desde hace %1$s</string>
     <string name="dur_seconds">%1$ds</string>
     <string name="dur_hours">%1$dh</string>
+    <string name="detail_suspect_title">Rastreador sospechoso</string>
+    <string name="detail_suspect_body">Una alerta de seguridad marcó este dispositivo: podría estar viajando contigo. Si es inofensivo, descarta la marca.</string>
+    <string name="action_dismiss">Descartar</string>
 </resources>

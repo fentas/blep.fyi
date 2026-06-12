@@ -327,4 +327,7 @@
     <string name="detail_no_signal_for">Kein Signal seit %1$s</string>
     <string name="dur_seconds">%1$ds</string>
     <string name="dur_hours">%1$dh</string>
+    <string name="detail_suspect_title">Verdächtiger Tracker</string>
+    <string name="detail_suspect_body">Eine Sicherheitswarnung hat dieses Gerät markiert — es könnte mit dir unterwegs sein. Wenn es harmlos ist, entferne die Markierung.</string>
+    <string name="action_dismiss">Verwerfen</string>
 </resources>
