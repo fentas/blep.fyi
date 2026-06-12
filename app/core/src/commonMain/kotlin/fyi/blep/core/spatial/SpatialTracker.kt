@@ -62,6 +62,15 @@ data class RevealWedge(
     val timeMs: Long,
 )
 
+/** One smooth fog cell: where reveals have covered, with the *averaged* signal
+ *  tint (overlapping reveals blend, they don't stack) and a confidence from
+ *  sample count + recency. */
+data class FogCell(
+    val pos: Vec2,
+    val strength01: Float,
+    val confidence: Float,
+)
+
 /**
  * One stop of the *predicted* signal field around the target estimate: at
  * [distanceM] from the estimate the calibrated path-loss model expects
@@ -109,9 +118,13 @@ data class SpatialSnapshot(
     /** Predicted signal vs distance from the target estimate (empty until the
      *  target is localised) — the radial field the UI paints under everything. */
     val fieldGradient: List<FieldStop> = emptyList(),
-    /** Directional reveals (where you've stood + faced, signal-tinted) — the
-     *  fog-of-war layer the UI paints as wedges. */
+    /** Directional reveals (where you've stood + faced, signal-tinted). */
     val reveals: List<RevealWedge> = emptyList(),
+    /** The rasterised, averaged fog those reveals produce — the smooth map
+     *  layer the UI actually paints. */
+    val fog: List<FogCell> = emptyList(),
+    /** Edge length (m) of one fog cell, for sizing the splats. */
+    val fogCellM: Double = 1.0,
 )
 
 /**
@@ -159,6 +172,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private var recovering = false
     private var lastSampleMs = 0L
     private val reveals = ArrayList<RevealWedge>()
+    private val fog = SignalFog(cellM = FOG_CELL_M, reachM = FOG_REACH_M)
     private var lastRevealPos: Vec2? = null
     private var lastRevealBearing = 0.0
 
@@ -185,6 +199,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         lastAngularPos = null
         recovering = false
         reveals.clear()
+        fog.reset()
         lastRevealPos = null
         lastRevealBearing = 0.0
     }
@@ -266,7 +281,9 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             val movedEnough = lastRevealPos?.let { (here - it).length >= REVEAL_MIN_STEP_M } ?: true
             val turnedEnough = reveals.isNotEmpty() && abs(angleDelta(heading, lastRevealBearing)) >= REVEAL_MIN_TURN_RAD
             if (movedEnough || turnedEnough) {
-                reveals.add(RevealWedge(here, heading, tuning.strength01(rssi), motion.timeMs))
+                val s = tuning.strength01(rssi)
+                reveals.add(RevealWedge(here, heading, s, motion.timeMs))
+                fog.stamp(here, heading, s.toDouble(), motion.timeMs)
                 lastRevealPos = here
                 lastRevealBearing = heading
                 // Halve density once the cap is hit — keeps shape, bounds drawing.
@@ -350,6 +367,11 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             fieldCellM = tuning.gridCellM,
             fieldGradient = fieldGradient(target),
             reveals = reveals,
+            fog = fog.all().map { c ->
+                val recency = 2.0.pow(-(lastSampleMs - c.lastMs).coerceAtLeast(0L) / FIELD_HALF_LIFE_MS)
+                FogCell(Vec2(c.x, c.y), c.strength01.toFloat(), ((c.hits / 3.0).coerceAtMost(1.0) * recency).toFloat())
+            },
+            fogCellM = FOG_CELL_M,
         )
     }
 
@@ -464,6 +486,9 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         const val REVEAL_MIN_STEP_M = 0.5
         const val REVEAL_MIN_TURN_RAD = 0.16
         const val MAX_REVEALS = 360
+        // Fog raster: cell edge + how far one reveal cone reaches.
+        const val FOG_CELL_M = 1.0
+        const val FOG_REACH_M = 8.0
         // Only sample environmental jitter between headings this close (rad ≈ 5°),
         // so the body-shield swing during a sweep isn't counted as noise.
         const val VOL_STEADY_RAD = 0.09

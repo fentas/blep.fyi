@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -66,7 +67,9 @@ fun RadarView(
     val warmerLabel = stringResource(Res.string.radar_warmer)
     val radarDesc = stringResource(Res.string.radar_desc)
     val labelStyle = TextStyle(color = ink.copy(alpha = 0.65f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
-    Canvas(modifier = modifier.fillMaxSize().semantics { contentDescription = radarDesc }) {
+    // clipToBounds: the fog splats reach past the canvas edge and would paint
+    // under the headline text below without it.
+    Canvas(modifier = modifier.fillMaxSize().clipToBounds().semantics { contentDescription = radarDesc }) {
         // The hub ("you") sits a touch below centre so the space ahead — where
         // you're walking — gets most of the canvas.
         val hub = Offset(size.width / 2f, size.height / 2f + size.minDimension * 0.06f)
@@ -111,7 +114,7 @@ fun RadarView(
             val conf = est0.confidence
             val colorStops = stops.map { s ->
                 (s.distanceM / spanM).toFloat() to
-                    signalColor(s.strength01).copy(alpha = (0.10f + 0.22f * conf) * (0.25f + 0.75f * s.strength01))
+                    fogColor(s.strength01).copy(alpha = (0.10f + 0.22f * conf) * (0.25f + 0.75f * s.strength01))
             }.toTypedArray()
             drawCircle(
                 brush = Brush.radialGradient(colorStops = colorStops, center = tc, radius = rPx),
@@ -120,27 +123,29 @@ fun RadarView(
             )
         }
 
-        // ── fog of war: directional reveals ──────────────────────────────────
-        // Every place you've stood + faced paints a wedge ahead of you, tinted by
-        // the dBm read there (body shielding makes a reading speak for the cone
-        // you face). Walking sweeps a corridor open; turning in place reveals a
-        // disc around you — VTT-style. Unexplored space stays plain background,
-        // which is the honest amount of knowledge. Drawn under the rings so the
-        // instruments stay legible on top of the paint.
-        val reveals = snapshot?.reveals ?: emptyList()
-        if (reveals.isNotEmpty()) {
-            val rPx = (REVEAL_RADIUS_M * scale).toFloat().coerceIn(30f, size.minDimension * 0.45f)
-            for (r in reveals) {
-                val p = toScreen(r.pos)
-                val angleDeg = ((r.bearingRad - heading) * 180.0 / PI).toFloat() - 90f
-                val col = signalColor(r.strength01).copy(alpha = 0.65f)
-                drawArc(
-                    brush = Brush.radialGradient(listOf(col, col.copy(alpha = 0f)), center = p, radius = rPx),
-                    startAngle = angleDeg - WEDGE_HALF_DEG,
-                    sweepAngle = WEDGE_HALF_DEG * 2f,
-                    useCenter = true,
-                    topLeft = Offset(p.x - rPx, p.y - rPx),
-                    size = Size(rPx * 2f, rPx * 2f),
+        // ── fog of war: the averaged reveal raster ───────────────────────────
+        // Every place you've stood + faced has stamped its cone into the fog
+        // grid (core: SignalFog), where overlapping reveals *average* — so the
+        // map is one smooth blended layer, not stacked wedge edges. Each fogged
+        // cell paints a soft splat; splat overlap does the smoothing. Unexplored
+        // space stays plain background — the honest amount of knowledge. Drawn
+        // under the rings so the instruments stay legible on top of the paint.
+        val fog = snapshot?.fog ?: emptyList()
+        if (fog.isNotEmpty()) {
+            // Splat must always overlap its neighbours (cells are fogCellM apart),
+            // whatever the zoom — an absolute cap would tear the fog into dots.
+            val splatR = ((snapshot!!.fogCellM * scale).toFloat() * 1.5f).coerceAtLeast(12f)
+            for (c in fog) {
+                if (c.confidence <= 0.04f) continue
+                val p = toScreen(c.pos)
+                val col = fogColor(c.strength01).copy(alpha = 0.30f + 0.25f * c.confidence)
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        0f to col, 0.55f to col, 1f to col.copy(alpha = 0f),
+                        center = p, radius = splatR,
+                    ),
+                    radius = splatR,
+                    center = p,
                 )
             }
         }
@@ -188,7 +193,7 @@ fun RadarView(
         for (k in 1 until pts.size) {
             val a = pts[k - 1]; val b = pts[k]
             drawLine(
-                color = signalColor((a.strength01 + b.strength01) / 2f),
+                color = fogColor((a.strength01 + b.strength01) / 2f),
                 start = toScreen(a.pos), end = toScreen(b.pos),
                 strokeWidth = 8f, cap = StrokeCap.Round,
             )
@@ -209,7 +214,8 @@ fun RadarView(
                 ),
                 radius = glow, center = tc,
             )
-            drawCircle(BlepColors.Pink.copy(alpha = 0.9f), radius = 7f, center = tc)
+            // Destination pin (map-marker teardrop), anchored on the estimate.
+            drawPin(tc, Rose, halo)
             // Uncertainty ellipse from the particle-filter covariance (tighter =
             // more confident); falls back to a circle if axes aren't present. The
             // world rotates with the heads-up frame, so the ellipse does too.
@@ -311,11 +317,6 @@ fun RadarView(
 // (matches the wall-vs-noise margin proven in core's SignalFieldTest).
 private const val SHADOW_DB = -8.0
 
-// How far one reveal wedge reaches (m) and its half-width — roughly the cone the
-// body-shielded reading actually speaks for.
-private const val REVEAL_RADIUS_M = 4.0
-private const val WEDGE_HALF_DEG = 38f
-
 private val Rose = Color(0xFFD94F70)        // cue ray toward signal/target
 private val Amber = Color(0xFFE8A33D)       // cue ray back to the warmest spot
 private val OnCourseGreen = Color(0xFF3E8F4E)
@@ -342,10 +343,50 @@ private fun niceMeters(x: Double): Double {
     }
 }
 
-/** Maps a [0,1] signal strength to the brand far→near proximity gradient. */
-private fun signalColor(strength01: Float): Color = BlepColors.proximity(strength01)
+// The map layers (fog, trail, predicted wash) use a wider temperature
+// ramp than the brand proximity pastels — blue→teal→green sit too close in hue
+// to read at fog alpha, so the warm end runs on into sand/amber and the input
+// is contrast-stretched to actually visit both ends.
+private val fogStops = listOf(
+    0.00f to Color(0xFF5E83C9), // cold: clear blue
+    0.35f to Color(0xFF8FD0CB), // teal
+    0.60f to Color(0xFFC4E7B6), // light green
+    0.80f to Color(0xFFF4D58D), // warm sand
+    1.00f to Color(0xFFE8A33D), // hot: amber
+)
+
+private fun fogColor(strength01: Float): Color {
+    val f = ((strength01 - 0.15f) / 0.7f).coerceIn(0f, 1f) // stretch the lived-in middle
+    for (i in 0 until fogStops.lastIndex) {
+        val (p0, c0) = fogStops[i]
+        val (p1, c1) = fogStops[i + 1]
+        if (f <= p1) {
+            val t = if (p1 == p0) 0f else (f - p0) / (p1 - p0)
+            return androidx.compose.ui.graphics.lerp(c0, c1, t)
+        }
+    }
+    return fogStops.last().second
+}
 
 private operator fun Offset.times(s: Float) = Offset(x * s, y * s)
+
+/** A small map-marker teardrop with its tip anchored at [tip]. */
+private fun DrawScope.drawPin(tip: Offset, color: Color, halo: Color) {
+    val headC = Offset(tip.x, tip.y - 22f)
+    val headR = 12f
+    val tail = Path().apply {
+        moveTo(tip.x, tip.y)
+        lineTo(headC.x - headR * 0.78f, headC.y + headR * 0.55f)
+        lineTo(headC.x + headR * 0.78f, headC.y + headR * 0.55f)
+        close()
+    }
+    // Halo outline first so the pin stays crisp on any fog colour.
+    drawPath(tail, halo, style = Stroke(width = 5f))
+    drawCircle(halo, radius = headR + 2.5f, center = headC)
+    drawPath(tail, color)
+    drawCircle(color, radius = headR, center = headC)
+    drawCircle(halo, radius = 4.5f, center = headC) // the pin's "hole"
+}
 
 private fun DrawScope.drawStar(center: Offset, r: Float, color: Color) {
     val p = Path()

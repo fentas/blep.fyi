@@ -1,5 +1,6 @@
 package fyi.blep.core.spatial
 
+import kotlin.math.abs
 import kotlin.math.log10
 import kotlin.math.max
 import kotlin.test.Test
@@ -124,6 +125,27 @@ class SignalFieldTest {
         // The wedges must span (most of) the circle, not cluster in one direction.
         val bins = reveals.map { ((it.bearingRad / (2.0 * kotlin.math.PI)) * 8).toInt().coerceIn(0, 7) }.toSet()
         assertTrue(bins.size >= 6, "sweep should cover most octants, covered $bins")
+    }
+
+    // ── the fog raster averages instead of stacking ──────────────────────────
+    @Test
+    fun fogAveragesOverlappingReveals() {
+        val fog = SignalFog(cellM = 1.0, reachM = 6.0)
+        // Two reveals over the same ground with very different readings: the
+        // covered cells must blend toward the mean, not keep either extreme.
+        fog.stamp(Vec2(0.0, 0.0), 0.0, 0.9, nowMs = 0)
+        fog.stamp(Vec2(0.0, 0.0), 0.0, 0.1, nowMs = 1000)
+        val ahead = fog.all().filter { it.y in 1.0..5.0 && abs(it.x) < 1.0 }
+        assertTrue(ahead.isNotEmpty())
+        for (c in ahead) {
+            assertTrue(c.strength01 in 0.3..0.7, "cell should blend toward the mean, was ${c.strength01}")
+        }
+        // And a sweep covers ground: stamping all around leaves a disc, not a line.
+        repeat(16) { fog.stamp(Vec2(0.0, 0.0), it * (2.0 * kotlin.math.PI / 16.0), 0.5, nowMs = 2000) }
+        val left = fog.all().any { it.x < -3.0 }
+        val right = fog.all().any { it.x > 3.0 }
+        val behind = fog.all().any { it.y < -3.0 }
+        assertTrue(left && right && behind, "a full sweep should fog all around")
     }
 
     // ── recency + hits fold into confidence via the tracker ─────────────────
