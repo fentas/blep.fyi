@@ -12,11 +12,12 @@ HOW IT WORKS
 3. Pinpoint — up close, blep celebrates the moment you find it.
 
 WHAT MAKES IT GOOD
-• Direction by signal — a compass-and-signal pointer, not a fuzzy radar.
-• An on-screen trail of where you've searched, coloured by signal strength.
-• "Warmer this way" — if you stray, it points you back to the strongest spot.
+• A living map, not a fuzzy radar: walking and turning reveal the area around
+  you, tinted warm or cold by the measured signal — and the located device gets
+  a destination pin in the warmest zone.
+• One clear arrow that always matches the text guidance; if you stray, "warmer
+  this way" points you back to the strongest spot.
 • Right on top of it, it drops the guesswork and just says "it's right here".
-• Tells you when the field is clean vs noisy, and when there's no signal at all.
 • Optional sound and vibration that quicken as you close in — each on its own toggle.
 • Light, dark or system theme — your call.
 
@@ -28,15 +29,14 @@ address is fixed or a rotating privacy one, and how long ago you first saw it.
 • Rename a device, and the name follows it even when it rotates its ID.
 • "Watch this device" — keep a closer eye on a specific device: blep raises its
   priority so it keeps re-finding it even as it rotates its ID and pings you
-  whenever it's nearby (handy for a tracker you suspect is following you). A
-  watched device stays pinned in your list.
+  whenever it's nearby (handy for a suspected tracker). It stays pinned in your
+  list.
 • "Left-behind" — watch a thing (a tag on your keys, a bag, earbuds, even your
   phone) and blep buzzes you when it slips out of Bluetooth range, and again when
-  it's back — so you notice before you walk off without it. A left-behind device
-  stays pinned in your list. Works in the background.
-• blep stitches a rotating ID back into one device — its history, how sure it is,
-  and your rename don't reset every few minutes. All on-device, and you choose how
-  long a device is remembered.
+  it's back — so you notice before you walk off without it. Stays pinned, works
+  in the background.
+• blep stitches a rotating ID back into one device, so history and renames don't
+  reset every few minutes. On-device; you choose how long it's remembered.
 
 IS SOMETHING TRACKING YOU?
 Tap "Is something tracking you?" to scan for unwanted trackers travelling with
@@ -52,10 +52,9 @@ And because blep is a finder, it doesn't just warn — it points you to it.
 • Sensitivity — Relaxed, Balanced or Strict, to tune how eagerly it flags.
 On-device only — nothing ever leaves your phone — and you can turn it all off any
 time.
-Heads-up: tracker detection is new and not yet widely field-tested. It can miss a
-real tracker (a false negative) or flag a harmless device (a false positive), so
-treat it as a helpful signal — not a guarantee — and don't rely on it alone for
-your safety.
+Heads-up: tracker detection is new and not yet widely field-tested. It can miss
+a real tracker or flag a harmless one — treat it as a helpful signal, not a
+guarantee, and don't rely on it alone for your safety.
 
 PRIVATE BY DESIGN
 No accounts. No ads. No analytics. No data collection. Everything happens on
@@ -66,5 +65,5 @@ blep is free and open source: https://github.com/fentas/blep.fyi
 
 GOOD TO KNOW
 blep finds things within Bluetooth range (roughly a room, a floor, or a parking
-lot). It is not a GPS/cloud tracker — it can't locate a tag across town the way a
-Find My network does. It guides you the last stretch, by signal.
+lot). It's not a GPS/cloud tracker like a Find My network — it guides you the
+last stretch, by signal.

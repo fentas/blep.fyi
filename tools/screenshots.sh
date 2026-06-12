@@ -80,15 +80,15 @@ if [ "${1:-}" != "--compose" ]; then
     until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ]; do sleep 2; done
   fi
   echo "› building + installing demo build…"
-  ( cd "$APP" && ./gradlew :composeApp:assembleDebug -q )
-  adb install -r "$APP/composeApp/build/outputs/apk/debug/composeApp-debug.apk" >/dev/null
+  ( cd "$APP" && ./gradlew :androidApp:assembleDebug -q )
+  adb install -r "$APP/androidApp/build/outputs/apk/debug/androidApp-debug.apk" >/dev/null
 
   echo "› running scripted demo + capturing…"
   adb shell am force-stop "$PKG"
   adb shell am start -n "$PKG/.MainActivity" --ez demo true >/dev/null
   sleep 4
   adb exec-out screencap -p > "$RAW/01-discovery.png"
-  adb shell input tap 540 721                 # tap the first device (Keys)
+  adb shell input tap 540 830                 # tap the first device (Keys)
   sleep 9;  adb exec-out screencap -p > "$RAW/02-tracking.png"  # mid-walk, on course
   sleep 5;  adb exec-out screencap -p > "$RAW/03-found.png"     # "Right here?"
   adb shell input tap 540 2024                # "Got it" → celebration

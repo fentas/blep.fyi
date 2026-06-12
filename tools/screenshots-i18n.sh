@@ -103,6 +103,8 @@ launch_demo() { local i=0
     sleep 2; i=$((i + 1)); [ $i -gt 20 ] && break
   done; }
 
+# persist.sys.* needs a rooted adbd (works on the google_apis emulator image).
+adb root >/dev/null 2>&1; adb wait-for-device
 set_locale() { adb shell "setprop persist.sys.locale $3; setprop persist.sys.language $1; setprop persist.sys.country $2" >/dev/null
   adb shell "su 0 setprop ctl.restart zygote" 2>/dev/null || true
   # boot_completed stays 1 across a zygote restart, so wait for the package
@@ -114,14 +116,14 @@ set_locale() { adb shell "setprop persist.sys.locale $3; setprop persist.sys.lan
 capture_set() { local raw="$1"
   adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
   adb exec-out screencap -p > "$raw/01.png"
-  adb shell input tap 540 721; sleep 9; adb exec-out screencap -p > "$raw/02.png"
+  adb shell input tap 540 830; sleep 9; adb exec-out screencap -p > "$raw/02.png"
   sleep 5; adb exec-out screencap -p > "$raw/03.png"
   adb shell input tap 540 2024; sleep 2; adb exec-out screencap -p > "$raw/04.png"
   adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
   adb shell input tap 420 460; sleep 8; adb exec-out screencap -p > "$raw/05.png"
   # 07: a device's detail panel — open the first device's "›" (identity, rename, watch).
   adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
-  adb shell input tap 950 784; sleep 2; adb exec-out screencap -p > "$raw/07.png"
+  adb shell input tap 950 830; sleep 2; adb exec-out screencap -p > "$raw/07.png"
   # 06: dark theme — the app follows the system, so flip night mode and show the
   # discovery list in dark.
   adb shell cmd uimode night yes >/dev/null 2>&1
