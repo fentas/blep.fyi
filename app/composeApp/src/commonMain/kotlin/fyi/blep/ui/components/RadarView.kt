@@ -205,12 +205,25 @@ fun RadarView(
         // and "north = forward" carries no information anyway.
         val northDeg = normalizeDeg((-heading * 180.0 / PI).toFloat())
         if (kotlin.math.abs(northDeg) > 14f) {
-            // A proper compass chip: halo disc + ring so it reads over any fog.
-            val n = hub + dirFor(0.0) * (r2 * scale).toFloat()
-            drawCircle(halo, radius = 17f, center = n)
-            drawCircle(ink.copy(alpha = 0.35f), radius = 17f, center = n, style = Stroke(width = 2.5f))
-            val layout = measurer.measure("N", TextStyle(color = ink.copy(alpha = 0.85f), fontSize = 13.sp, fontWeight = FontWeight.Bold))
-            drawText(layout, topLeft = Offset(n.x - layout.size.width / 2f, n.y - layout.size.height / 2f))
+            // A compass chip: halo disc with a rose needle pointing north over the
+            // glyph — reads as "compass" at a glance, on any fog colour.
+            val nd = dirFor(0.0)
+            val n = hub + nd * (r2 * scale).toFloat()
+            drawCircle(halo, radius = 20f, center = n)
+            drawCircle(ink.copy(alpha = 0.25f), radius = 20f, center = n, style = Stroke(width = 2f))
+            val perp = Offset(-nd.y, nd.x)
+            val needle = Path().apply {
+                val tipP = n + nd * 16f
+                val baseP = n + nd * 3f
+                moveTo(tipP.x, tipP.y)
+                lineTo((baseP + perp * 5f).x, (baseP + perp * 5f).y)
+                lineTo((baseP - perp * 5f).x, (baseP - perp * 5f).y)
+                close()
+            }
+            drawPath(needle, Rose)
+            val layout = measurer.measure("N", TextStyle(color = ink.copy(alpha = 0.8f), fontSize = 11.sp, fontWeight = FontWeight.Bold))
+            val lc = n - nd * 8f
+            drawText(layout, topLeft = Offset(lc.x - layout.size.width / 2f, lc.y - layout.size.height / 2f))
         }
 
         // ── the trail, coloured per segment by signal ────────────────────────
