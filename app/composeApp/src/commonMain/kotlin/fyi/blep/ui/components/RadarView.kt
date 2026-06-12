@@ -127,17 +127,25 @@ fun RadarView(
         // (plain background), which is the honest amount of knowledge.
         val field = snapshot?.field ?: emptyList()
         if (field.isNotEmpty()) {
-            val cellR = ((snapshot!!.fieldCellM * scale).toFloat() * 0.62f).coerceIn(5f, 26f)
+            val cellR = ((snapshot!!.fieldCellM * scale).toFloat() * 0.9f).coerceIn(8f, 44f)
             for (c in field) {
                 if (c.confidence <= 0.05f) continue
                 val p = toScreen(c.pos)
                 val shadow = (c.residualDb ?: 0.0) < SHADOW_DB
+                // Soft gradient splat (fog, not confetti); strong enough to read on
+                // the proximity background — a once-visited warm cell ≈ 30% centre.
+                // Cold cells stay visible too — "worse here" is half the map's point —
+                // so alpha leans on confidence, only mildly on strength.
                 val col = if (shadow) {
-                    ink.copy(alpha = 0.06f + 0.10f * c.confidence)
+                    ink.copy(alpha = 0.14f + 0.18f * c.confidence)
                 } else {
-                    signalColor(c.strength01).copy(alpha = (0.08f + 0.16f * c.confidence) * (0.35f + 0.65f * c.strength01))
+                    signalColor(c.strength01).copy(alpha = (0.20f + 0.34f * c.confidence) * (0.72f + 0.28f * c.strength01))
                 }
-                drawCircle(col, radius = cellR, center = p)
+                drawCircle(
+                    brush = Brush.radialGradient(listOf(col, col.copy(alpha = 0f)), center = p, radius = cellR * 1.5f),
+                    radius = cellR * 1.5f,
+                    center = p,
+                )
             }
         }
 
