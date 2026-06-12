@@ -118,7 +118,21 @@ private fun scriptedRssi(t: Double): Int {
         t < 12.0 -> -78.0 + (t - 5.5) / 6.5 * 42.0        // walk in: -78 → -36 (turn cues, then closing)
         else -> -36.0                                     // on you: point-blank, "it's right here"
     }
-    return (base + 0.5 * sin(t * 5.1)).toInt()
+    return (base - wallNotch(t) + 0.5 * sin(t * 5.1)).toInt()
+}
+
+/**
+ * A virtual wall crossed early in the walk: the signal notches ~12 dB down for a
+ * metre or two, then line-of-sight returns. The cells fogged during the notch
+ * read far below the path-loss expectation once the target is localised, so the
+ * radar darkens them — the wall-shadow layer, demoable without hardware. Early
+ * (6.0–7.4 s) so the curated screenshot beats (~9 s, ~12 s) stay untouched.
+ */
+private fun wallNotch(t: Double): Double = when {
+    t < 6.0 || t > 7.4 -> 0.0
+    t < 6.3 -> (t - 6.0) / 0.3 * 12.0
+    t > 7.1 -> (7.4 - t) / 0.3 * 12.0
+    else -> 12.0
 }
 
 /** Rotate on the spot through the sweep (so a real turn is detected), then walk

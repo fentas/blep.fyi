@@ -113,9 +113,12 @@ fun RadarView(
             val spanM = stops.last().distanceM
             val rPx = (spanM * scale).toFloat()
             val conf = est0.confidence
+            // Deliberately humble: an early estimate can be metres off, and a
+            // confident-looking pool there would out-shout the measured fog. The
+            // prediction stays a whisper under the ground truth.
             val colorStops = stops.map { s ->
                 (s.distanceM / spanM).toFloat() to
-                    fogColor(s.strength01).copy(alpha = (0.10f + 0.22f * conf) * (0.25f + 0.75f * s.strength01))
+                    fogColor(s.strength01).copy(alpha = (0.06f + 0.15f * conf) * (0.25f + 0.75f * s.strength01))
             }.toTypedArray()
             drawCircle(
                 brush = Brush.radialGradient(colorStops = colorStops, center = tc, radius = rPx),
@@ -159,7 +162,9 @@ fun RadarView(
             for (c in field) {
                 if (c.confidence <= 0.05f || (c.residualDb ?: 0.0) >= SHADOW_DB) continue
                 val p = toScreen(c.pos)
-                val col = ink.copy(alpha = 0.30f + 0.25f * c.confidence)
+                // Fixed dark, NOT ink: ink flips light in dark mode and a shadow
+                // must darken on every theme.
+                val col = ShadowInk.copy(alpha = 0.30f + 0.25f * c.confidence)
                 drawCircle(
                     brush = Brush.radialGradient(listOf(col, col.copy(alpha = 0f)), center = p, radius = cellR * 1.5f),
                     radius = cellR * 1.5f,
@@ -353,6 +358,8 @@ fun RadarView(
 // Residual this far below the path-loss expectation = the cell is shadowed
 // (matches the wall-vs-noise margin proven in core's SignalFieldTest).
 private const val SHADOW_DB = -8.0
+
+private val ShadowInk = Color(0xFF222B35)   // wall-shadow patches — dark on every theme
 
 private val Rose = Color(0xFFD94F70)        // cue ray toward signal/target
 private val Amber = Color(0xFFE8A33D)       // cue ray back to the warmest spot

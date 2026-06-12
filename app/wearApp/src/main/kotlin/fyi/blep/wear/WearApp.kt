@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
@@ -237,7 +238,11 @@ private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialS
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             // Spatial map when motion sensors feed it; otherwise the shape arrow.
-            if (spatial != null) WearRadar(spatial) else WearArrow(status.arrow.curl, status.arrow.scale)
+            if (spatial != null) {
+                WearRadar(spatial, line = if (onIt) null else guidanceLine, background = bg)
+            } else {
+                WearArrow(status.arrow.curl, status.arrow.scale)
+            }
             Text(
                 if (onIt) stringResource(R.string.tracking_right_here) else phaseTitle(status.guidance),
                 color = Ink,
@@ -277,60 +282,149 @@ private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialS
     }
 }
 
-/** Compact map-less radar for the watch: trail (signal-coloured), your dot +
- *  heading wedge (green toward / red away from target), and the target glow. */
+/** Compact heads-up map for the watch, mirroring the phone radar: your forward
+ *  direction is always up around a fixed chevron; the fog of war (averaged
+ *  reveal tint) paints where you've been, the destination pin marks the
+ *  estimate, and ONE cue ray shows the same turn the text phrases. */
 @Composable
-private fun WearRadar(snapshot: SpatialSnapshot) {
-    Canvas(modifier = Modifier.size(108.dp)) {
-        val cx = size.width / 2f; val cy = size.height / 2f
+private fun WearRadar(snapshot: SpatialSnapshot, line: GuidanceLine?, background: Color) {
+    Canvas(modifier = Modifier.size(108.dp).clipToBounds()) {
+        val hub = Offset(size.width / 2f, size.height / 2f)
         val pts = snapshot.path
         val here = snapshot.here
-        val target = snapshot.target.position
-        var minX = -3.0; var maxX = 3.0; var minY = -3.0; var maxY = 3.0
-        fun include(v: Vec2) {
-            if (v.x < minX) minX = v.x; if (v.x > maxX) maxX = v.x
-            if (v.y < minY) minY = v.y; if (v.y > maxY) maxY = v.y
+        val heading = snapshot.headingRad
+        var maxR = 3.0
+        fun include(v: Vec2) { val d = (v - here).length; if (d > maxR) maxR = d }
+        pts.forEach { include(it.pos) }; include(Vec2.ZERO); snapshot.target.position?.let(::include)
+        val scale = (size.minDimension * 0.44f) / maxR.toFloat()
+        val ch = cos(heading).toFloat(); val sh = sin(heading).toFloat()
+        fun toScreen(v: Vec2): Offset {
+            val x = ((v.x - here.x) * scale).toFloat()
+            val y = (-(v.y - here.y) * scale).toFloat()
+            return Offset(hub.x + x * ch + y * sh, hub.y - x * sh + y * ch)
         }
-        pts.forEach { include(it.pos) }; include(here); target?.let(::include)
-        val span = max(max(maxX - minX, maxY - minY), 6.0)
-        val midX = (minX + maxX) / 2.0; val midY = (minY + maxY) / 2.0
-        val scale = (minOf(size.width, size.height) * 0.82f) / span.toFloat()
-        fun toScreen(v: Vec2) = Offset(cx + ((v.x - midX) * scale).toFloat(), cy - ((v.y - midY) * scale).toFloat())
+
+        // fog of war: the averaged reveal raster (see the phone RadarView).
+        val splatR = ((snapshot.fogCellM * scale).toFloat() * 1.5f).coerceAtLeast(5f)
+        for (c in snapshot.fog) {
+            if (c.confidence <= 0.04f) continue
+            val p = toScreen(c.pos)
+            val col = fogColor(c.strength01).copy(alpha = 0.30f + 0.25f * c.confidence)
+            drawCircle(
+                brush = Brush.radialGradient(0f to col, 0.55f to col, 1f to col.copy(alpha = 0f), center = p, radius = splatR),
+                radius = splatR, center = p,
+            )
+        }
+        // Vignette into the page colour — fade completes inside the canvas so the
+        // clip edge can't show as a border.
+        drawRect(
+            brush = Brush.radialGradient(
+                0.55f to background.copy(alpha = 0f), 0.96f to background,
+                center = hub, radius = size.minDimension * 0.5f,
+            ),
+        )
 
         // trail
         for (k in 1 until pts.size) {
             drawLine(
-                proximityColor((pts[k - 1].strength01 + pts[k].strength01) / 2f),
+                fogColor((pts[k - 1].strength01 + pts[k].strength01) / 2f),
                 toScreen(pts[k - 1].pos), toScreen(pts[k].pos), strokeWidth = 4f, cap = StrokeCap.Round,
             )
         }
         // start
         drawCircle(Ink.copy(alpha = 0.45f), radius = 4f, center = toScreen(Vec2.ZERO))
-        // target glow
+        // destination pin on the estimate (+ confidence glow)
         val est = snapshot.target
+        val target = est.position
         if (target != null && est.confidence > 0.05f) {
             val tc = toScreen(target)
             val r = 14f * (0.6f + est.confidence)
-            drawCircle(Brush.radialGradient(listOf(Color(0xFFFAB1B7).copy(alpha = 0.5f * est.confidence), Color.Transparent), center = tc, radius = r), radius = r, center = tc)
-            drawCircle(Color(0xFFFAB1B7), radius = 4f, center = tc)
+            drawCircle(Brush.radialGradient(listOf(WearRose.copy(alpha = 0.45f * est.confidence), Color.Transparent), center = tc, radius = r), radius = r, center = tc)
+            val headC = Offset(tc.x, tc.y - 13f)
+            val headR = 7f
+            val tail = Path().apply {
+                moveTo(tc.x, tc.y)
+                lineTo(headC.x - headR * 0.78f, headC.y + headR * 0.55f)
+                lineTo(headC.x + headR * 0.78f, headC.y + headR * 0.55f)
+                close()
+            }
+            drawPath(tail, Cream, style = Stroke(width = 4f))
+            drawCircle(Cream, radius = headR + 2f, center = headC)
+            drawPath(tail, WearRose)
+            drawCircle(WearRose, radius = headR, center = headC)
+            drawCircle(Cream, radius = 2.5f, center = headC)
         }
-        // you + heading wedge
-        val hp = toScreen(here)
-        val wedge = when {
-            snapshot.target.bearingRad == null -> Color(0xFF5F90C3)
-            snapshot.onCourse > 0.25f -> Color(0xFF8FCB7A)
-            snapshot.onCourse < -0.25f -> Color(0xFFE0907F)
-            else -> Color(0xFF5F90C3)
+        // ONE cue ray — the same stabilized cue the text phrases (rose toward the
+        // signal/target, amber back to the warmest spot on recovery).
+        val turnDeg: Float? = when {
+            line != null -> if (line.ahead) 0f else line.turnDeg.toFloat()
+            else -> null
         }
-        val dir = Offset(sin(snapshot.headingRad).toFloat(), -cos(snapshot.headingRad).toFloat())
-        val perp = Offset(-dir.y, dir.x)
-        val tip = Offset(hp.x + dir.x * 18f, hp.y + dir.y * 18f)
-        val b1 = Offset(hp.x + perp.x * 7f, hp.y + perp.y * 7f)
-        val b2 = Offset(hp.x - perp.x * 7f, hp.y - perp.y * 7f)
-        drawPath(Path().apply { moveTo(tip.x, tip.y); lineTo(b1.x, b1.y); lineTo(b2.x, b2.y); close() }, wedge)
-        drawCircle(Ink, radius = 5f, center = hp)
-        drawCircle(Color(0xFFF4F5F0), radius = 2.5f, center = hp)
+        if (turnDeg != null) {
+            val a = (turnDeg - 90f) * (PI.toFloat() / 180f)
+            val dir = Offset(cos(a), sin(a))
+            val from = hub + Offset(dir.x * 14f, dir.y * 14f)
+            val tip = hub + Offset(dir.x * size.minDimension * 0.30f, dir.y * size.minDimension * 0.30f)
+            val col = if (line!!.kind == CueKind.RECOVER) WearAmber else WearRose
+            drawLine(Cream, from, tip, strokeWidth = 8f, cap = StrokeCap.Round)
+            drawLine(col, from, tip, strokeWidth = 5f, cap = StrokeCap.Round)
+            val perp = Offset(-dir.y, dir.x)
+            val back = Offset(tip.x - dir.x * 11f, tip.y - dir.y * 11f)
+            drawPath(
+                Path().apply {
+                    moveTo(tip.x + dir.x * 7f, tip.y + dir.y * 7f)
+                    lineTo(back.x + perp.x * 8f, back.y + perp.y * 8f)
+                    lineTo(back.x - perp.x * 8f, back.y - perp.y * 8f)
+                    close()
+                },
+                col,
+            )
+        }
+        // you: a fixed chevron, always up (heads-up frame)
+        val wedgeColor = when {
+            snapshot.target.bearingRad == null -> Ink
+            snapshot.onCourse > 0.25f -> Color(0xFF3E8F4E)
+            snapshot.onCourse < -0.25f -> Color(0xFFC85A41)
+            else -> Ink
+        }
+        val tipP = Offset(hub.x, hub.y - 18f)
+        val baseY = hub.y + 5f
+        val wedge = Path().apply {
+            moveTo(tipP.x, tipP.y)
+            lineTo(hub.x + 9f, baseY)
+            lineTo(hub.x, hub.y)
+            lineTo(hub.x - 9f, baseY)
+            close()
+        }
+        drawPath(wedge, Cream, style = Stroke(width = 3.5f))
+        drawPath(wedge, wedgeColor)
     }
+}
+
+// Map-layer palette (mirrors the phone RadarView): a wide temperature ramp so
+// cold and warm are unmistakable at fog alpha, plus the cue/pin colours.
+private val WearRose = Color(0xFFD94F70)
+private val WearAmber = Color(0xFFE8A33D)
+private val Cream = Color(0xFFF4F5F0)
+private val fogStops = listOf(
+    0.00f to Color(0xFF5E83C9),
+    0.35f to Color(0xFF8FD0CB),
+    0.60f to Color(0xFFC4E7B6),
+    0.80f to Color(0xFFF4D58D),
+    1.00f to Color(0xFFE8A33D),
+)
+
+private fun fogColor(strength01: Float): Color {
+    val f = ((strength01 - 0.15f) / 0.7f).coerceIn(0f, 1f)
+    for (i in 0 until fogStops.lastIndex) {
+        val (p0, c0) = fogStops[i]
+        val (p1, c1) = fogStops[i + 1]
+        if (f <= p1) {
+            val t = if (p1 == p0) 0f else (f - p0) / (p1 - p0)
+            return lerp(c0, c1, t)
+        }
+    }
+    return fogStops.last().second
 }
 
 @Composable
