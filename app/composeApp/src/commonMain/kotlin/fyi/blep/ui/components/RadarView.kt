@@ -87,7 +87,15 @@ fun RadarView(
         }
         pts.forEach { include(it.pos) }
         include(Vec2.ZERO); target?.let(::include)
-        val scale = (size.minDimension * 0.40f) / maxR.toFloat()
+        // The labelled rings snap UP to round metres (niceMeters), so fit the
+        // scale to the rounded outer ring, not just the raw extent — otherwise
+        // the ring circle clips at the canvas sides.
+        val ring1M = niceMeters(maxR / 2.0)
+        val ring2M = niceMeters(maxR).let { if (it <= ring1M) ring1M * 2.0 else it }
+        val scale = minOf(
+            (size.minDimension * 0.40f) / maxR.toFloat(),
+            (size.minDimension * 0.46f) / ring2M.toFloat(),
+        )
         val ch = cos(heading).toFloat(); val sh = sin(heading).toFloat()
         // East/north metres → heads-up screen px (rotate the north-up frame by -heading).
         fun toScreen(v: Vec2): Offset {
@@ -195,8 +203,8 @@ fun RadarView(
 
         // ── range rings: distance from you, snapped to round metres + labelled ──
         val ringColor = ink.copy(alpha = if (signalLost) 0.14f else 0.32f)
-        val r1 = niceMeters(maxR / 2.0)
-        val r2 = niceMeters(maxR).let { if (it <= r1) r1 * 2.0 else it }
+        val r1 = ring1M
+        val r2 = ring2M
         listOf(r1, r2).forEach { rm ->
             val rPx = (rm * scale).toFloat()
             drawCircle(ringColor, radius = rPx, center = hub, style = Stroke(width = 4f))
@@ -210,25 +218,27 @@ fun RadarView(
         // and "north = forward" carries no information anyway.
         val northDeg = normalizeDeg((-heading * 180.0 / PI).toFloat())
         if (kotlin.math.abs(northDeg) > 14f) {
-            // A compass chip: halo disc with a rose needle pointing north over the
-            // glyph — reads as "compass" at a glance, on any fog colour.
+            // Compass chip, map-app style: a clean disc with the N centred and a
+            // small rose tick riding the rim on its north side — calm, symmetric,
+            // legible on any fog colour.
             val nd = dirFor(0.0)
             val n = hub + nd * (r2 * scale).toFloat()
-            drawCircle(halo, radius = 20f, center = n)
-            drawCircle(ink.copy(alpha = 0.25f), radius = 20f, center = n, style = Stroke(width = 2f))
+            val discR = 19f
+            drawCircle(halo, radius = discR, center = n)
+            drawCircle(ink.copy(alpha = 0.18f), radius = discR, center = n, style = Stroke(width = 2f))
             val perp = Offset(-nd.y, nd.x)
-            val needle = Path().apply {
-                val tipP = n + nd * 16f
-                val baseP = n + nd * 3f
+            val tick = Path().apply {
+                val tipP = n + nd * (discR + 9f)
+                val baseP = n + nd * (discR - 2f)
                 moveTo(tipP.x, tipP.y)
-                lineTo((baseP + perp * 5f).x, (baseP + perp * 5f).y)
-                lineTo((baseP - perp * 5f).x, (baseP - perp * 5f).y)
+                lineTo((baseP + perp * 5.5f).x, (baseP + perp * 5.5f).y)
+                lineTo((baseP - perp * 5.5f).x, (baseP - perp * 5.5f).y)
                 close()
             }
-            drawPath(needle, Rose)
-            val layout = measurer.measure("N", TextStyle(color = ink.copy(alpha = 0.8f), fontSize = 11.sp, fontWeight = FontWeight.Bold))
-            val lc = n - nd * 8f
-            drawText(layout, topLeft = Offset(lc.x - layout.size.width / 2f, lc.y - layout.size.height / 2f))
+            drawPath(tick, halo, style = Stroke(width = 4f))
+            drawPath(tick, Rose)
+            val layout = measurer.measure("N", TextStyle(color = ink.copy(alpha = 0.85f), fontSize = 13.sp, fontWeight = FontWeight.Bold))
+            drawText(layout, topLeft = Offset(n.x - layout.size.width / 2f, n.y - layout.size.height / 2f))
         }
 
         // ── the trail, coloured per segment by signal ────────────────────────
