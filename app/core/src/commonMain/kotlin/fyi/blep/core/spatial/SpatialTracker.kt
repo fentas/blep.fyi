@@ -48,6 +48,15 @@ data class FieldCell(
     val confidence: Float,
 )
 
+/**
+ * One stop of the *predicted* signal field around the target estimate: at
+ * [distanceM] from the estimate the calibrated path-loss model expects
+ * [strength01] signal. The UI paints these as a radial warm→cold wash centred
+ * on the target — the "map" the triangulation believes in — with the measured
+ * [FieldCell]s as ground truth on top.
+ */
+data class FieldStop(val distanceM: Double, val strength01: Float)
+
 /** Everything the spatial map UI needs for one frame. */
 data class SpatialSnapshot(
     val here: Vec2,
@@ -83,6 +92,9 @@ data class SpatialSnapshot(
     val field: List<FieldCell> = emptyList(),
     /** Edge length (m) of one field cell, for sizing the fog dots. */
     val fieldCellM: Double = 1.0,
+    /** Predicted signal vs distance from the target estimate (empty until the
+     *  target is localised) — the radial field the UI paints under everything. */
+    val fieldGradient: List<FieldStop> = emptyList(),
 )
 
 /**
@@ -296,7 +308,18 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             signalVolatilityDb = if (signalVolatility.isNaN()) 0.0 else signalVolatility,
             field = fieldCells(altitude, target),
             fieldCellM = tuning.gridCellM,
+            fieldGradient = fieldGradient(target),
         )
+    }
+
+    /** Predicted strength at growing distances from the target estimate, from the
+     *  live calibrated path-loss model — the radial "map" layer. */
+    private fun fieldGradient(target: TargetEstimate): List<FieldStop> {
+        if (target.position == null || target.confidence < FIELD_RESIDUAL_MIN_CONFIDENCE) return emptyList()
+        return (0..FIELD_GRADIENT_STOPS).map { i ->
+            val d = i * FIELD_GRADIENT_STEP_M
+            FieldStop(d, tuning.strength01(pathLoss.expectedRssi(d)))
+        }
     }
 
     /**
@@ -392,6 +415,9 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         // moved target / opened door doesn't leave stale shadows around.
         const val FIELD_RESIDUAL_MIN_CONFIDENCE = 0.35f
         const val FIELD_HALF_LIFE_MS = 90_000.0
+        // Predicted-field sampling: 9 stops × 4 m ≈ the radar's working range.
+        const val FIELD_GRADIENT_STOPS = 8
+        const val FIELD_GRADIENT_STEP_M = 4.0
         // Only sample environmental jitter between headings this close (rad ≈ 5°),
         // so the body-shield swing during a sweep isn't counted as noise.
         const val VOL_STEADY_RAD = 0.09

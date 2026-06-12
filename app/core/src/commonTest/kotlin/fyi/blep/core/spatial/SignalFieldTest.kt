@@ -93,6 +93,20 @@ class SignalFieldTest {
         assertTrue(misClear <= residuals.count { !it.third } / 5, "too many clear cells read shadowed: $misClear")
     }
 
+    // ── the predicted-field gradient ─────────────────────────────────────────
+    @Test
+    fun predictedGradientFallsOffMonotonically() {
+        // The model's expected strength must decrease with distance — that's the
+        // warm→cold wash the UI paints around the estimate.
+        val tuning = SpatialTuning()
+        val model = PathLossModel.from(tuning)
+        val strengths = (0..8).map { tuning.strength01(model.expectedRssi(it * 4.0)) }
+        assertTrue(strengths.first() > strengths.last(), "field should cool with distance")
+        for (i in 1 until strengths.size) {
+            assertTrue(strengths[i] <= strengths[i - 1], "strength rose at stop $i: $strengths")
+        }
+    }
+
     // ── recency + hits fold into confidence via the tracker ─────────────────
     @Test
     fun fieldCellsCarryConfidenceAndFadeWithAge() {

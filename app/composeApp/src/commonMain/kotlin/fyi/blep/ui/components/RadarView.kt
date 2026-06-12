@@ -97,6 +97,29 @@ fun RadarView(
             return Offset(sin(a).toFloat(), -cos(a).toFloat())
         }
 
+        // ── predicted field: the map triangulation believes in ───────────────
+        // Once the target is localised, the calibrated path-loss model predicts
+        // the signal everywhere — painted as a radial warm→cold wash centred on
+        // the estimate, strengthening with confidence. The measured fog cells
+        // (and their shadows) layer on top as ground truth.
+        val est0 = snapshot?.target
+        val stops = snapshot?.fieldGradient ?: emptyList()
+        if (est0?.position != null && stops.size > 1) {
+            val tc = toScreen(est0.position!!)
+            val spanM = stops.last().distanceM
+            val rPx = (spanM * scale).toFloat()
+            val conf = est0.confidence
+            val colorStops = stops.map { s ->
+                (s.distanceM / spanM).toFloat() to
+                    signalColor(s.strength01).copy(alpha = (0.10f + 0.22f * conf) * (0.25f + 0.75f * s.strength01))
+            }.toTypedArray()
+            drawCircle(
+                brush = Brush.radialGradient(colorStops = colorStops, center = tc, radius = rPx),
+                radius = rPx,
+                center = tc,
+            )
+        }
+
         // ── range rings: distance from you, snapped to round metres + labelled ──
         val ringColor = ink.copy(alpha = if (signalLost) 0.14f else 0.32f)
         val r1 = niceMeters(maxR / 2.0)
