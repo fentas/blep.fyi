@@ -192,8 +192,10 @@ class BlepController(
      */
     val visibleDevices: List<BleDevice>
         get() = devices
-            .filter { it.isPresent || it.isFavorite || it.isTethered || it.isFlagged }   // nearby (incl. connected), starred, or watched
-            .filter { it.isFavorite || it.isTethered || it.isFlagged || includeUnnamed || it.isNamed } // unnamed toggle skips favourites/watched
+            .filter { it.isPresent || it.isFavorite || it.isTethered || it.isFlagged || it.id in suspectIds } // nearby, starred, watched, or suspected
+            // The unnamed toggle skips favourites/watched/suspects — a suspected tracker is
+            // usually unnamed, and hiding it would defeat the marking.
+            .filter { it.isFavorite || it.isTethered || it.isFlagged || it.id in suspectIds || includeUnnamed || it.isNamed }
             .sortedWith(
                 compareByDescending<BleDevice> { it.isFavorite }
                     .thenByDescending { it.isTethered || it.isFlagged }           // watched devices pin near the top too
@@ -228,6 +230,11 @@ class BlepController(
     private var favoriteIds: Set<String> = favorites.ids()
     private var flaggedIds: Set<String> = flags.ids()
     private var tetheredIds: Set<String> = tether.ids()
+
+    /** Devices the safety layer currently suspects (a live alert, or the tracker-alert
+     *  notification the user tapped to get here). Session-scoped; tints their list rows. */
+    var suspectIds by mutableStateOf<Set<String>>(emptySet())
+        private set
 
     /** Whether the continuous foreground watch service is currently running — drives the
      *  status indicator on the main screen. Kept in step by [applyForeground], the single
@@ -520,6 +527,19 @@ class BlepController(
      *  detail signal is driven by the screen via [startDetailSignal], keyed on the
      *  current (possibly rotated) address so it follows the device. */
     fun openDeviceDetail(device: BleDevice) { screen = Screen.DeviceDetail(device) }
+
+    /** A tapped tracker-alert notification lands here: mark the device suspect and open its
+     *  panel. The device may not be in the snapshot yet (the scan just started) — synthesize
+     *  a shell so the panel opens immediately; the live signal fills in as the scan sees it. */
+    fun openSuspect(id: String) {
+        suspectIds = suspectIds + id
+        val device = devices.firstOrNull { it.id == id }
+            ?: BleDevice(id = id, name = null, rssi = BleDevice.RSSI_UNKNOWN, alias = effectiveAlias(id))
+                // Seed it into the snapshot so the list shows the marked row right away
+                // (the retention merge keeps suspects, like favourites, once present).
+                .also { devices = devices + it }
+        openDeviceDetail(device)
+    }
 
     /** The device's current live address, following any id rotation since the detail
      *  page was opened — so a watched device's page tracks its lineage instead of
@@ -848,7 +868,11 @@ class BlepController(
             try {
                 // The SafetyScanner now probes suspects + persists identity itself (shared
                 // with the watch), so the controller just surfaces the alerts.
-                safetyScanner.alerts().collect { safetyAlerts = it }
+                safetyScanner.alerts().collect { list ->
+                    safetyAlerts = list
+                    // Remember who's suspected so the discovery list can mark those rows.
+                    suspectIds = suspectIds + list.mapNotNull { it.trackingAddress }
+                }
             } catch (c: CancellationException) {
                 throw c
             } catch (_: Throwable) {
@@ -870,6 +894,7 @@ class BlepController(
         val addr = alert.trackingAddress ?: return
         safetyScanner.mute(addr)
         safetyAlerts = safetyAlerts.filterNot { it.trackingAddress == addr }
+        suspectIds = suspectIds - addr // "it's mine" → stop marking its row
         lastMuted = alert
         syncPush()
     }
@@ -1042,7 +1067,7 @@ class BlepController(
                         // un-favouriting / un-watching an absent device drops it next pass.
                         val present = mapped.mapTo(HashSet()) { it.id }
                         val pinned = devices
-                            .filter { (it.id in favoriteIds || it.id in tetheredIds || effectiveFlagged(it.id)) && it.id !in present }
+                            .filter { (it.id in favoriteIds || it.id in tetheredIds || effectiveFlagged(it.id) || it.id in suspectIds) && it.id !in present }
                             .map {
                                 it.copy(
                                     rssi = BleDevice.RSSI_UNKNOWN, isConnected = false,
@@ -1074,6 +1099,15 @@ class BlepController(
     // property declared later in the class body didn't exist yet).
     init {
         if (demoIdentity.isEmpty()) startSync() // no Data Layer noise in demo/screenshots
+        // Tapped tracker-alert notifications (cold or warm start) → that device's panel.
+        scope.launch {
+            DeepLink.suspectId.collect { id ->
+                if (id != null) {
+                    DeepLink.suspectId.value = null // consume
+                    openSuspect(id)
+                }
+            }
+        }
     }
 
     private companion object {

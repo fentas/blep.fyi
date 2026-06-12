@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
@@ -145,6 +146,7 @@ fun DiscoveryScreen(
     onSetScanMode: (ScanMode) -> Unit = {},
     intervalMinutes: Int = 30,
     onIntervalChange: (Int) -> Unit = {},
+    suspectIds: Set<String> = emptySet(),
     modifier: Modifier = Modifier,
     rotationOf: (String) -> RotationStats? = { null },
 ) {
@@ -209,6 +211,7 @@ fun DiscoveryScreen(
                     onToggleFavorite = { onToggleFavorite(device) },
                     rotation = rotationOf(device.id),
                     nowMs = nowMs,
+                    suspect = device.id in suspectIds,
                     modifier = Modifier.animateItem(),
                 )
             }
@@ -568,6 +571,7 @@ private fun DeviceCard(
     onDetails: (() -> Unit)? = null,
     rotation: RotationStats? = null,
     nowMs: Long = 0L,
+    suspect: Boolean = false,
 ) {
     // A flagged device gone >1h with a rotating id has likely changed address — mark its
     // border dashed (vs a solid light-red border while it's still findable).
@@ -576,7 +580,11 @@ private fun DeviceCard(
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(22.dp),
-        color = MaterialTheme.colorScheme.surface,
+        // A suspected tracker (live safety alert / tapped alert notification) gets a
+        // pink-washed background so it stands out in the list at a glance. Composited
+        // opaque — a translucent surface lets the elevation shadow bleed through as mud.
+        color = if (suspect) BlepColors.Pink.copy(alpha = 0.16f).compositeOver(MaterialTheme.colorScheme.surface)
+        else MaterialTheme.colorScheme.surface,
         shadowElevation = 1.dp,
         // "Watch this device" (flag) marks the row with a light red border (solid while
         // findable; dashed once it's probably gone).

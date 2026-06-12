@@ -116,7 +116,7 @@ class BackgroundScanWorker(ctx: Context, params: WorkerParameters) : CoroutineWo
                 val hit = withTimeoutOrNull(SCAN_WINDOW_MS) {
                     safety.alerts().first { list -> list.any { it.severity == Severity.ALERT } }
                 }
-                hit?.firstOrNull { it.severity == Severity.ALERT }?.let { notifyTracker(ctx, text) }
+                hit?.firstOrNull { it.severity == Severity.ALERT }?.let { notifyTracker(ctx, text, it.trackingAddress) }
             }
             // Tether: watch this window for a tethered device leaving/returning. Interval
             // granularity, so a leave surfaces on the next cycle — acceptable off-screen.
@@ -204,7 +204,7 @@ class BackgroundScanService : Service() {
                     runCatching {
                         safety.alerts().collect { list ->
                             list.firstOrNull { it.severity == Severity.ALERT }?.let {
-                                notifyTracker(this@BackgroundScanService, text)
+                                notifyTracker(this@BackgroundScanService, text, it.trackingAddress)
                                 relay(SyncMessage.TrackerAlert(it.label)) // buzz the watch too
                             }
                         }
@@ -372,11 +372,20 @@ private fun notifyTetherReturned(ctx: Context, t: NotiText, name: String, device
     runCatching { NotificationManagerCompat.from(ctx).notify(tetherNotiId(deviceId), n) }
 }
 
-/** Open the app without hard-coding its Activity (it lives in the app module). */
-private fun openAppIntent(ctx: Context): PendingIntent {
+/** Intent extra: device id a tapped tracker alert should open (see MainActivity/DeepLink). */
+const val EXTRA_SUSPECT_ID = "fyi.blep.SUSPECT_ID"
+
+/** Open the app without hard-coding its Activity (it lives in the app module). With a
+ *  [suspectId], the tap deep-links to that device's panel — SINGLE_TOP so an already-open
+ *  app gets it via onNewIntent, and UPDATE_CURRENT so the extra isn't stale-cached. */
+private fun openAppIntent(ctx: Context, suspectId: String? = null): PendingIntent {
     val i = (ctx.packageManager.getLaunchIntentForPackage(ctx.packageName) ?: Intent())
-        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    return PendingIntent.getActivity(ctx, 0, i, PendingIntent.FLAG_IMMUTABLE)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+    suspectId?.let { i.putExtra(EXTRA_SUSPECT_ID, it) }
+    return PendingIntent.getActivity(
+        ctx, if (suspectId != null) 1 else 0, i,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+    )
 }
 
 private fun ongoingNotification(ctx: Context, t: NotiText, trackerScan: Boolean): Notification {
@@ -390,7 +399,7 @@ private fun ongoingNotification(ctx: Context, t: NotiText, trackerScan: Boolean)
         .build()
 }
 
-private fun notifyTracker(ctx: Context, t: NotiText) {
+private fun notifyTracker(ctx: Context, t: NotiText, suspectId: String? = null) {
     ensureChannels(ctx, t)
     if (!NotificationManagerCompat.from(ctx).areNotificationsEnabled()) return
     val n = NotificationCompat.Builder(ctx, CH_ALERT)
@@ -399,7 +408,7 @@ private fun notifyTracker(ctx: Context, t: NotiText) {
         .setSmallIcon(android.R.drawable.stat_sys_warning)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setAutoCancel(true)
-        .setContentIntent(openAppIntent(ctx))
+        .setContentIntent(openAppIntent(ctx, suspectId)) // tap → that device's panel
         .build()
     runCatching { NotificationManagerCompat.from(ctx).notify(NOTI_ALERT, n) }
 }

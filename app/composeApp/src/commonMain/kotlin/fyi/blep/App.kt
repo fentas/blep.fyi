@@ -94,6 +94,7 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     onSetScanMode = controller::selectScanMode,
                     intervalMinutes = controller.scanIntervalMinutes,
                     onIntervalChange = controller::setScanInterval,
+                    suspectIds = controller.suspectIds,
                     rotationOf = controller::rotationStats,
                 )
 

@@ -37,9 +37,12 @@
         android:theme="@style/Theme.Blep"
         android:supportsRtl="true">
 
+        <!-- singleTop so a tapped notification deep-link reaches an already-open app
+             via onNewIntent instead of being swallowed. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
             android:theme="@style/Theme.Blep">
             <intent-filter>
