@@ -142,28 +142,39 @@ fun RadarView(
             drawText(layout, topLeft = Offset(n.x - layout.size.width / 2f, n.y - layout.size.height / 2f))
         }
 
-        // ── explored signal field (fog of war): one soft dot per visited cell ──
-        // Where you've been, coloured warm/cold by the best signal read there.
-        // A cell whose residual sits far below the path-loss expectation is in
-        // *shadow* — something (a wall) blocks it toward the target — and renders
-        // as a dark patch instead of a warm one. Unexplored space stays "fogged"
-        // (plain background), which is the honest amount of knowledge.
+        // ── fog of war: directional reveals ──────────────────────────────────
+        // Every place you've stood + faced paints a wedge ahead of you, tinted by
+        // the dBm read there (body shielding makes a reading speak for the cone
+        // you face). Walking sweeps a corridor open; turning in place reveals a
+        // disc around you — VTT-style. Unexplored space stays plain background,
+        // which is the honest amount of knowledge.
+        val reveals = snapshot?.reveals ?: emptyList()
+        if (reveals.isNotEmpty()) {
+            val rPx = (REVEAL_RADIUS_M * scale).toFloat().coerceIn(30f, size.minDimension * 0.45f)
+            for (r in reveals) {
+                val p = toScreen(r.pos)
+                val angleDeg = ((r.bearingRad - heading) * 180.0 / PI).toFloat() - 90f
+                val col = signalColor(r.strength01).copy(alpha = 0.13f)
+                drawArc(
+                    brush = Brush.radialGradient(listOf(col, col.copy(alpha = 0f)), center = p, radius = rPx),
+                    startAngle = angleDeg - WEDGE_HALF_DEG,
+                    sweepAngle = WEDGE_HALF_DEG * 2f,
+                    useCenter = true,
+                    topLeft = Offset(p.x - rPx, p.y - rPx),
+                    size = Size(rPx * 2f, rPx * 2f),
+                )
+            }
+        }
+        // Measured shadow patches on top: a visited cell reading far below the
+        // path-loss expectation has something (a wall) blocking it toward the
+        // target — darken it so the obstruction shows through the reveal tint.
         val field = snapshot?.field ?: emptyList()
         if (field.isNotEmpty()) {
             val cellR = ((snapshot!!.fieldCellM * scale).toFloat() * 0.9f).coerceIn(8f, 44f)
             for (c in field) {
-                if (c.confidence <= 0.05f) continue
+                if (c.confidence <= 0.05f || (c.residualDb ?: 0.0) >= SHADOW_DB) continue
                 val p = toScreen(c.pos)
-                val shadow = (c.residualDb ?: 0.0) < SHADOW_DB
-                // Soft gradient splat (fog, not confetti); strong enough to read on
-                // the proximity background — a once-visited warm cell ≈ 30% centre.
-                // Cold cells stay visible too — "worse here" is half the map's point —
-                // so alpha leans on confidence, only mildly on strength.
-                val col = if (shadow) {
-                    ink.copy(alpha = 0.14f + 0.18f * c.confidence)
-                } else {
-                    signalColor(c.strength01).copy(alpha = (0.20f + 0.34f * c.confidence) * (0.72f + 0.28f * c.strength01))
-                }
+                val col = ink.copy(alpha = 0.16f + 0.18f * c.confidence)
                 drawCircle(
                     brush = Brush.radialGradient(listOf(col, col.copy(alpha = 0f)), center = p, radius = cellR * 1.5f),
                     radius = cellR * 1.5f,
@@ -298,6 +309,11 @@ fun RadarView(
 // Residual this far below the path-loss expectation = the cell is shadowed
 // (matches the wall-vs-noise margin proven in core's SignalFieldTest).
 private const val SHADOW_DB = -8.0
+
+// How far one reveal wedge reaches (m) and its half-width — roughly the cone the
+// body-shielded reading actually speaks for.
+private const val REVEAL_RADIUS_M = 4.0
+private const val WEDGE_HALF_DEG = 38f
 
 private val Rose = Color(0xFFD94F70)        // cue ray toward signal/target
 private val Amber = Color(0xFFE8A33D)       // cue ray back to the warmest spot

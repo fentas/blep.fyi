@@ -107,6 +107,25 @@ class SignalFieldTest {
         }
     }
 
+    // ── directional reveals: turning in place uncovers a disc ───────────────
+    @Test
+    fun sweepInPlaceRevealsWedgesAroundYou() {
+        val tracker = SpatialTracker()
+        var t = 0L
+        // A slow full turn on the spot: heading steps of ~7°, signal steady.
+        var snapshot: SpatialSnapshot? = null
+        for (i in 0..51) {
+            val h = i * (2.0 * kotlin.math.PI / 52.0)
+            snapshot = tracker.update(-65.0, MotionSample(timeMs = t, headingRad = h))
+            t += 200
+        }
+        val reveals = snapshot!!.reveals
+        assertTrue(reveals.size > 20, "a full sweep should leave many wedges, got ${reveals.size}")
+        // The wedges must span (most of) the circle, not cluster in one direction.
+        val bins = reveals.map { ((it.bearingRad / (2.0 * kotlin.math.PI)) * 8).toInt().coerceIn(0, 7) }.toSet()
+        assertTrue(bins.size >= 6, "sweep should cover most octants, covered $bins")
+    }
+
     // ── recency + hits fold into confidence via the tracker ─────────────────
     @Test
     fun fieldCellsCarryConfidenceAndFadeWithAge() {

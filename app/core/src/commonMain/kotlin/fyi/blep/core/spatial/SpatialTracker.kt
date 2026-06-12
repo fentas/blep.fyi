@@ -49,6 +49,20 @@ data class FieldCell(
 )
 
 /**
+ * One directional reveal: standing at [pos] facing [bearingRad], the signal read
+ * [strength01]. Body shielding makes a reading speak for the **cone ahead of
+ * you**, so the UI paints each as a signal-tinted wedge — walking and turning
+ * "torch-reveals" the map, VTT fog-of-war style. A sweep in place reveals a
+ * full disc around you.
+ */
+data class RevealWedge(
+    val pos: Vec2,
+    val bearingRad: Double,
+    val strength01: Float,
+    val timeMs: Long,
+)
+
+/**
  * One stop of the *predicted* signal field around the target estimate: at
  * [distanceM] from the estimate the calibrated path-loss model expects
  * [strength01] signal. The UI paints these as a radial warm→cold wash centred
@@ -95,6 +109,9 @@ data class SpatialSnapshot(
     /** Predicted signal vs distance from the target estimate (empty until the
      *  target is localised) — the radial field the UI paints under everything. */
     val fieldGradient: List<FieldStop> = emptyList(),
+    /** Directional reveals (where you've stood + faced, signal-tinted) — the
+     *  fog-of-war layer the UI paints as wedges. */
+    val reveals: List<RevealWedge> = emptyList(),
 )
 
 /**
@@ -141,6 +158,9 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private var lastAngularPos: Vec2? = null
     private var recovering = false
     private var lastSampleMs = 0L
+    private val reveals = ArrayList<RevealWedge>()
+    private var lastRevealPos: Vec2? = null
+    private var lastRevealBearing = 0.0
 
     val path: List<TrackPoint> get() = points
 
@@ -164,6 +184,9 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         lastFoldAlt = 0.0
         lastAngularPos = null
         recovering = false
+        reveals.clear()
+        lastRevealPos = null
+        lastRevealBearing = 0.0
     }
 
     /**
@@ -237,6 +260,23 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         if (heading != null) { lastVolHeading = heading; lastVolRssi = rssi }
         grid.update(here, altitude, signalEma, motion.timeMs)
         lastSampleMs = motion.timeMs
+        // Directional fog-of-war reveal: a new wedge whenever you've moved or
+        // turned enough for the cone ahead to be genuinely new ground.
+        if (heading != null) {
+            val movedEnough = lastRevealPos?.let { (here - it).length >= REVEAL_MIN_STEP_M } ?: true
+            val turnedEnough = reveals.isNotEmpty() && abs(angleDelta(heading, lastRevealBearing)) >= REVEAL_MIN_TURN_RAD
+            if (movedEnough || turnedEnough) {
+                reveals.add(RevealWedge(here, heading, tuning.strength01(rssi), motion.timeMs))
+                lastRevealPos = here
+                lastRevealBearing = heading
+                // Halve density once the cap is hit — keeps shape, bounds drawing.
+                if (reveals.size > MAX_REVEALS) {
+                    var w = 0
+                    for (r in reveals.indices) if (r % 2 == 0) { reveals[w] = reveals[r]; w++ }
+                    while (reveals.size > w) reveals.removeAt(reveals.lastIndex)
+                }
+            }
+        }
 
         // Only fold a sample into the filter once we've actually moved (3-D) since
         // the last one — new geometry. Standing still adds only noise, which would
@@ -309,6 +349,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             field = fieldCells(altitude, target),
             fieldCellM = tuning.gridCellM,
             fieldGradient = fieldGradient(target),
+            reveals = reveals,
         )
     }
 
@@ -418,6 +459,11 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         // Predicted-field sampling: 9 stops × 4 m ≈ the radar's working range.
         const val FIELD_GRADIENT_STOPS = 8
         const val FIELD_GRADIENT_STEP_M = 4.0
+        // Reveal-wedge cadence: a new wedge per ~half-metre of travel or ~9° of
+        // turn, capped (then density-halved) so drawing stays bounded.
+        const val REVEAL_MIN_STEP_M = 0.5
+        const val REVEAL_MIN_TURN_RAD = 0.16
+        const val MAX_REVEALS = 360
         // Only sample environmental jitter between headings this close (rad ≈ 5°),
         // so the body-shield swing during a sweep isn't counted as noise.
         const val VOL_STEADY_RAD = 0.09
