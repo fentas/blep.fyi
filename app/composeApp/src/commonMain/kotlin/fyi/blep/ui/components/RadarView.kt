@@ -120,6 +120,48 @@ fun RadarView(
             )
         }
 
+        // ── fog of war: directional reveals ──────────────────────────────────
+        // Every place you've stood + faced paints a wedge ahead of you, tinted by
+        // the dBm read there (body shielding makes a reading speak for the cone
+        // you face). Walking sweeps a corridor open; turning in place reveals a
+        // disc around you — VTT-style. Unexplored space stays plain background,
+        // which is the honest amount of knowledge. Drawn under the rings so the
+        // instruments stay legible on top of the paint.
+        val reveals = snapshot?.reveals ?: emptyList()
+        if (reveals.isNotEmpty()) {
+            val rPx = (REVEAL_RADIUS_M * scale).toFloat().coerceIn(30f, size.minDimension * 0.45f)
+            for (r in reveals) {
+                val p = toScreen(r.pos)
+                val angleDeg = ((r.bearingRad - heading) * 180.0 / PI).toFloat() - 90f
+                val col = signalColor(r.strength01).copy(alpha = 0.65f)
+                drawArc(
+                    brush = Brush.radialGradient(listOf(col, col.copy(alpha = 0f)), center = p, radius = rPx),
+                    startAngle = angleDeg - WEDGE_HALF_DEG,
+                    sweepAngle = WEDGE_HALF_DEG * 2f,
+                    useCenter = true,
+                    topLeft = Offset(p.x - rPx, p.y - rPx),
+                    size = Size(rPx * 2f, rPx * 2f),
+                )
+            }
+        }
+        // Measured shadow patches on top: a visited cell reading far below the
+        // path-loss expectation has something (a wall) blocking it toward the
+        // target — darken it so the obstruction shows through the reveal tint.
+        val field = snapshot?.field ?: emptyList()
+        if (field.isNotEmpty()) {
+            val cellR = ((snapshot!!.fieldCellM * scale).toFloat() * 0.9f).coerceIn(8f, 44f)
+            for (c in field) {
+                if (c.confidence <= 0.05f || (c.residualDb ?: 0.0) >= SHADOW_DB) continue
+                val p = toScreen(c.pos)
+                val col = ink.copy(alpha = 0.30f + 0.25f * c.confidence)
+                drawCircle(
+                    brush = Brush.radialGradient(listOf(col, col.copy(alpha = 0f)), center = p, radius = cellR * 1.5f),
+                    radius = cellR * 1.5f,
+                    center = p,
+                )
+            }
+        }
+
         // ── range rings: distance from you, snapped to round metres + labelled ──
         val ringColor = ink.copy(alpha = if (signalLost) 0.14f else 0.32f)
         val r1 = niceMeters(maxR / 2.0)
@@ -140,47 +182,6 @@ fun RadarView(
             val n = hub + dirFor(0.0) * (r2 * scale).toFloat()
             val layout = measurer.measure("N", TextStyle(color = ink.copy(alpha = 0.45f), fontSize = 11.sp, fontWeight = FontWeight.Bold))
             drawText(layout, topLeft = Offset(n.x - layout.size.width / 2f, n.y - layout.size.height / 2f))
-        }
-
-        // ── fog of war: directional reveals ──────────────────────────────────
-        // Every place you've stood + faced paints a wedge ahead of you, tinted by
-        // the dBm read there (body shielding makes a reading speak for the cone
-        // you face). Walking sweeps a corridor open; turning in place reveals a
-        // disc around you — VTT-style. Unexplored space stays plain background,
-        // which is the honest amount of knowledge.
-        val reveals = snapshot?.reveals ?: emptyList()
-        if (reveals.isNotEmpty()) {
-            val rPx = (REVEAL_RADIUS_M * scale).toFloat().coerceIn(30f, size.minDimension * 0.45f)
-            for (r in reveals) {
-                val p = toScreen(r.pos)
-                val angleDeg = ((r.bearingRad - heading) * 180.0 / PI).toFloat() - 90f
-                val col = signalColor(r.strength01).copy(alpha = 0.13f)
-                drawArc(
-                    brush = Brush.radialGradient(listOf(col, col.copy(alpha = 0f)), center = p, radius = rPx),
-                    startAngle = angleDeg - WEDGE_HALF_DEG,
-                    sweepAngle = WEDGE_HALF_DEG * 2f,
-                    useCenter = true,
-                    topLeft = Offset(p.x - rPx, p.y - rPx),
-                    size = Size(rPx * 2f, rPx * 2f),
-                )
-            }
-        }
-        // Measured shadow patches on top: a visited cell reading far below the
-        // path-loss expectation has something (a wall) blocking it toward the
-        // target — darken it so the obstruction shows through the reveal tint.
-        val field = snapshot?.field ?: emptyList()
-        if (field.isNotEmpty()) {
-            val cellR = ((snapshot!!.fieldCellM * scale).toFloat() * 0.9f).coerceIn(8f, 44f)
-            for (c in field) {
-                if (c.confidence <= 0.05f || (c.residualDb ?: 0.0) >= SHADOW_DB) continue
-                val p = toScreen(c.pos)
-                val col = ink.copy(alpha = 0.16f + 0.18f * c.confidence)
-                drawCircle(
-                    brush = Brush.radialGradient(listOf(col, col.copy(alpha = 0f)), center = p, radius = cellR * 1.5f),
-                    radius = cellR * 1.5f,
-                    center = p,
-                )
-            }
         }
 
         // ── the trail, coloured per segment by signal ────────────────────────
