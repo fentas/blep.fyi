@@ -205,8 +205,11 @@ fun RadarView(
         // and "north = forward" carries no information anyway.
         val northDeg = normalizeDeg((-heading * 180.0 / PI).toFloat())
         if (kotlin.math.abs(northDeg) > 14f) {
+            // A proper compass chip: halo disc + ring so it reads over any fog.
             val n = hub + dirFor(0.0) * (r2 * scale).toFloat()
-            val layout = measurer.measure("N", TextStyle(color = ink.copy(alpha = 0.45f), fontSize = 11.sp, fontWeight = FontWeight.Bold))
+            drawCircle(halo, radius = 17f, center = n)
+            drawCircle(ink.copy(alpha = 0.35f), radius = 17f, center = n, style = Stroke(width = 2.5f))
+            val layout = measurer.measure("N", TextStyle(color = ink.copy(alpha = 0.85f), fontSize = 13.sp, fontWeight = FontWeight.Bold))
             drawText(layout, topLeft = Offset(n.x - layout.size.width / 2f, n.y - layout.size.height / 2f))
         }
 
