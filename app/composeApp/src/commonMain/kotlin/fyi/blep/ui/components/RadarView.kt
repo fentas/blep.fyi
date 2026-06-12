@@ -176,11 +176,13 @@ fun RadarView(
             // Rect, not circle: the radial brush clamps to its last colour beyond
             // the radius, so everything outside the radar disc becomes solid page
             // colour — the map is a soft-edged circle, not a clipped rectangle.
-            val vr = size.minDimension * 0.62f
+            // The fade must COMPLETE inside the canvas (radius ≤ half the smaller
+            // side) or the clip edge shows as a straight border again.
+            val vr = size.minDimension * 0.5f
             drawRect(
                 brush = Brush.radialGradient(
-                    0.72f to background.copy(alpha = 0f),
-                    1f to background,
+                    0.55f to background.copy(alpha = 0f),
+                    0.96f to background,
                     center = hub, radius = vr,
                 ),
             )
