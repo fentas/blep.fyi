@@ -202,6 +202,7 @@ fun TrackingScreen(
                 signalLost = signalLost,
                 ink = ink,
                 halo = halo,
+                background = background,
                 modifier = Modifier.fillMaxSize(),
             )
             if (spatial == null) {

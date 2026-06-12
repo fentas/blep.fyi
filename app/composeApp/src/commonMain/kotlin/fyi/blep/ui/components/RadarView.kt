@@ -61,6 +61,7 @@ fun RadarView(
     signalLost: Boolean = false, // no fresh RSSI from the target right now
     ink: Color = BlepColors.Ink,    // foreground (rings, labels, "you") — flips for dark
     halo: Color = BlepColors.Cream, // contrast outline behind ink marks
+    background: Color = BlepColors.Mist, // page colour the fog vignettes into at the edges
     modifier: Modifier = Modifier,
 ) {
     val measurer = rememberTextMeasurer()
@@ -165,6 +166,24 @@ fun RadarView(
                     center = p,
                 )
             }
+        }
+
+        // ── vignette: fade the map layers into the page colour toward the edges ──
+        // The fog fills the canvas at close zoom; without this the clip edge reads
+        // as a hard border. A radial fade makes the revealed map melt into the
+        // page instead, and the instruments draw at full strength on top.
+        run {
+            // Rect, not circle: the radial brush clamps to its last colour beyond
+            // the radius, so everything outside the radar disc becomes solid page
+            // colour — the map is a soft-edged circle, not a clipped rectangle.
+            val vr = size.minDimension * 0.62f
+            drawRect(
+                brush = Brush.radialGradient(
+                    0.72f to background.copy(alpha = 0f),
+                    1f to background,
+                    center = hub, radius = vr,
+                ),
+            )
         }
 
         // ── range rings: distance from you, snapped to round metres + labelled ──
@@ -370,10 +389,10 @@ private fun fogColor(strength01: Float): Color {
 
 private operator fun Offset.times(s: Float) = Offset(x * s, y * s)
 
-/** A small map-marker teardrop with its tip anchored at [tip]. */
+/** A map-marker teardrop with its tip anchored at [tip]. */
 private fun DrawScope.drawPin(tip: Offset, color: Color, halo: Color) {
-    val headC = Offset(tip.x, tip.y - 22f)
-    val headR = 12f
+    val headC = Offset(tip.x, tip.y - 34f)
+    val headR = 19f
     val tail = Path().apply {
         moveTo(tip.x, tip.y)
         lineTo(headC.x - headR * 0.78f, headC.y + headR * 0.55f)
@@ -381,11 +400,11 @@ private fun DrawScope.drawPin(tip: Offset, color: Color, halo: Color) {
         close()
     }
     // Halo outline first so the pin stays crisp on any fog colour.
-    drawPath(tail, halo, style = Stroke(width = 5f))
-    drawCircle(halo, radius = headR + 2.5f, center = headC)
+    drawPath(tail, halo, style = Stroke(width = 9f))
+    drawCircle(halo, radius = headR + 4.5f, center = headC)
     drawPath(tail, color)
     drawCircle(color, radius = headR, center = headC)
-    drawCircle(halo, radius = 4.5f, center = headC) // the pin's "hole"
+    drawCircle(halo, radius = 7f, center = headC) // the pin's "hole"
 }
 
 private fun DrawScope.drawStar(center: Offset, r: Float, color: Color) {
