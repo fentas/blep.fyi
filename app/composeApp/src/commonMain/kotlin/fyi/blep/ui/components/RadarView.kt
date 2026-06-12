@@ -29,7 +29,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.log10
-import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sin
@@ -120,26 +119,25 @@ fun RadarView(
             drawText(layout, topLeft = Offset(n.x - layout.size.width / 2f, n.y - layout.size.height / 2f))
         }
 
-        // ── signal fog: soft warm discs at strong samples ────────────────────
-        if (pts.size > 1) {
-            val fogStep = max(1, pts.size / 90)
-            var i = 0
-            while (i < pts.size) {
-                val p = pts[i]
-                if (p.strength01 > 0.15f) {
-                    val c = signalColor(p.strength01).copy(alpha = 0.10f * p.strength01)
-                    val rad = (maxR.toFloat() * 2f * scale) * 0.05f * (0.5f + p.strength01)
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            listOf(c, Color.Transparent),
-                            center = toScreen(p.pos),
-                            radius = rad.coerceAtLeast(8f),
-                        ),
-                        radius = rad.coerceAtLeast(8f),
-                        center = toScreen(p.pos),
-                    )
+        // ── explored signal field (fog of war): one soft dot per visited cell ──
+        // Where you've been, coloured warm/cold by the best signal read there.
+        // A cell whose residual sits far below the path-loss expectation is in
+        // *shadow* — something (a wall) blocks it toward the target — and renders
+        // as a dark patch instead of a warm one. Unexplored space stays "fogged"
+        // (plain background), which is the honest amount of knowledge.
+        val field = snapshot?.field ?: emptyList()
+        if (field.isNotEmpty()) {
+            val cellR = ((snapshot!!.fieldCellM * scale).toFloat() * 0.62f).coerceIn(5f, 26f)
+            for (c in field) {
+                if (c.confidence <= 0.05f) continue
+                val p = toScreen(c.pos)
+                val shadow = (c.residualDb ?: 0.0) < SHADOW_DB
+                val col = if (shadow) {
+                    ink.copy(alpha = 0.06f + 0.10f * c.confidence)
+                } else {
+                    signalColor(c.strength01).copy(alpha = (0.08f + 0.16f * c.confidence) * (0.35f + 0.65f * c.strength01))
                 }
-                i += fogStep
+                drawCircle(col, radius = cellR, center = p)
             }
         }
 
@@ -265,6 +263,10 @@ fun RadarView(
         drawCircle(arrowColor, radius = 8f, center = hub)
     }
 }
+
+// Residual this far below the path-loss expectation = the cell is shadowed
+// (matches the wall-vs-noise margin proven in core's SignalFieldTest).
+private const val SHADOW_DB = -8.0
 
 private val Rose = Color(0xFFD94F70)        // cue ray toward signal/target
 private val Amber = Color(0xFFE8A33D)       // cue ray back to the warmest spot

@@ -104,9 +104,13 @@ cleanly back to RSSI-only when they aren't:
   moving target**.
 - A **barometer** adds altitude, so the filter is **3-D** — it can tell you the
   target is *one floor up / down*.
-- The screen is a **no-map radar**: your heading wedge (green toward / red away),
-  a signal-coloured trail with a warm "fog", and the predicted target as a
-  pulsing glow with an **uncertainty ellipse** — plus **turn-by-turn** copy
+- The screen is a **no-map, heads-up radar** (your forward direction is always
+  up): a fixed you-chevron (green toward / red away), a single cue ray that
+  matches the turn-by-turn text, a signal-coloured trail, and a **fog-of-war
+  signal field** — explored cells coloured by the best signal read there, with
+  **shadow patches** where something (a wall) blocks the line to the target —
+  plus the predicted target as a pulsing glow with an **uncertainty ellipse**
+  and **turn-by-turn** copy
   ("turn 30° left · ~8 m") and a **Geiger-counter haptic + tone** that quickens
   as you close in. On phone, Wear OS, and Apple Watch.
 - At **point-blank** the live signal trumps the estimate: rather than a stuck

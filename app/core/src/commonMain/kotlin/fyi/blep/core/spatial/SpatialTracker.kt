@@ -1,6 +1,7 @@
 package fyi.blep.core.spatial
 
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 /** One point of the walked path with the signal sampled there. */
@@ -33,6 +34,20 @@ data class TargetEstimate(
     }
 }
 
+/**
+ * One explored cell of the signal field — the fog-of-war layer. [residualDb] is
+ * measured minus expected-at-that-distance from the current target estimate:
+ * ≈0 in clear line of sight, strongly negative in a shadow (a wall or other
+ * obstruction between that spot and the target); null until the target is
+ * localised. [confidence] folds sample count and recency.
+ */
+data class FieldCell(
+    val pos: Vec2,
+    val strength01: Float,
+    val residualDb: Double?,
+    val confidence: Float,
+)
+
 /** Everything the spatial map UI needs for one frame. */
 data class SpatialSnapshot(
     val here: Vec2,
@@ -63,6 +78,11 @@ data class SpatialSnapshot(
      *  low in clean line-of-sight, high under canopy / multipath / heavy noise.
      *  Lets guidance pick a behaviour suited to the current environment. */
     val signalVolatilityDb: Double = 0.0,
+    /** Explored signal field on the current floor (fog of war) — empty until
+     *  you've moved. One entry per visited [SignalGrid] cell. */
+    val field: List<FieldCell> = emptyList(),
+    /** Edge length (m) of one field cell, for sizing the fog dots. */
+    val fieldCellM: Double = 1.0,
 )
 
 /**
@@ -108,6 +128,7 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
     private var lastFoldAlt = 0.0
     private var lastAngularPos: Vec2? = null
     private var recovering = false
+    private var lastSampleMs = 0L
 
     val path: List<TrackPoint> get() = points
 
@@ -202,7 +223,8 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             }
         }
         if (heading != null) { lastVolHeading = heading; lastVolRssi = rssi }
-        grid.update(here, altitude, signalEma)
+        grid.update(here, altitude, signalEma, motion.timeMs)
+        lastSampleMs = motion.timeMs
 
         // Only fold a sample into the filter once we've actually moved (3-D) since
         // the last one — new geometry. Standing still adds only noise, which would
@@ -272,7 +294,32 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
             belowWarmestDb = belowWarmest,
             recovering = recovering,
             signalVolatilityDb = if (signalVolatility.isNaN()) 0.0 else signalVolatility,
+            field = fieldCells(altitude, target),
+            fieldCellM = tuning.gridCellM,
         )
+    }
+
+    /**
+     * The explored signal field on the current floor (fog of war). Residuals are
+     * measured-vs-expected against the live, calibrated path-loss model and the
+     * current target estimate — recomputed per snapshot so they sharpen as the
+     * estimate does. A cell well below expectation at every heading is in shadow
+     * (a wall or other obstruction toward the target).
+     */
+    private fun fieldCells(altitude: Double, target: TargetEstimate): List<FieldCell> {
+        val all = grid.cellsOnFloor(altitude)
+        if (all.isEmpty()) return emptyList()
+        val tpos = target.position?.takeIf { target.confidence >= FIELD_RESIDUAL_MIN_CONFIDENCE }
+        return all.map { c ->
+            val residual = tpos?.let { c.rssi - pathLoss.expectedRssi((Vec2(c.x, c.y) - it).length) }
+            val recency = 2.0.pow(-(lastSampleMs - c.lastMs).coerceAtLeast(0L) / FIELD_HALF_LIFE_MS)
+            FieldCell(
+                pos = Vec2(c.x, c.y),
+                strength01 = tuning.strength01(c.rssi),
+                residualDb = residual,
+                confidence = ((c.hits / 3.0).coerceAtMost(1.0) * recency).toFloat(),
+            )
+        }
     }
 
     /** Bearing back to the [warmest] cell, once you've moved off it. */
@@ -340,6 +387,11 @@ class SpatialTracker(private val tuning: SpatialTuning = SpatialTuning()) {
         // Recovery releases once the signal is back within this fraction of recoverDb
         // of the warmest spot — the lower hysteresis band that stops flip-flopping.
         const val RECOVER_EXIT_FRACTION = 0.3
+        // Field residuals need a target fix this confident (mirrors the UI's 0.35
+        // gate for showing the estimate), and cells fade with this half-life so a
+        // moved target / opened door doesn't leave stale shadows around.
+        const val FIELD_RESIDUAL_MIN_CONFIDENCE = 0.35f
+        const val FIELD_HALF_LIFE_MS = 90_000.0
         // Only sample environmental jitter between headings this close (rad ≈ 5°),
         // so the body-shield swing during a sweep isn't counted as noise.
         const val VOL_STEADY_RAD = 0.09
