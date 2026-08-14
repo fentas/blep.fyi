@@ -12,6 +12,7 @@
     <string name="status_connected">Connected</string>
     <string name="status_paired">Paired</string>
     <string name="status_no_signal">No signal</string>
+    <string name="status_via_watch">via watch</string>
     <string name="status_lost">Lost</string>
     <string name="hide_unnamed">Hide unnamed devices</string>
     <string name="show_unnamed_one">Show %1$d unnamed device</string>

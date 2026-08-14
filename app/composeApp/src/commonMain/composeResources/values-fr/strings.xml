@@ -9,6 +9,7 @@
     <string name="status_connected">Connecté</string>
     <string name="status_paired">Associé</string>
     <string name="status_no_signal">Aucun signal</string>
+    <string name="status_via_watch">via montre</string>
     <string name="status_lost">Perdu</string>
     <string name="hide_unnamed">Masquer les appareils sans nom</string>
     <string name="show_unnamed_one">Afficher %1$d appareil sans nom</string>

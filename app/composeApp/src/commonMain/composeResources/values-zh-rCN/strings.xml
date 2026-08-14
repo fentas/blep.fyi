@@ -10,6 +10,7 @@
     <string name="status_connected">已连接</string>
     <string name="status_paired">已配对</string>
     <string name="status_no_signal">无信号</string>
+    <string name="status_via_watch">经手表</string>
     <string name="status_lost">已丢失</string>
     <string name="hide_unnamed">隐藏未命名设备</string>
     <string name="show_unnamed_one">显示 %1$d 个未命名设备</string>

@@ -81,6 +81,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import fyi.blep.core.model.BleDevice
 import fyi.blep.core.ble.ProbeResult
 import fyi.blep.core.ble.RotationStats
 import fyi.blep.core.spatial.CueKind
@@ -569,20 +570,20 @@ private fun DeviceDetail(
         // always cross it — better that content slides under the gauge than that the
         // gauge gets chopped into pieces by whatever happens to be scrolled past it.
         Box(Modifier.fillMaxSize()) {
-            SignalArc(rssi = device.rssi, modifier = Modifier.fillMaxSize())
+            SignalArc(rssi = device.bestRssi, modifier = Modifier.fillMaxSize())
             // The reading sits in the arc's own gap, where it labels the gauge instead of
             // taking a row from the list — and it's tinted to match, so the number and
             // the ring read as one measurement rather than two facts about the device.
-            val f = ((device.rssi - ARC_RSSI_FLOOR) / (ARC_RSSI_CEIL - ARC_RSSI_FLOOR)).coerceIn(0f, 1f)
+            val f = ((device.bestRssi - ARC_RSSI_FLOOR) / (ARC_RSSI_CEIL - ARC_RSSI_FLOOR)).coerceIn(0f, 1f)
             Text(
                 when {
-                    device.rssiUnknown -> stringResource(R.string.status_no_signal)
                     device.isConnected -> stringResource(R.string.status_connected)
-                    else -> stringResource(R.string.dbm, device.rssi)
+                    device.bestRssi == BleDevice.RSSI_UNKNOWN -> stringResource(R.string.status_no_signal)
+                    else -> stringResource(R.string.dbm, device.bestRssi)
                 },
                 // Dimmed when there's nothing to read, so an empty gauge and a grey
                 // label say the same thing.
-                color = if (device.rssiUnknown) MaterialTheme.colors.onSurfaceVariant else proximityColor(f),
+                color = if (device.bestRssi == BleDevice.RSSI_UNKNOWN) MaterialTheme.colors.onSurfaceVariant else proximityColor(f),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 style = MaterialTheme.typography.button,
@@ -843,9 +844,11 @@ private fun DeviceRow(
     val sub = when {
         // RSSI_UNKNOWN is a sentinel, not a reading — printing it gave paired devices a
         // permanent, meaningless "-127 dBm".
-        device.rssiUnknown -> stringResource(R.string.status_no_signal)
         device.isConnected -> stringResource(R.string.status_connected)
-        else -> stringResource(R.string.dbm, device.rssi)
+        // bestRssi: the strongest of our own reading and the phone's. A device only the
+        // phone hears is still worth a number, and it is the phone's number.
+        device.bestRssi == BleDevice.RSSI_UNKNOWN -> stringResource(R.string.status_no_signal)
+        else -> stringResource(R.string.dbm, device.bestRssi)
     }
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -860,7 +863,7 @@ private fun DeviceRow(
             .padding(horizontal = 14.dp, vertical = 10.dp),
     ) {
         SignalGlyph(
-            rssi = device.rssi,
+            rssi = device.bestRssi,
             // On the filled row the ramp would fight the accent, so the glyph goes flat.
             tint = if (tethered) BlepWear.Ink else null,
         )

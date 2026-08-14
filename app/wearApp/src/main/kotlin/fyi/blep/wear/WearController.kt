@@ -79,6 +79,11 @@ class WearController(
     /** No fresh RSSI recently (out of range / off). */
     var signalLost by mutableStateOf(false)
         private set
+    /** What the paired phone hears (scan fusion), folded into the list beside our own
+     *  readings. Empty when the phone isn't reporting or fusion is off. */
+    var remoteSightings by mutableStateOf<List<Sighting>>(emptyList())
+        private set
+
     /** Whether unnamed devices are listed. The watch has no toggle of its own — it
      *  follows the phone's over the settings sync, which is why the watch used to show
      *  far fewer devices than the phone with no way to explain the difference. */
@@ -154,7 +159,13 @@ class WearController(
                     }
                 }
             }
-            override fun onMessage(msg: SyncMessage) {} // PhoneTetherService handles relayed alerts
+            // PhoneTetherService handles relayed alerts; scan fusion lands here. The
+            // watch has been sending its sightings to the phone all along while throwing
+            // away everything coming back — which is the direction that actually helps,
+            // since the phone has the better radio and the longer list.
+            override fun onMessage(msg: SyncMessage) {
+                if (msg is SyncMessage.Sightings) remoteSightings = msg.devices
+            }
         }
         sync = SyncManager(createSyncTransport(), SyncSettings(createKeyValueStore()), source, sink, scope).also { it.start() }
         // Scan fusion: relay what the watch sees to the phone (opt-in; no-op unless on).
@@ -177,9 +188,31 @@ class WearController(
      * human label at all, whether that came from the advert or from you.
      */
     val visibleDevices: List<BleDevice>
-        get() = devices.filter {
+        get() = fuse(devices).filter {
             it.isFavorite || isTethered(it.id) || includeUnnamed || it.displayName != it.id
         }
+
+    /** Fold in the phone's readings. Its value sits beside ours as
+     *  [BleDevice.remoteRssi] rather than replacing or averaging it, and a device only
+     *  the phone can hear joins the list — the watch's radio is the weaker of the two,
+     *  so this is where fusion earns its keep. */
+    private fun fuse(list: List<BleDevice>): List<BleDevice> {
+        if (remoteSightings.isEmpty()) return list
+        val remote = remoteSightings.associateBy { it.id }
+        val merged = list.map { d -> remote[d.id]?.let { d.copy(remoteRssi = it.rssi) } ?: d }
+        val known = list.mapTo(HashSet()) { it.id }
+        return merged + remoteSightings.filter { it.id !in known }.map {
+            overlay(
+                BleDevice(
+                    id = it.id,
+                    name = it.name.takeIf { n -> n.isNotBlank() && n != it.id },
+                    rssi = BleDevice.RSSI_UNKNOWN,
+                    remoteRssi = it.rssi,
+                    isTethered = isTethered(it.id),
+                ),
+            )
+        }
+    }
 
     /** Re-apply name/favourite overlays to the current list after a sync. */
     private fun reoverlay() { devices = devices.map(::overlay) }

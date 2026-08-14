@@ -116,6 +116,7 @@ import fyi.blep.resources.show_unnamed_one
 import fyi.blep.resources.status_connected
 import fyi.blep.resources.status_paired
 import fyi.blep.resources.status_no_signal
+import fyi.blep.resources.status_via_watch
 import fyi.blep.resources.status_lost
 import fyi.blep.resources.settings_scan_off
 import fyi.blep.resources.settings_scan_interval
@@ -775,16 +776,24 @@ private fun DeviceCard(
                 // The status chip stands in only when a bonded device has no live signal.
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     when {
-                        !device.rssiUnknown -> {
+                        // bestRssi, so a device only the watch can hear still shows a
+                        // reading — and shows the watch's.
+                        device.bestRssi != BleDevice.RSSI_UNKNOWN -> {
                             if (device.isConnected) {
                                 Box(Modifier.size(6.dp).clip(CircleShape).background(BlepColors.Blue))
                                 Spacer(Modifier.width(6.dp))
                             }
                             Text(
-                                stringResource(Res.string.dbm, device.rssi),
+                                stringResource(Res.string.dbm, device.bestRssi),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.45f),
                             )
+                            // Say whose reading it is when it isn't ours: the row is
+                            // reporting something this phone cannot hear on its own.
+                            if (device.heardBetterRemotely) {
+                                Spacer(Modifier.width(6.dp))
+                                StatusChip(stringResource(Res.string.status_via_watch), showDot = false)
+                            }
                         }
                         device.isConnected -> StatusChip(stringResource(Res.string.status_connected), showDot = true)
                         device.isPaired -> StatusChip(stringResource(Res.string.status_paired), showDot = false)
@@ -802,8 +811,8 @@ private fun DeviceCard(
                     }
                 }
             }
-            if (!device.rssiUnknown) {
-                SignalDots(rssi = device.rssi)
+            if (device.bestRssi != BleDevice.RSSI_UNKNOWN) {
+                SignalDots(rssi = device.bestRssi)
                 Spacer(Modifier.width(10.dp))
             }
             FavoriteButton(isFavorite = device.isFavorite, onClick = onToggleFavorite)

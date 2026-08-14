@@ -9,6 +9,7 @@
     <string name="status_connected">Ühendatud</string>
     <string name="status_paired">Seotud</string>
     <string name="status_no_signal">Signaal puudub</string>
+    <string name="status_via_watch">kella kaudu</string>
     <string name="status_lost">Kadunud</string>
     <string name="hide_unnamed">Peida nimeta seadmed</string>
     <string name="show_unnamed_one">Näita %1$d nimeta seadet</string>

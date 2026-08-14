@@ -9,6 +9,7 @@
     <string name="status_connected">Connesso</string>
     <string name="status_paired">Associato</string>
     <string name="status_no_signal">Nessun segnale</string>
+    <string name="status_via_watch">via orologio</string>
     <string name="status_lost">Perso</string>
     <string name="hide_unnamed">Nascondi dispositivi senza nome</string>
     <string name="show_unnamed_one">Mostra %1$d dispositivo senza nome</string>

@@ -210,9 +210,36 @@ class BlepController(
             return held + liveVisible.filter { it.id !in order }
         }
 
+    /**
+     * Fold in what the watch hears (scan fusion). Its reading rides alongside ours as
+     * [BleDevice.remoteRssi] rather than replacing or averaging it, and a device only
+     * the watch can hear joins the list rather than being invisible — coverage is the
+     * point of fusion, not precision.
+     */
+    private fun fuse(list: List<BleDevice>): List<BleDevice> {
+        if (remoteSightings.isEmpty()) return list
+        val remote = remoteSightings.associateBy { it.id }
+        val merged = list.map { d -> remote[d.id]?.let { d.copy(remoteRssi = it.rssi) } ?: d }
+        val known = list.mapTo(HashSet()) { it.id }
+        // Watch-only devices: no local reading at all, so the local rssi stays the
+        // unknown sentinel and everything downstream reads them off remoteRssi.
+        return merged + remoteSightings.filter { it.id !in known }.map {
+            BleDevice(
+                id = it.id,
+                name = it.name.takeIf { n -> n.isNotBlank() && n != it.id },
+                rssi = BleDevice.RSSI_UNKNOWN,
+                remoteRssi = it.rssi,
+                alias = effectiveAlias(it.id),
+                isFavorite = it.id in favoriteIds,
+                isFlagged = effectiveFlagged(it.id),
+                isTethered = it.id in tetheredIds,
+            )
+        }
+    }
+
     /** The list as it sorts when nothing is pinned. */
     private val liveVisible: List<BleDevice>
-        get() = devices
+        get() = fuse(devices)
             .filter { it.isPresent || it.isFavorite || it.isTethered || it.isFlagged || it.id in suspectIds } // nearby, starred, watched, or suspected
             // The unnamed toggle skips favourites/watched/suspects — a suspected tracker is
             // usually unnamed, and hiding it would defeat the marking.
@@ -221,7 +248,7 @@ class BlepController(
                 compareByDescending<BleDevice> { it.isFavorite }
                     .thenByDescending { it.isTethered || it.isFlagged }           // watched devices pin near the top too
                     .thenByDescending { it.isConnected }
-                    .thenByDescending { sortRssi[it.id] ?: it.rssi }              // latched, not raw — see updateSortKeys
+                    .thenByDescending { sortRssi[it.id] ?: it.bestRssi }          // latched, and fused — see updateSortKeys
                     .thenBy { it.id },                                            // deterministic tiebreak: equal keys never trade places
             )
 
@@ -285,7 +312,7 @@ class BlepController(
             if (d.rssiUnknown) continue // absent/pinned: nothing to smooth, sorts by RSSI_UNKNOWN
             live += d.id
             val prev = smoothedRssi[d.id]
-            val ema = if (prev == null) d.rssi.toDouble() else prev + SORT_EMA_ALPHA * (d.rssi - prev)
+            val ema = if (prev == null) d.bestRssi.toDouble() else prev + SORT_EMA_ALPHA * (d.bestRssi - prev)
             smoothedRssi[d.id] = ema
             val latched = sortRssi[d.id]
             if (latched == null || abs(ema - latched) > SORT_DEADBAND_DBM) sortRssi[d.id] = ema.roundToInt()
