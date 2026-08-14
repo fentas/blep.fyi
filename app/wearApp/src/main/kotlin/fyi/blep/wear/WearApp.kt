@@ -165,10 +165,26 @@ private fun proximityColor(f: Float): Color {
 @Composable
 fun WearApp(controller: WearController) = BlepWearTheme {
     var showSettings by remember { mutableStateOf(false) }
+    // Held by id, not by value: the scan re-emits a fresh BleDevice every tick, so a
+    // captured copy would freeze the detail page's signal at whatever it was on open.
+    var detailId by remember { mutableStateOf<String?>(null) }
     val tracked = controller.tracking
+    val detail = detailId?.let { id -> controller.devices.firstOrNull { it.id == id } }
     when {
         showSettings -> WearSettings(onBack = { showSettings = false })
-        tracked == null -> DiscoveryList(controller, onSettings = { showSettings = true })
+        tracked == null && detail != null -> DeviceDetail(
+            device = detail,
+            tethered = controller.isTethered(detail.id),
+            onFind = { detailId = null; controller.track(detail) },
+            onToggleFavorite = { controller.toggleFavorite(detail) },
+            onToggleTether = { controller.toggleTether(detail) },
+            onBack = { detailId = null },
+        )
+        tracked == null -> DiscoveryList(
+            controller,
+            onSettings = { showSettings = true },
+            onOpenDetail = { detailId = it.id },
+        )
         else -> controller.status?.let {
             TrackingView(
                 tracked.displayName, it, controller.spatial, controller.guidance,
@@ -233,7 +249,11 @@ private fun WearSettings(onBack: () -> Unit) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DiscoveryList(controller: WearController, onSettings: () -> Unit) {
+private fun DiscoveryList(
+    controller: WearController,
+    onSettings: () -> Unit,
+    onOpenDetail: (fyi.blep.core.model.BleDevice) -> Unit,
+) {
     val listState = rememberScalingLazyListState()
     var filter by remember { mutableStateOf(DeviceFilter.ALL) }
     val starredCount = controller.devices.count { it.isFavorite }
@@ -261,9 +281,10 @@ private fun DiscoveryList(controller: WearController, onSettings: () -> Unit) {
             item {
                 FilterRow(
                     filter = filter,
+                    all = controller.devices.size,
                     starred = starredCount,
                     watched = watchedCount,
-                    onPick = { filter = if (filter == it) DeviceFilter.ALL else it },
+                    onPick = { filter = it },
                 )
             }
             if (shown.isEmpty()) {
@@ -283,8 +304,11 @@ private fun DiscoveryList(controller: WearController, onSettings: () -> Unit) {
                 DeviceRow(
                     device = device,
                     tethered = controller.isTethered(device.id),
-                    onClick = { controller.track(device) },
-                    onLongClick = { controller.toggleTether(device) },
+                    // Tap opens the device rather than hunting it, so everything the
+                    // watch can do to a device has a visible home; holding still starts
+                    // the hunt directly for anyone who knows what they're after.
+                    onClick = { onOpenDetail(device) },
+                    onLongClick = { controller.track(device) },
                 )
             }
             // Settings closes the list rather than competing with it — as a full-width
@@ -294,6 +318,142 @@ private fun DiscoveryList(controller: WearController, onSettings: () -> Unit) {
                     GearGlyph(it)
                 }
             }
+            // The long press is otherwise invisible. It lives at the very foot, which is
+            // where someone exploring ends up, and costs nothing to anyone who doesn't
+            // scroll this far.
+            item {
+                Text(
+                    stringResource(R.string.wear_hold_to_hunt),
+                    color = MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.6f),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.caption3,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * What the watch can say about one device, and everything it can do to it.
+ *
+ * Deliberately thinner than the phone's detail page: the watch runs no GATT probe and
+ * no rotation correlator, so there is no identity history or device-info card to show
+ * — inventing empty sections would be worse than leaving them out. What it does have is
+ * the live signal and the two toggles, which until now were only reachable by a hidden
+ * long press.
+ */
+@Composable
+private fun DeviceDetail(
+    device: fyi.blep.core.model.BleDevice,
+    tethered: Boolean,
+    onFind: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    onToggleTether: () -> Unit,
+    onBack: () -> Unit,
+) {
+    val listState = rememberScalingLazyListState()
+    WearScreen(listState) {
+        ScalingLazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background),
+        ) {
+            item {
+                ListHeader {
+                    Text(
+                        device.displayName,
+                        color = MaterialTheme.colors.onBackground,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            // Signal, with the same glyph and ramp the list uses, so the two screens
+            // agree about what "close" looks like.
+            item {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                ) {
+                    SignalGlyph(rssi = device.rssi, tint = null)
+                    Spacer(Modifier.size(8.dp))
+                    Text(
+                        if (device.isConnected) stringResource(R.string.status_connected)
+                        else stringResource(R.string.dbm, device.rssi),
+                        color = MaterialTheme.colors.onSurface,
+                        style = MaterialTheme.typography.button,
+                    )
+                }
+            }
+            item {
+                Text(
+                    device.id,
+                    color = MaterialTheme.colors.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.caption3,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
+                )
+            }
+            item {
+                ToggleChip(
+                    checked = device.isFavorite,
+                    onCheckedChange = { onToggleFavorite() },
+                    label = { Text(stringResource(R.string.settings_sync_favorites), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    toggleControl = { Switch(checked = device.isFavorite) },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                )
+            }
+            item {
+                ToggleChip(
+                    checked = tethered,
+                    onCheckedChange = { onToggleTether() },
+                    label = {
+                        Text(
+                            stringResource(if (tethered) R.string.detail_tethered else R.string.detail_tether),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    toggleControl = { Switch(checked = tethered) },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                )
+            }
+            // The reason you opened this page, so it gets the accent and sits last where
+            // the thumb already is.
+            item {
+                Chip(
+                    onClick = onFind,
+                    colors = ChipDefaults.primaryChipColors(),
+                    label = {
+                        Text(
+                            stringResource(R.string.detail_find),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                )
+            }
+            // Full width, like every other control on this page — as a narrow footer pill
+            // it was the one button whose edges didn't line up with the rest.
+            item {
+                Chip(
+                    onClick = onBack,
+                    colors = ChipDefaults.secondaryChipColors(),
+                    label = {
+                        Text(
+                            stringResource(R.string.action_done),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                )
+            }
         }
     }
 }
@@ -302,43 +462,69 @@ private fun DiscoveryList(controller: WearController, onSettings: () -> Unit) {
  *  the user ask for "starred and watched" and get an empty list with no explanation. */
 private enum class DeviceFilter { ALL, STARRED, WATCHED }
 
-/** The row that replaced the device count — starred and watched, each with its tally.
- *  A filter with nothing in it is shown dimmed and inert rather than hidden, so the row
- *  doesn't reflow under the user's thumb as devices come and go. */
+/**
+ * A three-up segmented control: all, starred, watched — each with its tally.
+ *
+ * Segments span the row rather than floating as two small pills, which left the widest
+ * part of the screen looking unfinished. "All" is an explicit segment, not the absence
+ * of a selection: with two chips the unfiltered state was invisible, and there was no
+ * obvious control to press to get back to it.
+ *
+ * A filter with nothing in it stays visible but inert, so the row doesn't reflow under
+ * the user's thumb as devices come and go.
+ */
 @Composable
 private fun FilterRow(
     filter: DeviceFilter,
+    all: Int,
     starred: Int,
     watched: Int,
     onPick: (DeviceFilter) -> Unit,
 ) {
+    // Outer edges rounded, inner edges square, hairline gaps: the three read as one
+    // control with a selected segment, not as three loose pills.
+    val end = 999.dp
+    val join = 3.dp
     Row(
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+        modifier = Modifier.fillMaxWidth(0.92f).padding(vertical = 2.dp),
     ) {
-        FilterChip(
+        FilterSegment(
+            selected = filter == DeviceFilter.ALL,
+            count = all,
+            label = stringResource(R.string.section_nearby),
+            onClick = { onPick(DeviceFilter.ALL) },
+            shape = RoundedCornerShape(topStart = end, bottomStart = end, topEnd = join, bottomEnd = join),
+            modifier = Modifier.weight(1f),
+        ) { ListGlyph(it) }
+        FilterSegment(
             selected = filter == DeviceFilter.STARRED,
             count = starred,
             label = stringResource(R.string.settings_sync_favorites),
             onClick = { onPick(DeviceFilter.STARRED) },
+            shape = RoundedCornerShape(join),
+            modifier = Modifier.weight(1f),
         ) { StarGlyph(it) }
-        Spacer(Modifier.size(8.dp))
-        FilterChip(
+        FilterSegment(
             selected = filter == DeviceFilter.WATCHED,
             count = watched,
             label = stringResource(R.string.settings_tether_title),
             onClick = { onPick(DeviceFilter.WATCHED) },
+            shape = RoundedCornerShape(topStart = join, bottomStart = join, topEnd = end, bottomEnd = end),
+            modifier = Modifier.weight(1f),
         ) { WatchedGlyph(it) }
     }
 }
 
 @Composable
-private fun FilterChip(
+private fun FilterSegment(
     selected: Boolean,
     count: Int,
     label: String,
     onClick: () -> Unit,
+    shape: androidx.compose.ui.graphics.Shape,
+    modifier: Modifier = Modifier,
     glyph: @Composable (Color) -> Unit,
 ) {
     val enabled = count > 0
@@ -347,30 +533,38 @@ private fun FilterChip(
         enabled -> MaterialTheme.colors.onSurface
         else -> MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.4f)
     }
-    // The pill stays small, but the tappable box is padded out to the 48dp minimum —
-    // a 30dp target on a watch is a mis-tap waiting to happen, and the glyph is the
-    // only thing that has to stay compact.
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .size(width = 62.dp, height = 48.dp)
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .height(46.dp)
+            .clip(shape)
+            .background(
+                if (selected) MaterialTheme.colors.primary
+                else MaterialTheme.colors.surface.copy(alpha = if (enabled) 1f else 0.5f),
+            )
             .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
             // The glyph carries no text, so spell the filter out for TalkBack.
             .semantics { contentDescription = "$label, $count" },
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .clip(RoundedCornerShape(999.dp))
-                .background(
-                    if (selected) MaterialTheme.colors.primary
-                    else MaterialTheme.colors.surface.copy(alpha = if (enabled) 1f else 0.5f),
-                )
-                .padding(horizontal = 10.dp, vertical = 6.dp),
-        ) {
-            glyph(fg)
-            Spacer(Modifier.size(5.dp))
-            Text("$count", color = fg, style = MaterialTheme.typography.caption2)
+        glyph(fg)
+        Spacer(Modifier.size(4.dp))
+        Text("$count", color = fg, style = MaterialTheme.typography.caption2)
+    }
+}
+
+/** "Everything" — a stack of rows, i.e. the list itself. */
+@Composable
+private fun ListGlyph(tint: Color) {
+    Canvas(modifier = Modifier.size(13.dp)) {
+        val h = size.height * 0.16f
+        for (i in 0 until 3) {
+            drawRoundRect(
+                color = tint,
+                topLeft = Offset(0f, i * size.height * 0.42f),
+                size = androidx.compose.ui.geometry.Size(size.width, h),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(h / 2f),
+            )
         }
     }
 }

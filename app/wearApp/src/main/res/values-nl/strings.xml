@@ -50,6 +50,11 @@
     <string name="settings_phone_tether_desc">Laat dit horloge trillen wanneer je gekoppelde telefoon buiten Bluetooth-bereik raakt</string>
     <string name="settings_sync_favorites">Favorieten</string>
     <string name="settings_tether_title">Achtergelaten-meldingen</string>
+    <string name="wear_hold_to_hunt">Houd een apparaat ingedrukt om te zoeken</string>
+    <string name="section_nearby">In de buurt</string>
+    <string name="detail_signal">Signaal</string>
+    <string name="detail_identifier">Identificatie</string>
+    <string name="detail_find">Vind het</string>
     <string name="detail_tether">Achtergelaten-melding uit</string>
     <string name="detail_tethered">Achtergelaten-melding aan</string>
     <string name="action_done">Klaar</string>

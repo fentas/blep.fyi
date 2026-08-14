@@ -50,6 +50,11 @@
     <string name="settings_phone_tether_desc">Pane see kell värisema, kui sinu seotud telefon väljub Bluetoothi levialast</string>
     <string name="settings_sync_favorites">Lemmikud</string>
     <string name="settings_tether_title">Mahajäämishoiatused</string>
+    <string name="wear_hold_to_hunt">Hoia seadet all, et seda otsida</string>
+    <string name="section_nearby">Lähedal</string>
+    <string name="detail_signal">Signaal</string>
+    <string name="detail_identifier">Identifikaator</string>
+    <string name="detail_find">Leia üles</string>
     <string name="detail_tether">Mahajätmise hoiatus väljas</string>
     <string name="detail_tethered">Mahajätmise hoiatus sees</string>
     <string name="action_done">Valmis</string>

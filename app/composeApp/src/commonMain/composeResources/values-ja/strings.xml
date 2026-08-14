@@ -2,6 +2,7 @@
 <resources>
     <string name="app_tagline">デバイスをタップして追跡</string>
     <string name="nearby_count">近くに %1$d 台</string>
+    <string name="wear_hold_to_hunt">デバイスを長押しして探す</string>
     <string name="section_nearby">近く</string>
     <string name="status_connected">接続済み</string>
     <string name="status_paired">ペアリング済み</string>

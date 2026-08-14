@@ -50,6 +50,11 @@
     <string name="settings_phone_tether_desc">Zavibriraj ovaj sat kad tvoj upareni telefon izađe iz dometa Bluetootha</string>
     <string name="settings_sync_favorites">Favoriti</string>
     <string name="settings_tether_title">Upozorenja na zaboravljeno</string>
+    <string name="wear_hold_to_hunt">Držite uređaj za traženje</string>
+    <string name="section_nearby">U blizini</string>
+    <string name="detail_signal">Signal</string>
+    <string name="detail_identifier">Identifikator</string>
+    <string name="detail_find">Pronađi</string>
     <string name="detail_tether">Upozorenje na zaboravljanje isključeno</string>
     <string name="detail_tethered">Upozorenje na zaboravljanje uključeno</string>
     <string name="action_done">Gotovo</string>

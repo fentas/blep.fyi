@@ -5,6 +5,7 @@
     <!-- Discovery -->
     <string name="app_tagline">Tap a device to track it</string>
     <string name="nearby_count">%1$d nearby</string>
+    <string name="wear_hold_to_hunt">Hold a device to hunt it</string>
     <string name="section_nearby">Nearby</string>
     <string name="status_connected">Connected</string>
     <string name="status_paired">Paired</string>

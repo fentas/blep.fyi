@@ -2,6 +2,7 @@
 <resources>
     <string name="app_tagline">Tik op een apparaat om het te zoeken</string>
     <string name="nearby_count">%1$d in de buurt</string>
+    <string name="wear_hold_to_hunt">Houd een apparaat ingedrukt om te zoeken</string>
     <string name="section_nearby">In de buurt</string>
     <string name="status_connected">Verbonden</string>
     <string name="status_paired">Gekoppeld</string>

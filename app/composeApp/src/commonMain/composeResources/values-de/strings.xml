@@ -3,6 +3,7 @@
 <resources>
     <string name="app_tagline">Tippe auf ein Gerät, um es zu orten</string>
     <string name="nearby_count">%1$d in der Nähe</string>
+    <string name="wear_hold_to_hunt">Gerät gedrückt halten, um es zu suchen</string>
     <string name="section_nearby">In der Nähe</string>
     <string name="status_connected">Verbunden</string>
     <string name="status_paired">Gekoppelt</string>

@@ -50,6 +50,11 @@
     <string name="settings_phone_tether_desc">当配对的手机超出蓝牙范围时，让这块手表震动</string>
     <string name="settings_sync_favorites">收藏</string>
     <string name="settings_tether_title">遗落提醒</string>
+    <string name="wear_hold_to_hunt">长按设备开始寻找</string>
+    <string name="section_nearby">附近</string>
+    <string name="detail_signal">信号</string>
+    <string name="detail_identifier">标识符</string>
+    <string name="detail_find">找到它</string>
     <string name="detail_tether">遗落提醒 关闭</string>
     <string name="detail_tethered">遗落提醒 开启</string>
     <string name="action_done">完成</string>

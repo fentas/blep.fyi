@@ -50,6 +50,11 @@
     <string name="settings_phone_tether_desc">ペアリング済みのスマホが Bluetooth の圏外に出たら、この時計を振動させます</string>
     <string name="settings_sync_favorites">お気に入り</string>
     <string name="settings_tether_title">置き忘れアラート</string>
+    <string name="wear_hold_to_hunt">デバイスを長押しして探す</string>
+    <string name="section_nearby">近く</string>
+    <string name="detail_signal">信号</string>
+    <string name="detail_identifier">識別子</string>
+    <string name="detail_find">見つける</string>
     <string name="detail_tether">置き忘れアラート オフ</string>
     <string name="detail_tethered">置き忘れアラート オン</string>
     <string name="action_done">完了</string>

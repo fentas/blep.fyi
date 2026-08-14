@@ -2,6 +2,7 @@
 <resources>
     <string name="app_tagline">Dodirni uređaj da ga pratiš</string>
     <string name="nearby_count">%1$d u blizini</string>
+    <string name="wear_hold_to_hunt">Držite uređaj za traženje</string>
     <string name="section_nearby">U blizini</string>
     <string name="status_connected">Povezano</string>
     <string name="status_paired">Upareno</string>

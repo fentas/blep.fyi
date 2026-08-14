@@ -50,6 +50,11 @@
     <string name="settings_phone_tether_desc">Hacer vibrar este reloj cuando tu teléfono vinculado salga del alcance de Bluetooth</string>
     <string name="settings_sync_favorites">Favoritos</string>
     <string name="settings_tether_title">Avisos de olvido</string>
+    <string name="wear_hold_to_hunt">Mantén pulsado un dispositivo para buscarlo</string>
+    <string name="section_nearby">Cerca</string>
+    <string name="detail_signal">Señal</string>
+    <string name="detail_identifier">Identificador</string>
+    <string name="detail_find">Encontrarlo</string>
     <string name="detail_tether">Aviso de olvido desactivado</string>
     <string name="detail_tethered">Aviso de olvido activado</string>
     <string name="action_done">Listo</string>

@@ -50,6 +50,11 @@
     <string name="settings_phone_tether_desc">Zavibriraj to uro, ko tvoj seznanjeni telefon zapusti doseg Bluetootha</string>
     <string name="settings_sync_favorites">Priljubljeni</string>
     <string name="settings_tether_title">Opozorila o pozabljenem</string>
+    <string name="wear_hold_to_hunt">Pridrži napravo za iskanje</string>
+    <string name="section_nearby">V bližini</string>
+    <string name="detail_signal">Signal</string>
+    <string name="detail_identifier">Identifikator</string>
+    <string name="detail_find">Najdi</string>
     <string name="detail_tether">Opozorilo o pozabljenem izklopljeno</string>
     <string name="detail_tethered">Opozorilo o pozabljenem vklopljeno</string>
     <string name="action_done">Končano</string>

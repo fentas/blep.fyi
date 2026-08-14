@@ -144,6 +144,15 @@ class WearController(
         reoverlay()
     }
 
+    /** Star/unstar a device. Favourites are shared with the phone over the Data Layer,
+     *  so this propagates in both directions like a rename does. */
+    fun toggleFavorite(device: BleDevice) {
+        favStore.toggle(device.id)
+        reoverlay()
+        haptic.success()
+        sync?.localChanged()
+    }
+
     /** Toggle a leave/return ("left behind") alert on a device. The periodic safety
      *  worker watches the tethered set and notifies when one leaves/returns range. */
     fun toggleTether(device: BleDevice) {

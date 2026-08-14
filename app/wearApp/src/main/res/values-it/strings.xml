@@ -50,6 +50,11 @@
     <string name="settings_phone_tether_desc">Fai vibrare questo orologio quando il tuo telefono abbinato esce dalla portata del Bluetooth</string>
     <string name="settings_sync_favorites">Preferiti</string>
     <string name="settings_tether_title">Avvisi di dimenticanza</string>
+    <string name="wear_hold_to_hunt">Tieni premuto un dispositivo per cercarlo</string>
+    <string name="section_nearby">Nelle vicinanze</string>
+    <string name="detail_signal">Segnale</string>
+    <string name="detail_identifier">Identificatore</string>
+    <string name="detail_find">Trovalo</string>
     <string name="detail_tether">Avviso dimenticanza disattivato</string>
     <string name="detail_tethered">Avviso dimenticanza attivato</string>
     <string name="action_done">Fatto</string>

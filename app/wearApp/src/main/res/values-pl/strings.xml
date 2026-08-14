@@ -50,6 +50,11 @@
     <string name="settings_phone_tether_desc">Zawibruj ten zegarek, gdy sparowany telefon wyjdzie poza zasięg Bluetooth</string>
     <string name="settings_sync_favorites">Ulubione</string>
     <string name="settings_tether_title">Alerty o pozostawieniu</string>
+    <string name="wear_hold_to_hunt">Przytrzymaj urządzenie, aby je znaleźć</string>
+    <string name="section_nearby">W pobliżu</string>
+    <string name="detail_signal">Sygnał</string>
+    <string name="detail_identifier">Identyfikator</string>
+    <string name="detail_find">Znajdź</string>
     <string name="detail_tether">Alert pozostawienia wyłączony</string>
     <string name="detail_tethered">Alert pozostawienia włączony</string>
     <string name="action_done">Gotowe</string>

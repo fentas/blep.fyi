@@ -50,6 +50,11 @@
     <string name="settings_phone_tether_desc">Fazer este relógio vibrar quando o telemóvel emparelhado sair do alcance do Bluetooth</string>
     <string name="settings_sync_favorites">Favoritos</string>
     <string name="settings_tether_title">Alertas de esquecimento</string>
+    <string name="wear_hold_to_hunt">Mantém premido um dispositivo para o procurar</string>
+    <string name="section_nearby">Por perto</string>
+    <string name="detail_signal">Sinal</string>
+    <string name="detail_identifier">Identificador</string>
+    <string name="detail_find">Encontrar</string>
     <string name="detail_tether">Alerta de esquecimento desligado</string>
     <string name="detail_tethered">Alerta de esquecimento ligado</string>
     <string name="action_done">Concluído</string>

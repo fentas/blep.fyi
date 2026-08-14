@@ -2,6 +2,7 @@
 <resources>
     <string name="app_tagline">Toca un dispositivo para localizarlo</string>
     <string name="nearby_count">%1$d cerca</string>
+    <string name="wear_hold_to_hunt">Mantén pulsado un dispositivo para buscarlo</string>
     <string name="section_nearby">Cerca</string>
     <string name="status_connected">Conectado</string>
     <string name="status_paired">Emparejado</string>
