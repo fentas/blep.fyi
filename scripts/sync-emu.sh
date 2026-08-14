@@ -82,7 +82,12 @@ wait_boot() { # wait_boot <serial> [timeout_s]
 
 cmd_images() {
   log "installing system images"
-  yes | "$SDKMANAGER" "$IMG_PHONE" "$IMG_WEAR" "emulator" "platform-tools" >/dev/null || die "sdkmanager failed"
+  # Check sdkmanager's own status, not the pipeline's. `yes` is killed by SIGPIPE the
+  # moment sdkmanager stops reading and exits 141, and with `set -o pipefail` that
+  # becomes the pipeline's status — so this died with "sdkmanager failed" precisely when
+  # sdkmanager had *succeeded* fastest, i.e. when everything was already installed.
+  yes | "$SDKMANAGER" "$IMG_PHONE" "$IMG_WEAR" "emulator" "platform-tools" >/dev/null
+  [ "${PIPESTATUS[1]}" -eq 0 ] || die "sdkmanager failed"
 }
 
 cmd_avds() {
