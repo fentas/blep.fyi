@@ -3,6 +3,7 @@ package fyi.blep.core.safety
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.ble.IdentityStore
 import fyi.blep.core.ble.ProbeResult
+import fyi.blep.core.ble.RotationTracker
 import fyi.blep.core.platform.epochMillis
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -40,6 +41,11 @@ class SafetyScanner(
     // A device whose persisted identity has been around at least this long (across its
     // rotations) is treated as following you.
     private val followerWindowMs: Long = 90 * 60_000L,
+    // Correlates rotating addresses back into physical devices, so the rotation
+    // heuristic counts *one device's* identities instead of the surrounding crowd's.
+    // Pass null for an interval scanner that can't see the churn (the watch) — rotation
+    // detection then stays silent and PERSISTENT carries the load.
+    private val rotation: RotationTracker? = RotationTracker(),
 ) {
     /** Addresses the user marked "it's mine" — never observed, never alerted. */
     private val muted: MutableSet<String> = history?.mutedAddresses()?.toMutableSet() ?: mutableSetOf()
@@ -47,7 +53,27 @@ class SafetyScanner(
     /** Serialises identity-store access between this collector and the background probe. */
     private val storeLock = Mutex()
 
-    fun reset() = detector.reset()
+    fun reset() {
+        detector.reset()
+        rotation?.reset()
+    }
+
+    /** The physical device behind a (possibly already-rotated) address, as the rotation
+     *  heuristic needs it: follow the address to its live track, then report how many
+     *  ids that device has worn and how sure we are of the hops that linked them. */
+    private fun lineageOf(address: String): Lineage? {
+        val rt = rotation ?: return null
+        val live = rt.currentAddressFor(address) ?: return null
+        val identity = rt.identityFor(live) ?: return null
+        val stats = rt.statsFor(live) ?: return null
+        return Lineage(
+            id = identity.id,
+            addressesSeen = stats.addressesSeen,
+            rotations = stats.rotations,
+            confidence = stats.confidence,
+            contested = stats.contested,
+        )
+    }
 
     /** Mark a tracker as the user's own so it stops being flagged (persisted). */
     fun mute(address: String) {
@@ -71,7 +97,12 @@ class SafetyScanner(
 
         scanner.advertisements().collect { adv ->
             val now = adv.timeMs
-            if (adv.address !in muted) detector.observe(TrackerClassifier.classify(adv))
+            if (adv.address !in muted) {
+                detector.observe(TrackerClassifier.classify(adv))
+                // Same stream feeds the correlator: the payload fingerprint corroborates
+                // (or vetoes) a handover that the RSSI match alone would only guess at.
+                rotation?.observe(adv.address, adv.rssi, now, payloadFingerprint(adv))
+            }
             if (adv.rssi >= detector.closeDbm && adv.address !in muted) {
                 closePresent[adv.address] = adv.rssi
                 closeSeenMs[adv.address] = now
@@ -83,7 +114,7 @@ class SafetyScanner(
             val here = place()
             val context = listOfNotNull(here, detector.backdropFingerprint(now))
                 .joinToString("|").ifBlank { null }
-            val base = enrich(detector.evaluate(now), here, context)
+            val base = enrich(detector.evaluate(now, ::lineageOf), here, context)
 
             val store = identityStore
             // All IdentityStore access (here + the background probe) is serialised by

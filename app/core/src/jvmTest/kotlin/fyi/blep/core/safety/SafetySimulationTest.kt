@@ -35,7 +35,7 @@ class SafetySimulationTest {
     // Fast thresholds so a single close sighting lands as a WARN within the script.
     private val tuning = TrackerTuning(
         closeDbm = -75, nearbyMs = 1_000, followingMs = 3_000,
-        bucketMs = 1_000, rotationMinDistinct = 3, rotationMinCoverage = 0.5,
+        bucketMs = 1_000, rotationMinHandovers = 1, rotationMinCoverage = 0.5,
     )
 
     /** A separated ("lost") Apple Find My tag — rotates its address, so it's keyed by kind. */

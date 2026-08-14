@@ -33,7 +33,7 @@ class SafetyScannerTest {
         nearbyMs = 1_000,
         followingMs = 3_000,
         bucketMs = 1_000,
-        rotationMinDistinct = 3,
+        rotationMinHandovers = 1,
         rotationMinCoverage = 0.5,
     )
 
@@ -81,12 +81,25 @@ class SafetyScannerTest {
 
     @Test
     fun rotating_anonymous_churn_warns() = runTest {
-        // Three short-lived random addresses, all close, back to back — the rotation tell.
-        val adverts = listOf(anon("01", -60, 0), anon("02", -60, 1_100), anon("03", -60, 2_200))
+        // One device wearing two ids: "01" advertises close for 20 s, goes quiet, and
+        // "02" takes over at the same range. The correlator only attributes the handover
+        // once "01" has been silent past its stale window, so the script has to run long
+        // enough for that to resolve — a couple of one-off addresses is not evidence.
+        val adverts = (0..20).map { anon("01", -60, it * 1_000L) } +
+            (22..60).map { anon("02", -60, it * 1_000L) }
         val out = lastAlerts(SafetyScanner(scanner(adverts), TrackerDetector(tuning)))
         assertEquals(TrackerKind.UNKNOWN, out[0].kind)
         assertEquals(Severity.WARN, out[0].severity)
         assertEquals(AlertReason.ROTATION, out[0].reason)
+    }
+
+    @Test
+    fun a_crowd_of_uncorrelated_strangers_never_warns() = runTest {
+        // Walking through town: a steady churn of close private addresses, each seen
+        // briefly and never linked to another. High coverage, plenty of distinct ids —
+        // the shape that used to fire — but it is a crowd, not one device following you.
+        val adverts = (0..60).map { anon("stranger-$it", -60, it * 1_000L) }
+        assertTrue(lastAlerts(SafetyScanner(scanner(adverts), TrackerDetector(tuning))).isEmpty())
     }
 
     @Test

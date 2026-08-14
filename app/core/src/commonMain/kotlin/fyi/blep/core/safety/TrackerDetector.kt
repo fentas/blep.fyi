@@ -43,6 +43,22 @@ data class TrackerAlert(
     val label: String? = null,        // a name an active probe learned for it, if any
 )
 
+/**
+ * What the rotation correlator ([fyi.blep.core.ble.RotationTracker]) knows about the
+ * *physical device* behind a rotating address. Supplied to [TrackerDetector] so the
+ * rotation heuristic can count one device's identities instead of the crowd's.
+ *
+ * A null lineage means the address has never been linked to anything — its churn is
+ * strangers, not rotation, and must not raise an alert.
+ */
+data class Lineage(
+    val id: String,             // stable token for the physical device (its oldest address)
+    val addressesSeen: Int,     // distinct ids this device has worn
+    val rotations: Int,         // handovers we actually watched happen (0 = never linked)
+    val confidence: Double,     // 0..1 mean quality of those handovers
+    val contested: Boolean,     // shares an unresolved fork with another lineage
+)
+
 /** Thresholds for [TrackerDetector] (all overridable / unit-tunable). */
 data class TrackerTuning(
     val windowMs: Long = 15 * 60_000L,   // how much sighting history to keep
@@ -50,8 +66,12 @@ data class TrackerTuning(
     val nearbyMs: Long = 30_000L,        // close & present this long ⇒ "nearby"
     val followingMs: Long = 5 * 60_000L, // close & present this long ⇒ "following you"
     val bucketMs: Long = 60_000L,        // time-bucket for the rotation coverage estimate
-    val rotationMinDistinct: Int = 4,    // distinct rotating IDs before it's suspicious
-    val rotationMinCoverage: Double = 0.6, // fraction of recent time something was close
+    // Rotation is judged **per correlated device**, never over the pooled crowd: a
+    // handover we watched happen is the evidence, so N here means N observed hops
+    // (a device that has worn N+1 ids), not N unrelated addresses standing near you.
+    val rotationMinHandovers: Int = 1,     // correlated handovers before it's suspicious
+    val rotationMinConfidence: Double = 0.5, // how sure those handovers must be
+    val rotationMinCoverage: Double = 0.6, // fraction of recent time it was close
 )
 
 /**
@@ -61,13 +81,13 @@ data class TrackerTuning(
  */
 enum class ScanSensitivity(val tuning: TrackerTuning) {
     /** Fewer alerts — for busy/crowded places where strangers churn (commute). */
-    RELAXED(TrackerTuning(closeDbm = -65, nearbyMs = 60_000L, followingMs = 10 * 60_000L, rotationMinDistinct = 6, rotationMinCoverage = 0.7)),
+    RELAXED(TrackerTuning(closeDbm = -65, nearbyMs = 60_000L, followingMs = 10 * 60_000L, rotationMinHandovers = 2, rotationMinConfidence = 0.65, rotationMinCoverage = 0.7)),
 
     /** The default balance. */
     BALANCED(TrackerTuning()),
 
     /** Most vigilant — flags sooner and from a bit further (somewhere unfamiliar). */
-    STRICT(TrackerTuning(closeDbm = -82, nearbyMs = 20_000L, followingMs = 3 * 60_000L, rotationMinDistinct = 3, rotationMinCoverage = 0.5));
+    STRICT(TrackerTuning(closeDbm = -82, nearbyMs = 20_000L, followingMs = 3 * 60_000L, rotationMinHandovers = 1, rotationMinConfidence = 0.35, rotationMinCoverage = 0.5));
 
     companion object {
         fun fromName(name: String?): ScanSensitivity =
@@ -90,6 +110,12 @@ enum class ScanSensitivity(val tuning: TrackerTuning) {
  *     is the fingerprint of a privacy-rotating tracker shadowing you — and catches
  *     the pre-DULT / third-party trackers that type detection misses.
  *
+ *     This is judged **per correlated device**, via [lineageOf]. Counting distinct
+ *     addresses across the whole close population instead measures *crowd density* —
+ *     four strangers' phones on a busy pavement trivially clear any such threshold —
+ *     which is why the churn must first be tied to one lineage by an observed
+ *     handover. No correlation ⇒ no rotation alert.
+ *
  * Pure and deterministic; feed it [observe] and read [evaluate]. The platform
  * scan + UI live on top.
  */
@@ -111,8 +137,17 @@ class TrackerDetector(private val tuning: TrackerTuning = TrackerTuning()) {
         while (recent.isNotEmpty() && nowMs - recent.first().timeMs > tuning.windowMs) recent.removeFirst()
     }
 
-    /** The current suspected trackers, strongest threat first. */
-    fun evaluate(nowMs: Long): List<TrackerAlert> {
+    /**
+     * The current suspected trackers, strongest threat first.
+     *
+     * @param lineageOf resolves an address to the physical device behind it, or null
+     *   when it has never been correlated. The default — "nothing is correlated" —
+     *   disables rotation detection entirely, which is the right behaviour for a
+     *   scanner that cannot correlate (the watch's interval scan never sees the
+     *   continuous churn); it leans on [AlertReason.PERSISTENT] instead of guessing
+     *   from the crowd.
+     */
+    fun evaluate(nowMs: Long, lineageOf: (String) -> Lineage? = { null }): List<TrackerAlert> {
         prune(nowMs)
         val close = recent.filter { it.rssi >= tuning.closeDbm }
         if (close.isEmpty()) return emptyList()
@@ -136,14 +171,29 @@ class TrackerDetector(private val tuning: TrackerTuning = TrackerTuning()) {
             }
         }
 
-        // 2) Rotation pattern — anonymous churn that stays close.
+        // 2) Rotation pattern — anonymous churn that stays close, tied to ONE device.
+        // Grouped by lineage (insertion-ordered, so the alert order stays deterministic);
+        // uncorrelated addresses are dropped rather than pooled — see the class doc.
         val unknown = close.filter { it.kind == TrackerKind.UNKNOWN && it.randomAddress }
-        val distinct = unknown.map { it.address }.toHashSet().size
-        if (distinct >= tuning.rotationMinDistinct && coverage(unknown, nowMs) >= tuning.rotationMinCoverage) {
+        val lineages = LinkedHashMap<String, Lineage>()
+        val byLineage = LinkedHashMap<String, MutableList<TrackerSighting>>()
+        for (s in unknown) {
+            val lin = lineageOf(s.address) ?: continue // never linked ⇒ a stranger, not a rotation
+            lineages[lin.id] = lin
+            byLineage.getOrPut(lin.id) { mutableListOf() } += s
+        }
+        for ((id, sightings) in byLineage) {
+            val lin = lineages[id] ?: continue
+            // A contested lineage is an unresolved fork between two candidate devices —
+            // alerting on it would name the wrong one, so wait for it to settle.
+            if (lin.contested) continue
+            if (lin.rotations < tuning.rotationMinHandovers) continue
+            if (lin.confidence < tuning.rotationMinConfidence) continue
+            if (coverage(sightings, nowMs) < tuning.rotationMinCoverage) continue
             alerts += TrackerAlert(
                 Severity.WARN, TrackerKind.UNKNOWN, AlertReason.ROTATION,
-                unknown.maxOf { it.rssi }, unknown.maxByOrNull { it.timeMs }?.address,
-                distinctCount = distinct,
+                sightings.maxOf { it.rssi }, sightings.maxByOrNull { it.timeMs }?.address,
+                distinctCount = lin.addressesSeen,
             )
         }
         return alerts.sortedByDescending { it.severity.ordinal }
