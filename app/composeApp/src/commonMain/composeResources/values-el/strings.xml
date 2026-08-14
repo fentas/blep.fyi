@@ -140,6 +140,7 @@
     <string name="subline_7">Ελπίζω να μην κρυβόταν πολύ.</string>
     <string name="subline_8">Άλλο ένα βρέθηκε.</string>
     <string name="paired_button">Συζευγμένες (%1$d)</string>
+    <string name="suspect_button">Ύποπτα (%1$d)</string>
     <string name="paired_sheet_title">Όλες οι συζευγμένες</string>
     <string name="paired_sheet_hint">Βάλε αστέρι για να τις καρφιτσώσεις στην κορυφή.</string>
     <string name="paired_sheet_empty">Καμία συζευγμένη συσκευή ακόμη.</string>

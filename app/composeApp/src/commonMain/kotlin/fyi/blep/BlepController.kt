@@ -55,6 +55,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
@@ -200,8 +202,41 @@ class BlepController(
                 compareByDescending<BleDevice> { it.isFavorite }
                     .thenByDescending { it.isTethered || it.isFlagged }           // watched devices pin near the top too
                     .thenByDescending { it.isConnected }
-                    .thenByDescending { it.rssi },
+                    .thenByDescending { sortRssi[it.id] ?: it.rssi }              // latched, not raw — see updateSortKeys
+                    .thenBy { it.id },                                            // deterministic tiebreak: equal keys never trade places
             )
+
+    // ── list-order stability ──────────────────────────────────────────────────
+    // Raw RSSI jitters ±6–10 dBm advert-to-advert even for a device sitting still, so
+    // sorting the list on it makes a crowded street unreadable: adjacent rows swap on
+    // every scan callback. Two stages settle it without letting the order go stale:
+    //   1. an EMA per device, so one wild sample can't move anything on its own;
+    //   2. a *latched* sort key that only follows the EMA once it has drifted more than
+    //      [SORT_DEADBAND_DBM]. Inside the deadband the key is frozen, so devices sitting
+    //      a dB or two apart hold position instead of flickering — a row only moves when
+    //      the device genuinely moved.
+    // A deadband beats fixed distance buckets here: buckets put a hard edge at each
+    // boundary, and a device parked on one flickers between bands forever. The latch has
+    // no boundary — it moves only on real change, wherever it sits.
+    private val smoothedRssi = mutableMapOf<String, Double>()
+    private val sortRssi = mutableMapOf<String, Int>()
+
+    private fun updateSortKeys(list: List<BleDevice>) {
+        val live = HashSet<String>(list.size)
+        for (d in list) {
+            if (d.rssiUnknown) continue // absent/pinned: nothing to smooth, sorts by RSSI_UNKNOWN
+            live += d.id
+            val prev = smoothedRssi[d.id]
+            val ema = if (prev == null) d.rssi.toDouble() else prev + SORT_EMA_ALPHA * (d.rssi - prev)
+            smoothedRssi[d.id] = ema
+            val latched = sortRssi[d.id]
+            if (latched == null || abs(ema - latched) > SORT_DEADBAND_DBM) sortRssi[d.id] = ema.roundToInt()
+        }
+        // Devices that left keep no state, so the maps stay bounded and a returning
+        // device re-latches from its first fresh reading rather than a stale one.
+        smoothedRssi.keys.retainAll(live)
+        sortRssi.keys.retainAll(live)
+    }
 
     /** Count for the "N nearby" badge — only genuinely-present devices, so a
      *  favourite that's pinned but absent never inflates it. */
@@ -1082,6 +1117,7 @@ class BlepController(
                                     isTethered = it.id in tetheredIds,
                                 )
                             }
+                        updateSortKeys(mapped)
                         devices = mapped + pinned
                     }
                 } catch (c: CancellationException) {
@@ -1136,6 +1172,13 @@ class BlepController(
             firmware = "4.0.1", hardware = "1.2", serial = "GB-PBP-8842",
             structure = "k3f9qz", serviceCount = 7, batteryPct = 82, needsPairing = false,
         )
+        /** EMA weight for the discovery list's sort key — heavy enough to kill sample
+         *  noise, light enough that a real approach still climbs within a second or two. */
+        const val SORT_EMA_ALPHA = 0.35
+        /** How far the smoothed RSSI must drift from the latched sort key before a row is
+         *  allowed to move. Roughly the noise floor of a stationary link, so ordinary
+         *  jitter never reorders the list. */
+        const val SORT_DEADBAND_DBM = 5
         /** How often the probe worker looks for a candidate to interrogate. */
         const val PROBE_TICK_MS = 4_000L
         /** Quiet gap after a probe before the next, so the radio is never hammered. */

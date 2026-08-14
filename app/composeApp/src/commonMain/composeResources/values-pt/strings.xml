@@ -140,6 +140,7 @@
     <string name="subline_7">Espero que não se tenha escondido muito tempo.</string>
     <string name="subline_8">Mais um encontrado.</string>
     <string name="paired_button">Emparelhados (%1$d)</string>
+    <string name="suspect_button">Suspeitos (%1$d)</string>
     <string name="paired_sheet_title">Todos os emparelhados</string>
     <string name="paired_sheet_hint">Marca com estrela para fixar no topo da lista.</string>
     <string name="paired_sheet_empty">Ainda não há dispositivos emparelhados.</string>

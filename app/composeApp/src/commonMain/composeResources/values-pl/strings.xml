@@ -140,6 +140,7 @@
     <string name="subline_7">Mam nadzieję, że nie chowało się zbyt długo.</string>
     <string name="subline_8">Kolejne znalezione.</string>
     <string name="paired_button">Sparowane (%1$d)</string>
+    <string name="suspect_button">Podejrzane (%1$d)</string>
     <string name="paired_sheet_title">Wszystkie sparowane</string>
     <string name="paired_sheet_hint">Oznacz gwiazdką, aby przypiąć je na górze listy.</string>
     <string name="paired_sheet_empty">Brak sparowanych urządzeń.</string>

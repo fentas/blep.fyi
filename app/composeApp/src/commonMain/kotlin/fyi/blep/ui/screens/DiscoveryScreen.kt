@@ -98,6 +98,7 @@ import fyi.blep.resources.safety_entry_subtitle
 import fyi.blep.resources.safety_entry_title
 import fyi.blep.resources.settings_title
 import fyi.blep.resources.section_nearby
+import fyi.blep.resources.suspect_button
 import fyi.blep.resources.show_unnamed_many
 import fyi.blep.resources.show_unnamed_one
 import fyi.blep.resources.status_connected
@@ -151,11 +152,20 @@ fun DiscoveryScreen(
     rotationOf: (String) -> RotationStats? = { null },
 ) {
     var showPaired by remember { mutableStateOf(false) }
+    var onlySuspects by remember { mutableStateOf(false) }
     var showDonate by remember { mutableStateOf(false) }
     var showFgInfo by remember { mutableStateOf(false) }
     var showWatchInfo by remember { mutableStateOf(false) }
     // A coarse clock (1 min) so a pinned device's "lost for >1h" state updates over time.
     val nowMs by produceState(epochMillis()) { while (true) { delay(60_000); value = epochMillis() } }
+
+    // Counted off the visible list, not the raw id set, so the number always matches what
+    // the filter would actually show.
+    val suspectCount = devices.count { it.id in suspectIds }
+    // The chip disappears once nothing is suspected, so drop the filter with it — otherwise
+    // the user is left staring at an empty list with no control to undo it.
+    if (suspectCount == 0 && onlySuspects) onlySuspects = false
+    val shownDevices = if (onlySuspects) devices.filter { it.id in suspectIds } else devices
 
     Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
     Column(
@@ -188,6 +198,16 @@ fun DiscoveryScreen(
                 BackgroundStatusChip(bgChipColor) { showFgInfo = true }
                 Spacer(Modifier.width(8.dp))
             }
+            // Suspects the safety layer is currently watching. Doubles as a filter: in a
+            // busy street the one device that matters is otherwise buried in the churn.
+            if (suspectCount > 0) {
+                SuspectPill(
+                    count = suspectCount,
+                    active = onlySuspects,
+                    onClick = { onlySuspects = !onlySuspects },
+                )
+                Spacer(Modifier.width(8.dp))
+            }
             if (pairedDevices.isNotEmpty()) {
                 PairedPill(count = pairedDevices.size, onClick = { showPaired = true })
                 Spacer(Modifier.width(8.dp))
@@ -200,10 +220,10 @@ fun DiscoveryScreen(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            if (devices.isEmpty() && availability == ScanAvailability.READY) {
+            if (shownDevices.isEmpty() && availability == ScanAvailability.READY) {
                 item { EmptyState() }
             }
-            items(devices, key = { it.id }) { device ->
+            items(shownDevices, key = { it.id }) { device ->
                 DeviceCard(
                     device = device,
                     onClick = { onSelect(device) },
@@ -215,7 +235,9 @@ fun DiscoveryScreen(
                     modifier = Modifier.animateItem(),
                 )
             }
-            if (unnamedCount > 0 || includeUnnamed) {
+            // Hidden while filtering — "show N unnamed" would widen a list the user just
+            // narrowed on purpose.
+            if (!onlySuspects && (unnamedCount > 0 || includeUnnamed)) {
                 item(key = "show-more") {
                     ShowMoreRow(
                         unnamedCount = unnamedCount,
@@ -557,6 +579,26 @@ private fun PairedPill(count: Int, onClick: () -> Unit) {
             stringResource(Res.string.paired_button, count),
             style = MaterialTheme.typography.labelLarge,
             color = BlepColors.Blue,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+        )
+    }
+}
+
+/** Count of currently-suspected trackers, and a toggle that narrows the list to them.
+ *  Carries the same pink tint the suspect cards use, deepened while the filter is on so
+ *  it's obvious the list is filtered — an unexplained short list reads as a bug. */
+@Composable
+private fun SuspectPill(count: Int, active: Boolean, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(999.dp),
+        color = BlepColors.Pink.copy(alpha = if (active) 0.38f else 0.16f)
+            .compositeOver(MaterialTheme.colorScheme.surface),
+    ) {
+        Text(
+            stringResource(Res.string.suspect_button, count),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
         )
     }

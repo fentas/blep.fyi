@@ -140,6 +140,7 @@
     <string name="subline_7">Hoffentlich war es nicht zu lange versteckt.</string>
     <string name="subline_8">Noch eins gefunden.</string>
     <string name="paired_button">Gekoppelt (%1$d)</string>
+    <string name="suspect_button">Verdächtig (%1$d)</string>
     <string name="paired_sheet_title">Alle gekoppelten</string>
     <string name="paired_sheet_hint">Markiere Geräte mit einem Stern, um sie oben anzuheften.</string>
     <string name="paired_sheet_empty">Noch keine gekoppelten Geräte.</string>

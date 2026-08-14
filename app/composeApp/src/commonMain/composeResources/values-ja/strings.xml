@@ -140,6 +140,7 @@
     <string name="subline_7">あまり長く隠れていなかったといいけど。</string>
     <string name="subline_8">また一つ見つかった。</string>
     <string name="paired_button">ペア済み (%1$d)</string>
+    <string name="suspect_button">不審 (%1$d)</string>
     <string name="paired_sheet_title">すべてのペア済み</string>
     <string name="paired_sheet_hint">星を付けるとリストの先頭に固定されます。</string>
     <string name="paired_sheet_empty">ペア済みのデバイスはまだありません。</string>

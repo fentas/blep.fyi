@@ -141,6 +141,7 @@
     <string name="subline_7">希望它没藏太久。</string>
     <string name="subline_8">又找到一个。</string>
     <string name="paired_button">已配对 (%1$d)</string>
+    <string name="suspect_button">可疑 (%1$d)</string>
     <string name="paired_sheet_title">所有已配对设备</string>
     <string name="paired_sheet_hint">为设备加星标，将其固定在列表顶部。</string>
     <string name="paired_sheet_empty">还没有已配对的设备。</string>

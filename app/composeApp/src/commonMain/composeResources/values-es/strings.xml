@@ -140,6 +140,7 @@
     <string name="subline_7">Espero que no se escondiera demasiado.</string>
     <string name="subline_8">Otro encontrado.</string>
     <string name="paired_button">Vinculados (%1$d)</string>
+    <string name="suspect_button">Sospechosos (%1$d)</string>
     <string name="paired_sheet_title">Todos los vinculados</string>
     <string name="paired_sheet_hint">Marca con estrella para fijarlos arriba en la lista.</string>
     <string name="paired_sheet_empty">Aún no hay dispositivos vinculados.</string>
