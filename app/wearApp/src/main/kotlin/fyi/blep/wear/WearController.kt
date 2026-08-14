@@ -150,7 +150,7 @@ class WearController(
             override fun applySetting(name: String, value: String) {
                 if (name == SETTING_SHOW_UNNAMED) {
                     value.toBooleanStrictOrNull()?.let {
-                        if (it != includeUnnamed) { includeUnnamed = it; startDiscovery() }
+                        includeUnnamed = it
                     }
                 }
             }
@@ -165,6 +165,21 @@ class WearController(
             }
         }
     }
+
+    /**
+     * What the list shows. The scan deliberately asks for *everything*: DeviceTable
+     * filters on the advertised name, inside the scanner, before [overlay] has had a
+     * chance to attach the phone-synced alias or favourite flag. Filtering there meant a
+     * device you had renamed — or starred — was discarded before the watch could know it
+     * had a label, which is why the watch listed fewer named devices than the phone.
+     *
+     * So the filter runs here instead, and treats a device as named if it carries any
+     * human label at all, whether that came from the advert or from you.
+     */
+    val visibleDevices: List<BleDevice>
+        get() = devices.filter {
+            it.isFavorite || isTethered(it.id) || includeUnnamed || it.displayName != it.id
+        }
 
     /** Re-apply name/favourite overlays to the current list after a sync. */
     private fun reoverlay() { devices = devices.map(::overlay) }
@@ -284,7 +299,7 @@ class WearController(
             // Self-healing: scanning throws until the BLE permission is granted.
             while (isActive) {
                 try {
-                    scanner.devices(includeUnnamed = includeUnnamed, measureConnectedSignal = true).collect { list -> devices = list.map(::overlay) }
+                    scanner.devices(includeUnnamed = true, measureConnectedSignal = true).collect { list -> devices = list.map(::overlay) }
                 } catch (c: CancellationException) {
                     throw c
                 } catch (_: Throwable) {

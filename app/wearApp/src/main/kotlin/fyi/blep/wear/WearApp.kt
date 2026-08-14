@@ -183,7 +183,7 @@ fun WearApp(controller: WearController) = BlepWearTheme {
     // The page belongs to the id, and only the user closes it.
     var detailLast by remember { mutableStateOf<fyi.blep.core.model.BleDevice?>(null) }
     val tracked = controller.tracking
-    val live = detailId?.let { id -> controller.devices.firstOrNull { it.id == id } }
+    val live = detailId?.let { id -> controller.visibleDevices.firstOrNull { it.id == id } }
     LaunchedEffect(live) { if (live != null) detailLast = live }
     val detail = live
         ?: detailLast?.takeIf { it.id == detailId }
@@ -285,8 +285,8 @@ private fun DiscoveryList(
 ) {
     val listState = rememberScalingLazyListState()
     var filter by remember { mutableStateOf(DeviceFilter.ALL) }
-    val starredCount = controller.devices.count { it.isFavorite }
-    val watchedCount = controller.devices.count { controller.isTethered(it.id) }
+    val starredCount = controller.visibleDevices.count { it.isFavorite }
+    val watchedCount = controller.visibleDevices.count { controller.isTethered(it.id) }
     // A filter whose last member disappears would strand the user on an empty list with
     // no obvious way back, so it releases itself.
     if ((filter == DeviceFilter.STARRED && starredCount == 0) ||
@@ -295,9 +295,9 @@ private fun DiscoveryList(
         filter = DeviceFilter.ALL
     }
     val shown = when (filter) {
-        DeviceFilter.ALL -> controller.devices
-        DeviceFilter.STARRED -> controller.devices.filter { it.isFavorite }
-        DeviceFilter.WATCHED -> controller.devices.filter { controller.isTethered(it.id) }
+        DeviceFilter.ALL -> controller.visibleDevices
+        DeviceFilter.STARRED -> controller.visibleDevices.filter { it.isFavorite }
+        DeviceFilter.WATCHED -> controller.visibleDevices.filter { controller.isTethered(it.id) }
     }
     WearScreen(listState) {
         ScalingLazyColumn(
@@ -310,7 +310,7 @@ private fun DiscoveryList(
             item {
                 FilterRow(
                     filter = filter,
-                    all = controller.devices.size,
+                    all = controller.visibleDevices.size,
                     starred = starredCount,
                     watched = watchedCount,
                     onPick = { filter = it },
