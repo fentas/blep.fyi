@@ -58,5 +58,12 @@ store/release-notes/*.txt
 # Generated demo/promo videos (make promo / FGS demo) — artifacts, not source
 *.mp4
 
+# Kernel core dumps. The Android emulator (qemu) writes one into whatever
+# directory it was launched from when it crashes, and it is a full image of the
+# emulator's RAM — gigabytes, and never something to commit. Unanchored, since
+# `make emulator` runs from the repo root but a bare gradle/emulator invocation
+# can drop one in app/ instead.
+core.[0-9]*
+
 # Claude Code local agent state
 .claude/
