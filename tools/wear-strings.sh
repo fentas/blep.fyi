@@ -35,6 +35,7 @@ noti_tether_left_title noti_tether_left_text noti_tether_back_title noti_tether_
 noti_phone_left_title noti_phone_left_text noti_phone_back_text \
 settings_title settings_phone_tether_title settings_phone_tether_desc \
 settings_sync_favorites settings_tether_title wear_hold_to_hunt section_nearby \
+status_no_signal detail_identify_failed \
 detail_signal detail_identifier detail_find \
 detail_tether detail_tethered action_done discovery_empty_title \
 detail_history detail_history_rotations detail_confidence detail_no_rotation \
