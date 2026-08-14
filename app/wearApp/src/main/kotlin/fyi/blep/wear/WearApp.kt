@@ -565,10 +565,6 @@ private fun DeviceDetail(
 // Signal arc range: empty at RSSI_FLOOR, closed at RSSI_CEIL. The ceiling is the
 // point where you're standing over the thing rather than near it, so the ring
 // completing means "you have arrived", not "the signal is unusually good".
-/** How far the foot/head controls bow to meet the bezel. */
-private val FOOT_BULGE = 10.dp
-private val HEAD_BULGE = 8.dp
-
 private const val ARC_RSSI_FLOOR = -100f
 private const val ARC_RSSI_CEIL = -30f
 // A 60° gap centred on the top, so the gauge has a visible start and finish.
@@ -638,20 +634,16 @@ private fun FilterRow(
     watched: Int,
     onPick: (DeviceFilter) -> Unit,
 ) {
-    // Outer edges rounded, inner edges square, hairline gaps: the three read as one
-    // control with a selected segment, not as three loose pills. The group is then
-    // clipped by a bezel-following shape so its top edge bows with the screen instead of
-    // cutting a flat line under the curve — the segments themselves stay square-topped
-    // and let that clip do the rounding.
+    // Outer edges fully rounded, inner edges softened rather than square: squaring the
+    // joins made the middle and right segments read as sharp-cornered rectangles. Every
+    // corner stays rounded, the outer ones just more so, which is what makes the three
+    // read as one control instead of three loose pills.
     val end = 999.dp
-    val join = 3.dp
+    val join = 10.dp
     Row(
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth(0.92f)
-            .padding(vertical = 2.dp)
-            .clip(BezelPillShape(HEAD_BULGE, down = false)),
+        modifier = Modifier.fillMaxWidth(0.92f).padding(vertical = 2.dp),
     ) {
         FilterSegment(
             selected = filter == DeviceFilter.ALL,
@@ -713,55 +705,6 @@ private fun FilterSegment(
         glyph(fg)
         Spacer(Modifier.size(4.dp))
         Text("$count", color = fg, style = MaterialTheme.typography.caption2)
-    }
-}
-
-/**
- * A pill whose outer edge bows outward to follow the watch bezel, instead of cutting a
- * flat line across a round screen. The bow is the last [bulge] of the height, so the
- * composable must reserve that much extra — a shape cannot draw outside its own bounds.
- *
- * @param bulge how deep the bow is
- * @param down true for a control at the foot of the screen (bows downward); false for
- *   one at the head (bows upward)
- */
-private class BezelPillShape(private val bulge: Dp, private val down: Boolean) : Shape {
-    override fun createOutline(
-        size: androidx.compose.ui.geometry.Size,
-        layoutDirection: androidx.compose.ui.unit.LayoutDirection,
-        density: Density,
-    ): Outline {
-        val b = with(density) { bulge.toPx() }
-        val w = size.width
-        val h = size.height
-        val flat = h - b                 // the straight-sided part
-        val r = (flat / 2f).coerceAtMost(w / 2f)
-        val path = Path()
-        if (down) {
-            path.moveTo(r, 0f)
-            path.lineTo(w - r, 0f)
-            path.quadraticTo(w, 0f, w, r)
-            path.lineTo(w, flat - r)
-            path.quadraticTo(w, flat, w - r, flat)
-            // A quadratic whose control sits 2×bulge out puts the curve's midpoint
-            // exactly on the bottom edge, so the bow uses the reserved space precisely.
-            path.quadraticTo(w / 2f, flat + 2f * b, r, flat)
-            path.quadraticTo(0f, flat, 0f, flat - r)
-            path.lineTo(0f, r)
-            path.quadraticTo(0f, 0f, r, 0f)
-        } else {
-            path.moveTo(r, h)
-            path.lineTo(w - r, h)
-            path.quadraticTo(w, h, w, h - r)
-            path.lineTo(w, b + r)
-            path.quadraticTo(w, b, w - r, b)
-            path.quadraticTo(w / 2f, b - 2f * b, r, b)
-            path.quadraticTo(0f, b, 0f, b + r)
-            path.lineTo(0f, h - r)
-            path.quadraticTo(0f, h, r, h)
-        }
-        path.close()
-        return Outline.Generic(path)
     }
 }
 
@@ -953,16 +896,18 @@ private fun FootButton(onClick: () -> Unit, label: String, glyph: @Composable (C
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
-            // Extra height reserves room for the bow; the glyph stays centred on the
-            // straight part, so it doesn't drift down with the curve.
+            // A plain stadium. An earlier version bowed the bottom edge to follow the
+            // bezel, but hand-rolling that shape put a visible seam where the corner
+            // arcs met the bow and it read as a lump rather than a curve. Wear Material 3
+            // has a real EdgeButton for this; Material 2, which this app is on, does not,
+            // and a clean pill beats a bad approximation of a nicer one.
             modifier = Modifier
                 .fillMaxWidth(0.62f)
-                .height(46.dp + FOOT_BULGE)
-                .clip(BezelPillShape(FOOT_BULGE, down = true))
+                .height(46.dp)
+                .clip(RoundedCornerShape(999.dp))
                 .background(MaterialTheme.colors.secondaryVariant)
                 .clickable(onClick = onClick)
-                .semantics { contentDescription = label }
-                .padding(bottom = FOOT_BULGE),
+                .semantics { contentDescription = label },
         ) { glyph(MaterialTheme.colors.onSurface) }
     }
 }
