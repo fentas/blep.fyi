@@ -5,6 +5,8 @@
     <string name="nearby_count">附近 %1$d 个</string>
     <string name="wear_hold_to_hunt">长按设备开始寻找</string>
     <string name="section_nearby">附近</string>
+    <string name="section_frozen">已暂停</string>
+    <string name="section_frozen_new">新增 %1$d</string>
     <string name="status_connected">已连接</string>
     <string name="status_paired">已配对</string>
     <string name="status_no_signal">无信号</string>

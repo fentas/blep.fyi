@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -44,6 +47,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
@@ -97,6 +107,8 @@ import fyi.blep.resources.a11y_favorite
 import fyi.blep.resources.safety_entry_subtitle
 import fyi.blep.resources.safety_entry_title
 import fyi.blep.resources.settings_title
+import fyi.blep.resources.section_frozen
+import fyi.blep.resources.section_frozen_new
 import fyi.blep.resources.section_nearby
 import fyi.blep.resources.suspect_button
 import fyi.blep.resources.show_unnamed_many
@@ -123,7 +135,10 @@ import fyi.blep.ui.theme.BlepLogo
 import fyi.blep.ui.theme.HeartIcon
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 @Composable
 fun DiscoveryScreen(
@@ -150,8 +165,13 @@ fun DiscoveryScreen(
     suspectIds: Set<String> = emptySet(),
     modifier: Modifier = Modifier,
     rotationOf: (String) -> RotationStats? = { null },
+    frozen: Boolean = false,
+    newSinceFreeze: Int = 0,
+    onFreeze: () -> Unit = {},
+    onUnfreeze: () -> Unit = {},
 ) {
     var showPaired by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
     var onlySuspects by remember { mutableStateOf(false) }
     var showDonate by remember { mutableStateOf(false) }
     var showFgInfo by remember { mutableStateOf(false) }
@@ -185,7 +205,14 @@ fun DiscoveryScreen(
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            SectionLabel(stringResource(Res.string.section_nearby), Modifier.weight(1f))
+            // The label carries the pinned state: a list that has quietly stopped
+            // updating is indistinguishable from a list with nothing to say, so it has to
+            // announce itself — with the count of what's queued up behind the pin.
+            if (frozen) {
+                FrozenLabel(newCount = newSinceFreeze, modifier = Modifier.weight(1f))
+            } else {
+                SectionLabel(stringResource(Res.string.section_nearby), Modifier.weight(1f))
+            }
             // Background-activity chip, coloured by what's running: continuous tracker scan
             // (blue), interval scan (amber), or only watching your things (gray).
             val bgChipColor = when {
@@ -216,8 +243,27 @@ fun DiscoveryScreen(
         }
         Spacer(Modifier.height(10.dp))
 
+        // Any scroll pins the list. Fires on the *gesture*, not on settled position, so
+        // the order is already fixed by the time the finger has moved a few pixels.
+        LaunchedEffect(listState.isScrollInProgress) {
+            if (listState.isScrollInProgress) onFreeze()
+        }
         LazyColumn(
-            modifier = Modifier.weight(1f),
+            state = listState,
+            modifier = Modifier
+                .weight(1f)
+                // A press pins it too, before any scroll starts — reaching for a row is
+                // the moment it must stop moving, and a tap that lands on a row that
+                // slid away is the exact failure this prevents. Initial pass and no
+                // consumption, so the rows still get the tap.
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            awaitPointerEvent(PointerEventPass.Initial)
+                                .changes.firstOrNull { it.pressed }?.let { onFreeze() }
+                        }
+                    }
+                },
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (shownDevices.isEmpty() && availability == ScanAvailability.READY) {
@@ -253,6 +299,8 @@ fun DiscoveryScreen(
 
         DonateHeart(
             onClick = { showDonate = true },
+            frozen = frozen,
+            onRefresh = onUnfreeze,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .windowInsetsPadding(WindowInsets.safeDrawing)
@@ -412,22 +460,97 @@ private fun intervalChipLabel(minutes: Int): String = when {
 }
 
 /** Flat 2-D floating heart (no shadow/elevation) that invites a donation. */
+/**
+ * One button in the corner, doing whichever job the list currently needs.
+ *
+ * Live, it's the donate heart. Pinned, it becomes refresh — because that is the moment
+ * the user needs a way back to a live list, and putting the release control anywhere
+ * else would mean a second permanent affordance for a state that is usually off. The
+ * heart returning is itself the signal that the list is live again.
+ */
 @Composable
-private fun DonateHeart(onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun DonateHeart(
+    onClick: () -> Unit,
+    frozen: Boolean,
+    onRefresh: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Box(
         modifier = modifier
             .size(52.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant) // soft gray, flips with the theme
-            .clickable(onClick = onClick),
+            .background(
+                if (frozen) BlepColors.Blue.copy(alpha = 0.16f)
+                else MaterialTheme.colorScheme.surfaceVariant, // soft gray, flips with the theme
+            )
+            .clickable(onClick = if (frozen) onRefresh else onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            painter = rememberVectorPainter(HeartIcon),
-            contentDescription = stringResource(Res.string.a11y_donate),
-            tint = BlepColors.Pink, // mild pastel
-            modifier = Modifier.size(26.dp),
+        if (frozen) {
+            RefreshGlyph(tint = BlepColors.Blue, modifier = Modifier.size(24.dp))
+        } else {
+            Icon(
+                painter = rememberVectorPainter(HeartIcon),
+                contentDescription = stringResource(Res.string.a11y_donate),
+                tint = BlepColors.Pink, // mild pastel
+                modifier = Modifier.size(26.dp),
+            )
+        }
+    }
+}
+
+/** A circular arrow — drawn rather than imported, matching the other hand-drawn glyphs
+ *  here and avoiding an icon dependency for one shape. */
+@Composable
+private fun RefreshGlyph(tint: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val stroke = size.minDimension * 0.13f
+        val r = size.minDimension * 0.36f
+        val c = Offset(size.width / 2f, size.height / 2f)
+        // Open arc, so the arrowhead has somewhere to sit.
+        drawArc(
+            color = tint,
+            startAngle = 55f, sweepAngle = 285f, useCenter = false,
+            topLeft = Offset(c.x - r, c.y - r),
+            size = Size(r * 2f, r * 2f),
+            style = Stroke(width = stroke, cap = StrokeCap.Round),
         )
+        val a = 55f * (PI.toFloat() / 180f)
+        val tip = Offset(c.x + cos(a) * r, c.y + sin(a) * r)
+        val h = size.minDimension * 0.17f
+        drawPath(
+            Path().apply {
+                moveTo(tip.x + h * 0.9f, tip.y - h * 0.1f)
+                lineTo(tip.x - h * 0.35f, tip.y - h * 0.75f)
+                lineTo(tip.x - h * 0.2f, tip.y + h * 0.8f)
+                close()
+            },
+            tint,
+        )
+    }
+}
+
+/** The NEARBY label while the list is pinned. Tinted rather than merely relabelled, so
+ *  a glance is enough to explain why nothing is moving. */
+@Composable
+private fun FrozenLabel(newCount: Int, modifier: Modifier = Modifier) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.padding(start = 4.dp)) {
+        Text(
+            stringResource(Res.string.section_frozen).uppercase(),
+            style = MaterialTheme.typography.labelLarge,
+            color = BlepColors.Blue,
+        )
+        if (newCount > 0) {
+            Spacer(Modifier.width(6.dp))
+            Surface(shape = RoundedCornerShape(999.dp), color = BlepColors.Blue.copy(alpha = 0.14f)) {
+                Text(
+                    stringResource(Res.string.section_frozen_new, newCount),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = BlepColors.Blue,
+                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp),
+                )
+            }
+        }
     }
 }
 

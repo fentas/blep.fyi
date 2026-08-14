@@ -4,6 +4,8 @@
     <string name="nearby_count">%1$d in de buurt</string>
     <string name="wear_hold_to_hunt">Houd een apparaat ingedrukt om te zoeken</string>
     <string name="section_nearby">In de buurt</string>
+    <string name="section_frozen">Gepauzeerd</string>
+    <string name="section_frozen_new">+%1$d nieuw</string>
     <string name="status_connected">Verbonden</string>
     <string name="status_paired">Gekoppeld</string>
     <string name="status_no_signal">Geen signaal</string>

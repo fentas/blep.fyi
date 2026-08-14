@@ -65,6 +65,8 @@ import kotlin.time.TimeSource
 // Keys for settings that sync between phone and watch (see SyncSource.settings()).
 private const val SETTING_SENSITIVITY = "sensitivity"
 private const val SETTING_TETHER_ALERT = "tetherAlert"
+// The watch has no unnamed toggle of its own; it follows the phone's.
+private const val SETTING_SHOW_UNNAMED = "showUnnamed"
 
 /** Top-level navigation destinations. */
 sealed interface Screen {
@@ -194,6 +196,22 @@ class BlepController(
      * Favourites pin to the top.
      */
     val visibleDevices: List<BleDevice>
+        get() {
+            val order = frozenOrder ?: return liveVisible
+            val live = liveVisible.associateBy { it.id }
+            // Pinned rows first, in their pinned order. A row whose device has gone quiet
+            // falls back to its snapshot with the signal cleared, so it reads as "no
+            // signal" in place rather than disappearing and pulling the list up.
+            val held = order.mapNotNull { id ->
+                live[id] ?: frozenSnapshot[id]?.copy(rssi = BleDevice.RSSI_UNKNOWN, isConnected = false)
+            }
+            // Then arrivals, queued at the end in live order — never inserted above
+            // something the user is currently looking at.
+            return held + liveVisible.filter { it.id !in order }
+        }
+
+    /** The list as it sorts when nothing is pinned. */
+    private val liveVisible: List<BleDevice>
         get() = devices
             .filter { it.isPresent || it.isFavorite || it.isTethered || it.isFlagged || it.id in suspectIds } // nearby, starred, watched, or suspected
             // The unnamed toggle skips favourites/watched/suspects — a suspected tracker is
@@ -206,6 +224,45 @@ class BlepController(
                     .thenByDescending { sortRssi[it.id] ?: it.rssi }              // latched, not raw — see updateSortKeys
                     .thenBy { it.id },                                            // deterministic tiebreak: equal keys never trade places
             )
+
+    // ── freeze-on-touch ───────────────────────────────────────────────────────
+    // Smoothing the sort key calms ordinary jitter, but the moment the user reaches for
+    // a row they need the list to stop moving *entirely* — a device that walks past can
+    // still reorder things under a thumb that's already travelling. So any scroll or
+    // touch pins the current order until the user explicitly releases it.
+    //
+    // While pinned: rows hold their positions, arrivals queue at the end rather than
+    // sorting into the middle, and a device that goes silent stays put showing no signal
+    // instead of vanishing and closing the gap.
+    private var frozenOrder by mutableStateOf<List<String>?>(null)
+    // The rows as they looked when pinned, so a device that leaves can still be drawn.
+    private var frozenSnapshot: Map<String, BleDevice> = emptyMap()
+
+    /** True while the list is pinned. Drives the refresh affordance and the label. */
+    val listFrozen: Boolean get() = frozenOrder != null
+
+    /** Devices that have turned up since the freeze — they're queued at the end, so the
+     *  count tells the user there's something new without moving anything. */
+    val newSinceFreeze: Int
+        get() {
+            val order = frozenOrder ?: return 0
+            return liveVisible.count { it.id !in order }
+        }
+
+    /** Pin the current order. No-op if already pinned, so repeated touches during a
+     *  scroll don't re-snapshot and undo the pinning they just asked for. */
+    fun freezeList() {
+        if (frozenOrder != null) return
+        val shown = liveVisible
+        frozenOrder = shown.map { it.id }
+        frozenSnapshot = shown.associateBy { it.id }
+    }
+
+    /** Release the pin: drop departed devices, fold in arrivals and re-sort live. */
+    fun unfreezeList() {
+        frozenOrder = null
+        frozenSnapshot = emptyMap()
+    }
 
     // ── list-order stability ──────────────────────────────────────────────────
     // Raw RSSI jitters ±6–10 dBm advert-to-advert even for a device sitting still, so
@@ -378,6 +435,7 @@ class BlepController(
             override fun settings() = mapOf(
                 SETTING_SENSITIVITY to scanSensitivity.name,
                 SETTING_TETHER_ALERT to tetherAlert.name,
+                SETTING_SHOW_UNNAMED to includeUnnamed.toString(),
             )
         }
         val sink = object : SyncSink {
@@ -403,6 +461,9 @@ class BlepController(
                     }
                     SETTING_TETHER_ALERT -> TetherAlertDirection.fromName(value).let {
                         if (it != tetherAlert) { tetherAlert = it; settings.setTetherAlert(it) }
+                    }
+                    SETTING_SHOW_UNNAMED -> value.toBooleanStrictOrNull()?.let {
+                        if (it != includeUnnamed) { includeUnnamed = it; settings.setShowUnnamed(it) }
                     }
                 }
             }

@@ -4,6 +4,8 @@
     <string name="nearby_count">%1$d u blizini</string>
     <string name="wear_hold_to_hunt">Držite uređaj za traženje</string>
     <string name="section_nearby">U blizini</string>
+    <string name="section_frozen">Pauzirano</string>
+    <string name="section_frozen_new">+%1$d novih</string>
     <string name="status_connected">Povezano</string>
     <string name="status_paired">Upareno</string>
     <string name="status_no_signal">Nema signala</string>

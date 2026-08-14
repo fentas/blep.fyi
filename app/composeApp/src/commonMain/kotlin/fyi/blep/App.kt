@@ -96,6 +96,10 @@ fun App(demo: Boolean = false, buildInfo: BuildInfo? = null) {
                     onIntervalChange = controller::setScanInterval,
                     suspectIds = controller.suspectIds,
                     rotationOf = controller::rotationStats,
+                    frozen = controller.listFrozen,
+                    newSinceFreeze = controller.newSinceFreeze,
+                    onFreeze = controller::freezeList,
+                    onUnfreeze = controller::unfreezeList,
                 )
 
                 is Screen.Settings -> SettingsScreen(

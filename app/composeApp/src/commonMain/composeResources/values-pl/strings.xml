@@ -4,6 +4,8 @@
     <string name="nearby_count">%1$d w pobliżu</string>
     <string name="wear_hold_to_hunt">Przytrzymaj urządzenie, aby je znaleźć</string>
     <string name="section_nearby">W pobliżu</string>
+    <string name="section_frozen">Wstrzymano</string>
+    <string name="section_frozen_new">+%1$d nowych</string>
     <string name="status_connected">Połączono</string>
     <string name="status_paired">Sparowano</string>
     <string name="status_no_signal">Brak sygnału</string>

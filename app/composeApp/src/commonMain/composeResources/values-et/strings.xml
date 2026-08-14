@@ -4,6 +4,8 @@
     <string name="nearby_count">%1$d lähedal</string>
     <string name="wear_hold_to_hunt">Hoia seadet all, et seda otsida</string>
     <string name="section_nearby">Lähedal</string>
+    <string name="section_frozen">Peatatud</string>
+    <string name="section_frozen_new">+%1$d uut</string>
     <string name="status_connected">Ühendatud</string>
     <string name="status_paired">Seotud</string>
     <string name="status_no_signal">Signaal puudub</string>

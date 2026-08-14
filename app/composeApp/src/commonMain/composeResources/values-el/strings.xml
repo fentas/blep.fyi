@@ -4,6 +4,8 @@
     <string name="nearby_count">%1$d κοντά</string>
     <string name="wear_hold_to_hunt">Κράτα πατημένη μια συσκευή για αναζήτηση</string>
     <string name="section_nearby">Κοντά</string>
+    <string name="section_frozen">Σε παύση</string>
+    <string name="section_frozen_new">+%1$d νέα</string>
     <string name="status_connected">Συνδεδεμένο</string>
     <string name="status_paired">Συζευγμένο</string>
     <string name="status_no_signal">Χωρίς σήμα</string>
