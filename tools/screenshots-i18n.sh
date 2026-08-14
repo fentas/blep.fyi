@@ -107,6 +107,36 @@ launch_demo() { local i=0
     sleep 2; i=$((i + 1)); [ $i -gt 20 ] && break
   done; }
 
+# Tap the first device row's "›" (details) button, resolving it from the live view
+# hierarchy instead of a fixed coordinate. Row positions shift vertically by locale —
+# a header subtitle that wraps to two lines in Polish is one line in English — so a
+# hardcoded y silently lands on the card body in some languages and opens *tracking*
+# instead of the detail panel. The accessibility label is localized too, so we match on
+# structure: of the labelled controls below the section chips, the details chevron is the
+# rightmost column, and the first row's is the topmost of those.
+tap_first_row_details() {
+  local xml; xml="$(adb shell uiautomator dump /sdcard/.ui.xml >/dev/null 2>&1 && adb shell cat /sdcard/.ui.xml 2>/dev/null)"
+  local pt; pt="$(printf '%s' "$xml" | python3 -c '
+import re,sys
+s = sys.stdin.read()
+best = None
+for t in re.findall(r"<node[^>]*>", s):
+    cd = re.search(r"content-desc=\"([^\"]+)\"", t)
+    bd = re.search(r"bounds=\"\[(\d+),(\d+)\]\[(\d+),(\d+)\]\"", t)
+    if not cd or not bd:
+        continue
+    x1, y1, x2, y2 = map(int, bd.groups())
+    if x1 > 900 and y1 > 650 and (y2 - y1) < 200:   # rightmost column, below the chips row
+        if best is None or y1 < best[1]:
+            best = (x1, y1, x2, y2)
+if best:
+    print((best[0] + best[2]) // 2, (best[1] + best[3]) // 2)
+' 2>/dev/null)"
+  if [ -n "$pt" ]; then adb shell input tap $pt
+  else echo "  ! could not resolve the details chevron; falling back to a fixed tap" >&2
+       adb shell input tap 950 830; fi
+}
+
 # persist.sys.* needs a rooted adbd (works on the google_apis emulator image).
 adb root >/dev/null 2>&1; adb wait-for-device
 set_locale() { adb shell "setprop persist.sys.locale $3; setprop persist.sys.language $1; setprop persist.sys.country $2" >/dev/null
@@ -127,7 +157,7 @@ capture_set() { local raw="$1"
   adb shell input tap 420 460; sleep 8; adb exec-out screencap -p > "$raw/05.png"
   # 07: a device's detail panel — open the first device's "›" (identity, rename, watch).
   adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep "$SETTLE"
-  adb shell input tap 950 830; sleep 2; adb exec-out screencap -p > "$raw/07.png"
+  tap_first_row_details; sleep 2; adb exec-out screencap -p > "$raw/07.png"
   # 06: dark theme — the app follows the system, so flip night mode and show the
   # discovery list in dark.
   adb shell cmd uimode night yes >/dev/null 2>&1
