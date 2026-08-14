@@ -397,34 +397,20 @@ private fun DeviceDetail(
                     )
                 }
             }
-            // Signal, with the same glyph and ramp the list uses, so the two screens
-            // agree about what "close" looks like.
-            item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-                ) {
-                    SignalGlyph(rssi = device.rssi, tint = null)
-                    Spacer(Modifier.size(8.dp))
+            // The identifier is normally a MAC and worth showing, but an unnamed device
+            // falls back to its id as a name — then this line just repeats the header.
+            if (!device.id.equals(device.displayName, ignoreCase = true)) {
+                item {
                     Text(
-                        if (device.isConnected) stringResource(R.string.status_connected)
-                        else stringResource(R.string.dbm, device.rssi),
-                        color = MaterialTheme.colors.onSurface,
-                        style = MaterialTheme.typography.button,
+                        device.id,
+                        color = MaterialTheme.colors.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.caption3,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
                     )
                 }
-            }
-            item {
-                Text(
-                    device.id,
-                    color = MaterialTheme.colors.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.caption3,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
-                )
             }
             item {
                 ToggleChip(
@@ -557,7 +543,22 @@ private fun DeviceDetail(
         // are rectangles, so near the top and bottom of the screen a full-width row will
         // always cross it — better that content slides under the gauge than that the
         // gauge gets chopped into pieces by whatever happens to be scrolled past it.
-        SignalArc(rssi = device.rssi, modifier = Modifier.fillMaxSize())
+        Box(Modifier.fillMaxSize()) {
+            SignalArc(rssi = device.rssi, modifier = Modifier.fillMaxSize())
+            // The reading sits in the arc's own gap, where it labels the gauge instead of
+            // taking a row from the list — and it's tinted to match, so the number and
+            // the ring read as one measurement rather than two facts about the device.
+            val f = ((device.rssi - ARC_RSSI_FLOOR) / (ARC_RSSI_CEIL - ARC_RSSI_FLOOR)).coerceIn(0f, 1f)
+            Text(
+                if (device.isConnected) stringResource(R.string.status_connected)
+                else stringResource(R.string.dbm, device.rssi),
+                color = proximityColor(f),
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                style = MaterialTheme.typography.button,
+                modifier = Modifier.align(Alignment.TopCenter).padding(top = 6.dp),
+            )
+        }
     }
 }
 
