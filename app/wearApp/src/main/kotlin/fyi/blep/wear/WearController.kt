@@ -133,6 +133,17 @@ class WearController(
 
     fun isTethered(id: String): Boolean = id in tetheredIds
 
+    /** Demo only: star one device and watch another, so the discovery filters have
+     *  something to filter. In real use both sets arrive from the phone over the Data
+     *  Layer, which a scripted demo has no way to reach. Mirrors the phone's
+     *  BlepController.seedDemoIdentity. */
+    fun seedDemo() {
+        favStore.replace(setOf("keys"))
+        tether.replace(setOf("wallet"))
+        tetheredIds = tether.ids()
+        reoverlay()
+    }
+
     /** Toggle a leave/return ("left behind") alert on a device. The periodic safety
      *  worker watches the tethered set and notifies when one leaves/returns range. */
     fun toggleTether(device: BleDevice) {

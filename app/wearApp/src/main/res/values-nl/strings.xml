@@ -48,9 +48,12 @@
     <string name="settings_title">Instellingen</string>
     <string name="settings_phone_tether_title">Waarschuw als ik mijn telefoon achterlaat</string>
     <string name="settings_phone_tether_desc">Laat dit horloge trillen wanneer je gekoppelde telefoon buiten Bluetooth-bereik raakt</string>
+    <string name="settings_sync_favorites">Favorieten</string>
+    <string name="settings_tether_title">Achtergelaten-meldingen</string>
     <string name="detail_tether">Achtergelaten-melding uit</string>
     <string name="detail_tethered">Achtergelaten-melding aan</string>
     <string name="action_done">Klaar</string>
+    <string name="discovery_empty_title">Aan het zoeken…</string>
     <string name="floor_up_one">↑ %1$d verdieping omhoog</string>
     <string name="floor_up_many">↑ %1$d verdiepingen omhoog</string>
     <string name="floor_down_one">↓ %1$d verdieping omlaag</string>

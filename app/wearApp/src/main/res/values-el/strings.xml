@@ -48,9 +48,12 @@
     <string name="settings_title">Ρυθμίσεις</string>
     <string name="settings_phone_tether_title">Ειδοποίηση αν ξεχάσω το τηλέφωνό μου</string>
     <string name="settings_phone_tether_desc">Δόνηση σε αυτό το ρολόι όταν το συζευγμένο τηλέφωνό σου βγει εκτός εμβέλειας Bluetooth</string>
+    <string name="settings_sync_favorites">Αγαπημένα</string>
+    <string name="settings_tether_title">Ειδοποιήσεις ξεχασμένου</string>
     <string name="detail_tether">Ειδοποίηση παράλειψης ανενεργή</string>
     <string name="detail_tethered">Ειδοποίηση παράλειψης ενεργή</string>
     <string name="action_done">Τέλος</string>
+    <string name="discovery_empty_title">Ψάχνω…</string>
     <string name="floor_up_one">↑ %1$d όροφο πάνω</string>
     <string name="floor_up_many">↑ %1$d ορόφους πάνω</string>
     <string name="floor_down_one">↓ %1$d όροφο κάτω</string>

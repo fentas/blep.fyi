@@ -9,12 +9,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -36,6 +38,8 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -175,16 +179,15 @@ fun WearApp(controller: WearController) = BlepWearTheme {
     }
 }
 
-/** The standard watch frame: clock arc on top, scroll arc on the bezel, and the edges
- *  faded so a scrolling list doesn't collide with the curve. Every screen wears it —
- *  without it a Wear app reads as a phone app that got shrunk. */
+/** The watch frame: scroll arc on the bezel, edges faded so a scrolling list doesn't
+ *  collide with the curve. No clock — the watch face is a swipe away and this screen
+ *  would rather spend that arc on content. */
 @Composable
 private fun WearScreen(
     listState: ScalingLazyListState,
     content: @Composable () -> Unit,
 ) {
     Scaffold(
-        timeText = { TimeText(modifier = Modifier.scrollAway(listState)) },
         vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
         positionIndicator = { PositionIndicator(scalingLazyListState = listState) },
         modifier = Modifier.background(MaterialTheme.colors.background),
@@ -232,22 +235,51 @@ private fun WearSettings(onBack: () -> Unit) {
 @Composable
 private fun DiscoveryList(controller: WearController, onSettings: () -> Unit) {
     val listState = rememberScalingLazyListState()
+    var filter by remember { mutableStateOf(DeviceFilter.ALL) }
+    val starredCount = controller.devices.count { it.isFavorite }
+    val watchedCount = controller.devices.count { controller.isTethered(it.id) }
+    // A filter whose last member disappears would strand the user on an empty list with
+    // no obvious way back, so it releases itself.
+    if ((filter == DeviceFilter.STARRED && starredCount == 0) ||
+        (filter == DeviceFilter.WATCHED && watchedCount == 0)
+    ) {
+        filter = DeviceFilter.ALL
+    }
+    val shown = when (filter) {
+        DeviceFilter.ALL -> controller.devices
+        DeviceFilter.STARRED -> controller.devices.filter { it.isFavorite }
+        DeviceFilter.WATCHED -> controller.devices.filter { controller.isTethered(it.id) }
+    }
     WearScreen(listState) {
         ScalingLazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background),
         ) {
-            // No app title: the launcher already said "blep", and on this screen the
-            // count is the only thing worth the top row.
+            // Filters, not a title: the count was decoration, and this row is the only
+            // horizontal space the screen has. Icon chips rather than labelled ones —
+            // two words plus two counts do not fit across a 450 px circle.
             item {
-                ListHeader {
+                FilterRow(
+                    filter = filter,
+                    starred = starredCount,
+                    watched = watchedCount,
+                    onPick = { filter = if (filter == it) DeviceFilter.ALL else it },
+                )
+            }
+            if (shown.isEmpty()) {
+                // Otherwise the screen is a filter row above nothing, which reads as a
+                // hang rather than "nothing is in range yet".
+                item {
                     Text(
-                        stringResource(R.string.nearby_count, controller.devices.size),
+                        stringResource(R.string.discovery_empty_title),
                         color = MaterialTheme.colors.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.caption1,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 20.dp),
                     )
                 }
             }
-            items(controller.devices, key = { it.id }) { device ->
+            items(shown, key = { it.id }) { device ->
                 DeviceRow(
                     device = device,
                     tethered = controller.isTethered(device.id),
@@ -255,10 +287,121 @@ private fun DiscoveryList(controller: WearController, onSettings: () -> Unit) {
                     onLongClick = { controller.toggleTether(device) },
                 )
             }
-            // Settings demoted to a round icon button: it competed with the devices as a
-            // full-width chip, and devices are what this screen is for.
-            item { IconOnlyButton(onClick = onSettings) { GearGlyph(it) } }
+            // Settings closes the list rather than competing with it — as a full-width
+            // chip it read as another device.
+            item {
+                FootButton(onClick = onSettings, label = stringResource(R.string.settings_title)) {
+                    GearGlyph(it)
+                }
+            }
         }
+    }
+}
+
+/** Which slice of the list is showing. Single-select: two independent toggles would let
+ *  the user ask for "starred and watched" and get an empty list with no explanation. */
+private enum class DeviceFilter { ALL, STARRED, WATCHED }
+
+/** The row that replaced the device count — starred and watched, each with its tally.
+ *  A filter with nothing in it is shown dimmed and inert rather than hidden, so the row
+ *  doesn't reflow under the user's thumb as devices come and go. */
+@Composable
+private fun FilterRow(
+    filter: DeviceFilter,
+    starred: Int,
+    watched: Int,
+    onPick: (DeviceFilter) -> Unit,
+) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+    ) {
+        FilterChip(
+            selected = filter == DeviceFilter.STARRED,
+            count = starred,
+            label = stringResource(R.string.settings_sync_favorites),
+            onClick = { onPick(DeviceFilter.STARRED) },
+        ) { StarGlyph(it) }
+        Spacer(Modifier.size(8.dp))
+        FilterChip(
+            selected = filter == DeviceFilter.WATCHED,
+            count = watched,
+            label = stringResource(R.string.settings_tether_title),
+            onClick = { onPick(DeviceFilter.WATCHED) },
+        ) { WatchedGlyph(it) }
+    }
+}
+
+@Composable
+private fun FilterChip(
+    selected: Boolean,
+    count: Int,
+    label: String,
+    onClick: () -> Unit,
+    glyph: @Composable (Color) -> Unit,
+) {
+    val enabled = count > 0
+    val fg = when {
+        selected -> BlepWear.Ink
+        enabled -> MaterialTheme.colors.onSurface
+        else -> MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.4f)
+    }
+    // The pill stays small, but the tappable box is padded out to the 48dp minimum —
+    // a 30dp target on a watch is a mis-tap waiting to happen, and the glyph is the
+    // only thing that has to stay compact.
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(width = 62.dp, height = 48.dp)
+            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
+            // The glyph carries no text, so spell the filter out for TalkBack.
+            .semantics { contentDescription = "$label, $count" },
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clip(RoundedCornerShape(999.dp))
+                .background(
+                    if (selected) MaterialTheme.colors.primary
+                    else MaterialTheme.colors.surface.copy(alpha = if (enabled) 1f else 0.5f),
+                )
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+        ) {
+            glyph(fg)
+            Spacer(Modifier.size(5.dp))
+            Text("$count", color = fg, style = MaterialTheme.typography.caption2)
+        }
+    }
+}
+
+/** Favourite — the same five-point star the phone uses for the same idea. */
+@Composable
+private fun StarGlyph(tint: Color) {
+    Canvas(modifier = Modifier.size(14.dp)) {
+        val c = Offset(size.width / 2f, size.height / 2f)
+        val rOuter = size.minDimension * 0.5f
+        val rInner = rOuter * 0.44f
+        val path = Path()
+        for (i in 0 until 10) {
+            val r = if (i % 2 == 0) rOuter else rInner
+            val a = (-90f + i * 36f) * (PI.toFloat() / 180f)
+            val p = Offset(c.x + cos(a) * r, c.y + sin(a) * r)
+            if (i == 0) path.moveTo(p.x, p.y) else path.lineTo(p.x, p.y)
+        }
+        path.close()
+        drawPath(path, tint)
+    }
+}
+
+/** Watched (left-behind alert armed) — a ring around a dot, i.e. something being kept
+ *  an eye on. Deliberately not a bell: this is presence, not a reminder. */
+@Composable
+private fun WatchedGlyph(tint: Color) {
+    Canvas(modifier = Modifier.size(14.dp)) {
+        val c = Offset(size.width / 2f, size.height / 2f)
+        drawCircle(tint, radius = size.minDimension * 0.46f, center = c, style = Stroke(width = size.minDimension * 0.13f))
+        drawCircle(tint, radius = size.minDimension * 0.17f, center = c)
     }
 }
 
@@ -275,11 +418,11 @@ private fun DeviceRow(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
-    val sub = when {
-        tethered -> stringResource(R.string.detail_tethered)
-        device.isConnected -> stringResource(R.string.status_connected)
-        else -> stringResource(R.string.dbm, device.rssi)
-    }
+    // State goes in the trailing markers, never in this line. "Left-behind on" fits in
+    // English and truncates to "Mahajätmise hoiatus s…" in Estonian, and a row that
+    // trades its signal reading for a clipped sentence is worse in every language.
+    val sub = if (device.isConnected) stringResource(R.string.status_connected)
+        else stringResource(R.string.dbm, device.rssi)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -298,7 +441,7 @@ private fun DeviceRow(
             tint = if (tethered) BlepWear.Ink else null,
         )
         Spacer(Modifier.size(10.dp))
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 device.displayName,
                 color = if (tethered) BlepWear.Ink else MaterialTheme.colors.onSurface,
@@ -313,6 +456,17 @@ private fun DeviceRow(
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.caption2,
             )
+        }
+        // State has to be identifiable *in* the list, not only by filtering to it —
+        // otherwise the chips are the only way to answer "which one is it?". Glyphs
+        // rather than words, so nothing clips at any string length.
+        if (device.isFavorite) {
+            Spacer(Modifier.size(6.dp))
+            StarGlyph(if (tethered) BlepWear.Ink else BlepWear.Blue)
+        }
+        if (tethered) {
+            Spacer(Modifier.size(6.dp))
+            WatchedGlyph(BlepWear.Ink)
         }
     }
 }
@@ -339,15 +493,27 @@ private fun SignalGlyph(rssi: Int, tint: Color?) {
     }
 }
 
-/** A round icon button — the Wear affordance for a secondary action that doesn't
- *  deserve a full-width row. */
+/**
+ * The action that closes a list — a wide stadium pill sitting under the last row, the
+ * shape Wear uses for "More" / "+" / "Track" at the foot of a screen.
+ *
+ * Narrower than a device row and a shade lighter, so it reads as a control rather than
+ * one more thing in the list; a full-width accent pill here would compete with the
+ * accent-filled watched row directly above it.
+ */
 @Composable
-private fun IconOnlyButton(onClick: () -> Unit, glyph: @Composable (Color) -> Unit) {
-    Box(Modifier.fillMaxWidth().padding(top = 4.dp), contentAlignment = Alignment.Center) {
-        Button(
-            onClick = onClick,
-            colors = ButtonDefaults.secondaryButtonColors(),
-            modifier = Modifier.size(44.dp),
+private fun FootButton(onClick: () -> Unit, label: String, glyph: @Composable (Color) -> Unit) {
+    Box(Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 2.dp), contentAlignment = Alignment.Center) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth(0.58f)
+                .height(46.dp)
+                .clip(RoundedCornerShape(999.dp))
+                .background(MaterialTheme.colors.secondaryVariant)
+                .clickable(onClick = onClick)
+                .semantics { contentDescription = label },
         ) { glyph(MaterialTheme.colors.onSurface) }
     }
 }

@@ -48,9 +48,12 @@
     <string name="settings_title">Einstellungen</string>
     <string name="settings_phone_tether_title">Warnen, wenn ich mein Handy zurücklasse</string>
     <string name="settings_phone_tether_desc">Diese Uhr vibrieren lassen, wenn dein gekoppeltes Handy die Bluetooth-Reichweite verlässt</string>
+    <string name="settings_sync_favorites">Favoriten</string>
+    <string name="settings_tether_title">Zurückgelassen-Warnungen</string>
     <string name="detail_tether">Zurücklassen-Warnung aus</string>
     <string name="detail_tethered">Zurücklassen-Warnung an</string>
     <string name="action_done">Fertig</string>
+    <string name="discovery_empty_title">Sehe mich um …</string>
     <string name="floor_up_one">↑ %1$d Etage hoch</string>
     <string name="floor_up_many">↑ %1$d Etagen hoch</string>
     <string name="floor_down_one">↓ %1$d Etage runter</string>

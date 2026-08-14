@@ -48,9 +48,12 @@
     <string name="settings_title">Seaded</string>
     <string name="settings_phone_tether_title">Hoiata, kui jätan oma telefoni maha</string>
     <string name="settings_phone_tether_desc">Pane see kell värisema, kui sinu seotud telefon väljub Bluetoothi levialast</string>
+    <string name="settings_sync_favorites">Lemmikud</string>
+    <string name="settings_tether_title">Mahajäämishoiatused</string>
     <string name="detail_tether">Mahajätmise hoiatus väljas</string>
     <string name="detail_tethered">Mahajätmise hoiatus sees</string>
     <string name="action_done">Valmis</string>
+    <string name="discovery_empty_title">Otsin…</string>
     <string name="floor_up_one">↑ %1$d korrus üles</string>
     <string name="floor_up_many">↑ %1$d korrust üles</string>
     <string name="floor_down_one">↓ %1$d korrus alla</string>

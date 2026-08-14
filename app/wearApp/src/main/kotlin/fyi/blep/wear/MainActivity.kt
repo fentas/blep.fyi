@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
             val controller = remember(scope) {
                 if (demo) {
                     WearController(DemoWearScanner(), scope, motionProvider = DemoWearMotion())
+                        .also { it.seedDemo() }
                 } else {
                     WearController(createBleScanner(), scope)
                 }

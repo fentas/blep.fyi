@@ -48,9 +48,12 @@
     <string name="settings_title">設定</string>
     <string name="settings_phone_tether_title">スマホを置き忘れたら通知</string>
     <string name="settings_phone_tether_desc">ペアリング済みのスマホが Bluetooth の圏外に出たら、この時計を振動させます</string>
+    <string name="settings_sync_favorites">お気に入り</string>
+    <string name="settings_tether_title">置き忘れアラート</string>
     <string name="detail_tether">置き忘れアラート オフ</string>
     <string name="detail_tethered">置き忘れアラート オン</string>
     <string name="action_done">完了</string>
+    <string name="discovery_empty_title">探しています…</string>
     <string name="floor_up_one">↑ %1$d 階上</string>
     <string name="floor_up_many">↑ %1$d 階上</string>
     <string name="floor_down_one">↓ %1$d 階下</string>

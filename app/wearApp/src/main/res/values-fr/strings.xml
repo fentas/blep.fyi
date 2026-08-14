@@ -48,9 +48,12 @@
     <string name="settings_title">Paramètres</string>
     <string name="settings_phone_tether_title">M\'alerter si je laisse mon téléphone</string>
     <string name="settings_phone_tether_desc">Fais vibrer cette montre quand ton téléphone associé sort de portée Bluetooth</string>
+    <string name="settings_sync_favorites">Favoris</string>
+    <string name="settings_tether_title">Alertes d\'oubli</string>
     <string name="detail_tether">Alerte d\'oubli désactivée</string>
     <string name="detail_tethered">Alerte d\'oubli activée</string>
     <string name="action_done">Terminé</string>
+    <string name="discovery_empty_title">Je cherche…</string>
     <string name="floor_up_one">↑ %1$d étage au-dessus</string>
     <string name="floor_up_many">↑ %1$d étages au-dessus</string>
     <string name="floor_down_one">↓ %1$d étage en dessous</string>

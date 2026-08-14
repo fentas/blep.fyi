@@ -48,9 +48,12 @@
     <string name="settings_title">Postavke</string>
     <string name="settings_phone_tether_title">Upozori ako ostavim telefon</string>
     <string name="settings_phone_tether_desc">Zavibriraj ovaj sat kad tvoj upareni telefon izađe iz dometa Bluetootha</string>
+    <string name="settings_sync_favorites">Favoriti</string>
+    <string name="settings_tether_title">Upozorenja na zaboravljeno</string>
     <string name="detail_tether">Upozorenje na zaboravljanje isključeno</string>
     <string name="detail_tethered">Upozorenje na zaboravljanje uključeno</string>
     <string name="action_done">Gotovo</string>
+    <string name="discovery_empty_title">Tražim…</string>
     <string name="floor_up_one">↑ %1$d kat gore</string>
     <string name="floor_up_many">↑ %1$d kata gore</string>
     <string name="floor_down_one">↓ %1$d kat dolje</string>

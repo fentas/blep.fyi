@@ -48,9 +48,12 @@
     <string name="settings_title">Ajustes</string>
     <string name="settings_phone_tether_title">Avisarme si me dejo el teléfono</string>
     <string name="settings_phone_tether_desc">Hacer vibrar este reloj cuando tu teléfono vinculado salga del alcance de Bluetooth</string>
+    <string name="settings_sync_favorites">Favoritos</string>
+    <string name="settings_tether_title">Avisos de olvido</string>
     <string name="detail_tether">Aviso de olvido desactivado</string>
     <string name="detail_tethered">Aviso de olvido activado</string>
     <string name="action_done">Listo</string>
+    <string name="discovery_empty_title">Buscando…</string>
     <string name="floor_up_one">↑ %1$d piso arriba</string>
     <string name="floor_up_many">↑ %1$d pisos arriba</string>
     <string name="floor_down_one">↓ %1$d piso abajo</string>

@@ -34,7 +34,8 @@ noti_channel_tether noti_channel_tether_info \
 noti_tether_left_title noti_tether_left_text noti_tether_back_title noti_tether_back_text \
 noti_phone_left_title noti_phone_left_text noti_phone_back_text \
 settings_title settings_phone_tether_title settings_phone_tether_desc \
-detail_tether detail_tethered action_done \
+settings_sync_favorites settings_tether_title \
+detail_tether detail_tethered action_done discovery_empty_title \
 floor_up_one floor_up_many floor_down_one floor_down_many"
 
 gen() { # srcdir destdir

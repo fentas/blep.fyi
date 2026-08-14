@@ -48,9 +48,12 @@
     <string name="settings_title">Settings</string>
     <string name="settings_phone_tether_title">Alert if I leave my phone</string>
     <string name="settings_phone_tether_desc">Buzz this watch when your paired phone goes out of Bluetooth range</string>
+    <string name="settings_sync_favorites">Favourites</string>
+    <string name="settings_tether_title">Left-behind alerts</string>
     <string name="detail_tether">Left-behind off</string>
     <string name="detail_tethered">Left-behind on</string>
     <string name="action_done">Done</string>
+    <string name="discovery_empty_title">Looking around…</string>
     <string name="floor_up_one">↑ %1$d floor up</string>
     <string name="floor_up_many">↑ %1$d floors up</string>
     <string name="floor_down_one">↓ %1$d floor down</string>
