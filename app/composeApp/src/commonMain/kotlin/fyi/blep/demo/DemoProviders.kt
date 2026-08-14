@@ -26,6 +26,9 @@ import kotlin.time.TimeSource
  */
 private const val DEMO_TOTAL = 20.0
 
+/** The anonymous demo device the seeded safety state flags — see BlepController.seedDemoIdentity. */
+const val DEMO_SUSPECT_ID = "D9:14:7C:22:B0:8E"
+
 private val DEMO_DEVICES = listOf(
     // A rotating private-address tracker the user renamed — its id-change history is
     // seeded by BlepController.seedDemoIdentity so the detail panel showcases identity.
@@ -34,6 +37,11 @@ private val DEMO_DEVICES = listOf(
     BleDevice(id = "buds", name = "AirPods Pro", rssi = -71),
     BleDevice(id = "watch", name = "Galaxy Watch", rssi = -64, isPaired = true),
     BleDevice(id = "wallet", name = "Wallet", rssi = -83),
+    // An anonymous device the safety layer has flagged — everything else in this list is
+    // the user's own, so without it the discovery screen can never show the suspect pill.
+    // Marked suspected by BlepController.seedDemoIdentity. Deliberately weak, so it sorts
+    // to the bottom and can't shift the rows the screenshot script taps by coordinate.
+    BleDevice(id = DEMO_SUSPECT_ID, name = null, rssi = -79),
 )
 
 class DemoBleScanner : BleScanner {

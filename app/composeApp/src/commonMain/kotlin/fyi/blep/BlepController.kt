@@ -49,6 +49,7 @@ import fyi.blep.core.tracking.TrackingPhase
 import fyi.blep.core.tracking.TrackingSession
 import fyi.blep.core.tracking.signalFreshness
 import fyi.blep.core.tracking.TrackingStatus
+import fyi.blep.demo.DEMO_SUSPECT_ID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -730,6 +731,10 @@ class BlepController(
         )
         aliases[cur] = "Bag tag" // a rename that follows the rotation
         devices = devices.map { if (it.id == cur) it.copy(alias = "Bag tag") else it }
+        // Mark the anonymous demo device suspected up front so the discovery screen shows
+        // the suspect pill. In the real app suspicion only arrives once a safety scan
+        // flags something, which a screenshot of a freshly-launched app never reaches.
+        suspectIds = suspectIds + DEMO_SUSPECT_ID
     }
 
     /** The ids this device has worn (its rotation lineage), current id last. For the

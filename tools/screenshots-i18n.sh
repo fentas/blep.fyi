@@ -17,6 +17,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STORE="$ROOT/screenshots/store/i18n"
 APP="$ROOT/app"
 AVD="blep"; PKG="fyi.blep"
+# Seconds to wait after a cold launch before capturing/tapping. The app shows a splash
+# first, so too short and every shot is the splash and every tap lands on nothing. Slower
+# machines (or a cold emulator) need more — raise with SETTLE=12 tools/screenshots-i18n.sh
+SETTLE="${SETTLE:-9}"
 mkdir -p "$STORE"
 
 ANDROID_HOME="${ANDROID_HOME:-$(sed -n 's/^sdk.dir=//p' "$APP/local.properties" 2>/dev/null)}"
@@ -114,20 +118,20 @@ set_locale() { adb shell "setprop persist.sys.locale $3; setprop persist.sys.lan
   sleep 3; }
 
 capture_set() { local raw="$1"
-  adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
+  adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep "$SETTLE"
   adb exec-out screencap -p > "$raw/01.png"
   adb shell input tap 540 830; sleep 9; adb exec-out screencap -p > "$raw/02.png"
   sleep 5; adb exec-out screencap -p > "$raw/03.png"
   adb shell input tap 540 2024; sleep 2; adb exec-out screencap -p > "$raw/04.png"
-  adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
+  adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep "$SETTLE"
   adb shell input tap 420 460; sleep 8; adb exec-out screencap -p > "$raw/05.png"
   # 07: a device's detail panel — open the first device's "›" (identity, rename, watch).
-  adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
+  adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep "$SETTLE"
   adb shell input tap 950 830; sleep 2; adb exec-out screencap -p > "$raw/07.png"
   # 06: dark theme — the app follows the system, so flip night mode and show the
   # discovery list in dark.
   adb shell cmd uimode night yes >/dev/null 2>&1
-  adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep 4
+  adb shell pm clear "$PKG" >/dev/null; launch_demo; sleep "$SETTLE"
   adb exec-out screencap -p > "$raw/06.png"
   adb shell cmd uimode night no >/dev/null 2>&1; }
 
