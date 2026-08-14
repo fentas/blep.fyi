@@ -29,7 +29,7 @@ android {
         minSdk = libs.versions.androidMinSdk.get().toInt()
         targetSdk = libs.versions.androidTargetSdk.get().toInt()
         // Phone band = 1xxx (Wear = 2xxx in :wearApp); globally-unique per upload.
-        versionCode = 1025
+        versionCode = 1026
         versionName = "1.10.0"
         buildConfigField("String", "GIT_SHA", "\"$gitSha\"")
     }
