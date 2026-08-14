@@ -52,6 +52,8 @@
     <string name="settings_tether_title">Zurückgelassen-Warnungen</string>
     <string name="wear_hold_to_hunt">Gerät gedrückt halten, um es zu suchen</string>
     <string name="section_nearby">In der Nähe</string>
+    <string name="status_no_signal">Kein Signal</string>
+    <string name="detail_identify_failed">Verbindung zur Identifizierung nicht möglich (die meisten Tracker erlauben das nicht).</string>
     <string name="detail_signal">Signal</string>
     <string name="detail_identifier">Kennung</string>
     <string name="detail_find">Finden</string>

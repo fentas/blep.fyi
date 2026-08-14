@@ -52,6 +52,8 @@
     <string name="settings_tether_title">Avisos de olvido</string>
     <string name="wear_hold_to_hunt">Mantén pulsado un dispositivo para buscarlo</string>
     <string name="section_nearby">Cerca</string>
+    <string name="status_no_signal">Sin señal</string>
+    <string name="detail_identify_failed">No se pudo conectar para identificarlo (la mayoría de los rastreadores no lo permiten).</string>
     <string name="detail_signal">Señal</string>
     <string name="detail_identifier">Identificador</string>
     <string name="detail_find">Encontrarlo</string>

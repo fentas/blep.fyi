@@ -52,6 +52,8 @@
     <string name="settings_tether_title">Ειδοποιήσεις ξεχασμένου</string>
     <string name="wear_hold_to_hunt">Κράτα πατημένη μια συσκευή για αναζήτηση</string>
     <string name="section_nearby">Κοντά</string>
+    <string name="status_no_signal">Χωρίς σήμα</string>
+    <string name="detail_identify_failed">Δεν ήταν δυνατή η σύνδεση για αναγνώριση (οι περισσότεροι ιχνηλάτες δεν το επιτρέπουν).</string>
     <string name="detail_signal">Σήμα</string>
     <string name="detail_identifier">Αναγνωριστικό</string>
     <string name="detail_find">Βρες το</string>

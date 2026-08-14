@@ -52,6 +52,8 @@
     <string name="settings_tether_title">Upozorenja na zaboravljeno</string>
     <string name="wear_hold_to_hunt">Držite uređaj za traženje</string>
     <string name="section_nearby">U blizini</string>
+    <string name="status_no_signal">Nema signala</string>
+    <string name="detail_identify_failed">Povezivanje radi prepoznavanja nije uspjelo (većina pratilica to ne dopušta).</string>
     <string name="detail_signal">Signal</string>
     <string name="detail_identifier">Identifikator</string>
     <string name="detail_find">Pronađi</string>

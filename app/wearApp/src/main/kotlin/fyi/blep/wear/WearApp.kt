@@ -177,8 +177,19 @@ fun WearApp(controller: WearController) = BlepWearTheme {
     // Held by id, not by value: the scan re-emits a fresh BleDevice every tick, so a
     // captured copy would freeze the detail page's signal at whatever it was on open.
     var detailId by remember { mutableStateOf<String?>(null) }
+    // ...but the last copy is kept too, because the scanner drops a device the moment it
+    // goes quiet. Resolving the page purely from the live list meant losing the signal
+    // threw the user back to the list, and regaining it re-opened the page under them.
+    // The page belongs to the id, and only the user closes it.
+    var detailLast by remember { mutableStateOf<fyi.blep.core.model.BleDevice?>(null) }
     val tracked = controller.tracking
-    val detail = detailId?.let { id -> controller.devices.firstOrNull { it.id == id } }
+    val live = detailId?.let { id -> controller.devices.firstOrNull { it.id == id } }
+    LaunchedEffect(live) { if (live != null) detailLast = live }
+    val detail = live
+        ?: detailLast?.takeIf { it.id == detailId }
+            // Absent: keep the row we last saw, with the signal cleared so the gauge
+            // empties and the readout says so.
+            ?.copy(rssi = fyi.blep.core.model.BleDevice.RSSI_UNKNOWN, isConnected = false)
     when {
         showSettings -> WearSettings(onBack = { showSettings = false })
         tracked == null && detail != null -> {
@@ -504,6 +515,20 @@ private fun DeviceDetail(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                     )
                 }
+                // A probe that came back with nothing has to say so. Without this the
+                // button just sat there unchanged, so a refusal looked identical to
+                // never having pressed it — and most trackers do refuse.
+                if (probe != null && !probing) {
+                    item {
+                        Text(
+                            stringResource(R.string.detail_identify_failed),
+                            color = MaterialTheme.colors.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.caption3,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
+                        )
+                    }
+                }
             }
 
             // The reason you opened this page, so it gets the accent and sits last where
@@ -550,9 +575,14 @@ private fun DeviceDetail(
             // the ring read as one measurement rather than two facts about the device.
             val f = ((device.rssi - ARC_RSSI_FLOOR) / (ARC_RSSI_CEIL - ARC_RSSI_FLOOR)).coerceIn(0f, 1f)
             Text(
-                if (device.isConnected) stringResource(R.string.status_connected)
-                else stringResource(R.string.dbm, device.rssi),
-                color = proximityColor(f),
+                when {
+                    device.rssiUnknown -> stringResource(R.string.status_no_signal)
+                    device.isConnected -> stringResource(R.string.status_connected)
+                    else -> stringResource(R.string.dbm, device.rssi)
+                },
+                // Dimmed when there's nothing to read, so an empty gauge and a grey
+                // label say the same thing.
+                color = if (device.rssiUnknown) MaterialTheme.colors.onSurfaceVariant else proximityColor(f),
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 style = MaterialTheme.typography.button,
@@ -810,8 +840,13 @@ private fun DeviceRow(
     // State goes in the trailing markers, never in this line. "Left-behind on" fits in
     // English and truncates to "Mahajätmise hoiatus s…" in Estonian, and a row that
     // trades its signal reading for a clipped sentence is worse in every language.
-    val sub = if (device.isConnected) stringResource(R.string.status_connected)
-        else stringResource(R.string.dbm, device.rssi)
+    val sub = when {
+        // RSSI_UNKNOWN is a sentinel, not a reading — printing it gave paired devices a
+        // permanent, meaningless "-127 dBm".
+        device.rssiUnknown -> stringResource(R.string.status_no_signal)
+        device.isConnected -> stringResource(R.string.status_connected)
+        else -> stringResource(R.string.dbm, device.rssi)
+    }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier

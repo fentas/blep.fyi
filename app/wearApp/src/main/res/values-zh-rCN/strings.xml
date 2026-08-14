@@ -52,6 +52,8 @@
     <string name="settings_tether_title">遗落提醒</string>
     <string name="wear_hold_to_hunt">长按设备开始寻找</string>
     <string name="section_nearby">附近</string>
+    <string name="status_no_signal">无信号</string>
+    <string name="detail_identify_failed">无法连接以进行识别（大多数追踪器不允许）。</string>
     <string name="detail_signal">信号</string>
     <string name="detail_identifier">标识符</string>
     <string name="detail_find">找到它</string>

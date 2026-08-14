@@ -45,6 +45,9 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
+// Shared with the phone's BlepController — the key it publishes the unnamed toggle under.
+private const val SETTING_SHOW_UNNAMED = "showUnnamed"
+
 /**
  * Minimal state holder for the watch app. Mirrors the phone's `BlepController`
  * but is intentionally separate: Wear uses plain Jetpack Compose (not Compose
@@ -76,6 +79,12 @@ class WearController(
     /** No fresh RSSI recently (out of range / off). */
     var signalLost by mutableStateOf(false)
         private set
+    /** Whether unnamed devices are listed. The watch has no toggle of its own — it
+     *  follows the phone's over the settings sync, which is why the watch used to show
+     *  far fewer devices than the phone with no way to explain the difference. */
+    var includeUnnamed by mutableStateOf(false)
+        private set
+
     /** Ids the user tethered (leave/return alert). Drives the list indicator. */
     var tetheredIds by mutableStateOf<Set<String>>(emptySet())
         private set
@@ -138,7 +147,13 @@ class WearController(
             override fun applyTethered(ids: Set<String>) { tether.replace(ids); tetheredIds = ids; reoverlay() }
             override fun applyMuted(ids: Set<String>) {}
             override fun applyAliases(map: Map<String, String>) { aliasStore.replaceAll(map); reoverlay() }
-            override fun applySetting(name: String, value: String) {}
+            override fun applySetting(name: String, value: String) {
+                if (name == SETTING_SHOW_UNNAMED) {
+                    value.toBooleanStrictOrNull()?.let {
+                        if (it != includeUnnamed) { includeUnnamed = it; startDiscovery() }
+                    }
+                }
+            }
             override fun onMessage(msg: SyncMessage) {} // PhoneTetherService handles relayed alerts
         }
         sync = SyncManager(createSyncTransport(), SyncSettings(createKeyValueStore()), source, sink, scope).also { it.start() }
@@ -269,7 +284,7 @@ class WearController(
             // Self-healing: scanning throws until the BLE permission is granted.
             while (isActive) {
                 try {
-                    scanner.devices(includeUnnamed = false).collect { list -> devices = list.map(::overlay) }
+                    scanner.devices(includeUnnamed = includeUnnamed, measureConnectedSignal = true).collect { list -> devices = list.map(::overlay) }
                 } catch (c: CancellationException) {
                     throw c
                 } catch (_: Throwable) {

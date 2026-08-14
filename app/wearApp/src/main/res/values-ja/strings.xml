@@ -52,6 +52,8 @@
     <string name="settings_tether_title">置き忘れアラート</string>
     <string name="wear_hold_to_hunt">デバイスを長押しして探す</string>
     <string name="section_nearby">近く</string>
+    <string name="status_no_signal">信号なし</string>
+    <string name="detail_identify_failed">識別のための接続ができませんでした（多くのトラッカーは許可していません）。</string>
     <string name="detail_signal">信号</string>
     <string name="detail_identifier">識別子</string>
     <string name="detail_find">見つける</string>

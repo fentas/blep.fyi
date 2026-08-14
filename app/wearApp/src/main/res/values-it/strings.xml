@@ -52,6 +52,8 @@
     <string name="settings_tether_title">Avvisi di dimenticanza</string>
     <string name="wear_hold_to_hunt">Tieni premuto un dispositivo per cercarlo</string>
     <string name="section_nearby">Nelle vicinanze</string>
+    <string name="status_no_signal">Nessun segnale</string>
+    <string name="detail_identify_failed">Impossibile connettersi per identificarlo (la maggior parte dei tracker non lo consente).</string>
     <string name="detail_signal">Segnale</string>
     <string name="detail_identifier">Identificatore</string>
     <string name="detail_find">Trovalo</string>

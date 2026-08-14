@@ -52,6 +52,8 @@
     <string name="settings_tether_title">Alerty o pozostawieniu</string>
     <string name="wear_hold_to_hunt">Przytrzymaj urządzenie, aby je znaleźć</string>
     <string name="section_nearby">W pobliżu</string>
+    <string name="status_no_signal">Brak sygnału</string>
+    <string name="detail_identify_failed">Nie udało się połączyć w celu identyfikacji (większość lokalizatorów na to nie pozwala).</string>
     <string name="detail_signal">Sygnał</string>
     <string name="detail_identifier">Identyfikator</string>
     <string name="detail_find">Znajdź</string>

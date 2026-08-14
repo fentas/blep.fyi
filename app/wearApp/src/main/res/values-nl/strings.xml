@@ -52,6 +52,8 @@
     <string name="settings_tether_title">Achtergelaten-meldingen</string>
     <string name="wear_hold_to_hunt">Houd een apparaat ingedrukt om te zoeken</string>
     <string name="section_nearby">In de buurt</string>
+    <string name="status_no_signal">Geen signaal</string>
+    <string name="detail_identify_failed">Kon geen verbinding maken om het te identificeren (de meeste trackers staan dit niet toe).</string>
     <string name="detail_signal">Signaal</string>
     <string name="detail_identifier">Identificatie</string>
     <string name="detail_find">Vind het</string>
