@@ -200,6 +200,7 @@
     <string name="noti_ongoing_text">Recherche de traceurs à proximité</string>
     <string name="noti_alert_title">Un traceur te suit peut-être</string>
     <string name="noti_alert_text">Un traceur réapparaît sans cesse près de toi. Ouvre blep pour le localiser.</string>
+    <string name="noti_alert_named">%1$s revient sans cesse près de vous. Ouvrez blep pour le localiser.</string>
     <string name="noti_channel_alert">Alertes de traceur</string>
     <string name="noti_channel_ongoing">Analyse en arrière-plan</string>
     <string name="a11y_details">Détails de l'appareil</string>

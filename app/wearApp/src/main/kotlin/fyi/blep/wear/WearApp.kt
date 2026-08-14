@@ -11,7 +11,10 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -40,12 +43,33 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sin
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.wear.compose.foundation.CurvedDirection
+import androidx.wear.compose.foundation.CurvedLayout
+import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.material.curvedText
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.items
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.material.Button
+import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
+import androidx.wear.compose.material.ListHeader
+import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.PositionIndicator
+import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material.Switch
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.TimeText
+import androidx.wear.compose.material.TimeTextDefaults
+import androidx.wear.compose.material.ToggleChip
+import androidx.wear.compose.material.Vignette
+import androidx.wear.compose.material.VignettePosition
+import androidx.wear.compose.material.scrollAway
 import fyi.blep.core.spatial.CueKind
 import fyi.blep.core.spatial.GuidanceLine
 import fyi.blep.core.spatial.SpatialSnapshot
@@ -135,7 +159,7 @@ private fun proximityColor(f: Float): Color {
 }
 
 @Composable
-fun WearApp(controller: WearController) {
+fun WearApp(controller: WearController) = BlepWearTheme {
     var showSettings by remember { mutableStateOf(false) }
     val tracked = controller.tracking
     when {
@@ -151,31 +175,55 @@ fun WearApp(controller: WearController) {
     }
 }
 
+/** The standard watch frame: clock arc on top, scroll arc on the bezel, and the edges
+ *  faded so a scrolling list doesn't collide with the curve. Every screen wears it —
+ *  without it a Wear app reads as a phone app that got shrunk. */
+@Composable
+private fun WearScreen(
+    listState: ScalingLazyListState,
+    content: @Composable () -> Unit,
+) {
+    Scaffold(
+        timeText = { TimeText(modifier = Modifier.scrollAway(listState)) },
+        vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
+        positionIndicator = { PositionIndicator(scalingLazyListState = listState) },
+        modifier = Modifier.background(MaterialTheme.colors.background),
+    ) { content() }
+}
+
 @Composable
 private fun WearSettings(onBack: () -> Unit) {
     val ctx = LocalContext.current
+    val listState = rememberScalingLazyListState()
     var phoneTether by remember { mutableStateOf(PhoneTether.enabled(ctx)) }
-    ScalingLazyColumn(modifier = Modifier.fillMaxSize().background(Color(0xFF101418))) {
-        item { Text(stringResource(R.string.settings_title), textAlign = TextAlign.Center, color = Color(0xFFF4F5F0)) }
-        item {
-            // Plain toggle-chip (tap flips it) — "alert me if I leave my phone behind".
-            Chip(
-                onClick = { phoneTether = !phoneTether; PhoneTether.setEnabled(ctx, phoneTether) },
-                colors = ChipDefaults.primaryChipColors(
-                    backgroundColor = if (phoneTether) Color(0xFF5F90C3) else Color(0xFF2A2F38),
-                ),
-                label = { Text(stringResource(R.string.settings_phone_tether_title)) },
-                secondaryLabel = { Text(stringResource(if (phoneTether) R.string.tether_on else R.string.settings_phone_tether_desc)) },
-                modifier = Modifier.padding(horizontal = 8.dp),
-            )
-        }
-        item {
-            Chip(
-                onClick = onBack,
-                colors = ChipDefaults.secondaryChipColors(),
-                label = { Text(stringResource(R.string.action_done)) },
-                modifier = Modifier.padding(horizontal = 8.dp),
-            )
+    WearScreen(listState) {
+        ScalingLazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background),
+        ) {
+            item { ListHeader { Text(stringResource(R.string.settings_title), color = MaterialTheme.colors.onBackground) } }
+            item {
+                // A real toggle control rather than a chip that merely looks pressed —
+                // the switch states what "on" means without the user having to infer it.
+                ToggleChip(
+                    checked = phoneTether,
+                    onCheckedChange = { phoneTether = it; PhoneTether.setEnabled(ctx, it) },
+                    label = { Text(stringResource(R.string.settings_phone_tether_title)) },
+                    secondaryLabel = {
+                        Text(stringResource(if (phoneTether) R.string.detail_tethered else R.string.settings_phone_tether_desc))
+                    },
+                    toggleControl = { Switch(checked = phoneTether) },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                )
+            }
+            item {
+                Chip(
+                    onClick = onBack,
+                    colors = ChipDefaults.secondaryChipColors(),
+                    label = { Text(stringResource(R.string.action_done)) },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                )
+            }
         }
     }
 }
@@ -183,45 +231,143 @@ private fun WearSettings(onBack: () -> Unit) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DiscoveryList(controller: WearController, onSettings: () -> Unit) {
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize().background(Color(0xFF101418)),
-    ) {
-        item { Text("blep", textAlign = TextAlign.Center, color = Color(0xFFF4F5F0)) }
-        item {
-            Chip(
-                onClick = onSettings,
-                colors = ChipDefaults.secondaryChipColors(),
-                label = { Text(stringResource(R.string.settings_title)) },
-                modifier = Modifier.padding(horizontal = 8.dp),
-            )
-        }
-        items(controller.devices, key = { it.id }) { device ->
-            val tethered = controller.isTethered(device.id)
-            // Tap to hunt it; long-press to set/clear a "left behind" alert on it.
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp, vertical = 2.dp)
-                    .clip(RoundedCornerShape(26.dp))
-                    .background(if (tethered) Color(0xFF3A6098) else Color(0xFF5F90C3))
-                    .combinedClickable(
-                        onClick = { controller.track(device) },
-                        onLongClick = { controller.toggleTether(device) },
+    val listState = rememberScalingLazyListState()
+    WearScreen(listState) {
+        ScalingLazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background),
+        ) {
+            // No app title: the launcher already said "blep", and on this screen the
+            // count is the only thing worth the top row.
+            item {
+                ListHeader {
+                    Text(
+                        stringResource(R.string.nearby_count, controller.devices.size),
+                        color = MaterialTheme.colors.onSurfaceVariant,
                     )
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-            ) {
-                Column {
-                    Text(device.displayName, color = Color(0xFFF4F5F0))
-                    val sub = when {
-                        tethered -> stringResource(R.string.tether_on)
-                        device.isConnected -> stringResource(R.string.status_connected)
-                        else -> null
-                    }
-                    if (sub != null) {
-                        Text(sub, color = Color(0xCCF4F5F0), textAlign = TextAlign.Start)
-                    }
                 }
             }
+            items(controller.devices, key = { it.id }) { device ->
+                DeviceRow(
+                    device = device,
+                    tethered = controller.isTethered(device.id),
+                    onClick = { controller.track(device) },
+                    onLongClick = { controller.toggleTether(device) },
+                )
+            }
+            // Settings demoted to a round icon button: it competed with the devices as a
+            // full-width chip, and devices are what this screen is for.
+            item { IconOnlyButton(onClick = onSettings) { GearGlyph(it) } }
         }
+    }
+}
+
+/**
+ * One device, shaped like a Wear chip — stadium fill, leading signal glyph, name over a
+ * status line. Hand-built rather than [Chip] because tapping hunts the device while a
+ * long press arms its left-behind alert, and Chip exposes no long-press slot.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun DeviceRow(
+    device: fyi.blep.core.model.BleDevice,
+    tethered: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+) {
+    val sub = when {
+        tethered -> stringResource(R.string.detail_tethered)
+        device.isConnected -> stringResource(R.string.status_connected)
+        else -> stringResource(R.string.dbm, device.rssi)
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 2.dp)
+            .clip(RoundedCornerShape(26.dp))
+            // A watched device is filled with the accent — the same "this one is
+            // selected" language the rest of the system uses.
+            .background(if (tethered) MaterialTheme.colors.primary else MaterialTheme.colors.surface)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+    ) {
+        SignalGlyph(
+            rssi = device.rssi,
+            // On the filled row the ramp would fight the accent, so the glyph goes flat.
+            tint = if (tethered) BlepWear.Ink else null,
+        )
+        Spacer(Modifier.size(10.dp))
+        Column {
+            Text(
+                device.displayName,
+                color = if (tethered) BlepWear.Ink else MaterialTheme.colors.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.button,
+            )
+            Text(
+                sub,
+                color = if (tethered) BlepWear.Ink.copy(alpha = 0.7f) else MaterialTheme.colors.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.caption2,
+            )
+        }
+    }
+}
+
+/** Four bars, filled by signal and coloured by the same warm/cold ramp the hunt uses,
+ *  so "which of these is closest" is answerable without reading a single number. */
+@Composable
+private fun SignalGlyph(rssi: Int, tint: Color?) {
+    val f = ((rssi + 95f) / 45f).coerceIn(0f, 1f)
+    val lit = (f * 4f).roundToInt().coerceIn(1, 4)
+    val on = tint ?: proximityColor(f)
+    val off = (tint ?: MaterialTheme.colors.onSurfaceVariant).copy(alpha = 0.25f)
+    Canvas(modifier = Modifier.size(20.dp)) {
+        val w = size.width / 7f
+        for (i in 0 until 4) {
+            val h = size.height * (0.32f + 0.225f * i)
+            drawRoundRect(
+                color = if (i < lit) on else off,
+                topLeft = Offset(i * w * 1.75f, size.height - h),
+                size = androidx.compose.ui.geometry.Size(w, h),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(w / 2f),
+            )
+        }
+    }
+}
+
+/** A round icon button — the Wear affordance for a secondary action that doesn't
+ *  deserve a full-width row. */
+@Composable
+private fun IconOnlyButton(onClick: () -> Unit, glyph: @Composable (Color) -> Unit) {
+    Box(Modifier.fillMaxWidth().padding(top = 4.dp), contentAlignment = Alignment.Center) {
+        Button(
+            onClick = onClick,
+            colors = ButtonDefaults.secondaryButtonColors(),
+            modifier = Modifier.size(44.dp),
+        ) { glyph(MaterialTheme.colors.onSurface) }
+    }
+}
+
+/** Settings gear, drawn rather than pulled in as an icon dependency (the watch module
+ *  ships no icon pack, and this is the only glyph it needs). */
+@Composable
+private fun GearGlyph(tint: Color) {
+    Canvas(modifier = Modifier.size(20.dp)) {
+        val c = Offset(size.width / 2f, size.height / 2f)
+        // The teeth have to overlap the body — set further out they read as petals and
+        // the whole glyph turns into a flower.
+        val rOuter = size.minDimension * 0.36f
+        val rTooth = size.minDimension * 0.11f
+        for (i in 0 until 8) {
+            val a = (i * 45f) * (PI.toFloat() / 180f)
+            drawCircle(tint, radius = rTooth, center = Offset(c.x + cos(a) * rOuter, c.y + sin(a) * rOuter))
+        }
+        drawCircle(tint, radius = size.minDimension * 0.31f, center = c)
+        drawCircle(BlepWear.Surface, radius = size.minDimension * 0.13f, center = c)
     }
 }
 
@@ -232,10 +378,31 @@ private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialS
     // stick far at this range (shared with the phone), so trust the raw reading and
     // show "it's right here" + the live dB to sweep the last few cm. Mirrors phone.
     val onIt = !signalLost && rssi != null && rssi >= POINT_BLANK_DBM
+    // Scaffold, so the clock gets the slot that positions it on the top arc — dropped
+    // into a centre-aligned Box it just lands behind the guidance text. Inked, because
+    // this is the one light background in the app and the default white would vanish.
+    Scaffold(
+        timeText = { TimeText(timeTextStyle = TimeTextDefaults.timeTextStyle(color = BlepWear.Ink.copy(alpha = 0.6f))) },
+    ) {
     Box(
         modifier = Modifier.fillMaxSize().background(bg).clickable(onClick = onCancel),
         contentAlignment = Alignment.Center,
     ) {
+        // The device name rides the bottom bezel instead of taking a line in the middle:
+        // it's the least urgent thing here, and the curve is otherwise dead space. The
+        // hunt keeps its light proximity background — that colour *is* the reading, so it
+        // stays out of the dark theme.
+        // The direction has to be set on the text itself, not just the layout: at a
+        // bottom anchor the glyphs otherwise ride the outside of the arc and the name
+        // reads upside down.
+        CurvedLayout(anchor = 90f, modifier = Modifier.fillMaxSize()) {
+            curvedText(
+                text = name,
+                color = BlepWear.Ink.copy(alpha = 0.55f),
+                style = CurvedTextStyle(fontSize = 13.sp),
+                angularDirection = CurvedDirection.Angular.CounterClockwise,
+            )
+        }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             // Spatial map when motion sensors feed it; otherwise the shape arrow.
             if (spatial != null) {
@@ -272,13 +439,10 @@ private fun TrackingView(name: String, status: TrackingStatus, spatial: SpatialS
                     modifier = Modifier.padding(top = 1.dp),
                 )
             }
-            Text(
-                name,
-                color = Ink.copy(alpha = 0.5f),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 2.dp),
-            )
+            // The name used to sit here; it now rides the bezel, which buys the guidance
+            // a line of breathing room on the smallest screen we ship.
         }
+    }
     }
 }
 

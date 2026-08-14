@@ -200,6 +200,7 @@
     <string name="noti_ongoing_text">Jälgijate otsimine läheduses</string>
     <string name="noti_alert_title">Võimalik, et jälgija jälgib sind</string>
     <string name="noti_alert_text">Jälgija ilmub aina uuesti sinu lähedale. Ava blep, et see üles leida.</string>
+    <string name="noti_alert_named">%1$s ilmub pidevalt sinu lähedusse. Ava blep, et see üles leida.</string>
     <string name="noti_channel_alert">Jälgija hoiatused</string>
     <string name="noti_channel_ongoing">Taustaskannimine</string>
     <string name="a11y_details">Seadme üksikasjad</string>

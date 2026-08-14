@@ -3,6 +3,7 @@
 <resources>
     <string name="app_name">blep</string>
     <string name="status_connected">已连接</string>
+    <string name="nearby_count">附近 %1$d 个</string>
     <string name="cue_calibrate_title">贴在胸前</string>
     <string name="cue_sweep_start_title">现在慢慢转动</string>
     <string name="cue_sweep_warmer_title">继续转动</string>
@@ -34,9 +35,24 @@
     <string name="noti_channel_alert">追踪器警报</string>
     <string name="noti_alert_title">可能有追踪器在跟踪你</string>
     <string name="noti_alert_text">有一个追踪器不断出现在你附近。打开 blep 来查找它。</string>
+    <string name="noti_alert_named">%1$s 一直出现在你附近。打开 blep 进行定位。</string>
+    <string name="noti_channel_tether">遗落提醒</string>
+    <string name="noti_channel_tether_info">回到范围内通知</string>
+    <string name="noti_tether_left_title">忘带了？</string>
+    <string name="noti_tether_left_text">%1$s 刚刚超出了蓝牙范围。</string>
+    <string name="noti_tether_back_title">回到范围内</string>
+    <string name="noti_tether_back_text">%1$s 又在附近了。</string>
+    <string name="noti_phone_left_title">手机忘带了？</string>
+    <string name="noti_phone_left_text">你的手机超出了手表的范围。</string>
+    <string name="noti_phone_back_text">你的手机回到范围内了。</string>
+    <string name="settings_title">设置</string>
+    <string name="settings_phone_tether_title">忘带手机时提醒我</string>
+    <string name="settings_phone_tether_desc">当配对的手机超出蓝牙范围时，让这块手表震动</string>
+    <string name="detail_tether">遗落提醒 关闭</string>
+    <string name="detail_tethered">遗落提醒 开启</string>
+    <string name="action_done">完成</string>
     <string name="floor_up_one">↑ 上 %1$d 层</string>
     <string name="floor_up_many">↑ 上 %1$d 层</string>
     <string name="floor_down_one">↓ 下 %1$d 层</string>
     <string name="floor_down_many">↓ 下 %1$d 层</string>
-    <string name="noti_alert_named">%1$s 一直出现在你附近。打开 blep 进行定位。</string>
 </resources>

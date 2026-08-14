@@ -3,6 +3,7 @@
 <resources>
     <string name="app_name">blep</string>
     <string name="status_connected">Verbunden</string>
+    <string name="nearby_count">%1$d in der Nähe</string>
     <string name="cue_calibrate_title">An die Brust halten</string>
     <string name="cue_sweep_start_title">Jetzt langsam drehen</string>
     <string name="cue_sweep_warmer_title">Weiterdrehen</string>
@@ -34,9 +35,24 @@
     <string name="noti_channel_alert">Tracker-Warnungen</string>
     <string name="noti_alert_title">Möglicher Tracker folgt dir</string>
     <string name="noti_alert_text">Ein Tracker taucht immer wieder in deiner Nähe auf. Öffne blep, um ihn zu orten.</string>
+    <string name="noti_alert_named">%1$s taucht immer wieder bei dir auf. Öffne blep, um es zu orten.</string>
+    <string name="noti_channel_tether">Zurückgelassen-Warnungen</string>
+    <string name="noti_channel_tether_info">Wieder-in-Reichweite-Hinweise</string>
+    <string name="noti_tether_left_title">Zurückgelassen?</string>
+    <string name="noti_tether_left_text">%1$s ist gerade aus der Bluetooth-Reichweite verschwunden.</string>
+    <string name="noti_tether_back_title">Wieder in Reichweite</string>
+    <string name="noti_tether_back_text">%1$s ist wieder in der Nähe.</string>
+    <string name="noti_phone_left_title">Handy zurückgelassen?</string>
+    <string name="noti_phone_left_text">Dein Handy ist aus der Reichweite deiner Uhr verschwunden.</string>
+    <string name="noti_phone_back_text">Dein Handy ist wieder in Reichweite.</string>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_phone_tether_title">Warnen, wenn ich mein Handy zurücklasse</string>
+    <string name="settings_phone_tether_desc">Diese Uhr vibrieren lassen, wenn dein gekoppeltes Handy die Bluetooth-Reichweite verlässt</string>
+    <string name="detail_tether">Zurücklassen-Warnung aus</string>
+    <string name="detail_tethered">Zurücklassen-Warnung an</string>
+    <string name="action_done">Fertig</string>
     <string name="floor_up_one">↑ %1$d Etage hoch</string>
     <string name="floor_up_many">↑ %1$d Etagen hoch</string>
     <string name="floor_down_one">↓ %1$d Etage runter</string>
     <string name="floor_down_many">↓ %1$d Etagen runter</string>
-    <string name="noti_alert_named">%1$s taucht immer wieder bei dir auf. Öffne blep, um es zu orten.</string>
 </resources>

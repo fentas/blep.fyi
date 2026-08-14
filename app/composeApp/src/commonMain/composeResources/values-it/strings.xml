@@ -200,6 +200,7 @@
     <string name="noti_ongoing_text">Ricerca di tracker nelle vicinanze</string>
     <string name="noti_alert_title">Un tracker potrebbe seguirti</string>
     <string name="noti_alert_text">Un tracker continua a comparire vicino a te. Apri blep per localizzarlo.</string>
+    <string name="noti_alert_named">%1$s continua a comparire vicino a te. Apri blep per localizzarlo.</string>
     <string name="noti_channel_alert">Avvisi tracker</string>
     <string name="noti_channel_ongoing">Scansione in background</string>
     <string name="a11y_details">Dettagli dispositivo</string>

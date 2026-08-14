@@ -3,6 +3,7 @@
 <resources>
     <string name="app_name">blep</string>
     <string name="status_connected">Connected</string>
+    <string name="nearby_count">%1$d nearby</string>
     <string name="cue_calibrate_title">Hold at your chest</string>
     <string name="cue_sweep_start_title">Now turn slowly</string>
     <string name="cue_sweep_warmer_title">Keep turning</string>
@@ -34,10 +35,6 @@
     <string name="noti_channel_alert">Tracker alerts</string>
     <string name="noti_alert_title">Possible tracker following you</string>
     <string name="noti_alert_text">A tracker keeps showing up near you. Open blep to locate it.</string>
-    <string name="floor_up_one">↑ %1$d floor up</string>
-    <string name="floor_up_many">↑ %1$d floors up</string>
-    <string name="floor_down_one">↓ %1$d floor down</string>
-    <string name="floor_down_many">↓ %1$d floors down</string>
     <string name="noti_alert_named">%1$s keeps showing up near you. Open blep to locate it.</string>
     <string name="noti_channel_tether">Left-behind alerts</string>
     <string name="noti_channel_tether_info">Back-in-range notices</string>
@@ -45,12 +42,17 @@
     <string name="noti_tether_left_text">%1$s just dropped out of Bluetooth range.</string>
     <string name="noti_tether_back_title">Back in range</string>
     <string name="noti_tether_back_text">%1$s is nearby again.</string>
-    <string name="tether_on">Leave alert on</string>
     <string name="noti_phone_left_title">Phone left behind?</string>
     <string name="noti_phone_left_text">Your phone dropped out of range of your watch.</string>
     <string name="noti_phone_back_text">Your phone is back in range.</string>
     <string name="settings_title">Settings</string>
     <string name="settings_phone_tether_title">Alert if I leave my phone</string>
-    <string name="settings_phone_tether_desc">Buzz when your phone leaves Bluetooth range</string>
+    <string name="settings_phone_tether_desc">Buzz this watch when your paired phone goes out of Bluetooth range</string>
+    <string name="detail_tether">Left-behind off</string>
+    <string name="detail_tethered">Left-behind on</string>
     <string name="action_done">Done</string>
+    <string name="floor_up_one">↑ %1$d floor up</string>
+    <string name="floor_up_many">↑ %1$d floors up</string>
+    <string name="floor_down_one">↓ %1$d floor down</string>
+    <string name="floor_down_many">↓ %1$d floors down</string>
 </resources>

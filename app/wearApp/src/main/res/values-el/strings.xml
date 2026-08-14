@@ -3,6 +3,7 @@
 <resources>
     <string name="app_name">blep</string>
     <string name="status_connected">Συνδεδεμένο</string>
+    <string name="nearby_count">%1$d κοντά</string>
     <string name="cue_calibrate_title">Κράτησε στο στήθος</string>
     <string name="cue_sweep_start_title">Τώρα γύρνα αργά</string>
     <string name="cue_sweep_warmer_title">Συνέχισε να γυρνάς</string>
@@ -34,9 +35,24 @@
     <string name="noti_channel_alert">Ειδοποιήσεις ιχνηλατών</string>
     <string name="noti_alert_title">Πιθανός ιχνηλάτης σε ακολουθεί</string>
     <string name="noti_alert_text">Ένας ιχνηλάτης συνεχίζει να εμφανίζεται κοντά σου. Άνοιξε το blep για να τον εντοπίσεις.</string>
+    <string name="noti_alert_named">%1$s εμφανίζεται συνέχεια κοντά σου. Άνοιξε το blep για να το εντοπίσεις.</string>
+    <string name="noti_channel_tether">Ειδοποιήσεις ξεχασμένου</string>
+    <string name="noti_channel_tether_info">Ειδοποιήσεις επιστροφής σε εμβέλεια</string>
+    <string name="noti_tether_left_title">Το ξέχασες;</string>
+    <string name="noti_tether_left_text">Το %1$s μόλις βγήκε εκτός εμβέλειας Bluetooth.</string>
+    <string name="noti_tether_back_title">Ξανά σε εμβέλεια</string>
+    <string name="noti_tether_back_text">Το %1$s είναι ξανά κοντά.</string>
+    <string name="noti_phone_left_title">Ξέχασες το τηλέφωνο;</string>
+    <string name="noti_phone_left_text">Το τηλέφωνό σου βγήκε εκτός εμβέλειας από το ρολόι σου.</string>
+    <string name="noti_phone_back_text">Το τηλέφωνό σου είναι ξανά σε εμβέλεια.</string>
+    <string name="settings_title">Ρυθμίσεις</string>
+    <string name="settings_phone_tether_title">Ειδοποίηση αν ξεχάσω το τηλέφωνό μου</string>
+    <string name="settings_phone_tether_desc">Δόνηση σε αυτό το ρολόι όταν το συζευγμένο τηλέφωνό σου βγει εκτός εμβέλειας Bluetooth</string>
+    <string name="detail_tether">Ειδοποίηση παράλειψης ανενεργή</string>
+    <string name="detail_tethered">Ειδοποίηση παράλειψης ενεργή</string>
+    <string name="action_done">Τέλος</string>
     <string name="floor_up_one">↑ %1$d όροφο πάνω</string>
     <string name="floor_up_many">↑ %1$d ορόφους πάνω</string>
     <string name="floor_down_one">↓ %1$d όροφο κάτω</string>
     <string name="floor_down_many">↓ %1$d ορόφους κάτω</string>
-    <string name="noti_alert_named">%1$s εμφανίζεται συνέχεια κοντά σου. Άνοιξε το blep για να το εντοπίσεις.</string>
 </resources>

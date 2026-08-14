@@ -3,6 +3,7 @@
 <resources>
     <string name="app_name">blep</string>
     <string name="status_connected">Połączono</string>
+    <string name="nearby_count">%1$d w pobliżu</string>
     <string name="cue_calibrate_title">Trzymaj przy piersi</string>
     <string name="cue_sweep_start_title">Teraz obracaj się powoli</string>
     <string name="cue_sweep_warmer_title">Obracaj dalej</string>
@@ -34,9 +35,24 @@
     <string name="noti_channel_alert">Alerty o lokalizatorach</string>
     <string name="noti_alert_title">Lokalizator może cię śledzić</string>
     <string name="noti_alert_text">Lokalizator wciąż pojawia się blisko ciebie. Otwórz blep, aby go namierzyć.</string>
+    <string name="noti_alert_named">%1$s wciąż pojawia się w pobliżu. Otwórz blep, aby je zlokalizować.</string>
+    <string name="noti_channel_tether">Alerty o pozostawieniu</string>
+    <string name="noti_channel_tether_info">Powiadomienia o powrocie w zasięg</string>
+    <string name="noti_tether_left_title">Pozostawione?</string>
+    <string name="noti_tether_left_text">%1$s właśnie wyszło poza zasięg Bluetooth.</string>
+    <string name="noti_tether_back_title">Znów w zasięgu</string>
+    <string name="noti_tether_back_text">%1$s znów jest w pobliżu.</string>
+    <string name="noti_phone_left_title">Telefon pozostawiony?</string>
+    <string name="noti_phone_left_text">Twój telefon wyszedł poza zasięg zegarka.</string>
+    <string name="noti_phone_back_text">Twój telefon znów jest w zasięgu.</string>
+    <string name="settings_title">Ustawienia</string>
+    <string name="settings_phone_tether_title">Ostrzeż, gdy zostawię telefon</string>
+    <string name="settings_phone_tether_desc">Zawibruj ten zegarek, gdy sparowany telefon wyjdzie poza zasięg Bluetooth</string>
+    <string name="detail_tether">Alert pozostawienia wyłączony</string>
+    <string name="detail_tethered">Alert pozostawienia włączony</string>
+    <string name="action_done">Gotowe</string>
     <string name="floor_up_one">↑ %1$d piętro w górę</string>
     <string name="floor_up_many">↑ %1$d pięter w górę</string>
     <string name="floor_down_one">↓ %1$d piętro w dół</string>
     <string name="floor_down_many">↓ %1$d pięter w dół</string>
-    <string name="noti_alert_named">%1$s wciąż pojawia się w pobliżu. Otwórz blep, aby je zlokalizować.</string>
 </resources>

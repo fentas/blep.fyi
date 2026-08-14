@@ -200,6 +200,7 @@
     <string name="noti_ongoing_text">Παρακολούθηση για ιχνηλάτες κοντά</string>
     <string name="noti_alert_title">Πιθανός ιχνηλάτης σε ακολουθεί</string>
     <string name="noti_alert_text">Ένας ιχνηλάτης συνεχίζει να εμφανίζεται κοντά σου. Άνοιξε το blep για να τον εντοπίσεις.</string>
+    <string name="noti_alert_named">%1$s εμφανίζεται συνέχεια κοντά σου. Άνοιξε το blep για να το εντοπίσεις.</string>
     <string name="noti_channel_alert">Ειδοποιήσεις ιχνηλατών</string>
     <string name="noti_channel_ongoing">Σάρωση στο παρασκήνιο</string>
     <string name="a11y_details">Λεπτομέρειες συσκευής</string>

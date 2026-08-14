@@ -3,6 +3,7 @@
 <resources>
     <string name="app_name">blep</string>
     <string name="status_connected">Connesso</string>
+    <string name="nearby_count">%1$d nelle vicinanze</string>
     <string name="cue_calibrate_title">Tieni al petto</string>
     <string name="cue_sweep_start_title">Ora gira lentamente</string>
     <string name="cue_sweep_warmer_title">Continua a girare</string>
@@ -34,9 +35,24 @@
     <string name="noti_channel_alert">Avvisi tracker</string>
     <string name="noti_alert_title">Un tracker potrebbe seguirti</string>
     <string name="noti_alert_text">Un tracker continua a comparire vicino a te. Apri blep per localizzarlo.</string>
+    <string name="noti_alert_named">%1$s continua a comparire vicino a te. Apri blep per localizzarlo.</string>
+    <string name="noti_channel_tether">Avvisi di dimenticanza</string>
+    <string name="noti_channel_tether_info">Avvisi di ritorno in portata</string>
+    <string name="noti_tether_left_title">Dimenticato?</string>
+    <string name="noti_tether_left_text">%1$s è appena uscito dalla portata del Bluetooth.</string>
+    <string name="noti_tether_back_title">Di nuovo in portata</string>
+    <string name="noti_tether_back_text">%1$s è di nuovo nelle vicinanze.</string>
+    <string name="noti_phone_left_title">Telefono dimenticato?</string>
+    <string name="noti_phone_left_text">Il tuo telefono è uscito dalla portata del tuo orologio.</string>
+    <string name="noti_phone_back_text">Il tuo telefono è di nuovo in portata.</string>
+    <string name="settings_title">Impostazioni</string>
+    <string name="settings_phone_tether_title">Avvisami se lascio il telefono</string>
+    <string name="settings_phone_tether_desc">Fai vibrare questo orologio quando il tuo telefono abbinato esce dalla portata del Bluetooth</string>
+    <string name="detail_tether">Avviso dimenticanza disattivato</string>
+    <string name="detail_tethered">Avviso dimenticanza attivato</string>
+    <string name="action_done">Fatto</string>
     <string name="floor_up_one">↑ %1$d piano su</string>
     <string name="floor_up_many">↑ %1$d piani su</string>
     <string name="floor_down_one">↓ %1$d piano giù</string>
     <string name="floor_down_many">↓ %1$d piani giù</string>
-    <string name="noti_alert_named">%1$s continua a comparire vicino a te. Apri blep per localizzarlo.</string>
 </resources>

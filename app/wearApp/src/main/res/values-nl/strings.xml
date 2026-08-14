@@ -3,6 +3,7 @@
 <resources>
     <string name="app_name">blep</string>
     <string name="status_connected">Verbonden</string>
+    <string name="nearby_count">%1$d in de buurt</string>
     <string name="cue_calibrate_title">Tegen je borst houden</string>
     <string name="cue_sweep_start_title">Draai nu langzaam</string>
     <string name="cue_sweep_warmer_title">Blijf draaien</string>
@@ -34,9 +35,24 @@
     <string name="noti_channel_alert">Trackerwaarschuwingen</string>
     <string name="noti_alert_title">Mogelijk volgt een tracker je</string>
     <string name="noti_alert_text">Een tracker blijft bij je in de buurt opduiken. Open blep om hem te zoeken.</string>
+    <string name="noti_alert_named">%1$s blijft in je buurt opduiken. Open blep om het te lokaliseren.</string>
+    <string name="noti_channel_tether">Achtergelaten-meldingen</string>
+    <string name="noti_channel_tether_info">Weer-in-bereik-berichten</string>
+    <string name="noti_tether_left_title">Achtergelaten?</string>
+    <string name="noti_tether_left_text">%1$s is net buiten Bluetooth-bereik geraakt.</string>
+    <string name="noti_tether_back_title">Weer in bereik</string>
+    <string name="noti_tether_back_text">%1$s is weer dichtbij.</string>
+    <string name="noti_phone_left_title">Telefoon achtergelaten?</string>
+    <string name="noti_phone_left_text">Je telefoon is buiten bereik van je horloge geraakt.</string>
+    <string name="noti_phone_back_text">Je telefoon is weer binnen bereik.</string>
+    <string name="settings_title">Instellingen</string>
+    <string name="settings_phone_tether_title">Waarschuw als ik mijn telefoon achterlaat</string>
+    <string name="settings_phone_tether_desc">Laat dit horloge trillen wanneer je gekoppelde telefoon buiten Bluetooth-bereik raakt</string>
+    <string name="detail_tether">Achtergelaten-melding uit</string>
+    <string name="detail_tethered">Achtergelaten-melding aan</string>
+    <string name="action_done">Klaar</string>
     <string name="floor_up_one">↑ %1$d verdieping omhoog</string>
     <string name="floor_up_many">↑ %1$d verdiepingen omhoog</string>
     <string name="floor_down_one">↓ %1$d verdieping omlaag</string>
     <string name="floor_down_many">↓ %1$d verdiepingen omlaag</string>
-    <string name="noti_alert_named">%1$s blijft in je buurt opduiken. Open blep om het te lokaliseren.</string>
 </resources>

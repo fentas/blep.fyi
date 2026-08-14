@@ -3,6 +3,7 @@
 <resources>
     <string name="app_name">blep</string>
     <string name="status_connected">Povezano</string>
+    <string name="nearby_count">%1$d v bližini</string>
     <string name="cue_calibrate_title">Drži ob prsih</string>
     <string name="cue_sweep_start_title">Zdaj se počasi obrni</string>
     <string name="cue_sweep_warmer_title">Obračaj naprej</string>
@@ -34,9 +35,24 @@
     <string name="noti_channel_alert">Opozorila o sledilnikih</string>
     <string name="noti_alert_title">Morda ti sledi sledilnik</string>
     <string name="noti_alert_text">Sledilnik se vedno znova pojavlja blizu tebe. Odpri blep, da ga poiščeš.</string>
+    <string name="noti_alert_named">%1$s se nenehno pojavlja blizu tebe. Odpri blep, da ga najdeš.</string>
+    <string name="noti_channel_tether">Opozorila o pozabljenem</string>
+    <string name="noti_channel_tether_info">Obvestila o vrnitvi v doseg</string>
+    <string name="noti_tether_left_title">Pozabljeno?</string>
+    <string name="noti_tether_left_text">%1$s je pravkar zapustila doseg Bluetootha.</string>
+    <string name="noti_tether_back_title">Spet v dosegu</string>
+    <string name="noti_tether_back_text">%1$s je spet v bližini.</string>
+    <string name="noti_phone_left_title">Pozabljen telefon?</string>
+    <string name="noti_phone_left_text">Tvoj telefon je zapustil doseg tvoje ure.</string>
+    <string name="noti_phone_back_text">Tvoj telefon je spet v dosegu.</string>
+    <string name="settings_title">Nastavitve</string>
+    <string name="settings_phone_tether_title">Opozori, če pustim telefon</string>
+    <string name="settings_phone_tether_desc">Zavibriraj to uro, ko tvoj seznanjeni telefon zapusti doseg Bluetootha</string>
+    <string name="detail_tether">Opozorilo o pozabljenem izklopljeno</string>
+    <string name="detail_tethered">Opozorilo o pozabljenem vklopljeno</string>
+    <string name="action_done">Končano</string>
     <string name="floor_up_one">↑ %1$d nadstropje gor</string>
     <string name="floor_up_many">↑ %1$d nadstropij gor</string>
     <string name="floor_down_one">↓ %1$d nadstropje dol</string>
     <string name="floor_down_many">↓ %1$d nadstropij dol</string>
-    <string name="noti_alert_named">%1$s se nenehno pojavlja blizu tebe. Odpri blep, da ga najdeš.</string>
 </resources>

@@ -201,6 +201,7 @@
     <string name="noti_ongoing_text">Achtet auf Tracker in der Nähe</string>
     <string name="noti_alert_title">Möglicher Tracker folgt dir</string>
     <string name="noti_alert_text">Ein Tracker taucht immer wieder in deiner Nähe auf. Öffne blep, um ihn zu orten.</string>
+    <string name="noti_alert_named">%1$s taucht immer wieder bei dir auf. Öffne blep, um es zu orten.</string>
     <string name="noti_channel_alert">Tracker-Warnungen</string>
     <string name="noti_channel_ongoing">Hintergrund-Scan</string>
     <string name="a11y_details">Gerätedetails</string>

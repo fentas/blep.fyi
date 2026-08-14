@@ -3,6 +3,7 @@
 <resources>
     <string name="app_name">blep</string>
     <string name="status_connected">Povezano</string>
+    <string name="nearby_count">%1$d u blizini</string>
     <string name="cue_calibrate_title">Drži uz prsa</string>
     <string name="cue_sweep_start_title">Sad se polako okreni</string>
     <string name="cue_sweep_warmer_title">Nastavi okretati</string>
@@ -34,9 +35,24 @@
     <string name="noti_channel_alert">Upozorenja o pratiteljima</string>
     <string name="noti_alert_title">Pratitelj te možda slijedi</string>
     <string name="noti_alert_text">Pratitelj se stalno pojavljuje blizu tebe. Otvori blep da ga pronađeš.</string>
+    <string name="noti_alert_named">%1$s se stalno pojavljuje blizu tebe. Otvori blep da ga pronađeš.</string>
+    <string name="noti_channel_tether">Upozorenja na zaboravljeno</string>
+    <string name="noti_channel_tether_info">Obavijesti o povratku u domet</string>
+    <string name="noti_tether_left_title">Zaboravljeno?</string>
+    <string name="noti_tether_left_text">%1$s je upravo izašao iz dometa Bluetootha.</string>
+    <string name="noti_tether_back_title">Ponovno u dometu</string>
+    <string name="noti_tether_back_text">%1$s je opet u blizini.</string>
+    <string name="noti_phone_left_title">Zaboravljen telefon?</string>
+    <string name="noti_phone_left_text">Tvoj je telefon izašao iz dometa tvog sata.</string>
+    <string name="noti_phone_back_text">Tvoj je telefon ponovno u dometu.</string>
+    <string name="settings_title">Postavke</string>
+    <string name="settings_phone_tether_title">Upozori ako ostavim telefon</string>
+    <string name="settings_phone_tether_desc">Zavibriraj ovaj sat kad tvoj upareni telefon izađe iz dometa Bluetootha</string>
+    <string name="detail_tether">Upozorenje na zaboravljanje isključeno</string>
+    <string name="detail_tethered">Upozorenje na zaboravljanje uključeno</string>
+    <string name="action_done">Gotovo</string>
     <string name="floor_up_one">↑ %1$d kat gore</string>
     <string name="floor_up_many">↑ %1$d kata gore</string>
     <string name="floor_down_one">↓ %1$d kat dolje</string>
     <string name="floor_down_many">↓ %1$d kata dolje</string>
-    <string name="noti_alert_named">%1$s se stalno pojavljuje blizu tebe. Otvori blep da ga pronađeš.</string>
 </resources>

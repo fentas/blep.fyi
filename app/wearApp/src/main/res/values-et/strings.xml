@@ -3,6 +3,7 @@
 <resources>
     <string name="app_name">blep</string>
     <string name="status_connected">Ühendatud</string>
+    <string name="nearby_count">%1$d lähedal</string>
     <string name="cue_calibrate_title">Hoia vastu rinda</string>
     <string name="cue_sweep_start_title">Nüüd pööra aeglaselt</string>
     <string name="cue_sweep_warmer_title">Jätka pööramist</string>
@@ -34,9 +35,24 @@
     <string name="noti_channel_alert">Jälgija hoiatused</string>
     <string name="noti_alert_title">Võimalik, et jälgija jälgib sind</string>
     <string name="noti_alert_text">Jälgija ilmub aina uuesti sinu lähedale. Ava blep, et see üles leida.</string>
+    <string name="noti_alert_named">%1$s ilmub pidevalt sinu lähedusse. Ava blep, et see üles leida.</string>
+    <string name="noti_channel_tether">Mahajäämishoiatused</string>
+    <string name="noti_channel_tether_info">Tagasi levialas teated</string>
+    <string name="noti_tether_left_title">Jäi maha?</string>
+    <string name="noti_tether_left_text">%1$s langes just Bluetoothi levialast välja.</string>
+    <string name="noti_tether_back_title">Taas levialas</string>
+    <string name="noti_tether_back_text">%1$s on jälle lähedal.</string>
+    <string name="noti_phone_left_title">Telefon jäi maha?</string>
+    <string name="noti_phone_left_text">Sinu telefon langes kella levialast välja.</string>
+    <string name="noti_phone_back_text">Sinu telefon on taas levialas.</string>
+    <string name="settings_title">Seaded</string>
+    <string name="settings_phone_tether_title">Hoiata, kui jätan oma telefoni maha</string>
+    <string name="settings_phone_tether_desc">Pane see kell värisema, kui sinu seotud telefon väljub Bluetoothi levialast</string>
+    <string name="detail_tether">Mahajätmise hoiatus väljas</string>
+    <string name="detail_tethered">Mahajätmise hoiatus sees</string>
+    <string name="action_done">Valmis</string>
     <string name="floor_up_one">↑ %1$d korrus üles</string>
     <string name="floor_up_many">↑ %1$d korrust üles</string>
     <string name="floor_down_one">↓ %1$d korrus alla</string>
     <string name="floor_down_many">↓ %1$d korrust alla</string>
-    <string name="noti_alert_named">%1$s ilmub pidevalt sinu lähedusse. Ava blep, et see üles leida.</string>
 </resources>

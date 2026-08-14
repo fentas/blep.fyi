@@ -13,7 +13,14 @@ SX="$ROOT/app/composeApp/src/commonMain/composeResources"
 WRES="$ROOT/app/wearApp/src/main/res"
 
 # The keys the watch UI renders (see WearApp.kt). app_name stays wear-local.
-KEYS="status_connected \
+#
+# KEEP THIS IN SYNC. Every string the watch resolves must be listed here: the
+# generator *overwrites* wearApp's res/, so a key the watch uses but this list omits
+# is silently deleted on the next run and the build breaks on R.string.<key>. (That
+# is exactly what happened to the settings/tether/notification keys below, which had
+# to be recovered by hand.) After adding a key here, run this script and build
+# :wearApp — do not hand-edit the generated files.
+KEYS="status_connected nearby_count \
 cue_calibrate_title cue_sweep_start_title cue_sweep_warmer_title cue_sweep_colder_title \
 cue_sweep_flat_title cue_walk_warmer_title cue_walk_colder_title cue_walk_flat_title \
 cue_walk_overshoot_title cue_walk_found_title cue_reorient_title cue_pinpoint_title \
@@ -22,7 +29,12 @@ line_facing_signal line_turn_to_signal line_ahead_warmer line_turn_warmer line_t
 turn_ahead turn_right turn_left line_distance_almost line_distance_m \
 distance_almost_on_it distance_away \
 tracking_right_here dbm \
-noti_channel_alert noti_alert_title noti_alert_text \
+noti_channel_alert noti_alert_title noti_alert_text noti_alert_named \
+noti_channel_tether noti_channel_tether_info \
+noti_tether_left_title noti_tether_left_text noti_tether_back_title noti_tether_back_text \
+noti_phone_left_title noti_phone_left_text noti_phone_back_text \
+settings_title settings_phone_tether_title settings_phone_tether_desc \
+detail_tether detail_tethered action_done \
 floor_up_one floor_up_many floor_down_one floor_down_many"
 
 gen() { # srcdir destdir

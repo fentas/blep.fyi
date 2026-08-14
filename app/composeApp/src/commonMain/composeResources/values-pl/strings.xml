@@ -200,6 +200,7 @@
     <string name="noti_ongoing_text">Szukam lokalizatorów w pobliżu</string>
     <string name="noti_alert_title">Lokalizator może cię śledzić</string>
     <string name="noti_alert_text">Lokalizator wciąż pojawia się blisko ciebie. Otwórz blep, aby go namierzyć.</string>
+    <string name="noti_alert_named">%1$s wciąż pojawia się w pobliżu. Otwórz blep, aby je zlokalizować.</string>
     <string name="noti_channel_alert">Alerty o lokalizatorach</string>
     <string name="noti_channel_ongoing">Skanowanie w tle</string>
     <string name="a11y_details">Szczegóły urządzenia</string>

@@ -200,6 +200,7 @@
     <string name="noti_ongoing_text">Pazim na pratitelje u blizini</string>
     <string name="noti_alert_title">Pratitelj te možda slijedi</string>
     <string name="noti_alert_text">Pratitelj se stalno pojavljuje blizu tebe. Otvori blep da ga pronađeš.</string>
+    <string name="noti_alert_named">%1$s se stalno pojavljuje blizu tebe. Otvori blep da ga pronađeš.</string>
     <string name="noti_channel_alert">Upozorenja o pratiteljima</string>
     <string name="noti_channel_ongoing">Skeniranje u pozadini</string>
     <string name="a11y_details">Pojedinosti uređaja</string>

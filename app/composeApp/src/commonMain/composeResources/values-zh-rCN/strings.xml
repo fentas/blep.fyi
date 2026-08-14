@@ -201,6 +201,7 @@
     <string name="noti_ongoing_text">正在监测附近的追踪器</string>
     <string name="noti_alert_title">可能有追踪器在跟踪你</string>
     <string name="noti_alert_text">有一个追踪器不断出现在你附近。打开 blep 来查找它。</string>
+    <string name="noti_alert_named">%1$s 一直出现在你附近。打开 blep 进行定位。</string>
     <string name="noti_channel_alert">追踪器警报</string>
     <string name="noti_channel_ongoing">后台扫描</string>
     <string name="a11y_details">设备详情</string>
