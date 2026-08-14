@@ -59,6 +59,13 @@
     <string name="detail_tethered">Aviso de olvido activado</string>
     <string name="action_done">Listo</string>
     <string name="discovery_empty_title">Buscando…</string>
+    <string name="detail_history">Historial</string>
+    <string name="detail_history_rotations">Historial (%1$d× rotaciones)</string>
+    <string name="detail_confidence">%1$s de certeza</string>
+    <string name="detail_no_rotation">Aún no se ha visto ningún cambio de id.</string>
+    <string name="detail_identity">Identidad</string>
+    <string name="detail_identify">Identificar este dispositivo</string>
+    <string name="detail_identifying">Identificando…</string>
     <string name="floor_up_one">↑ %1$d piso arriba</string>
     <string name="floor_up_many">↑ %1$d pisos arriba</string>
     <string name="floor_down_one">↓ %1$d piso abajo</string>

@@ -59,6 +59,13 @@
     <string name="detail_tethered">Alert pozostawienia włączony</string>
     <string name="action_done">Gotowe</string>
     <string name="discovery_empty_title">Szukam…</string>
+    <string name="detail_history">Historia</string>
+    <string name="detail_history_rotations">Historia (%1$d× rotacji)</string>
+    <string name="detail_confidence">%1$s pewności</string>
+    <string name="detail_no_rotation">Nie widziano jeszcze zmiany id.</string>
+    <string name="detail_identity">Tożsamość</string>
+    <string name="detail_identify">Zidentyfikuj to urządzenie</string>
+    <string name="detail_identifying">Identyfikowanie…</string>
     <string name="floor_up_one">↑ %1$d piętro w górę</string>
     <string name="floor_up_many">↑ %1$d pięter w górę</string>
     <string name="floor_down_one">↓ %1$d piętro w dół</string>

@@ -1,6 +1,7 @@
 package fyi.blep.wear
 
 import fyi.blep.core.ble.BleScanner
+import fyi.blep.core.ble.ProbeResult
 import fyi.blep.core.ble.ScanAvailability
 import fyi.blep.core.model.BleDevice
 import fyi.blep.core.spatial.MotionProvider
@@ -43,6 +44,16 @@ class DemoWearScanner : BleScanner {
             emit(scriptedRssi(t0.elapsedNow().inWholeMilliseconds / 1000.0))
             delay(300)
         }
+    }
+
+    /** A rich result so the detail page's device-info section has something to render.
+     *  The real probe is a GATT connect; here it just pauses long enough to feel like one. */
+    override suspend fun probe(deviceId: String): ProbeResult {
+        delay(800)
+        return ProbeResult(
+            connectable = true, name = "Pixel Buds Pro", manufacturer = "Google",
+            model = "GA03201", firmware = "4.0.1", hardware = "1.2", batteryPct = 82,
+        )
     }
 }
 

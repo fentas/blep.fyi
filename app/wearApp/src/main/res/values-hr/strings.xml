@@ -59,6 +59,13 @@
     <string name="detail_tethered">Upozorenje na zaboravljanje uključeno</string>
     <string name="action_done">Gotovo</string>
     <string name="discovery_empty_title">Tražim…</string>
+    <string name="detail_history">Povijest</string>
+    <string name="detail_history_rotations">Povijest (%1$d× rotacija)</string>
+    <string name="detail_confidence">%1$s sigurno</string>
+    <string name="detail_no_rotation">Još nema promjene id-a.</string>
+    <string name="detail_identity">Identitet</string>
+    <string name="detail_identify">Prepoznaj ovaj uređaj</string>
+    <string name="detail_identifying">Prepoznavanje…</string>
     <string name="floor_up_one">↑ %1$d kat gore</string>
     <string name="floor_up_many">↑ %1$d kata gore</string>
     <string name="floor_down_one">↓ %1$d kat dolje</string>

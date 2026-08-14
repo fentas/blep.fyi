@@ -59,6 +59,13 @@
     <string name="detail_tethered">Ειδοποίηση παράλειψης ενεργή</string>
     <string name="action_done">Τέλος</string>
     <string name="discovery_empty_title">Ψάχνω…</string>
+    <string name="detail_history">Ιστορικό</string>
+    <string name="detail_history_rotations">Ιστορικό (%1$d× περιστροφές)</string>
+    <string name="detail_confidence">%1$s βεβαιότητα</string>
+    <string name="detail_no_rotation">Καμία αλλαγή id ακόμη.</string>
+    <string name="detail_identity">Ταυτότητα</string>
+    <string name="detail_identify">Αναγνώριση αυτής της συσκευής</string>
+    <string name="detail_identifying">Γίνεται αναγνώριση…</string>
     <string name="floor_up_one">↑ %1$d όροφο πάνω</string>
     <string name="floor_up_many">↑ %1$d ορόφους πάνω</string>
     <string name="floor_down_one">↓ %1$d όροφο κάτω</string>

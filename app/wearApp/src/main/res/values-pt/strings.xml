@@ -59,6 +59,13 @@
     <string name="detail_tethered">Alerta de esquecimento ligado</string>
     <string name="action_done">Concluído</string>
     <string name="discovery_empty_title">A procurar…</string>
+    <string name="detail_history">Histórico</string>
+    <string name="detail_history_rotations">Histórico (%1$d× rotações)</string>
+    <string name="detail_confidence">%1$s de certeza</string>
+    <string name="detail_no_rotation">Ainda sem mudança de id.</string>
+    <string name="detail_identity">Identidade</string>
+    <string name="detail_identify">Identificar este dispositivo</string>
+    <string name="detail_identifying">A identificar…</string>
     <string name="floor_up_one">↑ %1$d andar acima</string>
     <string name="floor_up_many">↑ %1$d andares acima</string>
     <string name="floor_down_one">↓ %1$d andar abaixo</string>

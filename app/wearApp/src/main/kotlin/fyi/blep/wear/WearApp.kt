@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -74,6 +75,14 @@ import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
 import androidx.wear.compose.material.scrollAway
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import fyi.blep.core.ble.ProbeResult
+import fyi.blep.core.ble.RotationStats
 import fyi.blep.core.spatial.CueKind
 import fyi.blep.core.spatial.GuidanceLine
 import fyi.blep.core.spatial.SpatialSnapshot
@@ -172,14 +181,23 @@ fun WearApp(controller: WearController) = BlepWearTheme {
     val detail = detailId?.let { id -> controller.devices.firstOrNull { it.id == id } }
     when {
         showSettings -> WearSettings(onBack = { showSettings = false })
-        tracked == null && detail != null -> DeviceDetail(
-            device = detail,
-            tethered = controller.isTethered(detail.id),
-            onFind = { detailId = null; controller.track(detail) },
-            onToggleFavorite = { controller.toggleFavorite(detail) },
-            onToggleTether = { controller.toggleTether(detail) },
-            onBack = { detailId = null },
-        )
+        tracked == null && detail != null -> {
+            // Correlation only runs while the page is open — see watchRotation.
+            LaunchedEffect(detail.id) { controller.watchRotation(detail.id) }
+            DisposableEffect(detail.id) { onDispose { controller.stopWatchingRotation() } }
+            DeviceDetail(
+                device = detail,
+                tethered = controller.isTethered(detail.id),
+                rotation = controller.detailRotation,
+                probe = controller.detailProbe,
+                probing = controller.probing,
+                onIdentify = { controller.probeDevice(detail.id) },
+                onFind = { detailId = null; controller.track(detail) },
+                onToggleFavorite = { controller.toggleFavorite(detail) },
+                onToggleTether = { controller.toggleTether(detail) },
+                onBack = { detailId = null },
+            )
+        }
         tracked == null -> DiscoveryList(
             controller,
             onSettings = { showSettings = true },
@@ -347,16 +365,26 @@ private fun DiscoveryList(
 private fun DeviceDetail(
     device: fyi.blep.core.model.BleDevice,
     tethered: Boolean,
+    rotation: RotationStats?,
+    probe: ProbeResult?,
+    probing: Boolean,
+    onIdentify: () -> Unit,
     onFind: () -> Unit,
     onToggleFavorite: () -> Unit,
     onToggleTether: () -> Unit,
     onBack: () -> Unit,
 ) {
     val listState = rememberScalingLazyListState()
-    WearScreen(listState) {
+    // No PositionIndicator here: the signal arc already owns the bezel, and Wear draws
+    // the scroll arc in the same place — the two would sit on top of each other.
+    Scaffold(
+        vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
+        modifier = Modifier.background(MaterialTheme.colors.background),
+    ) {
         ScalingLazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background),
+            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 28.dp),
+            modifier = Modifier.fillMaxSize(),
         ) {
             item {
                 ListHeader {
@@ -422,6 +450,76 @@ private fun DeviceDetail(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                 )
             }
+            // History — only once the correlator has actually linked two addresses.
+            // "No id change seen yet" is the honest state for a device that simply
+            // hasn't rotated while you were looking at it.
+            if (rotation != null) {
+                item {
+                    SectionLabel(
+                        if (rotation.rotations > 0) {
+                            stringResource(R.string.detail_history_rotations, rotation.rotations)
+                        } else {
+                            stringResource(R.string.detail_history)
+                        },
+                    )
+                }
+                item {
+                    Text(
+                        if (rotation.rotations > 0) {
+                            stringResource(R.string.detail_confidence, "${(rotation.confidence * 100).roundToInt()}%")
+                        } else {
+                            stringResource(R.string.detail_no_rotation)
+                        },
+                        color = MaterialTheme.colors.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.caption2,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    )
+                }
+                // Worn ids, oldest first — the same lineage the phone lists.
+                items(rotation.history.takeLast(4)) { worn ->
+                    Text(
+                        worn.address,
+                        color = MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.caption3,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    )
+                }
+            }
+
+            // Device info — behind an explicit button, never automatic. A probe is a GATT
+            // connect, and spending the watch's radio on one the moment a page opens is
+            // not a cost the user asked for.
+            item { SectionLabel(stringResource(R.string.detail_identity)) }
+            if (probe?.connectable == true) {
+                probe.manufacturer?.let { item { InfoLine(stringResource(R.string.detail_identity), it) } }
+                probe.model?.let { item { InfoLine(stringResource(R.string.detail_identifier), it) } }
+                probe.firmware?.let { item { InfoLine("Firmware", it) } }
+                probe.batteryPct?.let { item { InfoLine("Battery", "$it%") } }
+            } else {
+                item {
+                    Chip(
+                        onClick = onIdentify,
+                        enabled = !probing,
+                        colors = ChipDefaults.secondaryChipColors(),
+                        label = {
+                            Text(
+                                if (probing) stringResource(R.string.detail_identifying)
+                                else stringResource(R.string.detail_identify),
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                    )
+                }
+            }
+
             // The reason you opened this page, so it gets the accent and sits last where
             // the thumb already is.
             item {
@@ -455,6 +553,64 @@ private fun DeviceDetail(
                 )
             }
         }
+        // Drawn last, so it sits above the list. The arc traces a circle while the rows
+        // are rectangles, so near the top and bottom of the screen a full-width row will
+        // always cross it — better that content slides under the gauge than that the
+        // gauge gets chopped into pieces by whatever happens to be scrolled past it.
+        SignalArc(rssi = device.rssi, modifier = Modifier.fillMaxSize())
+    }
+}
+
+// Signal arc range: empty at RSSI_FLOOR, closed at RSSI_CEIL. The ceiling is the
+// point where you're standing over the thing rather than near it, so the ring
+// completing means "you have arrived", not "the signal is unusually good".
+/** How far the foot/head controls bow to meet the bezel. */
+private val FOOT_BULGE = 10.dp
+private val HEAD_BULGE = 8.dp
+
+private const val ARC_RSSI_FLOOR = -100f
+private const val ARC_RSSI_CEIL = -30f
+// A 60° gap centred on the top, so the gauge has a visible start and finish.
+private const val ARC_START = -60f
+private const val ARC_SWEEP = 300f
+
+/**
+ * Signal strength as a ring around the bezel — the whole edge of the watch becomes the
+ * readout, which is legible at a glance in a way a dBm figure never is.
+ *
+ * Animated, because raw RSSI jitters several dB between adverts and an unsmoothed ring
+ * would flicker constantly; and coloured by the same warm/cold ramp as the hunt, so the
+ * arc and the signal bars in the list agree about what "close" looks like.
+ */
+@Composable
+private fun SignalArc(rssi: Int, modifier: Modifier = Modifier) {
+    val target = ((rssi - ARC_RSSI_FLOOR) / (ARC_RSSI_CEIL - ARC_RSSI_FLOOR)).coerceIn(0f, 1f)
+    val f by animateFloatAsState(target, tween(600), label = "signalArc")
+    val color = proximityColor(f)
+    Canvas(modifier) {
+        val stroke = 8.dp.toPx()
+        val inset = stroke / 2f + 1.dp.toPx()
+        val d = size.minDimension - inset * 2f
+        val topLeft = Offset((size.width - d) / 2f, (size.height - d) / 2f)
+        val arcSize = androidx.compose.ui.geometry.Size(d, d)
+        // The unfilled remainder still reads as a track, so the ring is always a whole
+        // shape rather than a fragment floating at the top of the screen. The gap at the
+        // top gives the arc two visible ends — a closed ring reads as decoration, an arc
+        // with a start and a finish reads as a gauge.
+        drawArc(
+            color = BlepWear.Surface,
+            startAngle = ARC_START, sweepAngle = ARC_SWEEP, useCenter = false,
+            topLeft = topLeft, size = arcSize,
+            style = Stroke(width = stroke, cap = StrokeCap.Round),
+        )
+        if (f > 0.001f) {
+            drawArc(
+                color = color,
+                startAngle = ARC_START, sweepAngle = ARC_SWEEP * f, useCenter = false,
+                topLeft = topLeft, size = arcSize,
+                style = Stroke(width = stroke, cap = StrokeCap.Round),
+            )
+        }
     }
 }
 
@@ -482,13 +638,19 @@ private fun FilterRow(
     onPick: (DeviceFilter) -> Unit,
 ) {
     // Outer edges rounded, inner edges square, hairline gaps: the three read as one
-    // control with a selected segment, not as three loose pills.
+    // control with a selected segment, not as three loose pills. The group is then
+    // clipped by a bezel-following shape so its top edge bows with the screen instead of
+    // cutting a flat line under the curve — the segments themselves stay square-topped
+    // and let that clip do the rounding.
     val end = 999.dp
     val join = 3.dp
     Row(
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth(0.92f).padding(vertical = 2.dp),
+        modifier = Modifier
+            .fillMaxWidth(0.92f)
+            .padding(vertical = 2.dp)
+            .clip(BezelPillShape(HEAD_BULGE, down = false)),
     ) {
         FilterSegment(
             selected = filter == DeviceFilter.ALL,
@@ -550,6 +712,95 @@ private fun FilterSegment(
         glyph(fg)
         Spacer(Modifier.size(4.dp))
         Text("$count", color = fg, style = MaterialTheme.typography.caption2)
+    }
+}
+
+/**
+ * A pill whose outer edge bows outward to follow the watch bezel, instead of cutting a
+ * flat line across a round screen. The bow is the last [bulge] of the height, so the
+ * composable must reserve that much extra — a shape cannot draw outside its own bounds.
+ *
+ * @param bulge how deep the bow is
+ * @param down true for a control at the foot of the screen (bows downward); false for
+ *   one at the head (bows upward)
+ */
+private class BezelPillShape(private val bulge: Dp, private val down: Boolean) : Shape {
+    override fun createOutline(
+        size: androidx.compose.ui.geometry.Size,
+        layoutDirection: androidx.compose.ui.unit.LayoutDirection,
+        density: Density,
+    ): Outline {
+        val b = with(density) { bulge.toPx() }
+        val w = size.width
+        val h = size.height
+        val flat = h - b                 // the straight-sided part
+        val r = (flat / 2f).coerceAtMost(w / 2f)
+        val path = Path()
+        if (down) {
+            path.moveTo(r, 0f)
+            path.lineTo(w - r, 0f)
+            path.quadraticTo(w, 0f, w, r)
+            path.lineTo(w, flat - r)
+            path.quadraticTo(w, flat, w - r, flat)
+            // A quadratic whose control sits 2×bulge out puts the curve's midpoint
+            // exactly on the bottom edge, so the bow uses the reserved space precisely.
+            path.quadraticTo(w / 2f, flat + 2f * b, r, flat)
+            path.quadraticTo(0f, flat, 0f, flat - r)
+            path.lineTo(0f, r)
+            path.quadraticTo(0f, 0f, r, 0f)
+        } else {
+            path.moveTo(r, h)
+            path.lineTo(w - r, h)
+            path.quadraticTo(w, h, w, h - r)
+            path.lineTo(w, b + r)
+            path.quadraticTo(w, b, w - r, b)
+            path.quadraticTo(w / 2f, b - 2f * b, r, b)
+            path.quadraticTo(0f, b, 0f, b + r)
+            path.lineTo(0f, h - r)
+            path.quadraticTo(0f, h, r, h)
+        }
+        path.close()
+        return Outline.Generic(path)
+    }
+}
+
+/** A quiet divider-by-typography, so the detail page reads as sections without spending
+ *  vertical space on rules the watch can't afford. */
+@Composable
+private fun SectionLabel(text: String) {
+    Text(
+        text.uppercase(),
+        color = MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.7f),
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.caption3,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 2.dp),
+    )
+}
+
+@Composable
+private fun InfoLine(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 1.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            label,
+            color = MaterialTheme.colors.onSurfaceVariant,
+            style = MaterialTheme.typography.caption3,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        Spacer(Modifier.size(6.dp))
+        Text(
+            value,
+            color = MaterialTheme.colors.onSurface,
+            style = MaterialTheme.typography.caption2,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
@@ -701,13 +952,16 @@ private fun FootButton(onClick: () -> Unit, label: String, glyph: @Composable (C
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
+            // Extra height reserves room for the bow; the glyph stays centred on the
+            // straight part, so it doesn't drift down with the curve.
             modifier = Modifier
-                .fillMaxWidth(0.58f)
-                .height(46.dp)
-                .clip(RoundedCornerShape(999.dp))
+                .fillMaxWidth(0.62f)
+                .height(46.dp + FOOT_BULGE)
+                .clip(BezelPillShape(FOOT_BULGE, down = true))
                 .background(MaterialTheme.colors.secondaryVariant)
                 .clickable(onClick = onClick)
-                .semantics { contentDescription = label },
+                .semantics { contentDescription = label }
+                .padding(bottom = FOOT_BULGE),
         ) { glyph(MaterialTheme.colors.onSurface) }
     }
 }

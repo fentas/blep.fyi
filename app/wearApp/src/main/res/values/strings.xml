@@ -59,6 +59,13 @@
     <string name="detail_tethered">Left-behind on</string>
     <string name="action_done">Done</string>
     <string name="discovery_empty_title">Looking around…</string>
+    <string name="detail_history">History</string>
+    <string name="detail_history_rotations">History (%1$d× rotations)</string>
+    <string name="detail_confidence">%1$s sure</string>
+    <string name="detail_no_rotation">No id change seen yet.</string>
+    <string name="detail_identity">Identity</string>
+    <string name="detail_identify">Identify this device</string>
+    <string name="detail_identifying">Identifying…</string>
     <string name="floor_up_one">↑ %1$d floor up</string>
     <string name="floor_up_many">↑ %1$d floors up</string>
     <string name="floor_down_one">↓ %1$d floor down</string>

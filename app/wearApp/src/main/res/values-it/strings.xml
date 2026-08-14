@@ -59,6 +59,13 @@
     <string name="detail_tethered">Avviso dimenticanza attivato</string>
     <string name="action_done">Fatto</string>
     <string name="discovery_empty_title">Sto cercando…</string>
+    <string name="detail_history">Cronologia</string>
+    <string name="detail_history_rotations">Cronologia (%1$d× rotazioni)</string>
+    <string name="detail_confidence">%1$s di certezza</string>
+    <string name="detail_no_rotation">Nessun cambio di id finora.</string>
+    <string name="detail_identity">Identità</string>
+    <string name="detail_identify">Identifica questo dispositivo</string>
+    <string name="detail_identifying">Identificazione…</string>
     <string name="floor_up_one">↑ %1$d piano su</string>
     <string name="floor_up_many">↑ %1$d piani su</string>
     <string name="floor_down_one">↓ %1$d piano giù</string>

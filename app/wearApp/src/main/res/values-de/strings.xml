@@ -59,6 +59,13 @@
     <string name="detail_tethered">Zurücklassen-Warnung an</string>
     <string name="action_done">Fertig</string>
     <string name="discovery_empty_title">Sehe mich um …</string>
+    <string name="detail_history">Verlauf</string>
+    <string name="detail_history_rotations">Verlauf (%1$d× Rotationen)</string>
+    <string name="detail_confidence">%1$s sicher</string>
+    <string name="detail_no_rotation">Noch kein ID-Wechsel beobachtet.</string>
+    <string name="detail_identity">Identität</string>
+    <string name="detail_identify">Dieses Gerät identifizieren</string>
+    <string name="detail_identifying">Wird identifiziert…</string>
     <string name="floor_up_one">↑ %1$d Etage hoch</string>
     <string name="floor_up_many">↑ %1$d Etagen hoch</string>
     <string name="floor_down_one">↓ %1$d Etage runter</string>

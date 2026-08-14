@@ -6,6 +6,11 @@ import androidx.compose.runtime.setValue
 import fyi.blep.core.ble.BleScanner
 import fyi.blep.core.ble.DeviceAliases
 import fyi.blep.core.ble.DeviceFavorites
+import fyi.blep.core.ble.ProbeResult
+import fyi.blep.core.ble.RotationStats
+import fyi.blep.core.ble.RotationTracker
+import fyi.blep.core.ble.WornId
+import fyi.blep.core.safety.payloadFingerprint
 import fyi.blep.core.model.BleDevice
 import fyi.blep.core.platform.createKeyValueStore
 import fyi.blep.core.sync.SyncManager
@@ -75,10 +80,28 @@ class WearController(
     var tetheredIds by mutableStateOf<Set<String>>(emptySet())
         private set
 
+    /** Rotation lineage for the device whose detail page is open, or null when it has
+     *  never been correlated. Only meaningful while [watchRotation] is running. */
+    var detailRotation by mutableStateOf<RotationStats?>(null)
+        private set
+    /** What a GATT probe learned about the open device (maker/model/firmware/battery),
+     *  or null until one is asked for. */
+    var detailProbe by mutableStateOf<ProbeResult?>(null)
+        private set
+    /** True while a probe is in flight, so the button can say so. */
+    var probing by mutableStateOf(false)
+        private set
+
     private val tether = DeviceTether(createKeyValueStore())
     // Synced from the phone so the watch shows your names + favourites too.
     private val aliasStore = DeviceAliases(createKeyValueStore())
     private val favStore = DeviceFavorites(createKeyValueStore())
+    // Correlates rotating addresses into one device, exactly as the phone does. Fed only
+    // while a detail page is open: it needs the continuous advertisement stream, and
+    // holding the radio open for that all the time is a battery cost the watch shouldn't
+    // pay just to keep a history nobody is looking at.
+    private val rotationTracker = RotationTracker()
+    private var rotationJob: Job? = null
     private var sync: SyncManager? = null
     private var lastRssiMark: TimeMark? = null
     private var trackStartMark: TimeMark? = null
@@ -142,6 +165,77 @@ class WearController(
         tether.replace(setOf("wallet"))
         tetheredIds = tether.ids()
         reoverlay()
+        // A correlated lineage takes minutes of real adverts to build (an id must go
+        // quiet and a successor appear), which a scripted screenshot run has no time for.
+        // Seeded directly, exactly as the phone seeds its detail page.
+        val m = 60_000L
+        demoRotation = RotationStats(
+            address = "C4:2A:1B:90:EF:01", rssi = -58, firstSeenMs = 0, lastSeenMs = 0,
+            rotations = 3, addressesSeen = 4, confidence = 0.92,
+            history = listOf(
+                WornId("C4:2A:1B:11:00:01", 0, 16 * m, 0.90),
+                WornId("C4:2A:1B:35:00:02", 0, 15 * m, 0.94),
+                WornId("C4:2A:1B:7E:00:03", 0, 14 * m, 0.91),
+                WornId("C4:2A:1B:90:EF:01", 0, 12 * m, 1.0, current = true),
+            ),
+        )
+    }
+
+    /** Demo only — stands in for a lineage the live correlator can't build in seconds. */
+    private var demoRotation: RotationStats? = null
+
+    /**
+     * Start correlating rotating addresses while a detail page is open, so it can show
+     * the same id history the phone does. Stops on [stopWatchingRotation]; the stream is
+     * not held open outside the page.
+     */
+    fun watchRotation(deviceId: String) {
+        rotationJob?.cancel()
+        detailRotation = demoRotation
+        detailProbe = null
+        rotationJob = scope.launch {
+            try {
+                scanner.advertisements().collect { adv ->
+                    rotationTracker.observe(adv.address, adv.rssi, adv.timeMs, payloadFingerprint(adv))
+                    // Follow the id forward: if it rotates while the page is open, the
+                    // page should track the device, not the address it arrived with.
+                    val live = rotationTracker.currentAddressFor(deviceId) ?: deviceId
+                    detailRotation = rotationTracker.statsFor(live) ?: demoRotation
+                }
+            } catch (c: CancellationException) {
+                throw c
+            } catch (_: Throwable) {
+                // No advert stream (permission, radio off) — the page just shows no history.
+            }
+        }
+    }
+
+    fun stopWatchingRotation() {
+        rotationJob?.cancel(); rotationJob = null
+        detailRotation = null
+        detailProbe = null
+        probing = false
+    }
+
+    /**
+     * One short GATT connect to learn a device's identity (maker/model/firmware/battery).
+     * Explicitly user-triggered, never automatic: a connect costs radio time and the
+     * phone gates the same probe behind a dwell threshold for that reason.
+     */
+    fun probeDevice(deviceId: String) {
+        if (probing) return
+        probing = true
+        scope.launch {
+            try {
+                detailProbe = scanner.probe(deviceId)
+            } catch (c: CancellationException) {
+                throw c
+            } catch (_: Throwable) {
+                detailProbe = ProbeResult(connectable = false)
+            } finally {
+                probing = false
+            }
+        }
     }
 
     /** Star/unstar a device. Favourites are shared with the phone over the Data Layer,

@@ -59,6 +59,13 @@
     <string name="detail_tethered">置き忘れアラート オン</string>
     <string name="action_done">完了</string>
     <string name="discovery_empty_title">探しています…</string>
+    <string name="detail_history">履歴</string>
+    <string name="detail_history_rotations">履歴（%1$d回ローテーション）</string>
+    <string name="detail_confidence">確度 %1$s</string>
+    <string name="detail_no_rotation">まだ id の変化は見られません。</string>
+    <string name="detail_identity">識別情報</string>
+    <string name="detail_identify">このデバイスを識別</string>
+    <string name="detail_identifying">識別中…</string>
     <string name="floor_up_one">↑ %1$d 階上</string>
     <string name="floor_up_many">↑ %1$d 階上</string>
     <string name="floor_down_one">↓ %1$d 階下</string>

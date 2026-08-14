@@ -59,6 +59,13 @@
     <string name="detail_tethered">Opozorilo o pozabljenem vklopljeno</string>
     <string name="action_done">Končano</string>
     <string name="discovery_empty_title">Iščem …</string>
+    <string name="detail_history">Zgodovina</string>
+    <string name="detail_history_rotations">Zgodovina (%1$d× rotacij)</string>
+    <string name="detail_confidence">%1$s gotovo</string>
+    <string name="detail_no_rotation">Sprememba id-ja še ni opažena.</string>
+    <string name="detail_identity">Identiteta</string>
+    <string name="detail_identify">Prepoznaj to napravo</string>
+    <string name="detail_identifying">Prepoznavanje…</string>
     <string name="floor_up_one">↑ %1$d nadstropje gor</string>
     <string name="floor_up_many">↑ %1$d nadstropij gor</string>
     <string name="floor_down_one">↓ %1$d nadstropje dol</string>

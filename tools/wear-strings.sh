@@ -37,6 +37,8 @@ settings_title settings_phone_tether_title settings_phone_tether_desc \
 settings_sync_favorites settings_tether_title wear_hold_to_hunt section_nearby \
 detail_signal detail_identifier detail_find \
 detail_tether detail_tethered action_done discovery_empty_title \
+detail_history detail_history_rotations detail_confidence detail_no_rotation \
+detail_identity detail_identify detail_identifying \
 floor_up_one floor_up_many floor_down_one floor_down_many"
 
 gen() { # srcdir destdir

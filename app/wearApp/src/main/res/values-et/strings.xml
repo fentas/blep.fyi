@@ -59,6 +59,13 @@
     <string name="detail_tethered">Mahajätmise hoiatus sees</string>
     <string name="action_done">Valmis</string>
     <string name="discovery_empty_title">Otsin…</string>
+    <string name="detail_history">Ajalugu</string>
+    <string name="detail_history_rotations">Ajalugu (%1$d× pööret)</string>
+    <string name="detail_confidence">%1$s kindel</string>
+    <string name="detail_no_rotation">Id muutust pole veel nähtud.</string>
+    <string name="detail_identity">Identiteet</string>
+    <string name="detail_identify">Tuvasta see seade</string>
+    <string name="detail_identifying">Tuvastamine…</string>
     <string name="floor_up_one">↑ %1$d korrus üles</string>
     <string name="floor_up_many">↑ %1$d korrust üles</string>
     <string name="floor_down_one">↓ %1$d korrus alla</string>

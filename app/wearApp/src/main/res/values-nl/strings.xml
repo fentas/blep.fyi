@@ -59,6 +59,13 @@
     <string name="detail_tethered">Achtergelaten-melding aan</string>
     <string name="action_done">Klaar</string>
     <string name="discovery_empty_title">Aan het zoeken…</string>
+    <string name="detail_history">Geschiedenis</string>
+    <string name="detail_history_rotations">Geschiedenis (%1$d× rotaties)</string>
+    <string name="detail_confidence">%1$s zeker</string>
+    <string name="detail_no_rotation">Nog geen id-wijziging gezien.</string>
+    <string name="detail_identity">Identiteit</string>
+    <string name="detail_identify">Dit apparaat identificeren</string>
+    <string name="detail_identifying">Identificeren…</string>
     <string name="floor_up_one">↑ %1$d verdieping omhoog</string>
     <string name="floor_up_many">↑ %1$d verdiepingen omhoog</string>
     <string name="floor_down_one">↓ %1$d verdieping omlaag</string>

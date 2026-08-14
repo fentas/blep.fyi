@@ -59,6 +59,13 @@
     <string name="detail_tethered">遗落提醒 开启</string>
     <string name="action_done">完成</string>
     <string name="discovery_empty_title">正在查找…</string>
+    <string name="detail_history">历史</string>
+    <string name="detail_history_rotations">历史（%1$d 次轮换）</string>
+    <string name="detail_confidence">%1$s 确定</string>
+    <string name="detail_no_rotation">尚未发现 id 更换。</string>
+    <string name="detail_identity">身份</string>
+    <string name="detail_identify">识别此设备</string>
+    <string name="detail_identifying">正在识别…</string>
     <string name="floor_up_one">↑ 上 %1$d 层</string>
     <string name="floor_up_many">↑ 上 %1$d 层</string>
     <string name="floor_down_one">↓ 下 %1$d 层</string>
